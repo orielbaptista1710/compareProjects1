@@ -1,0 +1,141 @@
+.compare-sidebar {
+    position: fixed;
+    top: 100px;
+    right: -370px; /* Initially hidden */
+    width: 370px;
+    height: 87vh;
+    background: #ffffff;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.15);
+    border-left: 3px solid #314158;
+    transition: right 0.4s ease-in-out;
+    border-radius: 10px 0 0 10px;
+    z-index: 1001;
+  }
+  
+  .compare-sidebar.open {
+    right: 0;
+  }
+  
+  .compare-sidebar.closed {
+    right: -350px;   /**/
+  }
+  
+  .toggle-btn {
+    position: absolute;
+  left: -45px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #314158;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 20px ;
+  transition: background 0.3s ease-in-out, transform 0.2s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+ 
+.toggle-btn:hover {
+    background: #2a2f35;;
+  
+}
+  
+  /* Sidebar Content */
+  .sidebar-content {
+    padding: 20px;
+    font-family: "Arial", sans-serif;
+  }
+  
+  .sidebar-content h3 {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
+    text-align: center;
+  }
+  
+  .sidebar-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidebar-content li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9f9f9;
+    margin-bottom: 8px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .sidebar-content li:hover {
+    background: #e9f3ff;
+  }
+
+  .sidebar-content li img {
+    width: 130px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  
+  .sidebar-content .remove-btn {
+    color: #e80808;
+    border: none;
+    cursor: pointer;
+    padding: 13px 8px;
+    background-color: transparent;
+  }
+
+  .property-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .property-info p {
+    flex-grow: 1; /* Allows title to take available space */
+    margin: 0;
+    /*padding-right: 10px;  Space between title and remove button */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+
+  .compare-now-btn {
+    display: block;
+  margin: 20px auto 0 auto; /* Centers the button */
+  padding: 10px 15px;
+  background-color: #e80808;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  }
+
+  .compare-now-btn span{
+    color: white;
+    z-index: 1001;
+  }
+  
+  .compare-now-btn:hover {
+    background-color: #ce0e0ed4; /* Darker shade for hover effect */
+  }
+  
+  
+  
+  /* No Properties Message */
+  .sidebar-content p {
+    font-size: 14px;
+    text-align: center;
+    color: #777;
+  }
+
+ 

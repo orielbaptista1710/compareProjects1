@@ -1,0 +1,261 @@
+/* General Property Card Styling */
+.property-card {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* transition: transform 0.3s ease, box-shadow 0.3s ease; */
+    background: #fff;
+    cursor: pointer;
+    max-width: 900px;
+    max-height: 300px;
+    margin: 7px;
+  }
+  
+  /* Image Container */
+  .card-image-container {
+    position: relative;
+    flex: 1.3;
+    min-width: 300px;
+    overflow: hidden;
+    border-right: 1px solid #eee;
+  }
+  
+  .card-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* transition: transform 0.3s ease-in-out; */
+  }
+  
+  .card-image-container img:hover{
+    transform: scale(1.05);
+  }
+  
+  
+  /* Property Details Section */
+  .property-details {
+    display: flex;
+    flex: 1.5; /* Reduced from 2 */
+    padding: 12px; /* Reduced padding */
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    min-height: 200px; /* Reduced height */
+    padding-bottom: 10px;
+  }
+  
+  .property-titlee {
+    font-size: 16px; /* Smaller text */
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 3px;
+  }
+  
+  .property-pricee {
+    font-size: 15px; /* Smaller text */
+    font-weight: bold;
+    color: #d90429;
+    margin-bottom: 8px;
+  }
+  
+  .property-agent {
+    font-size: 12px;
+    color: #6e7f90;
+    margin-top: 5px;
+    background-color: #6e7f901e;
+    padding: 2px 5px;
+  }
+  
+  /* Property Info Grid */
+  .property-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px 10px; /* Tighter spacing */
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 0; /* Less padding */
+  }
+  
+  /* edit from here */
+  .iinfo-item {
+    width: 45%; /* Reduced width */
+    font-size: 12px; /* Smaller text */
+    padding: 4px 6px; /* Reduced padding */
+    border-radius: 3px; /* Slightly smaller border radius */
+    background: #f9f9f9;
+    display: flex;
+    align-items: center;
+  }
+  
+  .custom-icon {
+    margin-right: 6px; /* Closer to text */
+    color: #ef233c;
+    font-size: 14px;
+  }
+  
+  .property-description p {
+    font-size: 12px;
+    color: #444;
+    max-height: 30px;
+    text-align: start;
+    /* overflow: hidden; */
+    opacity: 0.85;
+    transition: max-height 0.9s ease-in-out, opacity 0.7s ease-in-out;
+  }
+  
+  .property-description.expanded p{
+    max-height: 300px;
+    opacity: 1;
+  }
+  
+  .toggle-description {
+    font-size: 14px;
+    color: #444;
+    cursor: pointer;
+    border: none;
+    background: none;
+    transition: color 0.3s ease;
+  }
+  
+  /* Action Buttons */
+  .actions-btn {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+  }
+  
+  .compare-action-button, .contact-action-button {
+    padding: 8px 18px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+    border: none;
+  }
+  
+  .compare-action-button {
+    background-color: #ef233c;
+    color: white;
+  }
+  
+  .compare-action-button:hover {
+    background-color: #c3002f;
+  }
+  
+  .contact-action-button {
+    background-color: #ef233c;
+    color: white;
+  }
+  
+  .contact-action-button:hover {
+    background-color: #c3002f;
+  }
+  
+  /* Close Button */
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    color: grey;
+    background-color: white;
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .close-button:hover {
+    background-color: #f5f5f5;
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  /* compare page */
+  /* Compare Card Styling */
+  
+  .compare-card {
+    display: grid;
+    grid-template-columns: 150px 1fr 1fr 1fr 1fr 1fr 1fr 50px;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    background: white;
+    transition: background 0.3s;
+  }
+  
+  .compare-card:hover {
+    background: #f8f9fa;
+  }
+  
+  /* Image container in the compare table */
+  .compare-card .card-image-container {
+    width: 140px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 5px;
+  }
+  
+  .compare-card .card-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  /* Property details inside the comparison row */
+  .compare-card .property-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .compare-card .property-price {
+    font-size: 14px;
+    font-weight: bold;
+    color: #ef233c;
+  }
+  
+  .compare-card .info-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #555;
+  }
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .property-card {
+        flex-direction: column;
+        max-width: 100%;
+    }
+  
+    .property-card.compare-card {
+        width: 100%;
+    }
+  
+    .property-info {
+        grid-template-columns: 1fr;
+    }
+  
+    .actions-btn {
+        justify-content: center;
+    }
+  }
+  

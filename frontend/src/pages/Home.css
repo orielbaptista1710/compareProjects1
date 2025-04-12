@@ -1,0 +1,148 @@
+/* LANDING SECTION */
+.landing-section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+}
+
+/* OVERLAY */
+.overlay {
+  background: rgba(0, 0, 0, 0.5); /* Dark overlay for contrast */
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1; /* Ensures content is above the overlay */
+}
+
+/* CONTAINER */
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between; /* Spread content across the section */
+  width: 80%;
+  max-width: 1200px;
+  gap: 30px;
+  color: white;
+  z-index: 2; /* Content above the overlay */
+  position: relative;
+  padding: 40px 20px;
+}
+
+/* SEARCH BAR CONTAINER */
+.search-bar-container {
+  flex: 1;
+  max-width: 350px; /* Limits the width */
+  margin-right: 30px; /* Space between the search bar and content */
+}
+
+/* CONTENT SECTION */
+.content {
+  flex: 2;
+  text-align: left;
+  padding: 20px;
+}
+
+.content h1 {
+  font-size: 3rem; /* Larger heading size */
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.content p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  max-width: 600px;
+}
+
+.content button {
+  background-color: #ef233c;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.content button:hover {
+  background-color: #d90429;
+}
+
+/* FEATURE PROPERTIES */
+.container-feature {
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.section-title h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.section-title p {
+  font-size: 1rem;
+  color: #777;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .landing-section {
+    height: auto; /* Allow for content to grow */
+    padding-top: 50px; /* Account for header height */
+  }
+
+  .container {
+    flex-direction: column; /* Stack content on mobile */
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .search-bar-container {
+    max-width: 100%; /* Full width on smaller screens */
+    margin-right: 0;
+  }
+
+  .content h1 {
+    font-size: 2.2rem; /* Adjust heading size */
+    text-align: center;
+  }
+
+  .content p {
+    font-size: 1rem;
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .section-title h1 {
+    font-size: 2rem; /* Adjust section title size for mobile */
+  }
+
+  .section-title p {
+    font-size: 0.9rem; /* Smaller text for mobile */
+  }
+}
