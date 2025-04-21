@@ -17,23 +17,13 @@ router.get('/', async (req, res) => {
 });
 
 
-
-// router.post('/add', protect, async (req, res) => {
-//   try {
-//     const property = new Property({ ...req.body, userId: req.user._id });
-//     await property.save();
-//     res.status(201).json(property);
-//   } catch (err) {
-//     res.status(500).json({ message: 'Server error', error: err.message });
-//   }
-// });
-
 router.post('/add', protect, async (req, res) => {
   try {
+    console.log('Incoming request body:', req.body);
     const property = new Property({ 
       ...req.body, 
       userId: req.user._id,
-      status: 'pending' // Ensure status is set to pending
+      status: 'pending' 
     });
     await property.save();
     res.status(201).json({

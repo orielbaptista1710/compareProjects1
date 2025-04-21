@@ -16,7 +16,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 20px;
+    padding: 0px 20px;
     max-width: 1200px;
     margin: auto;
     position: relative;
@@ -68,7 +68,8 @@
     align-items: center;
     gap: 12px;
     margin-left: auto;
-  }
+    padding-bottom: 3px;
+}
   
   /* NAV LINK STYLES */
   .nav-link {

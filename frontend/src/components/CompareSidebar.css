@@ -100,9 +100,8 @@
   }
   
   .property-info p {
-    flex-grow: 1; /* Allows title to take available space */
+    flex-grow: 1; /*  take available space */
     margin: 0;
-    /*padding-right: 10px;  Space between title and remove button */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

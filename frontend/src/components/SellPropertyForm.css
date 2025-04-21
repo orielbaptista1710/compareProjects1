@@ -1,0 +1,256 @@
+.form-container {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+
+.form-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #2c3e50;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.location-details{
+  padding: 20px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.form-col {
+  padding: 3px;
+
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: #333;
+}
+
+
+.form-input{
+  padding: 0.6rem 0.9rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.form-input:focus,
+textarea:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+button[type="submit"],
+.cancel-button {
+  margin-top: 1rem;
+  padding: 0.7rem 1.4rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button[type="submit"] {
+  background-color: #e53935;
+  color: #fff;
+  font-weight: 600;
+}
+
+button[type="submit"]:hover {
+  background-color: #c62828;
+}
+
+.cancel-button {
+  background-color: #b0bec5;
+  color: #fff;
+  font-weight: 500;
+}
+
+.cancel-button:hover {
+  background-color: #90a4ae;
+}
+
+/* Property Type Styles */
+.property-type-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.8rem;
+}
+
+.property-type-card {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.3s ease;
+  color: #555;
+  background-color: #f9f9f9;
+}
+
+.property-type-card:hover {
+  border-color: #007bff;
+}
+
+.property-type-card.selected {
+  border-color: #007bff;
+  background-color: #e9f3ff;
+  color: #007bff;
+  font-weight: 600;
+}
+
+.property-type-card svg {
+  font-size: 26px;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.property-type-card.selected svg {
+  color: #1976d2;
+}
+
+/* Checkbox & Radio Styles */
+fieldset {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+legend {
+  padding: 0 12px;
+  font-weight: 600;
+  color: #444;
+  font-size: 1rem;
+}
+
+.radio-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.radio-label,.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-size: 0.95rem;
+  background-color: #fff;
+}
+
+.radio-label:hover {
+  border-color: #4a90e2;
+  background-color: #f5faff;
+}
+.checkbox-label:hover {
+  border-color: #4a90e2;
+  background-color: #f5faff;
+}
+
+.radio-label.selected {
+  border-color: #4a90e2;
+  background-color: #e3f2fd;
+}
+.checkbox-label.selected {
+  border-color: #4a90e2;
+  background-color: #e3f2fd;
+}
+
+.radio-label,.checkbox-label input {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Tag Input Styling */
+.tag-input-wrapper {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  background: white;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 0;
+  margin: 0 0 8px 0;
+  list-style: none;
+}
+
+.tag {
+  background: #e0e0e0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tag-close {
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+}
+
+.tag-close:hover {
+  color: #333;
+}
+
+.tag-input {
+  width: 98%;
+  border: none;
+  outline: none;
+  padding: 8px;
+  font-size: 14px;
+}

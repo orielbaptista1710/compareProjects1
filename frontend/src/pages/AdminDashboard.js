@@ -18,7 +18,14 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  // Fetch data based on active tab
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      navigate('/login');
+    }
+  };
+
   useEffect(() => {
     if (!token) {
       navigate('/login');
@@ -116,7 +123,12 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard">
-      <h1>Admin Dashboard</h1>
+      <div className="admin-header">
+  <h1>Admin Dashboard</h1>
+  <button onClick={handleLogout} className="logout-button">
+    Logout
+  </button>
+</div>
       
       {error && <div className="error-message">{error}</div>}
 

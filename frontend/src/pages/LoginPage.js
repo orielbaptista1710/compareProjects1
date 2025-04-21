@@ -87,7 +87,7 @@ const LoginPage = () => {
         <img className='logo-img' src={logoo} alt="Logo" />
       </h1>
 
-      <form onSubmit={handleSubmit}>
+      <form className="login-form-wrapper" onSubmit={handleSubmit}>
         <div className="login-form-group">
           <label className="login-label">Username</label>
           <input
@@ -128,7 +128,7 @@ const LoginPage = () => {
 
         <button 
           className="login-button" 
-          type="submit"
+          onClick={handleSubmit}
           disabled={loading}
         >
           {loading ? 'Logging in...' : 'LOGIN'}

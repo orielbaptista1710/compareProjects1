@@ -9,6 +9,8 @@ import HeroSection from '../components/HeroSection';
 import WhatsAppSidebar from '../components/WhatsAppSidebar';
 import NavigationBar from '../components/NavigationBar';
 // import PropertyCarousel from '../components/PropertyCarousel';
+import CaroForHome from '../components/CaroForHome';
+
 function Home() {
 
   const navigate = useNavigate();
@@ -77,8 +79,6 @@ function Home() {
       <section>
         <HeroSection />
       </section>
-
-      
 
       {/* Gallery Section */}
       <section>

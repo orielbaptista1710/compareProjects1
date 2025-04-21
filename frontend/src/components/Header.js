@@ -15,6 +15,7 @@ function Header() {
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
+        console.log("User from localStorage:", parsedUser);
         if (parsedUser && typeof parsedUser === 'object') {
           setUser(parsedUser);
         } else {
@@ -68,13 +69,6 @@ function Header() {
                 <span className="popup-text">Developers</span>
               </Link>
             </li>
-
-            {/* Show Admin Link if user is admin */}
-            {user && user.role === 'admin' && (
-              <li>
-                <Link to="/admin" className="nav-link">Admin</Link>
-              </li>
-            )}
           </div>
         </ul>
       </nav>

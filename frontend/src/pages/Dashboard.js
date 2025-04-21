@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import './Dashboard.css';
+import SellPropertyForm from '../components/SellPropertyForm';
+import { FaLandmark } from 'react-icons/fa';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -12,10 +15,43 @@ const Dashboard = () => {
   const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
+    // Contact Information
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+  
+    // Property Information
     title: '',
+    description: '',
+    long_description: '',
+  
+    // Location Details
     location: '',
-    description: ''
+    state: '',
+    city: '',
+    locality: '',
+    address: '',
+    pincode: '',
+    landmarks: [],
+
+    price: '',
+
+    //property details
+    propertyType: '',
+    furnishing: '',
+    possessionStatus: '',
+
+    bhk: '',
+    bathrooms: '',
+    balconies: '',
+    facing: '',
+    parkings: [],
+    // totalFloors: '',
+    
   });
+
+
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [editingId, setEditingId] = useState(null);
@@ -24,17 +60,29 @@ const Dashboard = () => {
   const { data: user } = useQuery({
     queryKey: ['current-user'],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE_URL}/api/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      return res.data.user;
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/auth/me`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        return res.data.user;
+      } catch (error) {
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
+        throw error;
+      }
     },
     enabled: !!token,
-    staleTime: 60 * 60 * 1000 // Cache for 1 hour
+    staleTime: 60 * 60 * 1000
   });
 
   // Redirect unauthenticated user
   useEffect(() => {
+    console.log('Current token:', token);
     if (!token) navigate('/login');
   }, [token, navigate]);
 
@@ -55,7 +103,7 @@ const Dashboard = () => {
     navigate('/login');
   }, [navigate, queryClient]);
 
-  // Fetch properties using React Query
+  // Fetch properties
   const {
     data: properties = [],
     isLoading,
@@ -64,19 +112,33 @@ const Dashboard = () => {
   } = useQuery({
     queryKey: ['my-properties'],
     queryFn: async () => {
-      const res = await axios.get(`${API_BASE_URL}/api/properties/my-properties`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!Array.isArray(res.data)) {
-        throw new Error('Invalid response format');
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/properties/my-properties`, {
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        if (!Array.isArray(res.data)) {
+          throw new Error('Invalid response format');
+        }
+        return res.data;
+      } catch (error) {
+        if (error.response?.status === 401) {
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
+        throw error;
       }
-      return res.data;
     },
     enabled: !!token,
     onError: (err) => {
       const status = err?.response?.status;
       setError(err?.response?.data?.message || 'Failed to fetch properties');
-      if (status === 401 || status === 403) handleLogout();
+      if (status === 401) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
     }
   });
 
@@ -86,17 +148,25 @@ const Dashboard = () => {
       axios.post(`${API_BASE_URL}/api/properties/add`, newProperty, {
         headers: { Authorization: `Bearer ${token}` }
       }),
+
     onSuccess: () => {
-      setFormData({ title: '', location: '', description: '' });
+      setFormData({ title: '', location: '', description: '', long_description: '', location: '', city: '', locality: '',
+                    address: '', pincode: ''}); // what does this do i forgot
       setSuccess('Property added successfully');
       setEditingId(null);
       refetch();
     },
     onError: (err) => {
+      console.error('Full error:', err);
+      console.error('Response data:', err.response?.data);
       const status = err?.response?.status;
-      setError(err?.response?.data?.message || 'Failed to add property');
+      const message = err.response?.data?.message || 
+                     err.response?.data?.error || 
+                     'Failed to add property';
+      setError(message);
       if (status === 401 || status === 403) handleLogout();
     }
+
   });
 
   // Update property mutation
@@ -118,7 +188,8 @@ const Dashboard = () => {
     }
   });
 
-  const {mutate:deleteProperty} = useMutation({
+  // Delete property mutation
+  const { mutate: deleteProperty } = useMutation({
     mutationFn: (propertyId) =>
       axios.delete(`${API_BASE_URL}/api/properties/delete/${propertyId}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -138,19 +209,27 @@ const Dashboard = () => {
     if (window.confirm('Are you sure you want to delete this property?')) {
       deleteProperty(propertyId);
     }
-  }
+  };
 
   const handleChange = (e) => {
+    console.log('Field changed:', e.target.name, 'New value:', e.target.value);
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.title || !formData.location) {
-      setError('Title and location are required');
-      return;
-    }
+  const handleSubmit = (formData) => {
+  const requiredFields = [
+    'title', 'description', 
+    'city', 'locality', 'address', 'pincode',
+    'propertyType', 'furnishing', 'possessionStatus', 'price',
+  ];
+  
+  const missingFields = requiredFields.filter(field => !formData[field]);
+  
+  if (missingFields.length > 0) {
+    setError(`Please fill in all required fields: ${missingFields.join(', ')}`);
+    return;
+  }
     
     if (editingId) {
       updateProperty(formData);
@@ -159,29 +238,72 @@ const Dashboard = () => {
     }
   };
 
-  // Start editing a property
   const handleEdit = (property) => {
     setEditingId(property._id);
     setFormData({
-      title: property.title,
-      location: property.location,
-      description: property.description || ''
+      firstName: property.firstName || '',
+      lastName: property.lastName || '',
+      email: property.email || '',
+      phone: property.phone || '',
+      title: property.title || '',
+      description: property.description || '',
+      long_description: property.long_description || '',
+      location: property.location || '',
+      state: property.state || '',
+      city: property.city || '',
+      locality: property.locality || '',
+      address: property.address || '',
+      pincode: property.pincode || '',
+      propertyType: property.propertyType || '',
+      furnishing: property.furnishing || [],
+      possessionStatus: property.possessionStatus || [],
+      bhk: property.bhk || '',
+      bathrooms:property.bathrooms || '',
+      balconies:property.balconies || '',
+      facing:property.facing || '',
+      parkings:property.parkings || '',
+      landmarks:property.landmarks || [],
+      price: property.price || '',
+      // landmarks: Array.isArray(property.landmarks) ? property.landmarks : [],
+  
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Cancel editing
   const handleCancelEdit = () => {
-    setEditingId(null);
-    setFormData({ title: '', location: '', description: '' });
-  };
+  setEditingId(null);
+  setFormData({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    title: '',
+    description: '',
+    long_description: '',
+    location: '',
+    state: '',
+    city: '',
+    locality: '',
+    address: '',
+    pincode: '',
+    landmarks: [],
+    propertyType: '',
+    furnishing: '',
+    possessionStatus: '',
+    bhk: '',
+    bathrooms: '',
+    balconies: '',
+    facing: '',
+    parkings: [],
+    price: '',
+    
+  });
+};
 
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h2 className="dashboard-title">
-          {editingId ? 'Edit Property' : 'Add Property'}
-        </h2>
+        <h2 className="dashboard-title">Property Dashboard</h2>
         <div className="user-info">
           <span className="welcome-message">
             Welcome, {user?.displayName || 'User'}
@@ -192,54 +314,19 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {error && <div className="alert error">{error}</div>}
-      {success && <div className="alert success">{success}</div>}
+      <SellPropertyForm
+        formData={formData}
+        setFormData={setFormData}
+        editingId={editingId}
+        isAdding={isAdding}
+        isUpdating={isUpdating}
+        error={error}
+        success={success}
+        handleChange={handleChange}
+        onSubmit={handleSubmit}
+        handleCancelEdit={handleCancelEdit}
 
-      <form className="form-group" onSubmit={handleSubmit}>
-        <input
-          className="form-input"
-          name="title"
-          placeholder="Title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
-        <input
-          className="form-input"
-          name="location"
-          placeholder="Location"
-          value={formData.location}
-          onChange={handleChange}
-          required
-        />
-        <input
-          className="form-input"
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-        />
-        <div className="form-buttons">
-          <button 
-            className="submit-button" 
-            type="submit" 
-            disabled={isAdding || isUpdating}
-          >
-            {isAdding || isUpdating 
-              ? (isAdding ? 'Submitting...' : 'Updating...') 
-              : (editingId ? 'Update Property' : 'Add Property')}
-          </button>
-          {editingId && (
-            <button 
-              type="button" 
-              className="cancel-button"
-              onClick={handleCancelEdit}
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-      </form>
+      />
 
       <h2 className="properties-title">My Properties</h2>
 
@@ -249,39 +336,118 @@ const Dashboard = () => {
         <div className="error">Error loading properties</div>
       ) : properties.length > 0 ? (
         <div className="properties-grid">
-          {properties.map((p) => (
-            <div className="property-card" key={p._id}>
-              <h4 className="property-title">{p.title}</h4>
-              <p className="property-location">{p.location}</p>
-              <p className="property-description">{p.description}</p>
+  {properties.map((p) => (
+    <div className="property-card" key={p._id}>
+      <div className="property-header">
+        <h4 className="property-title">{p.title}</h4>
+        <div className="property-status" style={{
+          color: p.status === 'approved' ? 'green' : 
+                 p.status === 'rejected' ? 'red' : 'orange'
+        }}>
+          {p.status}
+        </div>
+      </div>
 
-              <div className="property-status" style={{
-        color: p.status === 'approved' ? 'green' : 
-               p.status === 'rejected' ? 'red' : 'orange'
-      }}>
-        Status: {p.status}
-        {p.status === 'rejected' && p.rejectionReason && (
-          <div>Reason: {p.rejectionReason}</div>
+      <div className="property-details">
+        <div className="detail-row">
+          <span className="detail-label">Location:</span>
+          <span>{p.state},{p.locality}, {p.city}</span>
+        </div>
+        <div className="detail-row">
+          <span className="detail-label">Address:</span>
+          <span>{p.address},{p.pincode}</span>
+        </div>
+        <div className='detail-row'>
+          <span className="detail-label">Landmarks:</span>
+          <span>
+            {p.landmarks && p.landmarks.length > 0 
+              ? p.landmarks.join(', ') 
+              : 'None listed'}
+          </span>
+        </div>
+
+        <div className="detail-row">
+          <span className="detail-label">Property Type:</span>
+          <span>{p.propertyType}</span>
+        </div>
+        <div className='detail-row'>
+          <span className="detail-label">Furnishing:</span>
+          <span>{p.furnishing}</span>
+        </div>
+        <div className='detail-row'>
+          <span className="detail-label">Possession Status:</span>
+          <span>{p.possessionStatus}</span>
+        </div>
+
+        <div className='detail-row'>
+          <span className="detail-label">BHK/Bathrooms/Balconies:</span>
+          <span>{p.bhk}/{p.bathrooms}/{p.balconies}</span>
+        </div>
+        <div className='detail-row'>
+          <span className="detail-label">Facing:</span>
+          <span>{p.facing}</span>
+        </div>
+
+        <div className='detail-row'>
+          <span className="detail-label">Parking:</span>
+          <span>{p.parkings}</span>
+        </div>
+
+        <div className="detail-row">
+          <span className="detail-label">Contact:</span>
+          <span>{p.firstName} {p.lastName}</span>
+        </div>
+        <div className="detail-row">
+          <span className="detail-label">Price:</span>
+          <span>{p.price}</span>
+        </div>
+
+        {/* <div className="detail-row">
+          <span className="detail-label">Phone:</span>
+          <span>{p.phone}</span>
+        </div>
+        <div className="detail-row">
+          <span className="detail-label">Email:</span>
+          <span>{p.email}</span>
+        </div> */}
+
+      </div>
+
+      <div className="property-description">
+        <h5>Description:</h5>
+        <p>{p.description}</p>
+        {p.long_description && (
+          <>
+            <h5>Details:</h5>
+            <p>{p.long_description}</p>
+          </>
         )}
       </div>
 
-              <div className="property-actions">
-                <button 
-                  className="edit-button"
-                  onClick={() => handleEdit(p)}
-                >
-                  Edit
-                </button>
-                <button 
-                  className="delete-button"
-                  onClick={() => handleDelete(p._id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+      {p.status === 'rejected' && p.rejectionReason && (
+        <div className="property-rejection">
+          <h5>Rejection Reason:</h5>
+          <p>{p.rejectionReason}</p>
         </div>
+      )}
+
+      <div className="property-actions">
+        <button 
+          className="edit-button"
+          onClick={() => handleEdit(p)}
+        >
+          Edit
+        </button>
+        <button 
+          className="delete-button"
+          onClick={() => handleDelete(p._id)}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
       ) : (
         <div className="empty-state">No properties found</div>
       )}

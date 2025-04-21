@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './CompareSidebar.css';
 
 const CompareSidebar = ({ compareList, removeFromCompare }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const navigate = useNavigate(); // Initialize useNavigate
 
   const handleCompareNow = () => {

@@ -1,14 +1,14 @@
 /* Main Navigation Bar Container */
 .navigation-bar {
-    position: sticky;
-    top: 90px; /* Matches header height - adjust if your header is different */
-    width: 100%;
-    background: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    z-index: 900; /* Below header but above content */
-    border-bottom: 1px solid #eaeaea;
-    height: 50px;
-  }
+  position: sticky;
+  top: 45px;
+  width: 100%;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  z-index: 900;
+  border-bottom: 1px solid #eaeaea;
+  height: 70px;
+}
   
   /* Tab Container */
   .tab-container {
