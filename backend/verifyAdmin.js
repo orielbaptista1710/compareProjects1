@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const User = require('../models/User'); // Adjust path as needed
+const User = require('../models/User'); 
 
 async function verifyAdmin() {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/comparedb', {
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://comparePropjectAdmin:3MuwjCfavWYfbY33@compareprojectcluster0.1lha77m.mongodb.net/', {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
