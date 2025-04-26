@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaHome, FaBuilding, FaWarehouse, FaStore, FaMap } from "react-icons/fa";
 import './SellPropertyForm.css';
 import locationData from '../database/locationData';
-import { Form, Input, Button, Select, InputNumber } from 'antd'; // if using Ant Design
-
+import { Form, Input, Button, Select, InputNumber } from 'antd';
 
 const SellPropertyForm = ({
   formData,
@@ -17,10 +16,9 @@ const SellPropertyForm = ({
   onSubmit,
   handleCancelEdit
 }) => {
-
   const [form] = Form.useForm();
 
-    // Property type options
+  // Property type options
   const propertyTypes = [
     { label: "Residential", icon: <FaHome /> },
     { label: "Industrial", icon: <FaWarehouse /> },
@@ -48,23 +46,19 @@ const SellPropertyForm = ({
   const balconyOptions = ["0", "1", "2", "3", "4+"];
   const facingOptions = ["East", "West", "North", "South", "North-East", "North-West", "South-East", "South-West"];
   const parkingOptions = ["Available", "Not Available", "2 Wheeler", "4 Wheeler", "2 Parking Slots", "No Parking",
-                          "Disabled", "Basement Parking","Disabled Access Parking", "Visitor Parking",];
+                          "Disabled", "Basement Parking","Disabled Access Parking", "Visitor Parking"];
 
-
-  // State for checkboxes and property type
-  const [selectedFurnishing, setSelectedFurnishing] = useState(formData.furnishing?.[0] || ''); 
-  const [selectedPossession, setSelectedPossession] = useState(formData.possessionStatus?.[0] || '');
-  const [selectedPropertyType, setSelectedPropertyType] = useState(formData.propertyType || '');
-
-  const [selectedState, setSelectedState] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-
+  // State variables
+  const [selectedState, setSelectedState] = useState(formData.state || '');
+  const [selectedCity, setSelectedCity] = useState(formData.city || '');
   const [landmarkInput, setLandmarkInput] = useState('');
-  const [landmarks, setLandmarks] = useState(formData.landmarks || []);
+  const [landmarks, setLandmarks] = useState(Array.isArray(formData.landmarks) ? formData.landmarks : []);
 
+  // Sync state with formData changes (important for editing)
   useEffect(() => {
-    if (formData.state) setSelectedState(formData.state);
-    if (formData.city) setSelectedCity(formData.city);
+    setSelectedState(formData.state || '');
+    setSelectedCity(formData.city || '');
+    setLandmarks(Array.isArray(formData.landmarks) ? formData.landmarks : []);
   }, [formData]);
 
   const handleStateChange = (e) => {
@@ -95,8 +89,8 @@ const SellPropertyForm = ({
       if (newTag && !landmarks.includes(newTag)) {
         const updatedLandmarks = [...landmarks, newTag];
         setLandmarks(updatedLandmarks);
+        setFormData(prev => ({ ...prev, landmarks: updatedLandmarks }));
         setLandmarkInput('');
-        setFormData({ ...formData, landmarks: updatedLandmarks });
       }
     }
   };
@@ -105,11 +99,9 @@ const SellPropertyForm = ({
     const updatedLandmarks = [...landmarks];
     updatedLandmarks.splice(index, 1);
     setLandmarks(updatedLandmarks);
-    setFormData({ ...formData, landmarks: updatedLandmarks });
+    setFormData(prev => ({ ...prev, landmarks: updatedLandmarks }));
   };
-  
 
-  // Handle checkbox changes
   const handleCheckboxChange = (name, value) => {
     setFormData(prev => ({
       ...prev,
@@ -117,13 +109,22 @@ const SellPropertyForm = ({
         ? (prev[name].includes(value)
           ? prev[name].filter(item => item !== value)
           : [...prev[name], value])
-        : [value] // Initialize as array if undefined
+        : [value]
     }));
   };
 
   const handleRadioChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit({
+      ...formData,
+      landmarks: landmarks,
+      parkings: Array.isArray(formData.parkings) ? formData.parkings : [formData.parkings].filter(Boolean)
+    });
   };
 
   return (
@@ -135,18 +136,7 @@ const SellPropertyForm = ({
       {error && <div className="alert error">{error}</div>}
       {success && <div className="alert success">{success}</div>}
 
-      <form className="form-group" onSubmit={(e) => {
-  e.preventDefault();
-  onSubmit({
-    ...formData,
-    propertyType: selectedPropertyType,
-    furnishing:formData.furnishing || '',
-    possessionStatus:formData.possessionStatus || '',
-    parkings: Array.isArray(formData.parkings) ? formData.parkings : [formData.parkings].filter(Boolean),
-    landmarks: landmarks,
-  });
-}}>
-
+      <form className="form-group" onSubmit={handleSubmit}>
         <h3 className="section-title">Contact Information</h3>
         <div className="form-row">
           <div className="form-col">
@@ -160,44 +150,7 @@ const SellPropertyForm = ({
               required
             />
           </div>
-          {/* <div className="form-col">
-            <label>Last Name*</label>
-            <input
-              className="form-input"
-              name="lastName"
-              placeholder="Your last name"
-              value={formData.lastName || ''}
-              onChange={handleChange}
-              required
-            />
-          </div> */}
         </div>
-        {/* <div className="form-row">
-          <div className="form-col">
-            <label>Email</label>
-            <input
-              className="form-input"
-              name="email"
-              type="email"
-              placeholder="Your email"
-              value={formData.email || ''}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-col">
-            <label>Phone</label>
-            <input
-              className="form-input"
-              name="phone"
-              type="tel"
-              placeholder="Your phone number"
-              value={formData.phone || ''}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        </div> */}
 
         <h3 className="section-title">Property Information</h3>
         <div className="form-row">
@@ -242,7 +195,6 @@ const SellPropertyForm = ({
         </div>
 
         <h3 className="section-title">Location Details</h3>
-
         <div className="location-details">
           <div className="form-row">
             <div className="form-col">
@@ -350,100 +302,110 @@ const SellPropertyForm = ({
           </div>
 
           <div className="form-row">
-  <div className="form-col">
-    <label>Nearby Landmarks</label>
-    <div className="tag-input-wrapper">
-      {/* Display existing tags */}
-      <ul className="tags">
-        {landmarks.map((tag, index) => (
-          <li key={index} className="tag">
-            {tag}
-            <span className="tag-close" onClick={() => removeLandmark(index)}>
-              &times;
-            </span>
-          </li>
-        ))}
-      </ul>
-      {/* Input for new tags */}
-      <input
-        type="text"
-        className="form-input tag-input"
-        placeholder="Type a landmark and press Enter"
-        value={landmarkInput}
-        onChange={handleLandmarkChange}
-        onKeyDown={handleLandmarkKeyDown}
-      />
-    </div>
-  </div>
-</div>
-          
-          
-
+            <div className="form-col">
+              <label>Nearby Landmarks</label>
+              <div className="tag-input-wrapper">
+                <ul className="tags">
+                  {landmarks.map((tag, index) => (
+                    <li key={index} className="tag">
+                      {tag}
+                      <span className="tag-close" onClick={() => removeLandmark(index)}>
+                        &times;
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <input
+                  type="text"
+                  className="form-input tag-input"
+                  placeholder="Type a landmark and press Enter"
+                  value={landmarkInput}
+                  onChange={handleLandmarkChange}
+                  onKeyDown={handleLandmarkKeyDown}
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
-        <Form.Item
-        label="Total Price (₹)"
-        name="price"
-        rules={[{ required: true, message: 'Please enter the property price' }]}
-      >
-        <InputNumber 
-          style={{ width: '100%' }}
-          formatter={value => `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-          parser={value => value.replace(/₹\s?|(,*)/g, '')}
-          min={0}
-          value={formData.price}
-          onChange={(value) => setFormData({...formData, price: value})}
-        />
-        
-      </Form.Item>
-
-      {/* <Form.Item
-        label="Area"
-        style={{ marginBottom: 0 }}
-      >
-        <Form.Item
-          name={['area', 'value']}
-          style={{ display: 'inline-block', width: '70%' }}
-          rules={[{ required: true, message: 'Please enter area' }]}
-        >
-          <InputNumber min={0} />
+        <Form.Item label="Total Price (₹)" name="price">
+          <InputNumber 
+            style={{ width: '100%' }}
+            formatter={value => `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+            parser={value => value.replace(/₹\s?|(,*)/g, '')}
+            min={0}
+            value={formData.price || 0}
+            onChange={(value) => setFormData({...formData, price: value})}
+          />
         </Form.Item>
-        <Form.Item
-          name={['area', 'unit']}
-          style={{ display: 'inline-block', width: '30%', marginLeft: '10px' }}
-        >
-          <Select>
-            <Select.Option value="sqft">sq.ft</Select.Option>
-            <Select.Option value="sqm">sq.m</Select.Option>
-            <Select.Option value="acre">acre</Select.Option>
-            <Select.Option value="hectare">hectare</Select.Option>
-          </Select>
-        </Form.Item>
-      </Form.Item>
 
-
-      <Form.Item
-        label="Price per sq.ft (₹)"
-        name="pricePerSqft"
-      >
-        <InputNumber 
-          style={{ width: '100%' }}
-          disabled
-          formatter={value => `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-        />
-      </Form.Item> */}
-
-
-
-        {/* Property Type Section */}
         <fieldset>
-          <legend>Property Type{!selectedPropertyType && <span style={{ color: "red" }}>*</span>}</legend>
+          <legend>Age of Property</legend>
+          <div className="radio-container">
+            {["New", "1-5 years", "5-10 years", "10+ years"].map(option => (
+              <label 
+                key={option} 
+                className={`radio-label ${formData.ageOfProperty === option ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="ageOfProperty"
+                  value={option}
+                  checked={formData.ageOfProperty === option}
+                  onChange={handleRadioChange}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <div className="form-row">
+          <div className="form-col">
+            <label>Total Floors in Building</label>
+            <input
+              className="form-input"
+              name="totalFloors"
+              type="number"
+              min="1"
+              placeholder="Total floors"
+              value={formData.totalFloors || ''}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <fieldset>
+          <legend>Floor Number</legend>
+          <div className="radio-container">
+            {["Ground", "1", "2", "3", "4", "5+"].map(option => (
+              <label 
+                key={option} 
+                className={`radio-label ${formData.floor === option ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="floor"
+                  value={option}
+                  checked={formData.floor === option}
+                  onChange={handleRadioChange}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Property Type</legend>
           <div className="property-type-container">
             {propertyTypes.map((type) => (
               <div
                 key={type.label}
-                className={`property-type-card ${selectedPropertyType === type.label ? "selected" : ""}`}
-                onClick={() => setSelectedPropertyType(type.label)}
+                className={`property-type-card ${formData.propertyType === type.label ? "selected" : ""}`}
+                onClick={() => {
+                  setFormData(prev => ({ ...prev, propertyType: type.label }));
+                }}
               >
                 {type.icon}
                 <span>{type.label}</span>
@@ -452,165 +414,158 @@ const SellPropertyForm = ({
           </div>
         </fieldset>
 
-        {/* Furnishings Section */}
-<fieldset>
-  <legend>Furnishings</legend>
-  <div className="radio-container">
-    {furnishedList.map((furnished) => (
-      <label 
-        key={furnished} 
-        className={`radio-label ${formData.furnishing === furnished ? "selected" : ""}`}
-      >
-        <input
-          type="radio"
-          name="furnishing"
-          value={furnished}
-          checked={formData.furnishing === furnished}
-          onChange={handleRadioChange}
-        />
-        {furnished}
-      </label>
-    ))}
-  </div>
-</fieldset>
+        <fieldset>
+          <legend>Furnishings</legend>
+          <div className="radio-container">
+            {furnishedList.map((furnished) => (
+              <label 
+                key={furnished} 
+                className={`radio-label ${formData.furnishing === furnished ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="furnishing"
+                  value={furnished}
+                  checked={formData.furnishing === furnished}
+                  onChange={handleRadioChange}
+                />
+                {furnished}
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-{/* Possession Status Section */}
-<fieldset>
-  <legend>Possession Status</legend>
-  <div className="radio-container">
-    {possessionStatusList.map((status) => (
-      <label 
-        key={status} 
-        className={`radio-label ${formData.possessionStatus === status ? "selected" : ""}`}
-      >
-        <input
-          type="radio"
-          name="possessionStatus"
-          value={status}
-          checked={formData.possessionStatus === status}
-          onChange={handleRadioChange}
-        />
-        {status}
-      </label>
-    ))}
-  </div>
-</fieldset>
+        <fieldset>
+          <legend>Possession Status</legend>
+          <div className="radio-container">
+            {possessionStatusList.map((status) => (
+              <label 
+                key={status} 
+                className={`radio-label ${formData.possessionStatus === status ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="possessionStatus"
+                  value={status}
+                  checked={formData.possessionStatus === status}
+                  onChange={handleRadioChange}
+                />
+                {status}
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-{/* BHK Configuration */}
-<fieldset>
-  <legend>BHK Configuration</legend>
-  <div className="radio-container">
-    {bhkOptions.map(option => (
-      <label 
-        key={option} 
-        className={`radio-label ${formData.bhk === option ? "selected" : ""}`}
-      >
-        <input
-          type="radio"
-          name="bhk"
-          value={option}
-          checked={formData.bhk === option}
-          onChange={handleRadioChange}
-        />
-        {option} BHK
-      </label>
-    ))}
-  </div>
-</fieldset>
+        <fieldset>
+          <legend>BHK Configuration</legend>
+          <div className="radio-container">
+            {bhkOptions.map(option => (
+              <label 
+                key={option} 
+                className={`radio-label ${formData.bhk === option ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="bhk"
+                  value={option}
+                  checked={formData.bhk === option}
+                  onChange={handleRadioChange}
+                />
+                {option} BHK
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-{/* Bathrooms Section */}
-<fieldset>
-  <legend>Number of Bathrooms</legend>
-  <div className="radio-container">
-    {bathroomOptions.map(options => (
-      <label 
-        key={options} 
-        className={`radio-label ${formData.bathrooms === options ? "selected" : ""}`}
-      >
-        <input
-          type="radio"
-          name="bathrooms"
-          value={options}
-          checked={formData.bathrooms === options}
-          onChange={handleRadioChange}
-        />
-        {options}
-      </label>
-    ))}
-  </div>
-</fieldset>
+        <fieldset>
+          <legend>Number of Bathrooms</legend>
+          <div className="radio-container">
+            {bathroomOptions.map(options => (
+              <label 
+                key={options} 
+                className={`radio-label ${formData.bathrooms === options ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="bathrooms"
+                  value={options}
+                  checked={formData.bathrooms === options}
+                  onChange={handleRadioChange}
+                />
+                {options}
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-<fieldset>
-  <legend>Number of Balconies</legend>
-  <div className="radio-container">
-    {balconyOptions.map(option =>(
-      <label
-      key={option}
-      className={`radio-label ${formData.balconies === option ? "selected" : ""}`}
-      >
-        <input
-          type="radio"
-          name="balconies"
-          value={option}
-          checked={formData.balconies === option}
-          onChange={handleRadioChange}
-        />
-        {option}
-      </label>
-    ))}
-  </div>
-</fieldset>
+        <fieldset>
+          <legend>Number of Balconies</legend>
+          <div className="radio-container">
+            {balconyOptions.map(option =>(
+              <label
+                key={option}
+                className={`radio-label ${formData.balconies === option ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="balconies"
+                  value={option}
+                  checked={formData.balconies === option}
+                  onChange={handleRadioChange}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-<fieldset>
-  <legend>Facing</legend>
-  <div className="radio-container">
-    {facingOptions.map(option =>(
-      <label
-      key={option}
-      className={`radio-label ${formData.facing === option ? "selected" : ""}`}
-      >
-        <input
-          type="radio"
-          name="facing"
-          value={option}
-          checked={formData.facing === option}
-          onChange={handleRadioChange}
-        />
-        {option}
-      </label>
-    ))}
-  </div>
-</fieldset>
+        <fieldset>
+          <legend>Facing</legend>
+          <div className="radio-container">
+            {facingOptions.map(option =>(
+              <label
+                key={option}
+                className={`radio-label ${formData.facing === option ? "selected" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="facing"
+                  value={option}
+                  checked={formData.facing === option}
+                  onChange={handleRadioChange}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
-<fieldset>
-  <legend>Parking Availability</legend>
-  <div className="radio-container">
-    {parkingOptions.map(option => (
-      <label
-        key={option}
-        className={`checkbox-label ${
-          (formData.parkings || []).includes(option) ? "selected" : ""
-        }`}
-      >
-        <input
-          type="checkbox"
-          name="parkings"
-          value={option}
-          checked={(formData.parkings || []).includes(option)}
-          onChange={() => handleCheckboxChange('parkings', option)}
-        />
-        {option}
-      </label>
-    ))}
-  </div>
-</fieldset>
-  
+        <fieldset>
+          <legend>Parking Availability</legend>
+          <div className="radio-container">
+            {parkingOptions.map(option => (
+              <label
+                key={option}
+                className={`checkbox-label ${(formData.parkings || []).includes(option) ? "selected" : ""}`}
+              >
+                <input
+                  type="checkbox"
+                  name="parkings"
+                  value={option}
+                  checked={(formData.parkings || []).includes(option)}
+                  onChange={() => handleCheckboxChange('parkings', option)}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
         <div className="form-buttons">
           <button 
             className="submit-button" 
             type="submit" 
-            disabled={isAdding || isUpdating || !selectedPropertyType}
+            disabled={isAdding || isUpdating || !formData.propertyType}
           >
             {isAdding || isUpdating 
               ? (isAdding ? 'Submitting...' : 'Updating...') 
@@ -627,8 +582,6 @@ const SellPropertyForm = ({
           )}
         </div>
       </form>
-
-
     </div>
   );
 };

@@ -47,7 +47,12 @@ const Dashboard = () => {
     balconies: '',
     facing: '',
     parkings: [],
-    // totalFloors: '',
+
+    ageOfProperty: '',
+    totalFloors: '',
+    floor: '',
+    // availableForm:
+
     
   });
 
@@ -144,10 +149,12 @@ const Dashboard = () => {
 
   // Add property mutation
   const { mutate: addProperty, isPending: isAdding } = useMutation({
+    
     mutationFn: (newProperty) =>
       axios.post(`${API_BASE_URL}/api/properties/add`, newProperty, {
         headers: { Authorization: `Bearer ${token}` }
       }),
+      
 
     onSuccess: () => {
       setFormData({ title: '', location: '', description: '', long_description: '', location: '', city: '', locality: '',
@@ -239,12 +246,12 @@ const Dashboard = () => {
   };
 
   const handleEdit = (property) => {
+
+    console.log('Editing property:', property);
+
     setEditingId(property._id);
     setFormData({
       firstName: property.firstName || '',
-      lastName: property.lastName || '',
-      email: property.email || '',
-      phone: property.phone || '',
       title: property.title || '',
       description: property.description || '',
       long_description: property.long_description || '',
@@ -261,14 +268,18 @@ const Dashboard = () => {
       bathrooms:property.bathrooms || '',
       balconies:property.balconies || '',
       facing:property.facing || '',
-      parkings:property.parkings || '',
-      landmarks:property.landmarks || [],
+      parkings: Array.isArray(property.parkings) ? property.parkings : (property.parkings ? [property.parkings] : []),
+      landmarks: Array.isArray(property.landmarks) ? property.landmarks : [],
       price: property.price || '',
-      // landmarks: Array.isArray(property.landmarks) ? property.landmarks : [],
-  
+      ageOfProperty:property.ageOfProperty || "New",
+      totalFloors:property.totalFloors || '',
+      floor:property.floor || '',
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+      setTimeout(() => {
+        console.log('Form data after setting:', formData);
+      }, 0);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
   const handleCancelEdit = () => {
   setEditingId(null);
@@ -296,9 +307,14 @@ const Dashboard = () => {
     facing: '',
     parkings: [],
     price: '',
+    ageOfProperty:'',
+    totalFloors:'',
+    floor:'',
     
   });
 };
+
+console.log('Properties data:', properties);
 
   return (
     <div className="dashboard-container">
@@ -402,14 +418,22 @@ const Dashboard = () => {
           <span>{p.price}</span>
         </div>
 
-        {/* <div className="detail-row">
-          <span className="detail-label">Phone:</span>
-          <span>{p.phone}</span>
-        </div>
         <div className="detail-row">
-          <span className="detail-label">Email:</span>
-          <span>{p.email}</span>
-        </div> */}
+          <span className="detail-label">Property Age:</span>
+          <span>{p.ageOfProperty}</span>
+        </div>
+
+        <div className="detail-row">
+          <span className="detail-label">Total Floors:</span>
+          <span>{p.totalFloors}</span>
+        </div>
+
+        <div className="detail-row">
+          <span className="detail-label">Floor No:</span>
+          <span>{p.floor}</span>
+        </div>
+
+        
 
       </div>
 

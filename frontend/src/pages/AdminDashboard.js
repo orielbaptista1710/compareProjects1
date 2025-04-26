@@ -155,10 +155,27 @@ const AdminDashboard = () => {
             pendingProperties.map(property => (
               <div key={property._id} className="property-card">
                 <h3>{property.title}</h3>
-                <p><strong>Location:</strong> {property.location}</p>
-                <p><strong>Description:</strong> {property.description}</p>
                 <p><strong>Submitted by:</strong> {property.userId?.displayName || 'Unknown'}</p>
-                
+                <p><strong>Location:</strong> {property.state},{property.city},{property.locality} </p>
+                <p><strong>Address:</strong> {property.address || 'N/A'}</p>
+                <p><strong>Description:</strong> {property.description || 'N/A'}</p>
+                <p><strong>Details:</strong> {property.long_description || 'N/A'}</p>
+                <p><strong>Possession Status:</strong> {property.possessionStatus || 'N/A'}</p>
+                <p><strong>Agent:</strong> {property.firstName || 'N/A'}</p>
+                <p><strong>Pincode:</strong> {property.pincode || 'N/A'}</p>
+                <p><strong>Price:</strong> {property.price || 'N/A'}</p>
+                <p><strong>Floor No:</strong> {property.floor || 'N/A'}</p>
+                <p><strong>Total No. of Floors:</strong> {property.totalFloors || 'N/A'}</p>
+                <p><strong>Property Age:</strong> {property.ageOfProperty || 'N/A'}</p>
+                <p><strong>Parkings:</strong> {property.parkings || 'N/A'}</p>
+                <p><strong>Facing:</strong> {property.facing || 'N/A'}</p>
+                <p><strong> BHK:</strong> {property.bhk || 'N/A'}</p>
+                <p><strong>Bathrooms:</strong> {property.bathrooms || 'N/A'}</p>
+                <p><strong>Balconies:</strong> {property.balconies || 'N/A'}</p>
+                <p><strong>Furnishing:</strong> {property.furnishing || 'N/A'}</p>
+                <p><strong>Property Type:</strong> {property.propertyType || 'N/A'}</p>
+
+
                 <div className="action-buttons">
                   <button 
                     className="approve-button"
@@ -185,8 +202,24 @@ const AdminDashboard = () => {
             allProperties.map(property => (
               <div key={property._id} className="property-card">
                 <h3>{property.title}</h3>
-                <p><strong>Location:</strong> {property.location}</p>
-                <p><strong>Description:</strong> {property.description}</p>
+                <p><strong>Location:</strong> {property.state},{property.city},{property.locality} </p>
+                <p><strong>Address:</strong> {property.address || 'N/A'}</p>
+                <p><strong>Description:</strong> {property.description || 'N/A'}</p>
+                <p><strong>Details:</strong> {property.long_description || 'N/A'}</p>
+                <p><strong>Possession Status:</strong> {property.possessionStatus || 'N/A'}</p>
+                <p><strong>Agent:</strong> {property.firstName || 'N/A'}</p>
+                <p><strong>Pincode:</strong> {property.pincode || 'N/A'}</p>
+                <p><strong>Price:</strong> {property.price || 'N/A'}</p>
+                <p><strong>Floor No:</strong> {property.floor || 'N/A'}</p>
+                <p><strong>Total No. of Floors:</strong> {property.totalFloors || 'N/A'}</p>
+                <p><strong>Property Age:</strong> {property.ageOfProperty || 'N/A'}</p>
+                <p><strong>Parkings:</strong> {property.parkings || 'N/A'}</p>
+                <p><strong>Facing:</strong> {property.facing || 'N/A'}</p>
+                <p><strong> BHK:</strong> {property.bhk || 'N/A'}</p>
+                <p><strong>Bathrooms:</strong> {property.bathrooms || 'N/A'}</p>
+                <p><strong>Balconies:</strong> {property.balconies || 'N/A'}</p>
+                <p><strong>Furnishing:</strong> {property.furnishing || 'N/A'}</p>
+                <p><strong>Property Type:</strong> {property.propertyType || 'N/A'}</p>
                 <p><strong>Status:</strong> 
                   <span className={`status-${property.status}`}>
                     {property.status}

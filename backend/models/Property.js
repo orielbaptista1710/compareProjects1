@@ -76,6 +76,15 @@ const propertySchema = new mongoose.Schema({
   facing: { type: String },
   balconies: { type: String },
   parkings: { type: [String] },
+
+  ageOfProperty: { 
+    type: String,
+    enum: ["New", "1-5 years", "5-10 years", "10+ years"],
+    default: "New"
+  },
+  totalFloors: { type: Number },
+  floor: { type: String },
+
   
   // Timestamps
   submittedAt: { type: Date, default: Date.now },
