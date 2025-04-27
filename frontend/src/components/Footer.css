@@ -129,6 +129,15 @@
   .social-icons {
     margin-top: 20px;
   }
+
+  .social-icon-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    margin: 0 8px;
+  }
   
   .social-icons a {
     color: #edf2f4;

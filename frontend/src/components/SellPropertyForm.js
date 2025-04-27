@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaHome, FaBuilding, FaWarehouse, FaStore, FaMap } from "react-icons/fa";
 import './SellPropertyForm.css';
 import locationData from '../database/locationData';
-import { Form, Input, Button, Select, InputNumber } from 'antd';
+import { Form, InputNumber } from 'antd';
 
 const SellPropertyForm = ({
   formData,
@@ -16,7 +16,6 @@ const SellPropertyForm = ({
   onSubmit,
   handleCancelEdit
 }) => {
-  const [form] = Form.useForm();
 
   // Property type options
   const propertyTypes = [

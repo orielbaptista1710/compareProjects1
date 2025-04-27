@@ -4,7 +4,6 @@ import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import './Dashboard.css';
 import SellPropertyForm from '../components/SellPropertyForm';
-import { FaLandmark } from 'react-icons/fa';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -157,7 +156,7 @@ const Dashboard = () => {
       
 
     onSuccess: () => {
-      setFormData({ title: '', location: '', description: '', long_description: '', location: '', city: '', locality: '',
+      setFormData({ title: '', location: '', description: '', long_description: '', city: '', locality: '',
                     address: '', pincode: ''}); // what does this do i forgot
       setSuccess('Property added successfully');
       setEditingId(null);

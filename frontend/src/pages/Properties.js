@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropertyCard from '../components/PropertyCard';
 import './Properties.css';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation} from 'react-router-dom';
 import axios from 'axios';
 import CompareSidebar from '../components/CompareSidebar';
 import Select from 'react-select'; // You'll need to install react-select
@@ -22,7 +22,6 @@ function Properties({ addToCompare, compareList, removeFromCompare }) {
     min: '',
     max: ''
   });
-  const [selectedAreaRange, setSelectedAreaRange] = useState('');
   const [selectedFurnishings, setSelectedFurnishings] = useState([]);
   const [selectedState, setSelectedState] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
@@ -30,8 +29,7 @@ function Properties({ addToCompare, compareList, removeFromCompare }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const location = useLocation();
-  const navigate = useNavigate();
-  const query = new URLSearchParams(location.search);
+  // const query = new URLSearchParams(location.search);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -56,21 +54,23 @@ function Properties({ addToCompare, compareList, removeFromCompare }) {
   }, []);
 
   useEffect(() => {
-      const type = query.get('type');
-      const budget = query.get('budget');
-      const city = query.get('city');
-      const locality = query.get('locality');
-
-      if (type) setSelectedPropertyTypes([type]);
-      if(city) setSelectedCity(city);
-      if(locality) setSelectedLocality(locality);
-      if (budget) {
-        setBudgetRange({
-          min: '',
-          max: budget
-        });
-      }
-    }, [location.search]);
+    const query = new URLSearchParams(location.search); 
+    
+    const type = query.get('type');
+    const budget = query.get('budget');
+    const city = query.get('city');
+    const locality = query.get('locality');
+  
+    if (type) setSelectedPropertyTypes([type]);
+    if(city) setSelectedCity(city);
+    if(locality) setSelectedLocality(locality);
+    if (budget) {
+      setBudgetRange({
+        min: '',
+        max: budget
+      });
+    }
+  }, [location.search]);
 
   useEffect(() => {
     if (!properties.length) return;
@@ -113,8 +113,10 @@ function Properties({ addToCompare, compareList, removeFromCompare }) {
           (property.propertyType && property.propertyType.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (property.bhk && String(property.bhk).toLowerCase().includes(searchTerm.toLowerCase()))
 
-        const matchesBudget = !budgetRange.max || 
-          (property.price && property.price <= parseInt(budgetRange.max));
+          const matchesBudget = (!budgetRange.max || 
+            (property.price && property.price <= parseInt(budgetRange.max))) &&
+            (!budgetRange.min || 
+            (property.price && property.price >= parseInt(budgetRange.min)));
 
       return (
         matchesPropertyType &&

@@ -62,7 +62,7 @@ const AdminDashboard = () => {
     // Update all your API calls to include the full URL:
     const handleApprove = async (propertyId) => {
       try {
-        const { data } = await axios.put(
+        await axios.put(
           `${API_BASE_URL}/api/admin/approve/${propertyId}`, 
           {}, 
           { headers: { Authorization: `Bearer ${token}` } }

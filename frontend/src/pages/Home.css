@@ -1,4 +1,4 @@
-/* LANDING SECTION */
+/* LANDING SECTION
 .landing-section {
   height: 100vh;
   display: flex;
@@ -10,9 +10,9 @@
   background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
 }
 
-/* OVERLAY */
+
 .overlay {
-  background: rgba(0, 0, 0, 0.5); /* Dark overlay for contrast */
+  background: rgba(0, 0, 0, 0.5); 
   height: 100%;
   width: 100%;
   display: flex;
@@ -21,32 +21,32 @@
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1; /* Ensures content is above the overlay */
+  z-index: 1; 
 }
 
-/* CONTAINER */
+
 .container {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between; /* Spread content across the section */
+  justify-content: space-between; 
   width: 80%;
   max-width: 1200px;
   gap: 30px;
   color: white;
-  z-index: 2; /* Content above the overlay */
+  z-index: 2; 
   position: relative;
   padding: 40px 20px;
 }
 
-/* SEARCH BAR CONTAINER */
+
 .search-bar-container {
   flex: 1;
-  max-width: 350px; /* Limits the width */
-  margin-right: 30px; /* Space between the search bar and content */
+  max-width: 350px; 
+  margin-right: 30px; 
 }
 
-/* CONTENT SECTION */
+
 .content {
   flex: 2;
   text-align: left;
@@ -54,7 +54,7 @@
 }
 
 .content h1 {
-  font-size: 3rem; /* Larger heading size */
+  font-size: 3rem; 
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -81,7 +81,6 @@
   background-color: #d90429;
 }
 
-/* FEATURE PROPERTIES */
 .container-feature {
   max-width: 1200px;
   margin: 50px auto;
@@ -108,27 +107,26 @@
   line-height: 1.5;
 }
 
-/* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
   .landing-section {
-    height: auto; /* Allow for content to grow */
-    padding-top: 50px; /* Account for header height */
+    height: auto; 
+    padding-top: 50px; 
   }
 
   .container {
-    flex-direction: column; /* Stack content on mobile */
+    flex-direction: column; 
     align-items: center;
     justify-content: center;
     gap: 20px;
   }
 
   .search-bar-container {
-    max-width: 100%; /* Full width on smaller screens */
+    max-width: 100%; 
     margin-right: 0;
   }
 
   .content h1 {
-    font-size: 2.2rem; /* Adjust heading size */
+    font-size: 2.2rem; 
     text-align: center;
   }
 
@@ -139,10 +137,242 @@
   }
 
   .section-title h1 {
-    font-size: 2rem; /* Adjust section title size for mobile */
+    font-size: 2rem; 
   }
 
   .section-title p {
-    font-size: 0.9rem; /* Smaller text for mobile */
+    font-size: 0.9rem; 
+  }
+} */
+
+
+/* LANDING SECTION */
+.landing-section {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+}
+/* General Container for the entire page */
+.home-container {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Landing Section Styling */
+/* .landing-section {
+  position: relative;
+  background: url('../images/hero-image.jpg') no-repeat center center/cover;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.container {
+  text-align: center;
+  z-index: 2;
+}
+
+.search-bar-container {
+  max-width: 500px;
+  margin: 0 auto;
+  z-index: 2;
+}
+
+/* Team Section Styling */
+.team-section {
+  padding: 60px 20px;
+  background-color: #f7f7f7;
+  text-align: center;
+}
+
+.container-feature {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section-title {
+  margin-bottom: 40px;
+}
+
+.section-title h1 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #333;
+}
+
+.section-title p {
+  font-size: 18px;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Hero Section Styling */
+section {
+  margin-bottom: 60px;
+}
+
+h1, p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Gallery Section Styling */
+.gallery-container {
+  background-color: #f5f5f5;
+  padding: 50px 0;
+}
+
+.gallery-container .container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.gallery-container .main-gallery, .gallery-container .sub-gallery {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.gallery-container .gallery-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.gallery-container .gallery-content {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: #fff;
+  z-index: 2;
+}
+
+.gallery-container .gallery-content h2 {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.gallery-container .gallery-content p {
+  font-size: 14px;
+  max-width: 80%;
+  margin: 10px 0;
+}
+
+.learn-more {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 20px;
+  background-color: #D90429;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.learn-more:hover {
+  background-color: #C50323;
+}
+
+.arrow-icon {
+  margin-left: 8px;
+  width: 16px;
+  height: 16px;
+}
+
+/* Button Styling for Landing Section */
+.home-button {
+  padding: 12px 30px;
+  background-color: #D90429;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+.home-button:hover {
+  background-color: #C50323;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .landing-section {
+    height: auto;
+    padding: 50px 20px;
+  }
+
+  .container {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .search-bar-container {
+    width: 100%;
+  }
+
+  .team-section {
+    padding: 40px 20px;
+  }
+
+  .gallery-container {
+    padding: 30px 20px;
+  }
+
+  .section-title h1 {
+    font-size: 28px;
+  }
+
+  .section-title p {
+    font-size: 16px;
+  }
+
+  .gallery-container .gallery-content h2 {
+    font-size: 22px;
+  }
+
+  .gallery-container .gallery-content p {
+    font-size: 12px;
+  }
+
+  .learn-more {
+    font-size: 12px;
+    padding: 10px 18px;
+  }
+
+  .home-button {
+    font-size: 16px;
+    padding: 10px 25px;
   }
 }

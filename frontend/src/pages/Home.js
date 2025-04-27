@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+// import { useNavigate } from 'react-router-dom';
 import './Home.css'; // Import your CSS file if you have styles
 import Gallery from '../components/Gallery'; 
 // import Contact from '../components/Contact'; 
@@ -9,22 +9,22 @@ import HeroSection from '../components/HeroSection';
 import WhatsAppSidebar from '../components/WhatsAppSidebar';
 import NavigationBar from '../components/NavigationBar';
 // import PropertyCarousel from '../components/PropertyCarousel';
-import CaroForHome from '../components/CaroForHome';
+// import CaroForHome from '../components/CaroForHome';
 
 function Home() {
 
-  const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
+  // const navigate = useNavigate();
+  // const [searchTerm, setSearchTerm] = useState('');
 
-   const handleSeachSubmit = (event) => {
-      event.preventDefault();
-      navigate(`/properties?search=${encodeURIComponent(searchTerm)}`);
-   }
+  //  const handleSeachSubmit = (event) => {
+  //     event.preventDefault();
+  //     navigate(`/properties?search=${encodeURIComponent(searchTerm)}`);
+  //  }
 
   
-    const handleViewPropertiesClick = () => {
-      navigate('/properties');
-    };
+  //   const handleViewPropertiesClick = () => {
+  //     navigate('/properties');
+  //   };
     
 
   return (

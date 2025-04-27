@@ -7,7 +7,6 @@ import { faUsers } from '@fortawesome/free-solid-svg-icons';
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,11 +15,7 @@ function Header() {
       try {
         const parsedUser = JSON.parse(storedUser);
         console.log("User from localStorage:", parsedUser);
-        if (parsedUser && typeof parsedUser === 'object') {
-          setUser(parsedUser);
-        } else {
-          throw new Error('Invalid format');
-        }
+        // No need to set `user` anymore
       } catch (err) {
         console.error('Invalid user in localStorage:', err.message);
         localStorage.removeItem('user'); // Optional: Clean it if corrupted
@@ -28,7 +23,6 @@ function Header() {
     }
   }, []);
   
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };

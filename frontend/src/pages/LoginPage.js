@@ -123,7 +123,15 @@ const LoginPage = () => {
             />
             Remember me
           </label>
-          <a href="#" className="login-forgot-password">Forgot password?</a>
+          <button 
+           type="button" 
+           className="login-forgot-password"
+           onClick={() => {
+             // Implement forgot password logic here
+           }}
+          >
+          Forgot password?
+          </button>
         </div>
 
         <button 
