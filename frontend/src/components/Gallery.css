@@ -62,6 +62,7 @@
 .gallery-container .container .main-wrapper .main-gallery .learn-more {
   margin-top: 1rem;
   display: inline-flex;
+  background-color: transparent;
   align-items: center;
   font-size: 16px;
   font-weight: 600;
@@ -96,7 +97,6 @@
   transition: transform 0.3s ease;
 }
 
-
 .gallery-container .container .main-wrapper .sub-gallery-wrapper .sub-gallery img {
   opacity: 0.6;
   position: absolute;
@@ -121,6 +121,8 @@
   color: #1A202C;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  background-color: transparent;
+
 }
 
 .gallery-container .container .main-wrapper .sub-gallery-wrapper .sub-gallery p {
@@ -136,39 +138,57 @@
 
 /* Media Queries */
 @media (max-width: 1024px) {
+  /* Adjust main gallery layout */
   .gallery-container .container .main-wrapper {
-    width: 100%;
+    width: 100%; /* Ensure it takes full width */
   }
 
+  /* Sub-gallery responsive layout */
   .gallery-container .container .main-wrapper .sub-gallery-wrapper .sub-gallery {
-    width: calc(50% - 0.5rem);
+    width: calc(50% - 0.5rem); /* Keep 2-column layout on medium screens */
   }
 }
 
 @media (max-width: 768px) {
-  .gallery-container .container .main-wrapper .sub-gallery-wrapper .sub-gallery {
-    width: 100%;
-  }
-
+  /* Main gallery adjustments for smaller screens */
   .gallery-container .container .main-wrapper .main-gallery {
-    padding: 60px 20px; 
+    padding: 60px 20px; /* Reduced padding for smaller screens */
   }
 
   .gallery-container .container .main-wrapper .main-gallery .gallery-content h2 {
-    font-size: 1.5rem; 
+    font-size: 1.5rem; /* Adjust heading size */
+  }
+
+  /* Sub-gallery adjustments for smaller screens */
+  .gallery-container .container .main-wrapper .sub-gallery-wrapper .sub-gallery {
+    width: 100%; /* Stacked sub-gallery items on small screens */
+  }
+
+  .gallery-container .container .main-wrapper .sub-gallery-wrapper .sub-gallery h2 {
+    font-size: 1.125rem; /* Adjust heading size */
   }
 }
 
 @media (max-width: 480px) {
-  .gallery-container .container .main-wrapper .sub-gallery-wrapper .sub-gallery {
-    width: 100%;
-  }
-
+  /* Main gallery adjustments for mobile screens */
   .gallery-container .container .main-wrapper .main-gallery {
-    padding: 40px 15px; 
+    padding: 40px 15px; /* Further reduced padding */
   }
 
   .gallery-container .container .main-wrapper .main-gallery .gallery-content h2 {
-    font-size: 1.25rem; 
+    font-size: 1.25rem; /* Smaller heading */
+  }
+
+  /* Sub-gallery adjustments for mobile screens */
+  .gallery-container .container .main-wrapper .sub-gallery-wrapper .sub-gallery {
+    width: 100%; /* Ensure full-width layout on mobile */
+  }
+
+  .gallery-container .container .main-wrapper .sub-gallery-wrapper .sub-gallery h2 {
+    font-size: 1rem; /* Adjust font size */
+  }
+
+  .gallery-container .container .main-wrapper .sub-gallery-wrapper .sub-gallery p {
+    font-size: 0.875rem; /* Smaller text for mobile */
   }
 }

@@ -1,61 +1,113 @@
-
+/* Hero Section */
 .why-choose-us {
-    padding: 50px 20px;
-    background-color: #ffffff;
-  }
-  
-  .section-titlee {
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 30px;
-    align-items: center;
-    text-align: center;
-  }
-  
+  padding: 50px 20px;
+  background-color: #ffffff;
+}
+
+.section-titlee {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: 600; /* Added font weight for better visibility */
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 300px;
+  flex: 1 1 250px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.icon {
+  font-size: 40px;
+  color: #ef233c;
+  margin-bottom: 15px;
+}
+
+.card h3 {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
   .card-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
+    justify-content: space-evenly; /* Space evenly on medium screens */
   }
-  
+}
+
+@media (max-width: 768px) {
+  .card-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .section-titlee {
+    font-size: 1.75rem; /* Slightly smaller font for smaller screens */
+    margin-bottom: 20px;
+  }
+
   .card {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    max-width: 300px;
-    flex: 1 1 250px;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 15px; /* Reduce padding on smaller screens */
+    max-width: 100%; /* Ensure cards take full width */
   }
-  
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-  }
-  
+
   .icon {
-    font-size: 40px;
-    color: #ef233c;
-    margin-bottom: 15px;
+    font-size: 35px; /* Smaller icon size on mobile */
   }
-  
+
   .card h3 {
-    font-size: 1.2rem;
-    color: #333;
-    margin-bottom: 10px;
+    font-size: 1.1rem; /* Slightly smaller heading on mobile */
   }
-  
+
   .card p {
-    font-size: 0.9rem;
-    color: #666;
+    font-size: 0.85rem; /* Slightly smaller paragraph text */
   }
-  
-  @media (max-width: 768px) {
-    .card-container {
-      flex-direction: column;
-      gap: 15px;
-    }
+}
+
+@media (max-width: 480px) {
+  .section-titlee {
+    font-size: 1.5rem; /* Further reduce font size for very small screens */
   }
+
+  .card {
+    padding: 12px;
+    max-width: 100%;
+  }
+
+  .icon {
+    font-size: 30px; /* Smaller icon size on very small screens */
+  }
+
+  .card h3 {
+    font-size: 1rem; /* Smaller heading on very small screens */
+  }
+
+  .card p {
+    font-size: 0.8rem; /* Smaller paragraph text */
+  }
+}

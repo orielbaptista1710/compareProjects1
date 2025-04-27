@@ -1,90 +1,105 @@
-/* LANDING SECTION
+/* Reset and Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body, html {
+  font-family: 'Arial', sans-serif;
+}
+
+/* === LANDING SECTION === */
 .landing-section {
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
   background-size: cover;
   background-position: center;
   position: relative;
-  background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
 }
 
-
 .overlay {
-  background: rgba(0, 0, 0, 0.5); 
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1; 
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
-
+/* Container inside landing */
 .container {
+  z-index: 2;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between; 
+  justify-content: space-between;
   width: 80%;
   max-width: 1200px;
   gap: 30px;
   color: white;
-  z-index: 2; 
   position: relative;
-  padding: 40px 20px;
 }
 
-
+/* Search Bar Container */
 .search-bar-container {
   flex: 1;
-  max-width: 350px; 
-  margin-right: 30px; 
+  max-width: 400px;
+  margin-right: 30px;
 }
 
-
+/* Optional Content Area */
 .content {
   flex: 2;
-  text-align: left;
   padding: 20px;
 }
 
 .content h1 {
-  font-size: 3rem; 
-  margin-bottom: 1rem;
+  font-size: 3rem;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  margin-bottom: 1rem;
+  letter-spacing: 1.5px;
 }
 
 .content p {
   font-size: 1.2rem;
   margin-bottom: 20px;
-  max-width: 600px;
+  line-height: 1.5;
 }
 
-.content button {
-  background-color: #ef233c;
+.home-button {
+  padding: 12px 30px;
+  background-color: #D90429;
   color: white;
+  font-size: 18px;
+  font-weight: 600;
   border: none;
-  padding: 10px 20px;
-  font-size: 16px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  margin-top: 20px;
+  transition: background-color 0.3s;
 }
 
-.content button:hover {
-  background-color: #d90429;
+.home-button:hover {
+  background-color: #C50323;
+}
+
+/* === TEAM / FEATURED SECTION === */
+.team-section {
+  padding: 60px 20px;
+  background-color: #f7f7f7;
 }
 
 .container-feature {
   max-width: 1200px;
-  margin: 50px auto;
-  padding: 0 20px;
+  margin: 0 auto;
 }
 
 .section-title {
@@ -107,155 +122,27 @@
   line-height: 1.5;
 }
 
-@media (max-width: 768px) {
-  .landing-section {
-    height: auto; 
-    padding-top: 50px; 
-  }
-
-  .container {
-    flex-direction: column; 
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-  }
-
-  .search-bar-container {
-    max-width: 100%; 
-    margin-right: 0;
-  }
-
-  .content h1 {
-    font-size: 2.2rem; 
-    text-align: center;
-  }
-
-  .content p {
-    font-size: 1rem;
-    text-align: center;
-    max-width: 100%;
-  }
-
-  .section-title h1 {
-    font-size: 2rem; 
-  }
-
-  .section-title p {
-    font-size: 0.9rem; 
-  }
-} */
-
-
-/* LANDING SECTION */
-.landing-section {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=3270&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
-}
-/* General Container for the entire page */
-.home-container {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Landing Section Styling */
-/* .landing-section {
-  position: relative;
-  background: url('../images/hero-image.jpg') no-repeat center center/cover;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-} */
-
-.overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 20px;
-}
-
-.container {
-  text-align: center;
-  z-index: 2;
-}
-
-.search-bar-container {
-  max-width: 500px;
-  margin: 0 auto;
-  z-index: 2;
-}
-
-/* Team Section Styling */
-.team-section {
-  padding: 60px 20px;
-  background-color: #f7f7f7;
-  text-align: center;
-}
-
-.container-feature {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.section-title {
-  margin-bottom: 40px;
-}
-
-.section-title h1 {
-  font-size: 36px;
-  font-weight: 700;
-  color: #333;
-}
-
-.section-title p {
-  font-size: 18px;
-  color: #555;
-  line-height: 1.5;
-}
-
-/* Hero Section Styling */
+/* === HERO SECTION === */
 section {
   margin-bottom: 60px;
 }
 
-h1, p {
-  margin: 0;
-  padding: 0;
-}
-
-/* Gallery Section Styling */
+/* === GALLERY SECTION === */
 .gallery-container {
   background-color: #f5f5f5;
-  padding: 50px 0;
+  padding: 50px 20px;
 }
 
 .gallery-container .container {
-  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .gallery-container .main-gallery, .gallery-container .sub-gallery {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
 }
 
 .gallery-container .gallery-image {
@@ -265,20 +152,19 @@ h1, p {
   border-radius: 8px;
 }
 
-.gallery-container .gallery-content {
+.gallery-content {
   position: absolute;
   bottom: 20px;
   left: 20px;
-  color: #fff;
+  color: white;
   z-index: 2;
 }
 
-.gallery-container .gallery-content h2 {
+.gallery-content h2 {
   font-size: 28px;
-  font-weight: bold;
 }
 
-.gallery-container .gallery-content p {
+.gallery-content p {
   font-size: 14px;
   max-width: 80%;
   margin: 10px 0;
@@ -288,7 +174,7 @@ h1, p {
   display: inline-flex;
   align-items: center;
   padding: 12px 20px;
-  background-color: #D90429;
+  background-color: transparent;
   color: #fff;
   font-size: 14px;
   font-weight: 600;
@@ -308,61 +194,54 @@ h1, p {
   height: 16px;
 }
 
-/* Button Styling for Landing Section */
-.home-button {
-  padding: 12px 30px;
-  background-color: #D90429;
-  color: white;
-  font-size: 18px;
-  font-weight: 600;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 20px;
-}
-
-.home-button:hover {
-  background-color: #C50323;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .landing-section {
-    height: auto;
-    padding: 50px 20px;
-  }
-
+/* === RESPONSIVE MEDIA QUERIES === */
+@media (max-width: 992px) {
   .container {
-    padding: 20px;
+    flex-direction: column;
     text-align: center;
   }
 
   .search-bar-container {
-    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
   }
 
-  .team-section {
-    padding: 40px 20px;
+  .content h1 {
+    font-size: 2.5rem;
   }
 
-  .gallery-container {
-    padding: 30px 20px;
+  .content p {
+    font-size: 1rem;
   }
 
   .section-title h1 {
-    font-size: 28px;
+    font-size: 2rem;
   }
 
   .section-title p {
-    font-size: 16px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-section {
+    height: auto;
+    padding: 60px 20px;
   }
 
-  .gallery-container .gallery-content h2 {
+  .content h1 {
+    font-size: 2rem;
+  }
+
+  .content p {
+    font-size: 0.9rem;
+  }
+
+  .gallery-content h2 {
     font-size: 22px;
   }
 
-  .gallery-container .gallery-content p {
+  .gallery-content p {
     font-size: 12px;
   }
 
@@ -373,6 +252,24 @@ h1, p {
 
   .home-button {
     font-size: 16px;
-    padding: 10px 25px;
+    padding: 10px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content h1 {
+    font-size: 1.8rem;
+  }
+
+  .content p {
+    font-size: 0.85rem;
+  }
+
+  .section-title h1 {
+    font-size: 1.8rem;
+  }
+
+  .section-title p {
+    font-size: 0.85rem;
   }
 }
