@@ -1,91 +1,84 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "./NavigationBar.css";
+// import React, { useState, useEffect } from 'react';
+// import axios from 'axios';
+// import { useNavigate } from 'react-router-dom';
+// import './NavigationBar.css';
 
-const NavigationBar = () => {
-  const [properties, setProperties] = useState([]);
-  const [activeTab, setActiveTab] = useState("Residential");
-  const [hoveredTab, setHoveredTab] = useState(null);
-  const navigate = useNavigate();
+// const NavigationBar = () => {
+//   const [propertyTypes, setPropertyTypes] = useState([
+//     'Residential', 'Commercial', 'Retail', 'Plot', 'Industrial'
+//   ]);
+//   const [localities, setLocalities] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [hoveredTab, setHoveredTab] = useState(null);
 
-  // Fetch properties from MongoDB
-  useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/properties");
-        const data = await response.json();
-        setProperties(data);
-      } catch (error) {
-        console.error("Error fetching properties:", error);
-      }
-    };
+//   const navigate = useNavigate(); // React Router hook for programmatic navigation
 
-    fetchProperties();
-  }, []);
+//   useEffect(() => {
+//     const fetchLocalities = async () => {
+//       try {
+//         const response = await axios.get('http://localhost:5000/api/properties/localities');
+//         setLocalities(response.data);
+//       } catch (error) {
+//         console.error('Error fetching localities:', error);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
 
-  // Extract unique property types
-  const tabs = [...new Set(properties.map((property) => property.type))];
+//     fetchLocalities();
+//   }, []);
 
-  // Function to get localities for a specific property type
-  const getLocalities = (tab) => {
-    return [
-      ...new Set(
-        properties
-          .filter((property) => property.type === tab)
-          .map((property) => property.locality)
-      ),
-    ];
-  };
+//   const handleMouseEnter = (type) => {
+//     setHoveredTab(type); // Set hovered tab on hover
+//   };
 
-  // Handle tab click
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    navigate(`/properties?type=${tab}`);
-  };
+//   const handleMouseLeave = () => {
+//     setHoveredTab(null); // Remove hovered tab on mouse leave
+//   };
 
-  // Handle locality click
-  const handleLocalityClick = (tab, locality) => {
-    navigate(`/properties?type=${tab}&locality=${locality}`);
-  };
+//   const handleNavigate = (type, locality) => {
+//     navigate(`/properties?type=${type.toLowerCase()}&locality=${locality}`);
+//   };
 
-  return (
-    <div className="navigation-bar">
-      <div className="tab-container">
-        {tabs.map((tab) => {
-          const localities = getLocalities(tab);
+//   return (
+//     <div className="navigation-bar">
+//       <div className="property-type-tabs">
+//         {propertyTypes.map(type => (
+//           <div
+//             key={type}
+//             className="tab-wrapper"
+//             onMouseEnter={() => handleMouseEnter(type)} // Show dropdown on hover
+//             onMouseLeave={handleMouseLeave} // Hide dropdown on mouse leave
+//           >
+//             <a
+//               href={`/properties?type=${type.toLowerCase()}`}
+//               className={`property-tab ${hoveredTab === type ? 'active' : ''}`}
+//             >
+//               {type.toUpperCase()}
+//             </a>
 
-          return (
-            <div
-              key={tab}
-              className="tab-wrapper"
-              onMouseEnter={() => setHoveredTab(tab)}
-              onMouseLeave={() => setHoveredTab(null)}
-            >
-              <button
-                className={`tab-button ${activeTab === tab ? "active" : ""}`}
-                onClick={() => handleTabClick(tab)}
-              >
-                {tab}
-              </button>
+//             {/* Dropdown for localities */}
+//             {hoveredTab === type && !loading && (
+//               <div className="dropdown">
+//                 {localities
+//                   .filter(loc => loc.propertyType === type.toLowerCase())
+//                   .map(locality => (
+//                     <a
+//                       key={locality._id}
+//                       href="#"
+//                       className="dropdown-item"
+//                       onClick={() => handleNavigate(type, locality.name)}
+//                     >
+//                       {locality.name}
+//                     </a>
+//                   ))}
+//               </div>
+//             )}
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
 
-              {/* Smooth dropdown animation */}
-              <div className={`dropdown ${hoveredTab === tab ? "show" : ""}`}>
-                {localities.map((locality) => (
-                  <div
-                    key={locality}
-                    className="dropdown-item"
-                    onClick={() => handleLocalityClick(tab, locality)}
-                  >
-                    Properties in {locality}
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
-
-export default NavigationBar;
+// export default NavigationBar;

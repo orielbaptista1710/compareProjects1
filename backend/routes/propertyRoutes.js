@@ -3,6 +3,17 @@ const router = express.Router();
 const Property = require('../models/Property');
 const protect = require('../middleware/protect');
 
+router.get("/filters", async (req, res) => {
+  try {
+    const cities = await Property.distinct("city");
+    const localities = await Property.distinct("locality");
+    res.json({ cities, localities });
+  } catch (error) {
+    console.error("Error fetching cities/localities:", error);
+    res.status(500).json({ message: "Server Error", error });
+  }
+});
+
 
 // GET all properties (Public route)
 // Public routes - only approved properties
@@ -80,6 +91,37 @@ router.delete('/delete/:id', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
+
+// Get localities grouped by property type
+router.get('/localities', async (req, res) => {
+  try {
+    const localities = await Property.aggregate([
+      {
+        $group: {
+          _id: {
+            propertyType: '$propertyType',
+            locality: '$locality'
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          propertyType: '$_id.propertyType',
+          name: '$_id.locality',
+          count: 1
+        }
+      },
+      { $sort: { count: -1 } } // Sort by most properties first
+    ]);
+    res.json(localities);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
 
 
 

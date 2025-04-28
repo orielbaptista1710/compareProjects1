@@ -72,6 +72,21 @@ function Properties({ addToCompare, compareList, removeFromCompare }) {
     }
   }, [location.search]);
 
+  // Add this to your existing useEffect that handles URL params
+useEffect(() => {
+  const query = new URLSearchParams(location.search);
+  const type = query.get('type');
+  const locality = query.get('locality');
+
+  if (type) {
+    setSelectedPropertyTypes([type]);
+  }
+  
+  if (locality) {
+    setSelectedLocality(locality);
+  }
+}, [location.search]);
+
   useEffect(() => {
     if (!properties.length) return;
 

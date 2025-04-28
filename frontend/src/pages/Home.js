@@ -1,35 +1,19 @@
 import React from 'react';
-// import { useNavigate } from 'react-router-dom';
-import './Home.css'; // Import your CSS file if you have styles
+import './Home.css'; 
 import Gallery from '../components/Gallery'; 
-// import Contact from '../components/Contact'; 
 import MainSearchBar from '../components/MainSearchBar';
 import HeroSection from '../components/HeroSection';
-// //import Button from '../components/Button';
 import WhatsAppSidebar from '../components/WhatsAppSidebar';
-import NavigationBar from '../components/NavigationBar';
-// import PropertyCarousel from '../components/PropertyCarousel';
-// import CaroForHome from '../components/CaroForHome';
+// import NavigationBar from '../components/NavigationBar';
+
 
 function Home() {
 
-  // const navigate = useNavigate();
-  // const [searchTerm, setSearchTerm] = useState('');
-
-  //  const handleSeachSubmit = (event) => {
-  //     event.preventDefault();
-  //     navigate(`/properties?search=${encodeURIComponent(searchTerm)}`);
-  //  }
-
-  
-  //   const handleViewPropertiesClick = () => {
-  //     navigate('/properties');
-  //   };
     
-
   return (
     <div>
-       <NavigationBar />
+      {/*  */}
+       {/* <NavigationBar /> */}
       
             <WhatsAppSidebar /> 
 
