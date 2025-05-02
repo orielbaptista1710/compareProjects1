@@ -1,84 +1,99 @@
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import { useNavigate } from 'react-router-dom';
-// import './NavigationBar.css';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import './NavigationBar.css';
 
-// const NavigationBar = () => {
-//   const [propertyTypes, setPropertyTypes] = useState([
-//     'Residential', 'Commercial', 'Retail', 'Plot', 'Industrial'
-//   ]);
-//   const [localities, setLocalities] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [hoveredTab, setHoveredTab] = useState(null);
+const NavigationBar = () => {
+  const [propertyTypes, setPropertyTypes] = useState([
+    { name: 'Residential', localities: [] },
+    { name: 'Industrial', localities: [] },
+    { name: 'Commercial', localities: [] },
+    { name: 'Plot', localities: [] },
+    { name: 'Retail', localities: [] }
+  ]);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-//   const navigate = useNavigate(); // React Router hook for programmatic navigation
+  // Fetch localities for each property type from MongoDB
+  useEffect(() => {
+    const fetchLocalities = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get('http://localhost:5000/api/properties/localities-by-type');
+        setPropertyTypes(prevTypes => 
+          prevTypes.map(type => ({
+            ...type,
+            localities: response.data[type.name.toLowerCase()] || []
+          }))
+        );
+      } catch (error) {
+        console.error('Error fetching localities:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-//   useEffect(() => {
-//     const fetchLocalities = async () => {
-//       try {
-//         const response = await axios.get('http://localhost:5000/api/properties/localities');
-//         setLocalities(response.data);
-//       } catch (error) {
-//         console.error('Error fetching localities:', error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
+    fetchLocalities();
+  }, []);
 
-//     fetchLocalities();
-//   }, []);
+  const handleMouseEnter = (index) => {
+    setActiveDropdown(index);
+  };
 
-//   const handleMouseEnter = (type) => {
-//     setHoveredTab(type); // Set hovered tab on hover
-//   };
+  const handleMouseLeave = () => {
+    setActiveDropdown(null);
+  };
 
-//   const handleMouseLeave = () => {
-//     setHoveredTab(null); // Remove hovered tab on mouse leave
-//   };
+  return (
+    <nav className="navigation-bar">
+      <div className="nav-container">
+        <div className="nav-centerr">
+          <ul className="nav-menu">
+            {propertyTypes.map((type, index) => (
+              <li 
+                key={type.name}
+                className="nav-item property-type"
+                onMouseEnter={() => handleMouseEnter(index)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <span className="nav-linkk">
+                  {type.name}
+                </span>
+                
+                {activeDropdown === index && (
+                  <div className="dropdown-menu">
+                    {loading ? (
+                      <div className="dropdown-loading">Loading localities...</div>
+                    ) : (
+                      <>
+                        {type.localities.length > 0 ? (
+                          type.localities.map(locality => (
+                            <Link 
+                              key={locality}
+                              to={`/properties?type=${type.name.toLowerCase()}&locality=${encodeURIComponent(locality)}`}
+                              className="dropdown-item"
+                            >
+                             Properties in{locality}
+                            </Link>
+                          ))
+                        ) : (
+                          <div className="dropdown-empty">No localities found</div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+              </li>
+            ))}
 
-//   const handleNavigate = (type, locality) => {
-//     navigate(`/properties?type=${type.toLowerCase()}&locality=${locality}`);
-//   };
+            <li className="nav-item">
+              <Link to="/advice" className="nav-link">Advice</Link>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  );
+};
 
-//   return (
-//     <div className="navigation-bar">
-//       <div className="property-type-tabs">
-//         {propertyTypes.map(type => (
-//           <div
-//             key={type}
-//             className="tab-wrapper"
-//             onMouseEnter={() => handleMouseEnter(type)} // Show dropdown on hover
-//             onMouseLeave={handleMouseLeave} // Hide dropdown on mouse leave
-//           >
-//             <a
-//               href={`/properties?type=${type.toLowerCase()}`}
-//               className={`property-tab ${hoveredTab === type ? 'active' : ''}`}
-//             >
-//               {type.toUpperCase()}
-//             </a>
-
-//             {/* Dropdown for localities */}
-//             {hoveredTab === type && !loading && (
-//               <div className="dropdown">
-//                 {localities
-//                   .filter(loc => loc.propertyType === type.toLowerCase())
-//                   .map(locality => (
-//                     <a
-//                       key={locality._id}
-//                       href="#"
-//                       className="dropdown-item"
-//                       onClick={() => handleNavigate(type, locality.name)}
-//                     >
-//                       {locality.name}
-//                     </a>
-//                   ))}
-//               </div>
-//             )}
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default NavigationBar;
+export default NavigationBar;

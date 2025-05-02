@@ -9,6 +9,8 @@ const propertySchema = new mongoose.Schema({
     default: 'pending' 
   },
 
+  featured: { type: Boolean, default: false },
+
   // Contact Information
   firstName: { type: String },
   lastName: { type: String },

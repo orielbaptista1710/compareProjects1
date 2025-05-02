@@ -43,33 +43,69 @@ const MainSearchBar = () => {
     navigate(`/properties?${queryParams.toString()}`);
   };
 
-  return (
-    <div className="mainsearch-bar">
-      <h1>Find Your Right Property Match</h1>
-      <form className="mainsearch-container" onSubmit={handleSearch}>
+  
 
-        {/* Property Type Dropdown */}
-        <select
+  return (
+
+
+    <div className="mainsearch-bar">
+      <h1 className="h1">Find Your Right Property Match</h1>
+      {/* <a className="description-title">Established fact that a reader will be distracted by the readable content of a page when looking at its layout. .</a> */}
+
+      <form className="search-container" onSubmit={handleSearch}>
+        <div className="main-seach-container">
+        <div className="seatch-field">
+          <select
+          id="city"
+          name="city"
+          className="dropdown-main"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}>
+            <option value="">Select City</option>
+          {cities?.map((cityItem, index) => (
+            <option key={index} value={cityItem}>{cityItem}</option>
+          ))}
+          </select>
+
+        </div>
+
+        <div className="seatch-field">
+          <select
+          id="locality"
+          name="locality"
+          className="dropdown-main"
+          value={locality}
+          onChange={(e) => setLocality(e.target.value)}>
+
+          <option value="">Select Locality</option>
+          {localities?.map((localityItem, index) => (
+            <option key={index} value={localityItem}>{localityItem}</option>
+          ))}
+        </select>
+        </div>
+
+        <div className="seatch-field">
+          <select 
+          id="property-type"
           name="type"
           className="dropdown-main"
           value={propertyType}
-          onChange={(e) => setPropertyType(e.target.value)}
-        >
-          <option value="">Property Type</option>
-          <option value="Residential">Residential</option>
+          onChange={(e) => setPropertyType(e.target.value)}>
+          <option value="Residental">Residential</option>
           <option value="Industrial">Industrial</option>
           <option value="Commercial">Commercial</option>
           <option value="Plot">Plot</option>
           <option value="Retail">Retail</option>
-        </select>
+          </select>
+        </div>
 
-        {/* Budget Dropdown */}
-        <select
+        <div className="seatch-field">
+          <select 
+          id="budget"
           name="budget"
-          className="dropdown-main"
-          value={budget}
-          onChange={(e) => setBudget(e.target.value)}
-        >
+         className="dropdown-main"
+         value={budget}
+         onChange={(e) => setBudget(e.target.value)}>
           <option value="">Select Budget</option>
           <option value="5000000">Up to ₹5 Lakh</option>
           <option value="10000000">Up to ₹1 Cr</option>
@@ -79,43 +115,19 @@ const MainSearchBar = () => {
           <option value="50000000">Up to ₹5 Cr</option>
           <option value="60000000">Up to ₹6 Cr</option>
           <option value="70000000">Up to ₹7 Cr</option>
-        </select>
+         </select>
+        </div>
 
-        {/* City Dropdown */}
-        <select
-          name="city"
-          className="dropdown-main"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-        >
-          <option value="">Select City</option>
-          {cities?.map((cityItem, index) => (
-            <option key={index} value={cityItem}>{cityItem}</option>
-          ))}
-        </select>
-
-        {/* Locality Dropdown */}
-        <select
-          name="locality"
-          className="dropdown-main"
-          value={locality}
-          onChange={(e) => setLocality(e.target.value)}
-        >
-          <option value="">Select Locality</option>
-          {localities?.map((localityItem, index) => (
-            <option key={index} value={localityItem}>{localityItem}</option>
-          ))}
-        </select>
-
-        {/* Search Button */}
         <button className="mainsearch-btn" type="submit">
           Compare Now 
         </button>
 
-        {/* Advanced Search Button */}
-        <button className="advanced-search-btn" type="button" onClick={() => navigate('/properties')}>
+        </div>
+
+        {/* <button className="advanced-search-btn" type="button" onClick={() => navigate('/properties')}>
           Advanced Search →
-        </button>
+        </button> */}
+
       </form>
     </div>
   );

@@ -3,19 +3,83 @@ const router = express.Router();
 const Property = require('../models/Property');
 const protect = require('../middleware/protect');
 
+// router.get("/filters", async (req, res) => {
+//   try {
+//     const cities = await Property.distinct("city");
+//     const localities = await Property.distinct("locality");
+//     res.json({ cities, localities });
+//   } catch (error) {
+//     console.error("Error fetching cities/localities:", error);
+//     res.status(500).json({ message: "Server Error", error });
+//   }
+// });
+
+
+// GET filter options: cities, localities, possessionStatus, furnishing, facing, floor
 router.get("/filters", async (req, res) => {
   try {
     const cities = await Property.distinct("city");
     const localities = await Property.distinct("locality");
-    res.json({ cities, localities });
+    const possessionStatusOptions = await Property.distinct("possessionStatus");
+    const furnishingOptions = await Property.distinct("furnishing");
+    const facingOptions = await Property.distinct("facing");
+    const floorOptions = await Property.distinct("floor");
+    const ageOptions = await Property.distinct("ageOfProperty");
+    const bathroomOptions = await Property.distinct("bathrooms");
+    const balconyOptions = await Property.distinct("balconies");
+
+    res.json({
+      cities,
+      localities,
+      possessionStatusOptions,
+      furnishingOptions,
+      facingOptions,
+      floorOptions,
+      ageOptions,
+      bathroomOptions,
+      balconyOptions
+    });
   } catch (error) {
-    console.error("Error fetching cities/localities:", error);
+    console.error("Error fetching filter options:", error);
     res.status(500).json({ message: "Server Error", error });
   }
 });
 
+router.get('/localities-by-type', async (req, res) => {
+  try {
+    const result = {};
+    
+    const types = ['Residential', 'Industrial', 'Commercial', 'Plot', 'Retail'];
+    
+    for (const type of types) {
+      const localities = await Property.distinct('locality', { 
+        propertyType: type,
+        status: 'approved' 
+      });
+      result[type.toLowerCase()] = localities; 
+    }
+    
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-// GET all properties (Public route)
+// Get featured properties
+router.get('/featured', async (req, res) => {
+  try {
+    const featuredProperties = await Property.find({ 
+      status: 'approved',
+      featured: true 
+    }).limit(5); 
+    
+    res.json(featuredProperties);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
 // Public routes - only approved properties
 router.get('/', async (req, res) => {
   try {

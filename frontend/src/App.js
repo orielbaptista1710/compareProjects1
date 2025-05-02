@@ -30,8 +30,14 @@ function App() {
   const [compareList, setCompareList] = useState([]);
 
   const addToCompare = (property) => {
-    if (!compareList.find(p => p._id === property._id)) {
-      setCompareList([...compareList, property]);
+    if (!compareList.some((item) => item._id === property._id)) {
+      if (compareList.length < 4) {
+        setCompareList([...compareList, property]);
+      } else {
+        alert("You can only compare up to 4 properties.");
+      }
+    } else {
+      alert("This property is already in the comparison list.");
     }
   };
 

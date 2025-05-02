@@ -48,9 +48,29 @@ function PropertyCard({
     return `${property.locality}, ${property.city}, ${property.state}`;
   };
 
-  // Format the price (placeholder - you'll need to add price to your data)
-  const formatPrice = () => {
-    return "Price on Request";
+  const formatPrice = (price) => {
+    if (typeof price !== 'number' || isNaN(price)) {
+      return "Price on Request";
+    }
+  
+    // For prices >= 1 Crore (1,00,00,000)
+    if (price >= 10000000) {
+      const crores = price / 10000000;
+      return `₹${crores.toFixed(2)} Crore${crores !== 1 ? 's' : ''}`;
+    }
+    
+    // For prices >= 1 Lakh (1,00,000)
+    if (price >= 100000) {
+      const lakhs = price / 100000;
+      return `₹${lakhs.toFixed(2)} Lakh${lakhs !== 1 ? 's' : ''}`;
+    }
+  
+    // For prices < 1 Lakh - show full amount with commas
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(price);
   };
 
   return (
@@ -76,15 +96,19 @@ function PropertyCard({
       </div>
 
       <div className="property-content">
+
+        <div className='submain-header'>                  
         <div className="property-header">
           <h2 className="property-title">{property.title}</h2>
-          <div className="property-price">{formatPrice()}</div>
-          
+          <div className="property-price">{formatPrice(property.price)} (₹34.0/sq.ft)                          </div>
         </div>
+        <div className='more-details'>
           <p className="property-location">
             <FontAwesomeIcon icon={faLocationDot} /> {formatLocation()}
           </p>
           <div className="property-agent">By {property.firstName}</div>
+        </div>
+        </div>
 
         <div className="property-features">
           <div className="feature">
@@ -114,6 +138,14 @@ function PropertyCard({
           <div className="feature">
             <FontAwesomeIcon icon={faCouch} />
             <span>{property.furnishing[0] || 'N/A'}</span>
+          </div>
+          <div className="feature">
+            <FontAwesomeIcon icon={faCouch} />
+            <span>{property.ageOfProperty || 'N/A'}</span>
+          </div>
+          <div className="feature">
+            <FontAwesomeIcon icon={faCouch} />
+            <span>featured:{property.featured || 'N/A'}</span>
           </div>
 
         </div>

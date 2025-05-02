@@ -4,8 +4,10 @@ import './Properties.css';
 import { useLocation} from 'react-router-dom';
 import axios from 'axios';
 import CompareSidebar from '../components/CompareSidebar';
-import Select from 'react-select'; // You'll need to install react-select
+import Select from 'react-select';
 import MoreFiltersPanel from '../components/MoreFiltersPanel';
+import { FiFilter, FiSearch } from 'react-icons/fi';
+import BudgetFilter from '../components/BudgetFilter';
 
 function Properties({ addToCompare, compareList, removeFromCompare }) {
   const [properties, setProperties] = useState([]);
@@ -19,17 +21,24 @@ function Properties({ addToCompare, compareList, removeFromCompare }) {
   const [selectedPropertyTypes, setSelectedPropertyTypes] = useState([]);
   const [selectedBhkTypes, setSelectedBhkTypes] = useState([]);
   const [budgetRange, setBudgetRange] = useState({
-    min: '',
-    max: ''
+    min: '0',
+    max: '1000000000'
   });
-  const [selectedFurnishings, setSelectedFurnishings] = useState([]);
+  //check for refresh here later
   const [selectedState, setSelectedState] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedLocality, setSelectedLocality] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
+  const [selectedPossessionStatus, setSelectedPossessionStatus] = useState([]);
+  const [selectedFurnishings, setSelectedFurnishings] = useState([]);
+  const [selectedFacing, setSelectedFacing] = useState([]);
+  const [selectedFloors, setSelectedFloors] = useState([]);
+  const [selectedAge, setSelectedAge] = useState([]);
+  const [selectedBathrooms, setSelectedBathrooms] = useState([]);
+  const [selectedBalconies, setSelectedBalconies] = useState([]);
+
   const location = useLocation();
-  // const query = new URLSearchParams(location.search);
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -72,27 +81,13 @@ function Properties({ addToCompare, compareList, removeFromCompare }) {
     }
   }, [location.search]);
 
-  // Add this to your existing useEffect that handles URL params
-useEffect(() => {
-  const query = new URLSearchParams(location.search);
-  const type = query.get('type');
-  const locality = query.get('locality');
-
-  if (type) {
-    setSelectedPropertyTypes([type]);
-  }
-  
-  if (locality) {
-    setSelectedLocality(locality);
-  }
-}, [location.search]);
 
   useEffect(() => {
     if (!properties.length) return;
 
     const filtered = properties.filter(property => {
-        // For multi-select filters, check if property matches any of the selected values
-        const matchesPropertyType = selectedPropertyTypes.length === 0 || 
+
+      const matchesPropertyType = selectedPropertyTypes.length === 0 || 
           (property.propertyType && 
            selectedPropertyTypes.some(type => 
              property.propertyType.toLowerCase() === type.toLowerCase()
@@ -102,13 +97,6 @@ useEffect(() => {
           (property.bhk && 
            selectedBhkTypes.some(bhk => 
              String(property.bhk) === String(bhk)
-           ));
-        
-        const matchesFurnishing = selectedFurnishings.length === 0 || 
-          (property.furnishing !== undefined && 
-           property.furnishing !== null &&
-           selectedFurnishings.some(furnishing => 
-             String(property.furnishing).toLowerCase() === String(furnishing).toLowerCase()
            ));
 
         const matchesState = !selectedState || 
@@ -123,6 +111,7 @@ useEffect(() => {
         const matchesSearch = !searchTerm || 
           (property.title && property.title.toLowerCase().includes(searchTerm.toLowerCase())) || 
           (property.description && property.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (property.long_description && property.long_description.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (property.locality && property.locality.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (property.city && property.city.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (property.propertyType && property.propertyType.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -133,15 +122,69 @@ useEffect(() => {
             (!budgetRange.min || 
             (property.price && property.price >= parseInt(budgetRange.min)));
 
-      return (
+         // Add the new filter conditions
+          const matchesPossessionStatus = selectedPossessionStatus.length === 0 || 
+          (property.possessionStatus && 
+           selectedPossessionStatus.some(status => 
+             property.possessionStatus.includes(status)
+           ));
+
+          const matchesFurnishing = selectedFurnishings.length === 0 || 
+          (property.furnishing && 
+           selectedFurnishings.some(furnishing => 
+             property.furnishing.includes(furnishing)
+           ));
+
+          const matchesFacing = selectedFacing.length === 0 || 
+          (property.facing && 
+           selectedFacing.some(facing => 
+             property.facing === facing
+           ));
+
+          const matchesFloor = selectedFloors.length === 0 || 
+            (property.floor && 
+             selectedFloors.some(floor => 
+               property.floor === floor
+             ));
+          
+          const matchesAge = selectedAge.length === 0 ||
+            (property.ageOfProperty &&
+              selectedAge.some(age => {
+                return property.ageOfProperty === age;
+              })
+            );
+          
+          const matchesBathrooms = selectedBathrooms.length === 0 ||
+          (property.bathrooms &&
+           selectedBathrooms.some(bathroom => {
+             return property.bathrooms === bathroom;
+           })
+          )
+
+          const matchesBalconies = selectedBalconies.length === 0 ||
+          (property.balconies &&
+           selectedBalconies.some(balcony => {
+             return property.balconies === balcony;
+           })
+          )
+
+
+          
+   return (
         matchesPropertyType &&
         matchesBhk &&
-        matchesFurnishing &&
         matchesState &&
         matchesCity &&
         matchesLocality &&
         matchesSearch &&
-        matchesBudget
+        matchesBudget &&
+        matchesPossessionStatus &&
+        matchesFurnishing &&
+        matchesFacing &&
+        matchesFloor &&
+        matchesAge &&
+        matchesBathrooms &&
+        matchesBalconies
       );
     });
 
@@ -160,13 +203,19 @@ useEffect(() => {
   properties,
   selectedPropertyTypes,
   selectedBhkTypes,
-  selectedFurnishings,
   selectedState,
   selectedCity,
   selectedLocality,
   searchTerm,
   sortOption,
-  budgetRange
+  budgetRange,
+  selectedPossessionStatus,
+  selectedFurnishings,
+  selectedFacing,
+  selectedFloors,
+  selectedAge,
+  selectedBathrooms,
+  selectedBalconies
 ]);
 
   // Extract unique values for filters
@@ -175,12 +224,12 @@ useEffect(() => {
   const bhkTypes = [...new Set(properties.map(p => p.bhk))];
   const cities = [...new Set(properties.map(p => p.city))];
   const localities = [...new Set(properties.map(p => p.locality))];
-  const furnishingTypes = [...new Set(properties.map(p => p.furnishing).filter(Boolean))];
+  // const furnishingTypes = [...new Set(properties.map(p => p.furnishing).filter(Boolean))];
   
   // Prepare options for react-select components
   const propertyTypeOptions = propertyTypes.map(type => ({ value: type, label: type }));
   const bhkTypeOptions = bhkTypes.map(bhk => ({ value: bhk, label: `${bhk} BHK` }));
-  const furnishingOptions = furnishingTypes.map(type => ({ value: type, label: type }));
+  // const furnishingOptions = furnishingTypes.map(type => ({ value: type, label: type }));
 
   // Filter cities based on selected state
   const filteredCities = selectedState
@@ -200,9 +249,9 @@ useEffect(() => {
   if (error) return <div className="error">Error: {error}</div>;
 
   return (
-    <div className="properties-page">
+<div className="properties-page">
     
-      <div className="filters-container">
+     <div className="filters-container">
         <div className="filter-group">
           <label>State</label>
           <select
@@ -260,6 +309,7 @@ useEffect(() => {
             value={selectedPropertyTypes.map(type => ({ value: type, label: type }))}
             onChange={(selectedOptions) => 
               setSelectedPropertyTypes(selectedOptions.map(option => option.value))
+
             }
             className="multi-select"
             classNamePrefix="select"
@@ -283,81 +333,60 @@ useEffect(() => {
           />
         </div>
 
-        {/* Multi-select Furnishing Filter */}
-        {furnishingTypes.length > 0 && (
-          <div className="filter-group">
-            <label>Furnishing</label>
-            <Select
-              isMulti
-              options={furnishingOptions}
-              value={selectedFurnishings.map(furnishing => ({ value: furnishing, label: furnishing }))}
-              onChange={(selectedOptions) => 
-                setSelectedFurnishings(selectedOptions.map(option => option.value))
-              }
-              className="multi-select"
-              classNamePrefix="select"
-              placeholder="Select furnishings..."
-            />
-          </div>
-        )}
+        <div className="filter-group">
+        <label>Budget</label>
+        <BudgetFilter
+            budgetRange={budgetRange}
+            setBudgetRange={setBudgetRange}
+          />
+        </div>
 
-
-<button 
-  className="more-filters-btn" 
-  onClick={() => setMoreFiltersOpen(true)}
->
-  More Filters
-</button>
+              <button className="more-filters-btn" onClick={() => setMoreFiltersOpen(true)}>
+                <FiFilter /> More Filters
+              </button>
       </div>
 
-      <div className="filter-group search-group" style={{
-  flexGrow: 1,
-  marginLeft: 'auto' // Aligns to the right if space is available
-}}>
-  <label style={{
-    fontSize: '12px',
-    color: '#666',
-    marginBottom: '5px',
-    fontWeight: '500',
-    display: 'block'
-  }}>Search</label>
-  <input 
-    type="text" 
-    placeholder="Search by locality, title, description" 
-    value={searchTerm}
-    onChange={(e) => setSearchTerm(e.target.value)}
-    style={{
-      padding: '8px 12px',
-      border: '1px solid #e0e0e0',
-      borderRadius: '4px',
-      fontSize: '14px',
-      width: '100%',
-      height: '36px',
-      boxSizing: 'border-box',
-      transition: 'border-color 0.2s',
-      backgroundColor: 'white'
-    }}
-    onFocus={(e) => {
-      e.target.style.borderColor = '#4a90e2';
-      e.target.style.outline = 'none';
-    }}
-    onBlur={(e) => {
-      e.target.style.borderColor = '#e0e0e0';
-    }}
-  />
-</div>
+      <div className="search-container">
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search properties..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+        <button className="search-button">
+          <FiSearch size={20} />
+        </button>
+      </div>
+      </div>
 
-<MoreFiltersPanel
-  isOpen={isMoreFiltersOpen}
-  onClose={() => setMoreFiltersOpen(false)}
-  budgetRange={budgetRange}
-  setBudgetRange={setBudgetRange}
-  selectedFurnishings={selectedFurnishings}
-  setSelectedFurnishings={setSelectedFurnishings}
-  selectedPropertyTypes={selectedPropertyTypes}
-  setSelectedPropertyTypes={setSelectedPropertyTypes}
-/>
+          <MoreFiltersPanel
+            isOpen={isMoreFiltersOpen}
+            onClose={() => setMoreFiltersOpen(false)}
+            selectedPossessionStatus={selectedPossessionStatus}
+            setSelectedPossessionStatus={setSelectedPossessionStatus}
 
+            selectedFurnishings={selectedFurnishings}
+            setSelectedFurnishings={setSelectedFurnishings}
+
+            selectedFacing={selectedFacing}
+            setSelectedFacing={setSelectedFacing}
+
+            selectedFloors={selectedFloors}
+            setSelectedFloors={setSelectedFloors}
+
+            selectedAge={selectedAge}
+            setSelectedAge={setSelectedAge}
+
+            selectedBathrooms={selectedBathrooms}
+            setSelectedBathrooms={setSelectedBathrooms}
+
+            selectedBalconies={selectedBalconies}
+            setSelectedBalconies={setSelectedBalconies}
+          />
+    
+    <div className='main-page'>  
 
       <div className="header-section">
         <div className="last-updated">
@@ -383,7 +412,7 @@ useEffect(() => {
         </div> 
       </div>
 
-      <div className='main-content'>
+      
 
 
       <div className='main-content'>
@@ -402,6 +431,8 @@ useEffect(() => {
             </div>
           )}
         </div>
+        
+        <div className="ad-main-container">
 
         <div className="ad-container">
           <h3>Advertisement</h3>
@@ -410,6 +441,21 @@ useEffect(() => {
             <p>Ad content goes here.</p>
           </div>
         </div>
+
+
+    {/* heck how its skicy here */}
+        <div className="ad-container">
+          <h3>Are you a Developer looking to showcase youre Projects?</h3>
+          <div className="ad-content">
+            <p>Post your property and reach a wider audience.</p>
+            <button className="post-property-button">Post Property</button>
+          </div>
+        </div>
+
+        
+        </div>
+
+
       </div>
 
     </div>
@@ -421,7 +467,7 @@ useEffect(() => {
           removeFromCompare={removeFromCompare}
         />
       )}
-    </div>
+</div>
   );
 }
 

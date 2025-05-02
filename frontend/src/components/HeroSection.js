@@ -1,5 +1,5 @@
 import React from "react";
-import "./HeroSection.css"; // CSS file
+import "./HeroSection.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearchLocation, faHandshake, faChartLine, faShieldAlt } from "@fortawesome/free-solid-svg-icons";
 
@@ -8,36 +8,41 @@ const HeroSection = () => {
     {
       icon: faSearchLocation,
       title: "Comprehensive Listings",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Discover properties that suit your preferences.",
+      description: "Discover properties that suit your preferences with our extensive database of verified listings.",
     },
     {
       icon: faHandshake,
       title: "Trusted Agents",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Work with certified professionals.",
+      description: "Work with our network of certified professionals for a seamless experience.",
     },
     {
       icon: faChartLine,
       title: "Market Insights",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Stay ahead with accurate market trends.",
+      description: "Stay ahead with accurate market trends and data-driven recommendations.",
     },
     {
       icon: faShieldAlt,
       title: "Secure Transactions",
-      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Enjoy safe and secure property dealings.",
+      description: "Enjoy safe and secure property dealings with our verified processes.",
     },
   ];
 
   return (
     <section className="why-choose-us">
-      <h2 className="section-titlee">Why Choose Us</h2>
-      <div className="card-container">
+      <div className="sectionn-header">
+        <h2 className="sectionn-title">Why Choose Us</h2>
+        <div className="title-underline"></div>
+      </div>
+      <div className="card-containerr">
         {cards.map((card, index) => (
           <div className="card" key={index}>
-            <div className="icon">
-              <FontAwesomeIcon icon={card.icon} />
+            <div className="icon-wrapper">
+              <FontAwesomeIcon icon={card.icon} className="icon" />
             </div>
-            <h3>{card.title}</h3>
-            <p>{card.description}</p>
+            <div className="card-content">
+              <h3>{card.title}</h3>
+              <p>{card.description}</p>
+            </div>
           </div>
         ))}
       </div>

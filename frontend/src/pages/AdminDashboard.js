@@ -174,6 +174,8 @@ const AdminDashboard = () => {
                 <p><strong>Balconies:</strong> {property.balconies || 'N/A'}</p>
                 <p><strong>Furnishing:</strong> {property.furnishing || 'N/A'}</p>
                 <p><strong>Property Type:</strong> {property.propertyType || 'N/A'}</p>
+                <p><strong>Property Type:</strong> {property.featured || 'N/A'}</p>
+
 
 
                 <div className="action-buttons">

@@ -1,0 +1,87 @@
+.budget-filter {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .budget-button {
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .budget-button .arrow {
+    margin-left: 8px;
+    font-size: 10px;
+  }
+  
+  .budget-container {
+    position: absolute;
+    top: 40px;
+    left: -125px;
+    margin-top: 8px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    width: 350px;
+    z-index: 999;
+  }
+  
+  .budget-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  
+  .budget-input-group {
+    flex: 1;
+  }
+  
+  .budget-input-group input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  
+  .budget-input-group input:focus {
+    border-color: #D90429;
+  }
+  
+  .budget-dropdown span {
+    font-weight: 500;
+    color: #555;
+  }
+  
+  .budget-silder-wrapper {
+    padding: 0 8px;
+  }
+  
+  /* RC Slider custom styles */
+  .rc-slider {
+    margin: 10px 0;
+  }
+  
+  .rc-slider-track {
+    background-color: #D90429;
+  }
+  
+  .rc-slider-handle {
+    border: 2px solid #D90429 !important;
+  }
+  
+  .rc-slider-handle:active {
+    box-shadow: 0 0 5px #D90429 !important;
+  }

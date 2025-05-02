@@ -15,8 +15,8 @@
 
   .more-filters-panel-overlay {
     position: fixed;
-    top: 92px;
-    left: 752px;
+    top: 100px;
+    left: 999px;
     right: 0;
     bottom: 0;
     display: flex;
@@ -236,4 +236,44 @@
     }
   }
 
-  
+  /* Add these to your existing CSS */
+.age-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.option-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.option-btn {
+  padding: 8px 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.option-btn.selected {
+  background-color: #d92228;
+  color: white;
+  border-color: #d92228;
+}
+
+.filter-section {
+  margin-bottom: 20px;
+}
+
+.filter-section h4 {
+  margin-bottom: 10px;
+  font-size: 15px;
+  color: #333;
+}
