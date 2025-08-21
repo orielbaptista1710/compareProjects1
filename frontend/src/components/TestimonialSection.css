@@ -1,0 +1,191 @@
+/* TestimonialSection.css */
+.testimonial-section {
+  background: white;
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  position: relative;
+  padding: 150px 0;
+  display: flex;
+  justify-content: center;
+  max-height: 100vh;
+}
+
+.testimonial-container {
+  max-width: 1700px;
+  width: 100%;
+  padding: 0 70px;
+}
+
+.testimonial-section h2 {
+  font-size: 42px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #000;
+  line-height: 1.2;
+}
+
+.testimonial-section h2 span {
+  font-weight: 700;
+  font-size: 48px;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.trustpilot-info {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  font-size: 16px;
+  margin-bottom: 60px;
+  padding: 12px 24px;
+  border-radius: 50px;
+  background-color: #c2bfbf;
+}
+
+.trustpilot {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+}
+
+.trustpilot-info img {
+  height: 24px;
+  margin-right: 8px;
+}
+
+.testimonial-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (min-width: 992px) {
+  .testimonial-content-wrapper {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+  }
+}
+
+.testimonial-header {
+  text-align: center;
+  max-width: 280px;
+}
+
+@media (min-width: 992px) {
+  .testimonial-header {
+    text-align: left;
+    margin-top: 20px;
+  }
+}
+
+.quote-icon {
+  font-size: 64px;
+  color: #bcbcbc;
+  line-height: 1;
+}
+
+.testimonial-header h3 {
+  font-size: 28px;
+  font-weight: 500;
+  margin: 20px 0;
+  color: #000;
+  line-height: 1.3;
+}
+
+.slider-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.slider-nav .line {
+  width: 30px;
+  height: 3px;
+  background: #000;
+}
+
+.arrow {
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.arrow:hover {
+  color: #00b67a;
+}
+
+.testimonials {
+  display: flex;
+  gap: 30px;
+  overflow-x: auto;
+  padding: 20px 10px;
+  width: 100%;
+  scrollbar-width: none;
+}
+
+.testimonials::-webkit-scrollbar {
+  display: none;
+}
+
+.testimonial-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  padding: 32px;
+  min-width: 320px;
+  max-width: 380px;
+  text-align: left;
+  transition: transform 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+}
+
+.testimonial-card p {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.stars {
+  color: #fcbf49;
+  font-size: 20px;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.time {
+  font-size: 14px;
+  color: #777;
+}

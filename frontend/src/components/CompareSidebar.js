@@ -25,7 +25,7 @@ const CompareSidebar = ({ compareList, removeFromCompare }) => {
             <ul>
               {compareList.map((property) => (
                 <li key={property._id} className="compare-item">
-                  <img src={property.coverimage} alt={property.title} className="property-image" />
+                  <img src={property.coverImage} alt={property.title} className="property-image" loading="lazy"/>
                   <div className="property-info">
                     <p>{property.title}</p>
                     <button className="remove-btn" onClick={() => removeFromCompare(property._id)}>

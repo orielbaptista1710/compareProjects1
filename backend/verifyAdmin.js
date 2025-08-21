@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 async function verifyAdmin() {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb+srv://comparePropjectAdmin:3MuwjCfavWYfbY33@compareprojectcluster0.1lha77m.mongodb.net/', {
+    await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });

@@ -39,25 +39,37 @@ function Header() {
 
   return (
     <header id='home' className="header">
-      <nav className="navbar">
-        <div className="logo">
-          <img className="logo-img" src={logoo} alt="Logo" onClick={() => handleScrollToSection('home')} />
+      <nav className="header-navbar">
+        <div className="header-logo">
+          <img className="logo-img-header" src={logoo} alt="Logo" onClick={() => handleScrollToSection('homee')} loading="lazy"/>
         </div>
 
-        <div className="menu-icon" onClick={toggleMenu}>&#9776;</div>
+        <div className="header-menu-icon" onClick={toggleMenu}>&#9776;</div>
 
-        <ul className={`nav-items ${isMenuOpen ? 'show-menu' : ''}`}>
-          <div className="nav-center">
-            <li><button className="nav-link" onClick={() => handleScrollToSection('home')}>Home</button></li>
-            <li><Link to="/properties" className="nav-link">Properties</Link></li>
-            <li><button className="nav-link" onClick={() => handleScrollToSection('contact')}>Contact</button></li>
-          </div>
+        <ul className={`header-nav-items ${isMenuOpen ? 'show-menu' : ''}`}>
+          <div className="header-nav-center">
+  <li>
+    <button className="header-nav-link nav-hover" onClick={() => handleScrollToSection('homee')}>
+      Home
+    </button>
+  </li>
+  <li>
+    <Link to="/properties" className="header-nav-link nav-hover">
+      Properties
+    </Link>
+  </li>
+  <li>
+    <button className="header-nav-link nav-hover" onClick={() => handleScrollToSection('contact')}>
+      Contact
+    </button>
+  </li>
+</div>
 
           <div className="nav-right">
             <li><Link to="/compare" className="compare-btn">Compare</Link></li>
             <li className="nav-dev-item">
               <Link to="/login" className="nav-link-deveopers">
-                <span className="nav-icon">
+                <span className="header-nav-icon">
                   <FontAwesomeIcon icon={faUsers} />
                 </span>
                 <span className="popup-text">Developers</span>

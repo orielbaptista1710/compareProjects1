@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; 
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
 
 const AdminDashboard = () => {
   const [pendingProperties, setPendingProperties] = useState([]);
@@ -12,11 +11,66 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('pending');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [currentPropertyId, setCurrentPropertyId] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+
+  // Add the renderMedia function
+  const renderMedia = (media, isCover = false) => {
+    if (!media) return null;
+
+    if (isCover) {
+      return (
+        <div className="property-cover">
+          <img 
+            src={`${API_BASE_URL}${media}`} 
+            alt="Cover" 
+            loading="lazy"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = '/placeholder-cover.jpg';
+            }}
+          />
+        </div>
+      );
+    }
+
+    if (Array.isArray(media)) {
+      return (
+        <div className="media-grid">
+          {media.map((item, index) => {
+            const src = typeof item === 'object' ? item.src : item;
+            const isVideo = typeof item === 'object' ? item.type === 'video' : 
+                          src.includes('.mp4') || src.includes('.mov');
+
+            return (
+              <div key={index} className="media-item">
+                {isVideo ? (
+                  <video controls>
+                    <source src={`${API_BASE_URL}${src}`} type={`video/${src.split('.').pop()}`} />
+                  </video>
+                ) : (
+                  <img 
+                    src={`${API_BASE_URL}${src}`} 
+                    alt={`Media ${index}`}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/placeholder-image.jpg';
+                    }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return null;
+  };
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
@@ -33,45 +87,49 @@ const AdminDashboard = () => {
     }
 
     const fetchData = async () => {
-        setLoading(true);
-        try {
-          const endpoint = activeTab === 'pending' 
-            ? `${API_BASE_URL}/api/admin/pending-properties` 
-            : `${API_BASE_URL}/api/admin/all-properties`;
-          
-          const { data } = await axios.get(endpoint, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-  
-          if (activeTab === 'pending') {
-            setPendingProperties(data);
-          } else {
-            setAllProperties(data);
-          }
-        } catch (err) {
-          setError(err.response?.data?.message || 'Failed to fetch properties');
-          if (err.response?.status === 401) navigate('/login');
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchData();
-    }, [activeTab, token, navigate]);
-  
-    // Update all your API calls to include the full URL:
-    const handleApprove = async (propertyId) => {
+      setLoading(true);
       try {
-        await axios.put(
-          `${API_BASE_URL}/api/admin/approve/${propertyId}`, 
-          {}, 
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        // ... rest of your approve logic
+        const endpoint = activeTab === 'pending' 
+          ? `${API_BASE_URL}/api/admin/pending-properties` 
+          : `${API_BASE_URL}/api/admin/all-properties`;
+        
+        const { data } = await axios.get(endpoint, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (activeTab === 'pending') {
+          setPendingProperties(data);
+        } else {
+          setAllProperties(data);
+        }
       } catch (err) {
-        // ... error handling
+        setError(err.response?.data?.message || 'Failed to fetch properties');
+        if (err.response?.status === 401) navigate('/login');
+      } finally {
+        setLoading(false);
       }
     };
+
+    fetchData();
+  }, [activeTab, token, navigate]);
+
+  const handleApprove = async (propertyId) => {
+    try {
+      await axios.put(
+        `${API_BASE_URL}/api/admin/approve/${propertyId}`, 
+        {}, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setPendingProperties(prev => prev.filter(p => p._id !== propertyId));
+      setAllProperties(prev => prev.map(p => 
+        p._id === propertyId ? { ...p, status: 'approved' } : p
+      ));
+      setSuccess('Property approved successfully');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to approve property');
+      if (err.response?.status === 401) navigate('/login');
+    }
+  };
 
   const openRejectModal = (propertyId) => {
     setCurrentPropertyId(propertyId);
@@ -87,7 +145,7 @@ const AdminDashboard = () => {
     try {
       const { data } = await axios.put(
         `${API_BASE_URL}/api/admin/reject/${currentPropertyId}`,
-        { rejectionReason },  // Make sure this matches your backend expectation
+        { rejectionReason },
         { 
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -96,7 +154,6 @@ const AdminDashboard = () => {
         }
       );
       
-      // Update state
       setPendingProperties(prev => prev.filter(p => p._id !== currentPropertyId));
       setAllProperties(prev => prev.map(p => 
         p._id === currentPropertyId ? { 
@@ -106,7 +163,6 @@ const AdminDashboard = () => {
         } : p
       ));
       
-      // Reset modal
       setShowRejectModal(false);
       setRejectionReason('');
       setError('');
@@ -117,20 +173,17 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading) {
-    return <div className="loading-spinner">Loading...</div>;
-  }
-
   return (
     <div className="admin-dashboard">
       <div className="admin-header">
-  <h1>Admin Dashboard</h1>
-  <button onClick={handleLogout} className="logout-button">
-    Logout
-  </button>
-</div>
+        <h1>Admin Dashboard</h1>
+        <button onClick={handleLogout} className="logout-button">
+          Logout
+        </button>
+      </div>
       
       {error && <div className="error-message">{error}</div>}
+      {success && <div className="success-message">{success}</div>}
 
       <div className="tabs">
         <button
@@ -147,7 +200,9 @@ const AdminDashboard = () => {
         </button>
       </div>
 
-      {activeTab === 'pending' ? (
+      {loading ? (
+        <p className="loading-message">Loading properties...</p>
+      ) : activeTab === 'pending' ? (
         <div className="properties-list">
           {pendingProperties.length === 0 ? (
             <p className="no-properties">No properties pending approval</p>
@@ -156,7 +211,11 @@ const AdminDashboard = () => {
               <div key={property._id} className="property-card">
                 <h3>{property.title}</h3>
                 <p><strong>Submitted by:</strong> {property.userId?.displayName || 'Unknown'}</p>
-                <p><strong>Location:</strong> {property.state},{property.city},{property.locality} </p>
+                
+                {/* Cover Image */}
+                {property.coverImage && renderMedia(property.coverImage, true)}
+                
+                <p><strong>Location:</strong> {property.state}, {property.city}, {property.locality}</p>
                 <p><strong>Address:</strong> {property.address || 'N/A'}</p>
                 <p><strong>Description:</strong> {property.description || 'N/A'}</p>
                 <p><strong>Details:</strong> {property.long_description || 'N/A'}</p>
@@ -169,14 +228,37 @@ const AdminDashboard = () => {
                 <p><strong>Property Age:</strong> {property.ageOfProperty || 'N/A'}</p>
                 <p><strong>Parkings:</strong> {property.parkings || 'N/A'}</p>
                 <p><strong>Facing:</strong> {property.facing || 'N/A'}</p>
-                <p><strong> BHK:</strong> {property.bhk || 'N/A'}</p>
+                <p><strong>BHK:</strong> {property.bhk || 'N/A'}</p>
                 <p><strong>Bathrooms:</strong> {property.bathrooms || 'N/A'}</p>
                 <p><strong>Balconies:</strong> {property.balconies || 'N/A'}</p>
                 <p><strong>Furnishing:</strong> {property.furnishing || 'N/A'}</p>
                 <p><strong>Property Type:</strong> {property.propertyType || 'N/A'}</p>
-                <p><strong>Property Type:</strong> {property.featured || 'N/A'}</p>
+                <p><strong>Featured:</strong> {property.featured ? 'Yes' : 'No'}</p>
+                <p><strong>Amenities:</strong>{property.amenities}</p>
+                
+                {/* Gallery Images */}
+                {property.galleryImages?.length > 0 && (
+                  <div className="media-section">
+                    <h4>Gallery Images ({property.galleryImages.length})</h4>
+                    {renderMedia(property.galleryImages)}
+                  </div>
+                )}
 
+                {/* Floor Plans */}
+                {property.floorplanImages?.length > 0 && (
+                  <div className="media-section">
+                    <h4>Floor Plans ({property.floorplanImages.length})</h4>
+                    {renderMedia(property.floorplanImages)}
+                  </div>
+                )}
 
+                {/* Media Files */}
+                {property.mediaFiles?.length > 0 && (
+                  <div className="media-section">
+                    <h4>Media Files ({property.mediaFiles.length})</h4>
+                    {renderMedia(property.mediaFiles)}
+                  </div>
+                )}
 
                 <div className="action-buttons">
                   <button 
@@ -204,12 +286,12 @@ const AdminDashboard = () => {
             allProperties.map(property => (
               <div key={property._id} className="property-card">
                 <h3>{property.title}</h3>
-                <p><strong>Location:</strong> {property.state},{property.city},{property.locality} </p>
+                <p><strong>Developer:</strong> {property.firstName || 'N/A'}</p>
+                <p><strong>Location:</strong> {property.state}, {property.city}, {property.locality}</p>
                 <p><strong>Address:</strong> {property.address || 'N/A'}</p>
                 <p><strong>Description:</strong> {property.description || 'N/A'}</p>
                 <p><strong>Details:</strong> {property.long_description || 'N/A'}</p>
                 <p><strong>Possession Status:</strong> {property.possessionStatus || 'N/A'}</p>
-                <p><strong>Agent:</strong> {property.firstName || 'N/A'}</p>
                 <p><strong>Pincode:</strong> {property.pincode || 'N/A'}</p>
                 <p><strong>Price:</strong> {property.price || 'N/A'}</p>
                 <p><strong>Floor No:</strong> {property.floor || 'N/A'}</p>
@@ -217,11 +299,12 @@ const AdminDashboard = () => {
                 <p><strong>Property Age:</strong> {property.ageOfProperty || 'N/A'}</p>
                 <p><strong>Parkings:</strong> {property.parkings || 'N/A'}</p>
                 <p><strong>Facing:</strong> {property.facing || 'N/A'}</p>
-                <p><strong> BHK:</strong> {property.bhk || 'N/A'}</p>
+                <p><strong>BHK:</strong> {property.bhk || 'N/A'}</p>
                 <p><strong>Bathrooms:</strong> {property.bathrooms || 'N/A'}</p>
                 <p><strong>Balconies:</strong> {property.balconies || 'N/A'}</p>
                 <p><strong>Furnishing:</strong> {property.furnishing || 'N/A'}</p>
                 <p><strong>Property Type:</strong> {property.propertyType || 'N/A'}</p>
+                <p><strong>Amenities:</strong> {property.amenities || 'N/A'}</p>
                 <p><strong>Status:</strong> 
                   <span className={`status-${property.status}`}>
                     {property.status}

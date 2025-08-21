@@ -3,10 +3,13 @@ import './Home.css';
 import Gallery from '../components/Gallery'; 
 import MainSearchBar from '../components/MainSearchBar';
 import HeroSection from '../components/HeroSection';
-import WhatsAppSidebar from '../components/WhatsAppSidebar';
 import NavigationBar from '../components/NavigationBar';
 import FeaturedProperties from '../components/FeaturedProperties ';
-
+import RecentlyAdded from '../components/RecentlyAdded';
+import PostPropertyBanner from '../components/PostPropertyBanner';
+import ContactForm from '../components/ContactForm';
+import TestimonialSection from '../components/TestimonialSection';
+import ExpandableSearch from '../components/ExpandableSearch';
 
 function Home() {
 
@@ -16,50 +19,56 @@ function Home() {
       
        <NavigationBar />
       
-            <WhatsAppSidebar /> 
-
       {/* Landing Section */}
-<section id="homee" className="landing-section">
- 
-      <div className="overlay">
-        <div className="container">
-      <div className="search-bar-container">
-        <MainSearchBar />
-      </div>
-        </div>
-      </div>
-</section>
-
-<section>
-  <FeaturedProperties />
-</section>
-
-
-
-      {/* Team Section */}
-      <section className="team-section">
-        <div className="container-feature">
-          <div className="section-title">
-            <h1>Recently Added Properties</h1>
-            <p>We are a dedicated team, passionate about connecting you with your ideal property.</p>
-            {/* <CaroForHome /> */}
-          </div>
-        </div>
+      <section id="homee" className="landing-section">
+            <div className="overlay">
+              <div className="container">
+                <div className="search-bar-container">
+                <MainSearchBar />
+                <ExpandableSearch />
+                </div>
+              </div>
+            </div>
       </section>
 
       <section>
+      <FeaturedProperties />
+      </section>
+
+      {/* Team Section */}
+      <section>
+      <RecentlyAdded />
+      </section>
+
+      {/* Post Property Section */}
+      <section>
+        <PostPropertyBanner />
+      </section>
+
+      
+
+      <section style={{padding: '100px'}}>
         <HeroSection />
       </section>
-      
+
 
       {/* Gallery Section */}
       <section>
         <Gallery />
       </section>
+      
+
+
+      {/* Testimonial Section */}
+      <section>
+        <TestimonialSection />
+      </section>
+
+      
 
       {/* Contact Section */}
       <section>
-        {/* <Contact /> */}
+        <ContactForm />
       </section>
 
     </div>

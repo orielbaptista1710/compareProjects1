@@ -52,7 +52,7 @@ const PropertyCarousel = () => {
         {properties.map(property => (
           <div key={property.id} className="property-card">
             <div className="property-badge">{property.status}</div>
-            <img src={property.image} alt={property.title} className="property-image" />
+            <img src={property.image} alt={property.title} className="property-image" loading="lazy"/>
             <div className="property-details">
               <div className="property-price">{property.price}</div>
               <h3 className="property-title">{property.title}</h3>

@@ -1,0 +1,18 @@
+/* Smooth spinner animation */
+.spinner-border, .spinner-grow {
+  animation-duration: 0.8s;
+}
+
+/* Custom purple color for all spinners */
+.spinner-border.text-purple,
+.spinner-grow.text-purple {
+  color: #9417E2 !important;
+}
+
+/* Center spinner in parent container */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-height: 100hv;
+}

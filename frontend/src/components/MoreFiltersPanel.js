@@ -8,7 +8,7 @@ const POSSESSION_STATUS_ORDER = [
   'Under Construction',
   'New Launch'
 ];
-
+ 
 const FURNISHING_ORDER = [
   'Fully Furnished',
   'Semi Furnished',

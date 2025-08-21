@@ -1,10 +1,15 @@
 /* Hero Section */
 .why-choose-us {
-  padding: 60px 20px;
+  min-height: 70vh; /* Makes it at least full screen height */
+  padding: 30px 10px;
   background-color: #ffffff;
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
 }
+
 
 .sectionn-header {
   text-align: center;
@@ -12,7 +17,7 @@
 }
 
 .sectionn-title {
-  font-size: 1.3rem;
+  font-size: 1.8rem;
   color: #2d3748;
   margin-bottom: 15px;
   font-weight: 700;
@@ -66,7 +71,7 @@
 }
 
 .icon {
-  font-size: 30px;
+  font-size: 34px;
   color: #ef233c;
 }
 
@@ -75,7 +80,7 @@
 }
 
 .card h3 {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   color: #2d3748;
   margin-bottom: 15px;
   font-weight: 600;
@@ -83,7 +88,7 @@
 }
 
 .card p {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: #4a5568;
   line-height: 1.6;
 }

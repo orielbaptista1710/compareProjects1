@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaTrash, FaHome, FaMapMarkerAlt, FaRulerCombined, FaMoneyBillWave, FaCity } from "react-icons/fa";
+import { 
+  FaTrash, FaMapMarkerAlt, FaRulerCombined, FaCity, FaBed, FaBath, FaCar,
+  FaBuilding, FaCalendarAlt, FaCouch, FaEye,
+  FaStar, FaParking,
+  FaTree, FaSwimmingPool, FaWifi, FaUtensils, 
+  FaFireExtinguisher, FaWater, FaSolarPanel, FaUmbrellaBeach, FaShieldAlt, FaUser 
+} from "react-icons/fa";
+import { MdElevator } from "react-icons/md";
+import { BiSolidCctv } from "react-icons/bi";
+
 import "./Compare.css";
 
-function Compare({ compareList, setCompareList }) {
+function Compare({ compareList, setCompareList, removeFromCompare }) {
   const [properties, setProperties] = useState(compareList);
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("overview");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,32 +22,79 @@ function Compare({ compareList, setCompareList }) {
   }, [compareList]);
 
   const removeProperty = (propertyId) => {
-    const updatedProperties = compareList.filter((property) => property._id !== propertyId);
-    setCompareList(updatedProperties);
-    localStorage.setItem("compareList", JSON.stringify(updatedProperties));
+    removeFromCompare(propertyId);
   };
 
+  const clearAllProperties = () => {
+    setCompareList([]);
+  };
+
+  // Function to get property image
+  const getPropertyImage = (property) => {
+    if (property.coverImage) return property.coverImage;
+    if (property.galleryImages && property.galleryImages.length > 0) return property.galleryImages[0];
+    return '/default-property.jpg';
+  };
+
+  // Format price with commas
+  const formatPrice = (price) => {
+    return price ? `₹${price.toLocaleString('en-IN')}` : "Price on request";
+  };
+
+  // Get icon for amenity
+  const getAmenityIcon = (amenity) => {
+    const amenityIcons = {
+      'Parking': <FaParking />,
+      'Garden': <FaTree />,
+      'Swimming Pool': <FaSwimmingPool />,
+      'WiFi': <FaWifi />,
+      'Restaurant': <FaUtensils />,
+      'Security': <FaShieldAlt  />,
+      'CCTV': <BiSolidCctv />,
+      'Fire Safety': <FaFireExtinguisher />,
+      'Lift': <MdElevator />,
+      'Water Supply': <FaWater />,
+      'Power Backup': <FaSolarPanel />,
+      'Beach Access': <FaUmbrellaBeach />
+    };
+    
+    return amenityIcons[amenity] || <FaStar />;
+  };
+
+  // Render property header with image and basic info
   const renderPropertyHeader = (property) => (
     <div className="property-header">
-      {property.coverimage && (
-        <div className="property-image-container">
-          <img 
-            src={property.coverimage} 
-            alt={property.title} 
-            className="property-image"
-            onError={(e) => {
-              e.target.onerror = null; 
-              e.target.src = '/path/to/default-image.jpg';
-            }}
-          />
-          
+      <div className="compare-property-image-container">
+        <img 
+          src={getPropertyImage(property)} 
+          alt={property.title} 
+          className="property-image"
+          onError={(e) => {
+            e.target.onerror = null; 
+            e.target.src = '/default-property.jpg';
+          }}
+        />
+        <div className="property-badge">
+          {property.featured && <span className="featured-badge">Featured</span>}
+          <span className="type-badge">{property.propertyType}</span>
         </div>
-      )}
+        <div className="view-count">
+          <FaEye /> {property.viewCount || 0} views
+        </div>
+      </div>
       <h3>{property.title}</h3>
       <p className="location"><FaMapMarkerAlt /> {property.locality}, {property.city}</p>
-      <p className="type"><FaHome /> {property.propertyType}</p>
+      <div className="price-tag">
+        {formatPrice(property.price)}
+        {property.pricePerSqft && (
+          <span className="price-per-unit">₹{property.pricePerSqft.toLocaleString()}/sqft</span>
+        )}
+      </div>
+      <div className="status-badge">
+        <span className={`status ${property.status}`}>{property.status}</span>
+      </div>
       <button 
-        className="modify-selection"
+        className="remove-btn"
         onClick={() => removeProperty(property._id)}
       >
         <FaTrash /> Remove
@@ -46,81 +102,156 @@ function Compare({ compareList, setCompareList }) {
     </div>
   );
 
-  const renderPropertyInfo = (property) => (
+  // Render basic information section
+  const renderBasicInfo = (property) => (
     <div className="info-section">
       <div className="info-grid">
-        <div className="info-row">
-          <span className="info-label">Property Type:</span>
-          <span className="info-value">{property.propertyType}</span>
+        <div className="contact-row">
+          <span className="info-label"><FaUser  />Developer:</span>
+          <span className="info-value">{property.firstName}</span>
         </div>
         <div className="info-row">
-          <span className="info-label">Furnishing:</span>
+          <span className="info-label"><FaBed /> BHK:</span>
+          <span className="info-value">{property.bhk || "N/A"}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label"><FaBath /> Bathrooms:</span>
+          <span className="info-value">{property.bathrooms || "N/A"}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label"><FaRulerCombined /> Area:</span>
+          <span className="info-value">
+            {property.area?.value ? `${property.area.value} ${property.area.unit}` : "N/A"}
+          </span>
+        </div>
+        <div className="info-row">
+          <span className="info-label"><FaBuilding /> Floor:</span>
+          <span className="info-value">
+            {property.floor ? `Floor ${property.floor} of ${property.totalFloors || 'N/A'}` : "N/A"}
+          </span>
+        </div>
+        <div className="info-row">
+          <span className="info-label"><FaCouch /> Furnishing:</span>
           <span className="info-value">{property.furnishing?.join(", ") || "N/A"}</span>
         </div>
         <div className="info-row">
-          <span className="info-label">Possession:</span>
-          <span className="info-value">{property.possessionStatus?.join(", ") || "N/A"}</span>
+          <span className="info-label"><FaCalendarAlt /> Age:</span>
+          <span className="info-value">{property.ageOfProperty || "N/A"}</span>
         </div>
         <div className="info-row">
-          <span className="info-label">Property Age:</span>
-          <span className="info-value">{property.ageOfProperty}</span>
+          <span className="info-label"><FaCar /> Parking:</span>
+          <span className="info-value">{property.parkings?.length > 0 ? property.parkings.join(", ") : "N/A"}</span>
         </div>
         <div className="info-row">
-          <span className="info-label">Price:</span>
-          <span className="info-value">{property.price}</span>
+          <span className="info-label">Facing:</span>
+          <span className="info-value">{property.facing || "N/A"}</span>
+        </div>
+        <div className="info-row">
+          <span className="info-label">Balconies:</span>
+          <span className="info-value">{property.balconies || "N/A"}</span>
         </div>
       </div>
     </div>
   );
 
+  // Render property details section
   const renderPropertyDetails = (property) => (
     <div className="details-section">
       <div className="details-grid">
         <div className="details-row">
-          <span className="details-label">BHK:</span>
-          <span className="details-value">{property.bhk || "N/A"}</span>
+          <span className="details-label">Property Type:</span>
+          <span className="details-value">{property.propertyType}</span>
         </div>
         <div className="details-row">
-          <span className="details-label">Bathrooms:</span>
-          <span className="details-value">{property.bathrooms || "N/A"}</span>
+          <span className="details-label">Property Group:</span>
+          <span className="details-value">{property.propertyGroup}</span>
         </div>
         <div className="details-row">
-          <span className="details-label">Area:</span>
+          <span className="details-label">Total Floors:</span>
+          <span className="details-value">{property.totalFloors || "N/A"}</span>
+        </div>
+        <div className="details-row">
+          <span className="details-label">Wing:</span>
+          <span className="details-value">{property.wing || "N/A"}</span>
+        </div>
+        <div className="details-row">
+          <span className="details-label">Units Available:</span>
+          <span className="details-value">{property.unitsAvailable || "N/A"}</span>
+        </div>
+        <div className="details-row">
+          <span className="details-label">Possession:</span>
+          <span className="details-value">{property.possessionStatus?.join(", ") || "N/A"}</span>
+        </div>
+        <div className="details-row">
+          <span className="details-label">Available From:</span>
           <span className="details-value">
-            <FaRulerCombined /> {property.area?.value ? `${property.area.value} ${property.area.unit}` : "N/A"}
+            {property.availableFrom ? new Date(property.availableFrom).toLocaleDateString() : "Immediate"}
           </span>
         </div>
         <div className="details-row">
-          <span className="details-label">Price/sqft:</span>
-          <span className="details-value">
-            <FaMoneyBillWave /> {property.pricePerSqft ? `₹${property.pricePerSqft.toLocaleString()}` : "N/A"}
-          </span>
+          <span className="details-label">RERA Approved:</span>
+          <span className="details-value">{property.reraApproved ? `Yes (${property.reraNumber})` : "No"}</span>
         </div>
         <div className="details-row">
-          <span className="details-label">Facing:</span>
-          <span className="details-value">{property.facing || "N/A"}</span>
-        </div>
-        <div className="details-row">
-          <span className="details-label">Total No of Floor:</span>
-          <span className="details-value">
-            {property.totalFloors || "N/A"}
-          </span>
-        </div>
-        <div className="details-row">
-          <span className="details-label">Floor No:</span>
-          <span className="details-value">
-            {property.floor || "N/A"}
-          </span>
-        </div>
-        <div className="details-row">
-          <span className="details-label">Balconies:</span>
-          <span className="details-value">{property.balconies || "N/A"}</span>
+          <span className="details-label">Price Negotiable:</span>
+          <span className="details-value">{property.priceNegotiable ? "Yes" : "No"}</span>
         </div>
       </div>
     </div>
   );
 
-  const renderLocationDetails = (property) => (
+  // Render amenities section
+  const renderAmenities = (property) => (
+    <div className="amenities-section">
+      {property.amenities && property.amenities.length > 0 ? (
+        <div className="amenities-grid">
+          {property.amenities.map((amenity, index) => (
+            <div key={index} className="amenity-item">
+              <span className="amenity-icon">{getAmenityIcon(amenity)}</span>
+              <span className="amenity-name">{amenity}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="no-data">No amenities listed</p>
+      )}
+    </div>
+  );
+
+  // Render facilities section
+  const renderFacilities = (property) => (
+    <div className="facilities-section">
+      {property.facilities && property.facilities.length > 0 ? (
+        <div className="facilities-list">
+          {property.facilities.map((facility, index) => (
+            <span key={index} className="facility-tag">{facility}</span>
+          ))}
+        </div>
+      ) : (
+        <p className="no-data">No facilities listed</p>
+      )}
+    </div>
+  );
+
+  // Render security section
+  const renderSecurity = (property) => (
+    <div className="security-section">
+      {property.security && property.security.length > 0 ? (
+        <div className="security-list">
+          {property.security.map((securityFeature, index) => (
+            <span key={index} className="security-tag">
+              <FaShieldAlt  /> {securityFeature}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <p className="no-data">No security features listed</p>
+      )}
+    </div>
+  );
+
+  // Render location section
+  const renderLocation = (property) => (
     <div className="location-section">
       <div className="location-grid">
         <div className="location-row">
@@ -143,27 +274,114 @@ function Compare({ compareList, setCompareList }) {
           <span className="location-label">Pincode:</span>
           <span className="location-value">{property.pincode}</span>
         </div>
-        {property.landmarks?.length > 0 && (
+        {property.landmarks && property.landmarks.length > 0 && (
           <div className="location-row">
             <span className="location-label">Landmarks:</span>
-            <span className="location-value">{property.landmarks.join(", ")}</span>
+            <div className="location-value">
+              {property.landmarks.map((landmark, index) => (
+                <div key={index} className="landmark-item">
+                  <strong>{landmark.name}</strong>
+                  {landmark.coordinates && (
+                    <span className="coordinates">
+                      {landmark.coordinates.lat}, {landmark.coordinates.lng}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {property.mapLink && (
+          <div className="location-row">
+            <span className="location-label">Map:</span>
+            <span className="location-value">
+              <a href={property.mapLink} target="_blank" rel="noopener noreferrer" className="map-link">
+                View on Map
+              </a>
+            </span>
           </div>
         )}
       </div>
     </div>
   );
 
+  
+
+  // Render comprehensive overview section with all property data
+  const renderOverview = (property) => (
+    <div className="overview-section">
+      <div className="overview-grid">
+        {/* Basic Information */}
+        <div className="overview-category">
+          <h4 className="category-title">Basic Information</h4>
+          <div className="category-content">
+            {renderBasicInfo(property).props.children.props.children}
+          </div>
+        </div>
+
+        {/* Property Details */}
+        <div className="overview-category">
+          <h4 className="category-title">Property Details</h4>
+          <div className="category-content">
+            {renderPropertyDetails(property).props.children.props.children}
+          </div>
+        </div>
+
+        {/* Amenities */}
+        {property.amenities && property.amenities.length > 0 && (
+          <div className="overview-category">
+            <h4 className="category-title">Amenities</h4>
+            <div className="category-content">
+              {renderAmenities(property).props.children}
+            </div>
+          </div>
+        )}
+
+        {/* Facilities */}
+        {property.facilities && property.facilities.length > 0 && (
+          <div className="overview-category">
+            <h4 className="category-title">Facilities</h4>
+            <div className="category-content">
+              {renderFacilities(property).props.children}
+            </div>
+          </div>
+        )}
+
+        {/* Security */}
+        {property.security && property.security.length > 0 && (
+          <div className="overview-category">
+            <h4 className="category-title">Security</h4>
+            <div className="category-content">
+              {renderSecurity(property).props.children}
+            </div>
+          </div>
+        )}
+
+        {/* Location Details */}
+        <div className="overview-category">
+          <h4 className="category-title">Location</h4>
+          <div className="category-content">
+            {renderLocation(property).props.children.props.children}
+          </div>
+        </div>
+
+        
+      </div>
+    </div>
+  );
+
+  // Render comparison tabs
   const renderComparisonTabs = () => (
     <div className="comparison-tabs">
       <button 
-        className={activeTab === "all" ? "active" : ""}
-        onClick={() => setActiveTab("all")}
+        className={activeTab === "overview" ? "active" : ""}
+        onClick={() => setActiveTab("overview")}
       >
-        All Details
+        Overview
       </button>
       <button 
-        className={activeTab === "info" ? "active" : ""}
-        onClick={() => setActiveTab("info")}
+        className={activeTab === "basic" ? "active" : ""}
+        onClick={() => setActiveTab("basic")}
       >
         Basic Info
       </button>
@@ -171,7 +389,25 @@ function Compare({ compareList, setCompareList }) {
         className={activeTab === "details" ? "active" : ""}
         onClick={() => setActiveTab("details")}
       >
-        Specifications
+        Property Details
+      </button>
+      <button 
+        className={activeTab === "amenities" ? "active" : ""}
+        onClick={() => setActiveTab("amenities")}
+      >
+        Amenities
+      </button>
+      <button 
+        className={activeTab === "facilities" ? "active" : ""}
+        onClick={() => setActiveTab("facilities")}
+      >
+        Facilities
+      </button>
+      <button 
+        className={activeTab === "security" ? "active" : ""}
+        onClick={() => setActiveTab("security")}
+      >
+        Security
       </button>
       <button 
         className={activeTab === "location" ? "active" : ""}
@@ -181,6 +417,60 @@ function Compare({ compareList, setCompareList }) {
       </button>
     </div>
   );
+
+  // Render content based on active tab
+  const renderCompareTabContent = () => {
+    switch(activeTab) {
+      case "overview":
+        return properties.map((property) => (
+          <div key={property._id} className="compare-cell">
+            {renderOverview(property)}
+          </div>
+        ));
+      case "basic":
+        return properties.map((property) => (
+          <div key={property._id} className="compare-cell">
+            {renderBasicInfo(property)}
+          </div>
+        ));
+      case "details":
+        return properties.map((property) => (
+          <div key={property._id} className="compare-cell">
+            {renderPropertyDetails(property)}
+          </div>
+        ));
+      case "amenities":
+        return properties.map((property) => (
+          <div key={property._id} className="compare-cell">
+            {renderAmenities(property)}
+          </div>
+        ));
+      case "facilities":
+        return properties.map((property) => (
+          <div key={property._id} className="compare-cell">
+            {renderFacilities(property)}
+          </div>
+        ));
+      case "security":
+        return properties.map((property) => (
+          <div key={property._id} className="compare-cell">
+            {renderSecurity(property)}
+          </div>
+        ));
+      case "location":
+        return properties.map((property) => (
+          <div key={property._id} className="compare-cell">
+            {renderLocation(property)}
+          </div>
+        ));
+      default:
+        return properties.map((property) => (
+          <div key={property._id} className="compare-cell">
+            {renderOverview(property)}
+          </div>
+        ));
+    }
+  };
 
   return (
     <div className="compare-container">
@@ -198,11 +488,11 @@ function Compare({ compareList, setCompareList }) {
               <div className="stat-label">Properties</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value">₹{Math.min(...properties.map(p => p.price || 0)).toLocaleString()}</div>
+              <div className="stat-value">₹{Math.min(...properties.map(p => p.price || 0)).toLocaleString('en-IN')}</div>
               <div className="stat-label">Min Price</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value">₹{Math.max(...properties.map(p => p.price || 0)).toLocaleString()}</div>
+              <div className="stat-value">₹{Math.max(...properties.map(p => p.price || 0)).toLocaleString('en-IN')}</div>
               <div className="stat-label">Max Price</div>
             </div>
             <div className="stat-card">
@@ -222,51 +512,33 @@ function Compare({ compareList, setCompareList }) {
         </div>
       ) : (
         <>
-          {renderComparisonTabs()}
+          
           
           <div className="compare-grid">
             {/* Headers row */}
             <div className="compare-row headers">
-              <div className="compare-cell empty"></div>
               {properties.map((property) => (
                 <div key={property._id} className="compare-cell">
                   {renderPropertyHeader(property)}
                 </div>
               ))}
             </div>
+
+            {renderComparisonTabs()}
             
-            {(activeTab === "all" || activeTab === "info") && (
-              <div className="compare-row">
-                <div className="compare-cell section-title">Basic Information</div>
-                {properties.map((property) => (
-                  <div key={property._id} className="compare-cell">
-                    {renderPropertyInfo(property)}
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {(activeTab === "all" || activeTab === "details") && (
-              <div className="compare-row">
-                <div className="compare-cell section-title">Specifications</div>
-                {properties.map((property) => (
-                  <div key={property._id} className="compare-cell">
-                    {renderPropertyDetails(property)}
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {(activeTab === "all" || activeTab === "location") && (
-              <div className="compare-row">
-                <div className="compare-cell section-title">Location Details</div>
-                {properties.map((property) => (
-                  <div key={property._id} className="compare-cell">
-                    {renderLocationDetails(property)}
-                  </div>
-                ))}
-              </div>
-            )}
+            {/* Content based on active tab */}
+            <div className="compare-row">
+              {renderCompareTabContent()}
+            </div>
+          </div>
+
+          <div className="compare-actions">
+            <button className="clear-all-btn" onClick={clearAllProperties}>
+              <FaTrash /> Clear All Comparisons
+            </button>
+            <button className="browse-more-btn" onClick={() => navigate("/properties")}>
+              Browse More Properties
+            </button>
           </div>
         </>
       )}

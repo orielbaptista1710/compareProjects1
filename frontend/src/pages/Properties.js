@@ -1,474 +1,584 @@
-import React, { useState, useEffect } from 'react';
-import PropertyCard from '../components/PropertyCard';
-import './Properties.css';
-import { useLocation} from 'react-router-dom';
-import axios from 'axios';
-import CompareSidebar from '../components/CompareSidebar';
-import Select from 'react-select';
-import MoreFiltersPanel from '../components/MoreFiltersPanel';
-import { FiFilter, FiSearch } from 'react-icons/fi';
-import BudgetFilter from '../components/BudgetFilter';
+import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import PropertyCard from "../components/PropertyCard";
+import SmartContactForm from "../components/SmartContactForm";
+import "./Properties.css";
+import { 
+  FiChevronDown, 
+  FiChevronUp, 
+  FiFilter, 
+  FiX, 
+  FiSliders, 
+  FiSearch,
+  FiLoader,
+  FiCheck,
+  FiTrash2,
+  FiHome,
+  FiDollarSign,
+  FiMapPin,
+  FiLayers,
+  FiMessageCircle
+} from "react-icons/fi";
 
-function Properties({ addToCompare, compareList, removeFromCompare }) {
+const FilterSection = ({ title, children, isInitiallyOpen = true, icon: Icon }) => {
+  const [isOpen, setIsOpen] = useState(isInitiallyOpen);
+
+  return (
+    <div className="filter-section">
+      <div
+        className="filter-section-header"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="filter-section-title">
+          {Icon && <Icon size={16} />}
+          <h4>{title}</h4>
+        </div>
+        {isOpen ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+      </div>
+      {isOpen && <div className="filter-section-body">{children}</div>}
+    </div>
+  );
+};
+
+const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
+  const navigate = useNavigate();
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [properties, setProperties] = useState([]);
-  const [filteredProperties, setFilteredProperties] = useState([]);
+  const [filters, setFilters] = useState({});
+  const [filterOptions, setFilterOptions] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [sortOption, setSortOption] = useState('Relevance');
-  const [isMoreFiltersOpen, setMoreFiltersOpen] = useState(false);
-  
-  // Filters - modified to handle arrays for multi-select
-  const [selectedPropertyTypes, setSelectedPropertyTypes] = useState([]);
-  const [selectedBhkTypes, setSelectedBhkTypes] = useState([]);
-  const [budgetRange, setBudgetRange] = useState({
-    min: '0',
-    max: '1000000000'
-  });
-  //check for refresh here later
-  const [selectedState, setSelectedState] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [selectedLocality, setSelectedLocality] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const [selectedPossessionStatus, setSelectedPossessionStatus] = useState([]);
-  const [selectedFurnishings, setSelectedFurnishings] = useState([]);
-  const [selectedFacing, setSelectedFacing] = useState([]);
-  const [selectedFloors, setSelectedFloors] = useState([]);
-  const [selectedAge, setSelectedAge] = useState([]);
-  const [selectedBathrooms, setSelectedBathrooms] = useState([]);
-  const [selectedBalconies, setSelectedBalconies] = useState([]);
-
-  const location = useLocation();
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [sortBy, setSortBy] = useState("relevance");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [citySearch, setCitySearch] = useState("");
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(12);
+  const [showCompareToast, setShowCompareToast] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
 
   useEffect(() => {
     const fetchProperties = async () => {
-      setLoading(true);
       try {
-        const response = await axios.get("http://localhost:5000/api/properties");
-        if (response.status === 200) {
-          setProperties(response.data);
-          setFilteredProperties(response.data);
-        } else {
-          throw new Error("Failed to fetch properties");
-        }
-      } catch (err) {
-        console.error("Error fetching properties:", err);
-        setError(err.message || "Something went wrong.");
+        setLoading(true);
+        const res = await axios.get("/api/properties");
+        setProperties(res.data);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
       } finally {
         setLoading(false);
       }
     };
-  
+
+    const fetchFilters = async () => {
+      try {
+        const res = await axios.get("/api/properties/filters");
+        setFilterOptions(res.data);
+      } catch (error) {
+        console.error("Error fetching filters:", error);
+      }
+    };
+
     fetchProperties();
+    fetchFilters();
   }, []);
 
-  useEffect(() => {
-    const query = new URLSearchParams(location.search); 
-    
-    const type = query.get('type');
-    const budget = query.get('budget');
-    const city = query.get('city');
-    const locality = query.get('locality');
-  
-    if (type) setSelectedPropertyTypes([type]);
-    if(city) setSelectedCity(city);
-    if(locality) setSelectedLocality(locality);
-    if (budget) {
-      setBudgetRange({
-        min: '',
-        max: budget
-      });
+  const handleFilterChange = useCallback((filterName, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterName]: value,
+    }));
+    setVisibleCount(12);
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setFilters({});
+    setSearchQuery("");
+    setCitySearch("");
+    setVisibleCount(12);
+  }, []);
+
+  const loadMoreProperties = useCallback(() => {
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount(prev => prev + 12);
+      setIsLoadingMore(false);
+    }, 500);
+  }, []);
+
+  // Enhanced compare functionality
+  const handleAddToCompare = useCallback((property) => {
+    const added = addToCompare(property);
+    if (added) {
+      setShowCompareToast(true);
+      setTimeout(() => setShowCompareToast(false), 3000);
     }
-  }, [location.search]);
+  }, [addToCompare]);
 
+  const goToComparePage = useCallback(() => {
+    navigate('/compare');
+  }, [navigate]);
 
-  useEffect(() => {
-    if (!properties.length) return;
+  const isInCompareList = useCallback((propertyId) => {
+    const normalizeId = (id) => {
+      if (!id) return null;
+      if (typeof id === 'object' && id.$oid) return id.$oid;
+      return id.toString();
+    };
+    
+    return compareList.some(item => normalizeId(item._id) === normalizeId(propertyId));
+  }, [compareList]);
 
-    const filtered = properties.filter(property => {
+  const filteredProperties = properties.filter((p) => {
+    let match = true;
+    if (filters.city && p.city !== filters.city) match = false;
+    if (filters.furnishing && p.furnishing !== filters.furnishing) match = false;
+    if (filters.bhk && p.bhk !== filters.bhk) match = false;
+    if (filters.budget && Number(p.price) > Number(filters.budget)) match = false;
+    if (filters.status && p.status !== filters.status) match = false;
+    if (searchQuery && !p.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
+        !p.description.toLowerCase().includes(searchQuery.toLowerCase())) match = false;
+    return match;
+  });
 
-      const matchesPropertyType = selectedPropertyTypes.length === 0 || 
-          (property.propertyType && 
-           selectedPropertyTypes.some(type => 
-             property.propertyType.toLowerCase() === type.toLowerCase()
-           ));
-        
-        const matchesBhk = selectedBhkTypes.length === 0 || 
-          (property.bhk && 
-           selectedBhkTypes.some(bhk => 
-             String(property.bhk) === String(bhk)
-           ));
+  const filteredCities = filterOptions.cities?.filter(city => 
+    city.toLowerCase().includes(citySearch.toLowerCase())
+  ) || [];
 
-        const matchesState = !selectedState || 
-          (property.state && property.state.toLowerCase() === selectedState.toLowerCase());
-        
-        const matchesCity = !selectedCity || 
-          (property.city && property.city.toLowerCase() === selectedCity.toLowerCase());
-        
-        const matchesLocality = !selectedLocality || 
-          (property.locality && property.locality.toLowerCase() === selectedLocality.toLowerCase());
-        
-        const matchesSearch = !searchTerm || 
-          (property.title && property.title.toLowerCase().includes(searchTerm.toLowerCase())) || 
-          (property.description && property.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (property.long_description && property.long_description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (property.locality && property.locality.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (property.city && property.city.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (property.propertyType && property.propertyType.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (property.bhk && String(property.bhk).toLowerCase().includes(searchTerm.toLowerCase()))
+  const sortedProperties = [...filteredProperties].sort((a, b) => {
+    switch(sortBy) {
+      case "price-low-high":
+        return a.price - b.price;
+      case "price-high-low":
+        return b.price - a.price;
+      case "newest":
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      case "oldest":
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      default:
+        return a.featured ? -1 : 1;
+    }
+  });
 
-          const matchesBudget = (!budgetRange.max || 
-            (property.price && property.price <= parseInt(budgetRange.max))) &&
-            (!budgetRange.min || 
-            (property.price && property.price >= parseInt(budgetRange.min)));
-
-         // Add the new filter conditions
-          const matchesPossessionStatus = selectedPossessionStatus.length === 0 || 
-          (property.possessionStatus && 
-           selectedPossessionStatus.some(status => 
-             property.possessionStatus.includes(status)
-           ));
-
-          const matchesFurnishing = selectedFurnishings.length === 0 || 
-          (property.furnishing && 
-           selectedFurnishings.some(furnishing => 
-             property.furnishing.includes(furnishing)
-           ));
-
-          const matchesFacing = selectedFacing.length === 0 || 
-          (property.facing && 
-           selectedFacing.some(facing => 
-             property.facing === facing
-           ));
-
-          const matchesFloor = selectedFloors.length === 0 || 
-            (property.floor && 
-             selectedFloors.some(floor => 
-               property.floor === floor
-             ));
-          
-          const matchesAge = selectedAge.length === 0 ||
-            (property.ageOfProperty &&
-              selectedAge.some(age => {
-                return property.ageOfProperty === age;
-              })
-            );
-          
-          const matchesBathrooms = selectedBathrooms.length === 0 ||
-          (property.bathrooms &&
-           selectedBathrooms.some(bathroom => {
-             return property.bathrooms === bathroom;
-           })
-          )
-
-          const matchesBalconies = selectedBalconies.length === 0 ||
-          (property.balconies &&
-           selectedBalconies.some(balcony => {
-             return property.balconies === balcony;
-           })
-          )
-
-
-          
-   return (
-        matchesPropertyType &&
-        matchesBhk &&
-        matchesState &&
-        matchesCity &&
-        matchesLocality &&
-        matchesSearch &&
-        matchesBudget &&
-        matchesPossessionStatus &&
-        matchesFurnishing &&
-        matchesFacing &&
-        matchesFloor &&
-        matchesAge &&
-        matchesBathrooms &&
-        matchesBalconies
-      );
-    });
-
-    // Apply sorting
-    const sorted = [...filtered].sort((a, b) => {
-      switch(sortOption) {
-        case 'Price: Low to High': return (a.price || 0) - (b.price || 0);
-        case 'Price: High to Low': return (b.price || 0) - (a.price || 0);
-        case 'Newest First': return new Date(b.createdAt) - new Date(a.createdAt);
-        default: return 0;
-      }
-    });
-
-    setFilteredProperties(sorted);
-}, [
-  properties,
-  selectedPropertyTypes,
-  selectedBhkTypes,
-  selectedState,
-  selectedCity,
-  selectedLocality,
-  searchTerm,
-  sortOption,
-  budgetRange,
-  selectedPossessionStatus,
-  selectedFurnishings,
-  selectedFacing,
-  selectedFloors,
-  selectedAge,
-  selectedBathrooms,
-  selectedBalconies
-]);
-
-  // Extract unique values for filters
-  const states = [...new Set(properties.map(p => p.state))];
-  const propertyTypes = [...new Set(properties.map(p => p.propertyType))];
-  const bhkTypes = [...new Set(properties.map(p => p.bhk))];
-  const cities = [...new Set(properties.map(p => p.city))];
-  const localities = [...new Set(properties.map(p => p.locality))];
-  // const furnishingTypes = [...new Set(properties.map(p => p.furnishing).filter(Boolean))];
-  
-  // Prepare options for react-select components
-  const propertyTypeOptions = propertyTypes.map(type => ({ value: type, label: type }));
-  const bhkTypeOptions = bhkTypes.map(bhk => ({ value: bhk, label: `${bhk} BHK` }));
-  // const furnishingOptions = furnishingTypes.map(type => ({ value: type, label: type }));
-
-  // Filter cities based on selected state
-  const filteredCities = selectedState
-    ? [...new Set(properties
-        .filter(p => p.state === selectedState)
-        .map(p => p.city))]
-    : cities;
-  
-  // Filter localities based on selected city (updated to work with state filter)
-  const filteredLocalities = selectedCity
-    ? [...new Set(properties
-        .filter(p => p.city === selectedCity)
-        .map(p => p.locality))]
-    : localities;
-
-  if (loading) return <div className="loading">Loading Properties...</div>;
-  if (error) return <div className="error">Error: {error}</div>;
+  const propertiesToShow = sortedProperties.slice(0, visibleCount);
+  const hasMoreProperties = visibleCount < sortedProperties.length;
 
   return (
-<div className="properties-page">
-    
-     <div className="filters-container">
-        <div className="filter-group">
-          <label>State</label>
-          <select
-            value={selectedState}
-            onChange={(e) => {
-              setSelectedState(e.target.value);
-              setSelectedCity(''); // Reset city when state changes
-              setSelectedLocality(''); // Reset locality when state changes
-            }}
-          >
-            <option value="">All States</option>
-            {states.map(state => (
-              <option key={state} value={state}>{state}</option>
-            ))}
-          </select>
+    <div className="properties-page">
+      {/* Compare Toast Notification */}
+      {showCompareToast && (
+        <div className="compare-toast">
+          <div className="toast-content">
+            <FiCheck size={18} />
+            <span>Property added to comparison!</span>
+            <button 
+              className="toast-action"
+              onClick={() => setShowCompareToast(false)}
+            >
+              ×
+            </button>
+          </div>
+          <div className="toast-progress"></div>
         </div>
+      )}
 
-        <div className="filter-group">
-          <label>City</label>
-          <select
-            value={selectedCity}
-            onChange={(e) => {
-              setSelectedCity(e.target.value);
-              setSelectedLocality(''); // Reset locality when city changes
-            }}
-            disabled={!selectedState} // Disable until state is selected
-          >
-            <option value="">All Cities</option>
-            {filteredCities.map(city => (
-              <option key={city} value={city}>{city}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label>Locality</label>
-          <select
-            value={selectedLocality}
-            onChange={(e) => setSelectedLocality(e.target.value)}
-            disabled={!selectedCity} // Disable until city is selected
-          >
-            <option value="">All Localities</option>
-            {filteredLocalities.map(locality => (
-              <option key={locality} value={locality}>{locality}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Multi-select Property Type Filter */}
-        <div className="filter-group">
-          <label>Property Type</label>
-          <Select
-            isMulti
-            options={propertyTypeOptions}
-            value={selectedPropertyTypes.map(type => ({ value: type, label: type }))}
-            onChange={(selectedOptions) => 
-              setSelectedPropertyTypes(selectedOptions.map(option => option.value))
-
-            }
-            className="multi-select"
-            classNamePrefix="select"
-            placeholder="Select types..."
-          />
-        </div>
-
-        {/* Multi-select BHK Type Filter */}
-        <div className="filter-group">
-          <label>BHK Type</label>
-          <Select
-            isMulti
-            options={bhkTypeOptions}
-            value={selectedBhkTypes.map(bhk => ({ value: bhk, label: `${bhk} BHK` }))}
-            onChange={(selectedOptions) => 
-              setSelectedBhkTypes(selectedOptions.map(option => option.value))
-            }
-            className="multi-select"
-            classNamePrefix="select"
-            placeholder="Select BHK..."
-          />
-        </div>
-
-        <div className="filter-group">
-        <label>Budget</label>
-        <BudgetFilter
-            budgetRange={budgetRange}
-            setBudgetRange={setBudgetRange}
-          />
-        </div>
-
-              <button className="more-filters-btn" onClick={() => setMoreFiltersOpen(true)}>
-                <FiFilter /> More Filters
+      {/* Compare Bar */}
+      {compareList.length > 0 && (
+        <div className="compare-bar">
+          <div className="compare-bar-content">
+            <div className="compare-items-container">
+              <div className="compare-items-scroll">
+                {compareList.map(property => (
+                  <div key={property._id} className="compare-item">
+                    <img 
+                      src={property.images?.[0] || "/api/placeholder/60/40"} 
+                      alt={property.title}
+                      className="compare-item-image"
+                    />
+                    <div className="compare-item-info">
+                      <p className="compare-item-price">₹{property.price?.toLocaleString('en-IN')}</p>
+                      <p className="compare-item-title">{property.title}</p>
+                    </div>
+                    <button 
+                      className="compare-remove-btn"
+                      onClick={() => removeFromCompare(property._id)}
+                      aria-label="Remove from comparison"
+                    >
+                      <FiX size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="compare-bar-actions">
+              <span className="compare-count">
+                {compareList.length} {compareList.length === 1 ? 'property' : 'properties'} selected
+              </span>
+              <button 
+                className="compare-clear-btn"
+                onClick={() => navigate('/compare')}
+              >
+                <FiTrash2 size={14} />
+                Clear All
               </button>
-      </div>
-
-      <div className="search-container">
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="Search properties..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-        <button className="search-button">
-          <FiSearch size={20} />
-        </button>
-      </div>
-      </div>
-
-          <MoreFiltersPanel
-            isOpen={isMoreFiltersOpen}
-            onClose={() => setMoreFiltersOpen(false)}
-            selectedPossessionStatus={selectedPossessionStatus}
-            setSelectedPossessionStatus={setSelectedPossessionStatus}
-
-            selectedFurnishings={selectedFurnishings}
-            setSelectedFurnishings={setSelectedFurnishings}
-
-            selectedFacing={selectedFacing}
-            setSelectedFacing={setSelectedFacing}
-
-            selectedFloors={selectedFloors}
-            setSelectedFloors={setSelectedFloors}
-
-            selectedAge={selectedAge}
-            setSelectedAge={setSelectedAge}
-
-            selectedBathrooms={selectedBathrooms}
-            setSelectedBathrooms={setSelectedBathrooms}
-
-            selectedBalconies={selectedBalconies}
-            setSelectedBalconies={setSelectedBalconies}
-          />
-    
-    <div className='main-page'>  
-
-      <div className="header-section">
-        <div className="last-updated">
-          Last Updated: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-        </div> 
-
-        <div className="main-header">
-          <h1>Available Properties</h1>
-          
-          <div className="sort-options">
-            <span>Sort by:</span>
-            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
-              <option value="Relevance">Relevance</option>
-              <option value="Price: Low to High">Price: Low to High</option>
-              <option value="Price: High to Low">Price: High to Low</option>
-              <option value="Newest First">Newest First</option>
-            </select>
+              <button 
+                className="compare-now-btn"
+                onClick={goToComparePage}
+              >
+                Compare Now
+              </button>
+            </div>
           </div>
         </div>
+      )}
+
+      {/* Mobile Filter Toggle */}
+      <div className="mobile-filter-toggle">
+        <button 
+          className="filter-toggle-btn"
+          onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
+        >
+          <FiSliders size={18} />
+          <span>Filters</span>
+          {Object.keys(filters).length > 0 && (
+            <span className="filter-count">{Object.keys(filters).length}</span>
+          )}
+        </button>
         
-        <div className="results-count">
-          Showing 1-{Math.min(30, filteredProperties.length)} of {filteredProperties.length} properties
-        </div> 
+        {/* Mobile Contact Form Toggle */}
+        <button 
+          className="contact-form-toggle-btn"
+          onClick={() => setShowContactForm(!showContactForm)}
+        >
+          <FiMessageCircle size={18} />
+          <span>Contact</span>
+        </button>
       </div>
 
-      
+      {/* Sidebar Filter */}
+      <div className={`filter-panel ${isFilterOpen ? "open" : "collapsed"} ${mobileFilterOpen ? "mobile-open" : ""}`}>
+        <div className="filter-header">
+          <h3><FiFilter /> Filters</h3>
+          <div className="filter-actions">
+            {isFilterOpen && Object.keys(filters).length > 0 && (
+              <button className="clear-btn" onClick={clearFilters}>
+                Clear All
+              </button>
+            )}
+            <button
+              className="toggle-btn"
+              onClick={() => {
+                setIsFilterOpen(!isFilterOpen);
+                if (mobileFilterOpen) setMobileFilterOpen(false);
+              }}
+              aria-label={isFilterOpen ? "Collapse filters" : "Expand filters"}
+            >
+              {isFilterOpen ? <FiX size={18} /> : <FiFilter size={18} />}
+            </button>
+          </div>
+        </div>
 
+        {isFilterOpen && (
+          <div className="filter-options">
+            <FilterSection title="Search" icon={FiSearch} isInitiallyOpen={true}>
+              <div className="filter-group">
+                <div className="search-box">
+                  <FiSearch className="search-icon" />
+                  <input 
+                    type="text" 
+                    placeholder="Search properties..." 
+                    className="filter-search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+              </div>
+            </FilterSection>
 
-      <div className='main-content'>
-        <div className="property-listings">
-          {filteredProperties.length > 0 ? (
-            filteredProperties.slice(0, 30).map(property => (
-              <PropertyCard 
-                key={property._id} 
-                property={property} 
-                addToCompare={addToCompare}
-              />
-            ))
-          ) : (
-            <div className="no-results">
-              No properties match your filters. Try adjusting your search criteria.
+            <FilterSection title="Budget" icon={FiDollarSign} isInitiallyOpen={true}>
+              <div className="filter-group">
+                <label>Max Budget</label>
+                <div className="range-container">
+                  <input
+                    type="range"
+                    min="0"
+                    max="50000000"
+                    step="500000"
+                    value={filters.budget || 50000000}
+                    onChange={(e) => handleFilterChange("budget", e.target.value)}
+                    className="range-slider"
+                  />
+                  <div className="range-labels">
+                    <span>₹0</span>
+                    <span>₹50L</span>
+                    <span>₹1Cr</span>
+                    <span>₹5Cr</span>
+                  </div>
+                </div>
+                <div className="budget-display">
+                  Up to ₹{(filters.budget || 50000000).toLocaleString('en-IN')}
+                </div>
+              </div>
+              
+              <div className="quick-budget-options">
+                <button 
+                  className={`budget-option ${!filters.budget ? 'active' : ''}`}
+                  onClick={() => handleFilterChange("budget", "")}
+                >
+                  Any Budget
+                </button>
+                <button 
+                  className={`budget-option ${filters.budget === 10000000 ? 'active' : ''}`}
+                  onClick={() => handleFilterChange("budget", 10000000)}
+                >
+                  Under ₹10L
+                </button>
+                <button 
+                  className={`budget-option ${filters.budget === 20000000 ? 'active' : ''}`}
+                  onClick={() => handleFilterChange("budget", 20000000)}
+                >
+                  Under ₹20L
+                </button>
+                <button 
+                  className={`budget-option ${filters.budget === 50000000 ? 'active' : ''}`}
+                  onClick={() => handleFilterChange("budget", 50000000)}
+                >
+                  Under ₹50L
+                </button>
+              </div>
+            </FilterSection>
+
+            <FilterSection title="BHK Type" icon={FiHome} isInitiallyOpen={true}>
+              <div className="filter-group">
+                <div className="checkbox-group">
+                  {['1', '2', '3', '4', '4+'].map(bhk => (
+                    <label key={bhk} className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={filters.bhk === bhk}
+                        onChange={() => handleFilterChange("bhk", filters.bhk === bhk ? "" : bhk)}
+                      />
+                      <span className="checkmark"></span>
+                      {bhk} BHK
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </FilterSection>
+
+            <FilterSection title="Furnishing" icon={FiLayers} isInitiallyOpen={false}>
+              <div className="filter-group">
+                <div className="checkbox-group">
+                  {filterOptions.furnishingOptions?.map((f, idx) => (
+                    <label key={idx} className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={filters.furnishing === f}
+                        onChange={() => handleFilterChange("furnishing", filters.furnishing === f ? "" : f)}
+                      />
+                      <span className="checkmark"></span>
+                      {f}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </FilterSection>
+
+            <FilterSection title="Location" icon={FiMapPin} isInitiallyOpen={false}>
+              <div className="filter-group">
+                <div className="search-box">
+                  <FiSearch className="search-icon" />
+                  <input 
+                    type="text" 
+                    placeholder="Search cities..." 
+                    className="filter-search"
+                    value={citySearch}
+                    onChange={(e) => setCitySearch(e.target.value)}
+                  />
+                </div>
+                <div className="checkbox-group scrollable">
+                  {filteredCities.length > 0 ? (
+                    filteredCities.map((city, idx) => (
+                      <label key={idx} className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={filters.city === city}
+                          onChange={() => handleFilterChange("city", filters.city === city ? "" : city)}
+                        />
+                        <span className="checkmark"></span>
+                        {city}
+                      </label>
+                    ))
+                  ) : (
+                    <p className="no-results">No cities found</p>
+                  )}
+                </div>
+              </div>
+            </FilterSection>
+
+            <FilterSection title="Property Status" isInitiallyOpen={false}>
+              <div className="filter-group">
+                <div className="checkbox-group">
+                  {['Ready to Move', 'Under Construction', 'New Launch'].map(status => (
+                    <label key={status} className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={filters.status === status}
+                        onChange={() => handleFilterChange("status", filters.status === status ? "" : status)}
+                      />
+                      <span className="checkmark"></span>
+                      {status}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </FilterSection>
+          </div>
+        )}
+      </div>
+
+      {/* Property List and Contact Form Container */}
+      <div className="main-content-container">
+        {/* Property List */}
+        <div className="property-list-container">
+          <div className="results-header">
+            <div className="results-info">
+              <h2>
+                {filteredProperties.length} Properties 
+                {filters.city && ` in ${filters.city}`}
+                {filters.bhk && `, ${filters.bhk} BHK`}
+              </h2>
+              <p>Explore our curated selection of premium properties</p>
+            </div>
+            
+            <div className="results-controls">
+              <div className="sort-dropdown">
+                <label htmlFor="sort-by">Sort by:</label>
+                <select 
+                  id="sort-by"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="relevance">Relevance</option>
+                  <option value="price-low-high">Price: Low to High</option>
+                  <option value="price-high-low">Price: High to Low</option>
+                  <option value="newest">Newest</option>
+                  <option value="oldest">Oldest</option>
+                </select>
+                <FiChevronDown className="dropdown-arrow" />
+              </div>
+            </div>
+          </div>
+
+          <div className="active-filters-container">
+            {Object.entries(filters).map(([key, value]) => 
+              value && (
+                <span key={key} className="active-filter">
+                  {key}: {value}
+                  <button onClick={() => handleFilterChange(key, "")}>×</button>
+                </span>
+              )
+            )}
+            {Object.keys(filters).length > 0 && (
+              <button className="clear-all-filters" onClick={clearFilters}>
+                Clear all
+              </button>
+            )}
+          </div>
+
+          <div className="property-list list">
+            {loading ? (
+              <div className="loading">
+                <div className="loading-spinner"></div>
+                <p>Loading properties...</p>
+              </div>
+            ) : propertiesToShow.length > 0 ? (
+              <>
+                {propertiesToShow.map((property) => (
+                  <PropertyCard 
+                    key={property._id} 
+                    property={property} 
+                    viewMode="list"
+                    addToCompare={handleAddToCompare}
+                    goToComparePage={goToComparePage}
+                    isInCompare={isInCompareList(property._id)}
+                  />
+                ))}
+                
+                {hasMoreProperties && (
+                  <div className="load-more-container">
+                    <button 
+                      className="load-more-btn"
+                      onClick={loadMoreProperties}
+                      disabled={isLoadingMore}
+                    >
+                      {isLoadingMore ? (
+                        <>
+                          <FiLoader className="spinner" />
+                          Loading...
+                        </>
+                      ) : (
+                        `Load More (${sortedProperties.length - visibleCount} remaining)`
+                      )}
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="empty-state">
+                <h3>No properties found</h3>
+                <p>Try adjusting your filters to see more results</p>
+                <button className="reset-filters-btn" onClick={clearFilters}>
+                  Reset Filters
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Smart Contact Form - Desktop */}
+        <div className={`contact-form-sidebar ${showContactForm ? 'expanded' : ''}`}>
+          <div className="contact-form-header">
+            <h3><FiMessageCircle /> Get Expert Help</h3>
+            <button 
+              className="contact-form-toggle"
+              onClick={() => setShowContactForm(!showContactForm)}
+            >
+              {showContactForm ? <FiX /> : <FiMessageCircle />}
+            </button>
+          </div>
+          
+          {showContactForm && (
+            <div className="contact-form-content">
+              <SmartContactForm />
             </div>
           )}
         </div>
-        
-        <div className="ad-main-container">
 
-        <div className="ad-container">
-          <h3>Advertisement</h3>
-          <div className="ad-content">
-            <p>This is a dummy vertical ad.</p>
-            <p>Ad content goes here.</p>
+        {/* Smart Contact Form - Mobile Overlay */}
+        {mobileFilterOpen && (
+          <div 
+            className="mobile-filter-overlay"
+            onClick={() => setMobileFilterOpen(false)}
+          ></div>
+        )}
+
+        {/* Mobile Contact Form */}
+        {/* <div className={`mobile-contact-form ${showContactForm ? 'mobile-open' : ''}`}>
+          <div className="mobile-contact-form-header">
+            <h3>Get Expert Help</h3>
+            <button onClick={() => setShowContactForm(false)}>
+              <FiX />
+            </button>
           </div>
-        </div>
-
-
-    {/* heck how its skicy here */}
-        <div className="ad-container">
-          <h3>Are you a Developer looking to showcase youre Projects?</h3>
-          <div className="ad-content">
-            <p>Post your property and reach a wider audience.</p>
-            <button className="post-property-button">Post Property</button>
+          <div className="mobile-contact-form-content">
+            <SmartContactForm />
           </div>
-        </div>
-
-        
-        </div>
-
-
+        </div> */}
       </div>
-
     </div>
-
-
-      {compareList.length > 0 && (
-        <CompareSidebar 
-          compareList={compareList} 
-          removeFromCompare={removeFromCompare}
-        />
-      )}
-</div>
   );
-}
+};
 
 export default Properties;

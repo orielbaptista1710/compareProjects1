@@ -1,0 +1,83 @@
+.contact-container {
+    padding: 10px;
+}
+
+.contact-form-header {
+  margin-bottom: 20px;
+}
+
+.contact-form-header h3 {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.contact-form-header p {
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.contact-form input,
+.contact-form select {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.3s ease-in-out;
+}
+
+.phone-input {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+
+.contact-options {
+  margin: 20px 0;
+}
+
+.contact-option {
+  margin-bottom: 15px;
+}
+
+.contact-option input {
+  margin-right: 10px;
+}
+
+.contact-option label {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.get-details-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: background 0.2s;
+}
+
+.get-details-btn:hover {
+  background: var(--primary-light);
+}
+
+.shortlist-note {
+  font-size: 13px;
+  color: var(--text-light);
+  text-align: center;
+}
+
+

@@ -6,12 +6,20 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
+
 app.use(express.json());
 
+//what is this for tho
+app.use((req, res, next) => {
+  res.setHeader('Content-Type', 'application/json');
+  next();
+});
+
 // Routes
-
-
 console.log('Loading authRoutes');
 app.use('/api/auth', require('./routes/authRoutes'));
 
@@ -31,6 +39,10 @@ const connectDB = async () => {
             useUnifiedTopology: true,
         });
         console.log('MongoDB connected');
+        console.log('Collections in database:', (await mongoose.connection.db.listCollections().toArray()).map(c => c.name));
+        console.log('Database name being used:', mongoose.connection.name);
+
+
     } catch (error) {
         console.error('MongoDB error ❌', error.message);
         process.exit(1);
@@ -42,4 +54,3 @@ connectDB();
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`);
 });
-

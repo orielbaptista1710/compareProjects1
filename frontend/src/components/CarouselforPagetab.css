@@ -1,0 +1,84 @@
+/* Carousel.css */
+.carousel {
+    position: relative;
+    max-width: 100%;
+    margin: auto;
+    overflow: hidden;
+}
+
+.carousel-image {
+    width: 100%;
+    height: 500px; /* Adjusted height for a rectangular shape */
+    object-fit: cover; /* Ensures image maintains aspect ratio and fills container */
+    border-radius: 8px;
+    transition: transform 0.6s ease-in-out, box-shadow 0.3s ease;
+}
+.carousel-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+    transform: translateY(-50%);
+    z-index: 1;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.carousel-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-btn.prev {
+    left: 10px;
+}
+
+.carousel-btn.next {
+    right: 10px;
+}
+
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.dot {
+    width: 14px;
+    height: 14px;
+    margin: 0 4px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.dot.active,
+.dot:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.2);
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .carousel-image {
+        height: 350px; /* Reduce height further for smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-image {
+        height: 250px; /* Even smaller for mobile */
+    }
+}
