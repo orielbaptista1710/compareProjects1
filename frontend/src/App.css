@@ -11,11 +11,13 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  -webkit-text-size-adjust: 100%;
   box-sizing: border-box;
 }
 
 body {
   font-family: Arial, sans-serif;
   background-color: #f7f7f7;
+  -webkit-text-size-adjust: 100%;
 }
 
