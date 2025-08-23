@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
 import "./MainSearchBar.css";
 import Select from "react-select";
+import API from "../api";
 
 const MainSearchBar = () => {
   const navigate = useNavigate();
@@ -119,7 +120,7 @@ const MainSearchBar = () => {
     const fetchCities = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get("http://localhost:5000/api/properties/filters");
+        const res = await API.get("/api/properties/filters");
         setCities(res.data?.cities || []);
       } catch (err) {
         console.error("Failed to fetch cities:", err);
@@ -134,7 +135,7 @@ const MainSearchBar = () => {
   const fetchLocalitiesForCity = async (city) => {
     try {
       setIsLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/properties/localities/${encodeURIComponent(city)}`);
+      const res = await API.get(`/api/properties/localities/${encodeURIComponent(city)}`);
       setLocalities(res.data.localities || []);
     } catch (err) {
       console.error("Failed to fetch localities:", err);

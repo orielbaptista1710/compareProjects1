@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './MoreFiltersPanel.css';
-import axios from 'axios';
+// import axios from 'axios';
+import API from '../api';
 
 // Define your desired order for each filter type
 const POSSESSION_STATUS_ORDER = [
@@ -97,7 +98,7 @@ function MoreFiltersPanel({
   useEffect(() => {
     const fetchFilterOptions = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/properties/filters");
+        const response = await API.get("/api/properties/filters");
         
         // Sort the options according to our predefined order
         setFilterOptions({

@@ -31,7 +31,7 @@ const ExpandableSearch = () => {
 
       setIsLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/api/properties/search?query=${encodeURIComponent(query)}`);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/properties/search?query=${encodeURIComponent(query)}`);
         const data = await response.json();
         setResults(data.slice(0, 2)); // Show top 3 results
       } catch (error) {

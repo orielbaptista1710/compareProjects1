@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import locationData from '../database/locationData';
 import './ContactForm.css';
+import  API from '../api';
 
 const ContactForm = () => {
   const navigate = useNavigate();
@@ -118,7 +119,7 @@ const ContactForm = () => {
     setSubmitting(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/contact', {
+      const res = await API.post("/api/contact", {
         ...formData,
         role: [
           ...(formData.isBuyer ? ['buyer'] : []),

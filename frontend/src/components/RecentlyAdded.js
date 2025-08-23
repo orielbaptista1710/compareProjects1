@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 import './RecentlyAdded.css';
 import { useNavigate } from 'react-router-dom';
+import API from '../api';
 
 const RecentlyAdded = () => {
   const [properties, setProperties] = useState([]);
@@ -12,7 +13,7 @@ const RecentlyAdded = () => {
   useEffect(() => {
     const fetchRecentlyAdded = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/properties/recent');
+        const response = await API.get('/api/properties/recent');
         if (!response.data || response.data.length === 0) {
           setError("No properties found");
         } else {

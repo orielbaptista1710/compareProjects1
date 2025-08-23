@@ -7,13 +7,13 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.REACT_APP_FRONTEND_URL || "*",
   credentials: true
 }));
 
 app.use(express.json());
 
-//what is this for tho
+//what is this for tho - is just forcing JSON headers
 app.use((req, res, next) => {
   res.setHeader('Content-Type', 'application/json');
   next();

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
 import FeaturedPropertyCard from './FeaturedPropertyCard';
 import './FeaturedProperties.css';
 import LoadingSpinner from './LoadingSpinner';
+import API from "../api";
 
 const AUTO_ROTATE_INTERVAL = 3000; // ms
 const CARD_GAP = 48; // px
@@ -64,7 +65,7 @@ const FeaturedProperties = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await axios.get('http://localhost:5000/api/properties/featured');
+      const res = await API.get("/api/properties/featured");
       setProperties(res.data);
     } catch {
       setError('Failed to load featured properties. Please try again.');

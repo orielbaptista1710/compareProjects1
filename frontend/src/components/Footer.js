@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+// import axios from 'axios';
 import './Footer.css';
 import banner from '../images/banner.jpg';
 import logo from '../images/logo.png';
+import API from '../api';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faYoutube, faLinkedinIn } from '@fortawesome/free-brands-svg-icons';
@@ -16,7 +17,7 @@ const Footer = () => {
   useEffect(() => {
     const fetchTabData = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/properties/localities-by-type');
+        const res = await API.get('/api/properties/localities-by-type');
         setTabData(res.data); 
       } catch (err) {
         console.error("Error fetching localities by type", err);

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
+import API from '../api';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -26,8 +27,8 @@ const LoginPage = () => {
     }
 
     try {
-      const { data } = await axios.post(
-        'http://localhost:5000/api/auth/login',
+      const { data } = await API.post(
+        '/api/auth/login',
         formData,
         { headers: { 'Content-Type': 'application/json' } }
       );
