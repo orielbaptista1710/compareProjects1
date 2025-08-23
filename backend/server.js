@@ -30,6 +30,13 @@ console.log('Loading propertyRoutes');
 app.use('/api/properties', require('./routes/propertyRoutes'));
 
 
+app.get('/', (req, res) => {
+  res.json({ message: "API is running 🚀" });
+});
+
+
+
+
 
 const connectDB = async () => {
     try {
