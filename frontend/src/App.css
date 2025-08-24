@@ -6,20 +6,27 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  
 }
 
 html {
   scroll-behavior: smooth;
-  font-size: 16px;
-  -webkit-text-size-adjust: 100%;
+  font-size: 16px; 
+  -webkit-text-size-adjust: 100%; /* Safari/iOS */
+  -ms-text-size-adjust: 100%;     /* IE/Edge */
+  text-size-adjust: 100%;         /* Modern browsers */
   box-sizing: border-box;
 }
 
 body {
   font-family: Arial, sans-serif;
   background-color: #f7f7f7;
-  -webkit-text-size-adjust: 100%;
-  font-size: 16px;
+  font-size: 1rem;   
   line-height: 1.5;
 }
 
+@media screen and (min-resolution: 1.5dppx) {
+  html {
+    font-size: 14px; 
+  }
+}
