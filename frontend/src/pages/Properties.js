@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import PropertyCard from "../components/PropertyCard";
 import SmartContactForm from "../components/SmartContactForm";
 import "./Properties.css";
+import API from '../api';
 import { 
   FiChevronDown, 
   FiChevronUp, 
@@ -61,7 +62,7 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
     const fetchProperties = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("/api/properties");
+        const res = await API.get("/api/properties");
         setProperties(res.data);
       } catch (error) {
         console.error("Error fetching properties:", error);
@@ -72,7 +73,7 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
 
     const fetchFilters = async () => {
       try {
-        const res = await axios.get("/api/properties/filters");
+        const res = await API.get("/api/properties/filters");
         setFilterOptions(res.data);
       } catch (error) {
         console.error("Error fetching filters:", error);
