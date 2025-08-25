@@ -291,29 +291,42 @@
 
 
 
+/* ========================
+   Contact Form & Side View Container
+======================== */
+.contact-and-sideview {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 90px;
+  height: fit-content;
+}
 
 /* ========================
    Contact Form Sidebar
 ======================== */
 .contact-form-sidebar {
-  flex: 0 0 320px;
-  background: #fff;
+  flex: 0 0 auto;
+  background: #ffffff;
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1.5rem;
   height: fit-content;
-  position: sticky;
-  top: 90px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
 }
 
+.contact-form-sidebar.expanded {
+  box-shadow: 0 4px 20px rgba(148, 23, 226, 0.15);
+  border-color: #9417E2;
+}
 
 .contact-form-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .contact-form-header h3 {
@@ -321,45 +334,82 @@
   align-items: center;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #9417E2;
+  color: #333;
   margin: 0;
   gap: 0.5rem;
 }
 
-.contact-form-toggle {
-  background: #faf5ff;
-  border: 1px solid #e9d5ff;
+.contact-form-header h3 svg {
   color: #9417E2;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+}
+
+.contact-form-toggle {
+  background: #f8f5ff;
+  border: 1px solid #e0d0ff;
+  color: #9417E2;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .contact-form-toggle:hover {
   background: #9417E2;
   color: white;
-  transform: rotate(90deg);
+  border-color: #9417E2;
 }
 
 .contact-form-content {
-  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.3s ease;
 }
 
-@keyframes slideDown {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
+
+/* ========================
+   Project Side View 
+======================== */
+.sideProjectsView {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: fit-content;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+/* ========================
+   Responsive Design
+======================== */
+@media (max-width: 768px) {
+  .contact-and-sideview {
+    position: static;
+    gap: 1rem;
+  }
+  
+  .contact-form-sidebar,
+  .sideProjectsView {
+    padding: 1.25rem;
+  }
+  
+  .contact-form-header h3 {
+    font-size: 1.1rem;
+  }
+}
+
+
+
+
 
 /* ========================
    Mobile Contact Form

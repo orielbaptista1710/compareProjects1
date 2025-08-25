@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import './ExpandableSearch.css';
 import { FiSearch, FiX } from 'react-icons/fi';
 import PropertyCardSmall from './PropertyCardSmall';
+import API from '../api'; // Your axios instance
 
 const ExpandableSearch = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -31,9 +32,9 @@ const ExpandableSearch = () => {
 
       setIsLoading(true);
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/properties/search?query=${encodeURIComponent(query)}`);
-        const data = await response.json();
-        setResults(data.slice(0, 2)); // Show top 3 results
+        // Use the API axios instance instead of fetch
+        const response = await API.get(`/api/properties/search?query=${encodeURIComponent(query)}`);
+        setResults(response.data.slice(0, 2)); // Show top 2 results
       } catch (error) {
         console.error('Search error:', error);
       } finally {

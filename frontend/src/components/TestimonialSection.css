@@ -1,4 +1,3 @@
-/* TestimonialSection.css */
 .testimonial-section {
   background: white;
   font-family: 'Inter', sans-serif;
@@ -116,7 +115,7 @@
 }
 
 .arrow:hover {
-  color: #00b67a;
+  color: #9417E2;
 }
 
 .testimonials {
@@ -188,4 +187,80 @@
 .time {
   font-size: 14px;
   color: #777;
+}
+
+
+
+
+@media (min-width: 992px) {
+  .testimonial-header {
+    text-align: left;
+    margin-top: 20px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+  .testimonial-section {
+    padding: 80px 0;
+  }
+
+  .testimonial-section h2 {
+    font-size: 28px;
+  }
+
+  .testimonial-section h2 span {
+    font-size: 32px;
+  }
+
+  .testimonial-header h3 {
+    font-size: 20px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .testimonial-section {
+    padding: 60px 0;
+  }
+
+  .testimonial-section h2 {
+    font-size: 24px;
+  }
+
+  .testimonial-section h2 span {
+    font-size: 28px;
+  }
+
+  .trustpilot-info {
+    font-size: 12px;
+    gap: 8px;
+    padding: 8px 16px;
+  }
+
+  .testimonial-card {
+    min-width: 240px;
+    padding: 18px;
+  }
+
+  .testimonial-card p {
+    font-size: 13px;
+  }
+
+  .stars {
+    font-size: 16px;
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .user strong {
+    font-size: 13px;
+  }
+
+  .time {
+    font-size: 11px;
+  }
 }

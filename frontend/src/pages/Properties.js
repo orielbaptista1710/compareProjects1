@@ -6,6 +6,7 @@ import SmartContactForm from "../components/SmartContactForm";
 import "./Properties.css";
 import API from '../api';
 import FilterPanel from "../components/FilterPanel";
+import ProjectViewSideBar from "../components/ProjectViewSideBar";
 import { 
   FiChevronDown, 
   FiX, 
@@ -348,6 +349,7 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
         </div>
 
         {/* Smart Contact Form - Desktop */}
+        <div className="contact-and-sideview">
         <div className={`contact-form-sidebar ${showContactForm ? 'expanded' : ''}`}>
           <div className="contact-form-header">
             <h3><FiMessageCircle /> Get Expert Help</h3>
@@ -364,7 +366,12 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
               <SmartContactForm />
             </div>
           )}
+
         </div>
+        <div className="sideProjectsView">
+        <ProjectViewSideBar />
+      </div>
+      </div>
 
         {/* Smart Contact Form - Mobile Overlay */}
         {mobileFilterOpen && (
@@ -373,6 +380,8 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
             onClick={() => setMobileFilterOpen(false)}
           ></div>
         )}
+
+
 
         {/* Mobile Contact Form */}
         {/* <div className={`mobile-contact-form ${showContactForm ? 'mobile-open' : ''}`}>
@@ -386,6 +395,11 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
             <SmartContactForm />
           </div>
         </div> */}
+
+        
+      
+
+
       </div>
     </div>
   );

@@ -262,21 +262,46 @@
 }
 
 /* Responsive */
+/* Responsive */
 @media (max-width: 1200px) {
-  .property-cards-container {
-    flex-direction: column;
-    width: min(100%, 500px);
+  .main-featured-properties-container {
+    padding: 4rem 2rem;
+  }
+
+  .featured-header {
+    padding: 0 2rem;
+  }
+
+  .right-arrow {
+    right: 40px; /* bring arrow closer */
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .main-featured-properties-container {
     padding: 3rem 1.5rem;
   }
 
   .featured-header {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0;
+  }
+
+  .right-arrow {
+    right: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-featured-properties-container {
+    padding: 2.5rem 1rem;
+  }
+
+  .property-cards-containerrr {
     gap: 1.5rem;
+    padding: 1.5rem 0;
   }
 
   .carousel-arrow {
@@ -299,37 +324,42 @@
   }
 
   .carousel-controls {
-    position: static; /* Stack below cards */
+    position: static;
     display: flex;
     justify-content: center;
     margin-top: 1rem;
     pointer-events: auto;
   }
-
-  .carousel-nav {
-    justify-content: center;
-    gap: 1rem;
-  }
 }
 
 @media (max-width: 480px) {
   .main-featured-properties-container {
-    padding: 2.5rem 1rem;
+    padding: 2rem 1rem;
+  }
+
+  .section-title-featured {
+    font-size: 1.6rem;
+  }
+
+  .view-projects-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+  }
+
+  .property-cards-containerrr {
+    gap: 1rem;
+    padding: 1rem 0;
   }
 
   .left-arrow,
   .right-arrow {
     width: 40px;
     height: 40px;
-    margin: 0 8px;
+    margin: 0 6px;
   }
 
   .carousel-arrow svg {
     width: 16px;
     height: 16px;
-  }
-
-  .carousel-nav {
-    gap: 0.75rem;
   }
 }

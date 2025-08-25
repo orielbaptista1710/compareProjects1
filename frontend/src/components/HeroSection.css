@@ -125,7 +125,11 @@
 
 @media (max-width: 480px) {
   .why-choose-us {
-    padding: 40px 15px;
+    padding: 30px 10px;
+  }
+
+  .card {
+    padding: 20px 20px;
   }
   
   .sectionn-title {

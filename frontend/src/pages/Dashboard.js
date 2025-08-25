@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import './Dashboard.css';
 import SellPropertyForm from '../components/SellPropertyForm';
 import DashboardNav from '../components/DashboardNav';
+import API from '../api'; // Your axios instance
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -90,7 +90,7 @@ const Dashboard = () => {
     queryKey: ['current-user'],
     queryFn: async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/auth/me`, {
+        const res = await API.get('/api/auth/me', {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -141,7 +141,7 @@ const Dashboard = () => {
     queryKey: ['my-properties'],
     queryFn: async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/properties/my-properties`, {
+        const res = await API.get('/api/properties/my-properties', {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -173,7 +173,7 @@ const Dashboard = () => {
   // Add property mutation
   const { mutate: addProperty, isPending: isAdding } = useMutation({
     mutationFn: (newProperty) =>
-      axios.post(`${API_BASE_URL}/api/properties/add`, newProperty, {
+      API.post('/api/properties/add', newProperty, {
         headers: { Authorization: `Bearer ${token}` }
       }),
     onSuccess: () => {
@@ -206,7 +206,7 @@ const Dashboard = () => {
   // Update property mutation
   const { mutate: updateProperty, isPending: isUpdating } = useMutation({
     mutationFn: (updatedProperty) =>
-      axios.put(`${API_BASE_URL}/api/properties/update/${editingId}`, updatedProperty, {
+      API.put(`/api/properties/update/${editingId}`, updatedProperty, {
         headers: { Authorization: `Bearer ${token}` }
       }),
     onSuccess: () => {
@@ -234,7 +234,7 @@ const Dashboard = () => {
   // Delete property mutation
   const { mutate: deleteProperty } = useMutation({
     mutationFn: (propertyId) =>
-      axios.delete(`${API_BASE_URL}/api/properties/delete/${propertyId}`, {
+      API.delete(`/api/properties/delete/${propertyId}`, {
         headers: { Authorization: `Bearer ${token}` }
       }),
     onSuccess: () => {
