@@ -318,9 +318,8 @@
 }
 
 .contact-form-sidebar.expanded {
-  box-shadow: 0 4px 20px rgba(148, 23, 226, 0.15);
-  border-color: #9417E2;
-}
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  }
 
 .contact-form-header {
   display: flex;

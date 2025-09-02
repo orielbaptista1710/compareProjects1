@@ -1,7 +1,7 @@
 import React from "react";
 import "./ProjectViewSideBar.css";
 
-const deals = [
+const deals = [ 
   {
     id: 1,
     title: "Luxury 4BHK Villa in Mumbai",

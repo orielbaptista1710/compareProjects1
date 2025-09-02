@@ -20,7 +20,7 @@
   width: 35%;
   min-width: 280px;
   position: relative;
-  overflow: hidden;
+  overflow: hidden; 
 }
 
 .card-image {

@@ -2,14 +2,14 @@ import React from 'react';
 import './Home.css'; 
 import Gallery from '../components/Gallery'; 
 import MainSearchBar from '../components/MainSearchBar';
-import HeroSection from '../components/HeroSection';
 import NavigationBar from '../components/NavigationBar';
 import FeaturedProperties from '../components/FeaturedProperties ';
 import RecentlyAdded from '../components/RecentlyAdded';
 import PostPropertyBanner from '../components/PostPropertyBanner';
+import HeroSection from '../components/HeroSection';
+import About from '../components/About';
 import ContactForm from '../components/ContactForm';
 import TestimonialSection from '../components/TestimonialSection';
-import ExpandableSearch from '../components/ExpandableSearch';
 
 function Home() {
 
@@ -25,7 +25,6 @@ function Home() {
               <div className="container">
                 <div className="search-bar-container">
                 <MainSearchBar />
-                <ExpandableSearch />
                 </div>
               </div>
             </div>
@@ -45,11 +44,14 @@ function Home() {
         <PostPropertyBanner />
       </section>
 
+      <section>
+        <About />
+      </section>
       
-
       <section style={{padding: '100px'}}>
         <HeroSection />
       </section>
+
 
 
       {/* Gallery Section */}

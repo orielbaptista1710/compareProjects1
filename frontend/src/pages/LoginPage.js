@@ -56,7 +56,6 @@ const LoginPage = () => {
   return (
     <div className="login-container">
       <div className="login-box">
-        {/* <img src={logoo} alt="Logo" className="login-logo" /> */}
 
         <form className="login-form" onSubmit={handleSubmit}>
           <h2 className="login-heading">Welcome Back</h2>

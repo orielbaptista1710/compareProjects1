@@ -1,12 +1,8 @@
-/* FilterPanel.css - Enhanced Version */
 
-/* ========================
-   Panel Container
-======================== */
 
 /* CHECK FILTER HERE ONCE */
 .filter-panel {
-  flex: 0 0 400px;
+  flex: 0 0 330px;
   background: #fff;
   padding: 1.5rem;
   height: auto;

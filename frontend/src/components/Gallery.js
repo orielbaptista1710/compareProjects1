@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Gallery.css';
 import galleryimg1 from '../images/image1.jpg';
@@ -8,15 +8,26 @@ import galleryimg3 from '../images/image3.jpg';
 const Gallery = () => {
   const navigate = useNavigate();
 
-  const handleLearnMore = (location) => {
-    navigate(`/properties?city=${encodeURIComponent(location)}`);
+  const handleExploreCity = (city, localities = []) => {
+    // Create URL parameters for filtering
+    const params = new URLSearchParams();
+    params.append('city', city);
+    
+    // Add localities if provided
+    if (localities.length > 0) {
+      localities.forEach(locality => {
+        params.append('locality', locality);
+      });
+    }
+    
+    navigate(`/properties?${params.toString()}`);
   };
 
   return (
     <section className="compact-gallery">
       <div className="gallery-container">
-        {/* Main Featured Card */}
-        <div className="featured-card" onClick={() => handleLearnMore('Mumbai')}>
+        {/* Main Featured Card - Mumbai */}
+        <div className="featured-card" onClick={() => handleExploreCity('Mumbai')}>
           <img 
             alt="Modern apartment in Mumbai" 
             className="featured-image" 
@@ -31,7 +42,7 @@ const Gallery = () => {
                 className="explore-btn"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleLearnMore('Mumbai');
+                  handleExploreCity('Mumbai');
                 }}
                 aria-label={`View properties in Mumbai`}
               >
@@ -54,24 +65,25 @@ const Gallery = () => {
 
         {/* Secondary Cards */}
         <div className="secondary-cards">
-          <div className="secondary-card" onClick={() => handleLearnMore('Goa')}>
+          {/* Bandra (Mumbai locality) */}
+          <div className="secondary-card" onClick={() => handleExploreCity('Mumbai', ['Bandra West'])}>
             <img 
-              alt="Luxury villa in Goa" 
+              alt="Luxury properties in Bandra" 
               className="secondary-image" 
               src={galleryimg2} 
               loading="lazy"
             />
             <div className="card-overlay">
               <div className="card-content">
-                <h2>Goa</h2>
-                <p>Beachfront villas and vacation homes</p>
+                <h2>Bandra</h2>
+                <p>Premium properties in Mumbai's most sought-after locality</p>
                 <button 
                   className="explore-btn"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleLearnMore('Goa');
+                    handleExploreCity('Mumbai', ['Bandra West']);
                   }}
-                  aria-label={`View properties in Goa`}
+                  aria-label={`View properties in Bandra`}
                 >
                   Explore
                   <svg 
@@ -90,9 +102,10 @@ const Gallery = () => {
             </div>
           </div>
 
-          <div className="secondary-card" onClick={() => handleLearnMore('Vasai')}>
+          {/* Vasai (Mumbai locality) */}
+          <div className="secondary-card" onClick={() => handleExploreCity('Mumbai', ['Vasai'])}>
             <img 
-              alt="Beach house in Vasai" 
+              alt="Affordable properties in Vasai" 
               className="secondary-image" 
               src={galleryimg3} 
               loading="lazy"
@@ -100,12 +113,12 @@ const Gallery = () => {
             <div className="card-overlay">
               <div className="card-content">
                 <h2>Vasai</h2>
-                <p>Serene suburban retreats near Mumbai</p>
+                <p>Budget-friendly options in Mumbai's suburban area</p>
                 <button 
                   className="explore-btn"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleLearnMore('Vasai');
+                    handleExploreCity('Mumbai', ['Vasai']);
                   }}
                   aria-label={`View properties in Vasai`}
                 >
@@ -131,4 +144,4 @@ const Gallery = () => {
   );
 };
 
-export default Gallery;
+export default memo(Gallery);

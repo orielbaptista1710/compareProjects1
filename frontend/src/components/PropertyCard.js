@@ -31,7 +31,7 @@ function PropertyCard({
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(false); 
 
   if (!property) return <p>Invalid property data</p>;
 

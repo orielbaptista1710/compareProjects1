@@ -1,22 +1,23 @@
 .testimonial-section {
   background: white;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   text-align: center;
   position: relative;
-  padding: 150px 0;
+  padding: 100px 0;
   display: flex;
   justify-content: center;
-  max-height: 100vh;
+  min-height: auto;
+  overflow: hidden;
 }
 
 .testimonial-container {
-  max-width: 1700px;
+  max-width: 1200px;
   width: 100%;
-  padding: 0 70px;
+  padding: 0 40px;
 }
 
 .testimonial-section h2 {
-  font-size: 42px;
+  font-size: 36px;
   font-weight: 600;
   margin-bottom: 20px;
   color: #000;
@@ -25,7 +26,7 @@
 
 .testimonial-section h2 span {
   font-weight: 700;
-  font-size: 48px;
+  font-size: 42px;
   display: inline-block;
   margin-top: 8px;
 }
@@ -35,29 +36,36 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 16px;
-  font-size: 16px;
-  margin-bottom: 60px;
-  padding: 12px 24px;
+  gap: 12px;
+  font-size: 14px;
+  margin-bottom: 50px;
+  padding: 10px 20px;
   border-radius: 50px;
-  background-color: #c2bfbf;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+.rating {
+  font-weight: 600;
+  color: #2c3e50;
 }
 
 .trustpilot {
   display: flex;
   align-items: center;
   font-weight: 600;
+  color: #2c3e50;
 }
 
-.trustpilot-info img {
-  height: 24px;
-  margin-right: 8px;
+.reviews {
+  color: #6c757d;
+  font-size: 13px;
 }
 
 .testimonial-content-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 35px;
   align-items: center;
 }
 
@@ -66,31 +74,33 @@
     flex-direction: row;
     justify-content: center;
     align-items: flex-start;
+    gap: 50px;
   }
 }
 
 .testimonial-header {
   text-align: center;
-  max-width: 280px;
+  max-width: 250px;
 }
 
 @media (min-width: 992px) {
   .testimonial-header {
     text-align: left;
-    margin-top: 20px;
+    margin-top: 15px;
   }
 }
 
 .quote-icon {
-  font-size: 64px;
-  color: #bcbcbc;
+  font-size: 56px;
+  color: #dee2e6;
   line-height: 1;
+  font-weight: 700;
 }
 
 .testimonial-header h3 {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 500;
-  margin: 20px 0;
+  margin: 15px 0;
   color: #000;
   line-height: 1.3;
 }
@@ -98,33 +108,46 @@
 .slider-nav {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 30px;
+  gap: 14px;
+  margin-top: 25px;
 }
 
 .slider-nav .line {
-  width: 30px;
-  height: 3px;
+  width: 25px;
+  height: 2px;
   background: #000;
 }
 
 .arrow {
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
   transition: all 0.3s ease;
+  background: none;
+  border: none;
+  padding: 5px;
+  color: #000;
+  border-radius: 3px;
 }
 
 .arrow:hover {
   color: #9417E2;
+  background-color: #f8f9fa;
+}
+
+.arrow:focus {
+  outline: 2px solid #9417E2;
+  outline-offset: 2px;
 }
 
 .testimonials {
   display: flex;
-  gap: 30px;
+  gap: 25px;
   overflow-x: auto;
-  padding: 20px 10px;
+  padding: 15px 5px;
   width: 100%;
   scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
 }
 
 .testimonials::-webkit-scrollbar {
@@ -133,44 +156,48 @@
 
 .testimonial-card {
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-  padding: 32px;
-  min-width: 320px;
-  max-width: 380px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  padding: 28px;
+  min-width: 300px;
+  max-width: 340px;
   text-align: left;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink: 0;
 }
 
 .testimonial-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 }
 
 .testimonial-card p {
-  font-size: 16px;
+  font-size: 15px;
   color: #333;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   line-height: 1.6;
+  font-style: italic;
 }
 
 .stars {
   color: #fcbf49;
-  font-size: 20px;
-  margin-bottom: 20px;
-  letter-spacing: 2px;
+  font-size: 18px;
+  margin-bottom: 18px;
+  letter-spacing: 1px;
 }
 
 .user {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .user-avatar {
-  width: 48px;
-  height: 48px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   object-fit: cover;
+  background-color: #f8f9fa;
 }
 
 .user-info {
@@ -180,71 +207,75 @@
 
 .user strong {
   display: block;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
+  color: #2c3e50;
 }
 
 .time {
-  font-size: 14px;
-  color: #777;
-}
-
-
-
-
-@media (min-width: 992px) {
-  .testimonial-header {
-    text-align: left;
-    margin-top: 20px;
-  }
+  font-size: 13px;
+  color: #6c757d;
 }
 
 /* Tablet */
 @media (max-width: 992px) {
   .testimonial-section {
-    padding: 80px 0;
+    padding: 70px 0;
+  }
+
+  .testimonial-container {
+    padding: 0 30px;
   }
 
   .testimonial-section h2 {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .testimonial-section h2 span {
-    font-size: 32px;
+    font-size: 30px;
   }
 
   .testimonial-header h3 {
     font-size: 20px;
+  }
+
+  .trustpilot-info {
+    margin-bottom: 40px;
   }
 }
 
 /* Mobile */
 @media (max-width: 576px) {
   .testimonial-section {
-    padding: 60px 0;
+    padding: 50px 0;
+  }
+
+  .testimonial-container {
+    padding: 0 20px;
   }
 
   .testimonial-section h2 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .testimonial-section h2 span {
-    font-size: 28px;
+    font-size: 26px;
   }
 
   .trustpilot-info {
     font-size: 12px;
     gap: 8px;
     padding: 8px 16px;
+    margin-bottom: 30px;
   }
 
   .testimonial-card {
-    min-width: 240px;
-    padding: 18px;
+    min-width: 260px;
+    padding: 20px;
   }
 
   .testimonial-card p {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .stars {
@@ -252,15 +283,45 @@
   }
 
   .user-avatar {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
   }
 
   .user strong {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .time {
-    font-size: 11px;
+    font-size: 12px;
   }
+
+  .quote-icon {
+    font-size: 48px;
+  }
+
+  .testimonial-header h3 {
+    font-size: 18px;
+  }
+
+  .arrow {
+    font-size: 18px;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-card,
+  .arrow {
+    transition: none;
+  }
+
+  .testimonials {
+    scroll-behavior: auto;
+  }
+}
+
+/* Focus styles for accessibility */
+.testimonial-card:focus-within {
+  outline: 2px solid #9417E2;
+  outline-offset: 2px;
 }

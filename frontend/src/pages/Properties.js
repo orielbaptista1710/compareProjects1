@@ -11,7 +11,7 @@ import {
   FiChevronDown, 
   FiX, 
   FiSliders, 
-  FiLoader,
+  FiLoader, 
   FiCheck,
   FiTrash2,
   FiMessageCircle

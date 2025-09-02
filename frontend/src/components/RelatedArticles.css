@@ -1,0 +1,70 @@
+/* RelatedArticles.css
+.related-articles-container {
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+  position: relative;
+  text-align: center;
+}
+
+.article-carousel {
+  height: 500px; 
+  overflow: hidden;
+  position: relative;
+}
+
+.article-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.article-card img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+}
+
+.article-content {
+  padding: 16px;
+}
+
+.article-card.active {
+  opacity: 1;
+  transform: translateY(0);
+  z-index: 1;
+}
+
+.article-card.hidden {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+.carousel-controls {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+  gap: 12px;
+}
+
+.carousel-controls button {
+  background: #D90429;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+} */

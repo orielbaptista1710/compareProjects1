@@ -169,3 +169,201 @@
   margin-right: 5px;
 }
 
+/* MOBILE RESPONSIVE STYLES */
+@media (max-width: 968px) {
+  .header-navbar {
+    padding: 5px 15px;
+  }
+  
+  .header-menu-icon {
+    display: block;
+  }
+  
+  .header-nav-items {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 280px;
+    height: 100vh;
+    background: linear-gradient(135deg, #7a12c2 0%, #9417E2 100%);
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 80px 25px 30px;
+    transition: right 0.4s ease-in-out;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.15);
+  }
+  
+  .header-nav-items.show-menu {
+    right: 0;
+  }
+  
+  .header-nav-center {
+    position: static;
+    transform: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+    margin-bottom: 30px;
+  }
+  
+  .header-nav-center li {
+    width: 100%;
+    margin-bottom: 15px;
+    padding-right: 148px;     /* Adjusted padding to accommodate the close button */
+  }
+  
+  .header-nav-link {
+    display: block;
+    padding: 12px 15px;
+    font-size: 18px;
+    width: 100%;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .nav-right {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    margin-left: 0;
+    padding-bottom: 0;
+    width: 100%;
+  }
+  
+  .compare-btn,
+  .nav-link-deveopers {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 12px 15px;
+    height: auto;
+  }
+  
+  .nav-dev-item {
+    width: 100%;
+  }
+  
+  /* Close button style */
+  .header-nav-items::before {
+    content: '✕';
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+  }
+}
+
+/* SMALL MOBILE RESPONSIVE STYLES */
+/* POPUP MENU FOR SMALL MOBILE DEVICES (like in the image) */
+@media (max-width: 480px) {
+  .header {
+    height: 60px;
+  }
+  
+  .logo-img-header {
+    height: 46px;
+  }
+  
+  .header-nav-items {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    width: 280px;
+    height: auto;
+    background: #7a12c2;
+    border-radius: 16px;
+    padding: 20px 0;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .header-nav-items.show-menu {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .header-nav-center {
+    position: static;
+    transform: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+    margin-bottom: 15px;
+  }
+  
+  .header-nav-center li {
+    width: 100%;
+    margin-bottom: 0;
+  }
+  
+  .header-nav-link {
+    display: block;
+    padding: 14px 25px;
+    font-size: 16px;
+    width: 100%;
+    padding-bottom: 14px;
+    border-bottom: none;
+    text-align: left;
+    font-weight: 500;
+  }
+  
+  .nav-right {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-left: 0;
+    padding-bottom: 0;
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 15px;
+  }
+  
+  .compare-btn,
+  .nav-link-deveopers {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 12px 25px;
+    height: auto;
+    border-radius: 8px;
+    margin: 0 15px;
+    width: calc(100% - 30px);
+    font-weight: 500;
+  }
+  
+  .compare-btn {
+    background-color: #d90429;
+  }
+  
+  .nav-dev-item {
+    width: 100%;
+  }
+  
+  /* Remove the close button from the sidebar style */
+  .header-nav-items::before {
+    content: none;
+  }
+  
+  /* Menu items divider */
+  .header-nav-items li:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Menu icon adjustment */
+  .header-menu-icon {
+    font-size: 24px;
+    padding: 8px;
+  }
+}
+

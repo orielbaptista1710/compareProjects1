@@ -129,6 +129,8 @@ router.get("/filters", async (req, res) => {
   }
 });
 
+
+
 // Get localities for a specific city
 router.get("/localities/:city", async (req, res) => {
   try {

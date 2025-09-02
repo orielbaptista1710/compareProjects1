@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./MainSearchBar.css";
 import Select from "react-select";
 import API from "../api";
+import ExpandableSearch from "./ExpandableSearch";
 
 const MainSearchBar = () => {
   const navigate = useNavigate();
@@ -292,6 +293,8 @@ const MainSearchBar = () => {
           </button>
         </div>
       </form>
+                      <ExpandableSearch />
+
     </div>
   );
 };

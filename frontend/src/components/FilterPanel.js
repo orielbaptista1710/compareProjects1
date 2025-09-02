@@ -144,7 +144,7 @@ const FilterPanel = ({
                       onChange={() => handleFilterChange("bhk", filters.bhk === bhk ? "" : bhk)}
                     />
                     <span className="checkmark"></span>
-                    {bhk} BHK
+                      {bhk} BHK
                   </label>
                 ))}
               </div>
