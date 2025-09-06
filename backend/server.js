@@ -20,6 +20,9 @@ app.use((req, res, next) => {
 });
 
 // Routes
+console.log('Loading customerRoutes');
+app.use('/api/customers', require('./routes/customerRoutes'));
+
 console.log('Loading authRoutes');
 app.use('/api/auth', require('./routes/authRoutes'));
 
@@ -30,11 +33,10 @@ console.log('Loading propertyRoutes');
 app.use('/api/properties', require('./routes/propertyRoutes'));
 
 
+
 app.get('/', (req, res) => {
   res.json({ message: "API is running 🚀" });
 });
-
-
 
 
 

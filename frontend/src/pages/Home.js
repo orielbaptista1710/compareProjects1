@@ -22,11 +22,9 @@ function Home() {
       {/* Landing Section */}
       <section id="homee" className="landing-section">
             <div className="overlay">
-              <div className="container">
                 <div className="search-bar-container">
                 <MainSearchBar />
                 </div>
-              </div>
             </div>
       </section>
 

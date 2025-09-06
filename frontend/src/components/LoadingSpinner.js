@@ -1,36 +1,41 @@
-import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React from "react";
+import { Spin, Typography } from "antd";
 
-const LoadingSpinner = ({ size = 'md', text = 'Loading...' }) => {
-  // Size classes mapping
-  const sizeClasses = {
-    sm: {
-      spinner: 'spinner-border-sm',
-      text: 'small'
-    },
-    md: {
-      spinner: '',
-      text: ''
-    },
-    lg: {
-      spinner: '',
-      text: 'h4'
-    }
+const { Text } = Typography;
+
+const LoadingSpinner = ({ size = "md", text = "Loading..." }) => {
+  // Map sizes to Ant Design spinner sizes
+  const sizeMap = {
+    sm: "small",
+    md: "default",
+    lg: "large",
   };
 
   return (
-    <div className="d-flex flex-column align-items-center justify-content-center my-4">
-      <div 
-        className={`spinner-border text-purple ${sizeClasses[size].spinner}`} 
-        style={{ width: '10rem', height: '10rem', color: '#9417E2' }} 
-        role="status"
-      >
-        <span className="visually-hidden">Loading...</span>
-      </div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        margin: "2rem 0",
+      }}
+    >
+      <Spin
+        size={sizeMap[size]}
+        style={{ color: "#9417E2" }}
+      />
       {text && (
-        <p className={`mt-2 text-purple ${sizeClasses[size].text}`} style={{ color: '#9417E2' }}>
+        <Text
+          style={{
+            marginTop: "0.5rem",
+            color: "#9417E2",
+            fontSize: size === "lg" ? "1.25rem" : size === "sm" ? "0.85rem" : "1rem",
+            fontWeight: 500,
+          }}
+        >
           {text}
-        </p>
+        </Text>
       )}
     </div>
   );

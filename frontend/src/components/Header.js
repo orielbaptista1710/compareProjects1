@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import logoo from '../images/logo.png';
 import './Header.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faUsers, faTimes, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+// import CustomerSignupPage from '../pages/CustomerSignupPage';
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,10 +17,10 @@ function Header() {
       try {
         const parsedUser = JSON.parse(storedUser);
         console.log("User from localStorage:", parsedUser);
-        // No need to set `user` anymore
+        setCurrentUser(parsedUser);
       } catch (err) {
         console.error('Invalid user in localStorage:', err.message);
-        localStorage.removeItem('user'); // Optional: Clean it if corrupted
+        localStorage.removeItem('user');
       }
     }
   }, []);
@@ -29,13 +31,21 @@ function Header() {
 
   const handleScrollToSection = (section) => {
     navigate('/');
-    setIsMenuOpen(false); // Close menu when navigating
+    setIsMenuOpen(false);
     setTimeout(() => {
       const target = document.getElementById(section);
       if (target) {
         target.scrollIntoView({ behavior: 'smooth' });
       }
     }, 100);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setCurrentUser(null);
+    navigate('/');
+    setIsMenuOpen(false);
   };
 
   // Close menu when clicking outside
@@ -84,16 +94,28 @@ function Header() {
           </div>
 
           <div className="nav-right">
-            <li><Link to="/compare" className="compare-btn" onClick={() => setIsMenuOpen(false)}>Compare</Link></li>
-            <li className="nav-dev-item">
-              <Link to="/login" className="nav-link-deveopers" onClick={() => setIsMenuOpen(false)}>
-                <span className="header-nav-icon">
-                  <FontAwesomeIcon icon={faUsers} />
-                </span>
-                <span className="popup-text">Developers</span>
-              </Link>
-            </li>
-          </div>
+  <li><Link to="/compare" className="compare-btn" onClick={() => setIsMenuOpen(false)}>Compare</Link></li>
+  
+  {!currentUser ? (
+    <li><Link to="/customer-signup" className='signup-btn' onClick={() => setIsMenuOpen(false)}>Sign up</Link></li>
+  ) : (
+    <li>
+      <button className="signup-btn" onClick={handleLogout}>
+        <FontAwesomeIcon icon={faSignOutAlt} /> Logout
+      </button>
+    </li>
+  )}
+
+  <li className="nav-dev-item">
+    <Link to="/login" className="nav-link-deveopers" onClick={() => setIsMenuOpen(false)}>
+      <span className="header-nav-icon">
+        <FontAwesomeIcon icon={faUsers} />
+      </span>
+      <span className="popup-text">Developers</span>
+    </Link>
+  </li>
+</div>
+
         </ul>
       </nav>
     </header>

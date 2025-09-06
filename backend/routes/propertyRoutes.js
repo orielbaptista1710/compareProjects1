@@ -308,19 +308,7 @@ router.get('/my-properties', protect, async (req, res) => {
   }
 });
 
-// GET a single property by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const property = await Property.findById(req.params.id);
-    if (!property) {
-      return res.status(404).json({ message: 'Property not found' });
-    }
-    res.json(property);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
+
 
 // Add this to your propertyRoutes.js
 router.put('/update/:id', protect, async (req, res) => {
@@ -359,7 +347,19 @@ router.delete('/delete/:id', protect, async (req, res) => {
 });
 
 
-
+// GET a single property by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const property = await Property.findById(req.params.id);
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+    res.json(property);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 module.exports = router;

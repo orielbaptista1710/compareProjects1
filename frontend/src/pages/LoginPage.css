@@ -164,3 +164,13 @@ body{
     font-size: 1.5rem;
   }
 }
+
+
+.login-page{
+  padding-top: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}

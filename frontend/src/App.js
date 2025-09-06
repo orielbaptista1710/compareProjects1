@@ -12,6 +12,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import NavigationBar from './components/NavigationBar';
 import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedCustomerRoute from "./components/ProtectedCustomerRoute";
 
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -22,12 +23,16 @@ const Home = lazy(() => import('./pages/Home'));
 const Properties = lazy(() => import('./pages/Properties'));
 const Compare = lazy(() => import('./pages/Compare'));
 const PropertyPage = lazy(() => import('./pages/PropertyPage'));
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const SupportHelp = lazy(() => import('./pages/SupportHelp'));
 const Interiors = lazy(() => import('./pages/Interiors'));
 const ApnaLoan = lazy(() => import('./pages/ApnaLoansHome'));
+
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const CustomerSignupPage = lazy(() => import('./pages/CustomerSignupPage'));
+const CustomerLoginPage = lazy(() => import('./pages/CustomerLoginPage'));
+const CustomerProfilePage = lazy(() => import('./pages/CustomerProfilePage')); 
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
 
 
@@ -46,7 +51,7 @@ const AppContent = () => {   // ✅ fixed function syntax
   const { compareList, setCompareList, addToCompare, removeFromCompare } = useCompareList();
   const location = useLocation();
 
-  const hideNavRoutes = ["/properties", "/compare", "/login"];
+  const hideNavRoutes = ["/properties", "/compare", "/login", "/dashboard", "/admin", "/property/:id"];
   const showNavigationBar = !hideNavRoutes.some((route) =>
     location.pathname.startsWith(route)
   );
@@ -81,10 +86,13 @@ const AppContent = () => {   // ✅ fixed function syntax
           />
         } />
         <Route path="/property/:id" element={<PropertyPage addToCompare={addToCompare} compareList={compareList} />} />
-        <Route path="/login" element={<LoginPage />} />
         <Route path="/supportHelp" element={<SupportHelp />} />
         <Route path="/interior" element={<Interiors />} />
         <Route path="/apnaloan" element={<ApnaLoan />} />
+
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/customer-signup" element={<CustomerSignupPage />} />
+        <Route path="/customer-login" element={<CustomerLoginPage />} />
         
         {/* 🔐 Protected Routes */}
         <Route path="/dashboard" element={
@@ -96,7 +104,13 @@ const AppContent = () => {   // ✅ fixed function syntax
           <ProtectedRoute>
             <AdminDashboard />
           </ProtectedRoute>
-        } />         
+        } />    
+        <Route path="/customer-dashboard" element={
+          <ProtectedCustomerRoute>
+            <CustomerProfilePage />
+          </ProtectedCustomerRoute>
+        } />     
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
 

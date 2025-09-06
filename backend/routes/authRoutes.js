@@ -1,3 +1,4 @@
+// Auth Routes for Developers and Admin - No signup ONLY login
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
