@@ -1,53 +1,62 @@
+// scripts/createAdmin.js
+require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const User = require('./models/User'); // Adjust path as needed
+const User = require('./models/User'); 
 
-// Database connection
-mongoose.connect('mongodb://127.0.0.1:27017/comparedb', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
-async function createAdminUser() {
+async function createAdmin() {
   try {
-    // Admin user details
-    const adminData = {
-      displayName: "Admin User",
-      username: "admin1",
-      password: "caribonara1945", // Change this to a strong password
-      role: "admin"
-    };
-
-    //
-    // Check if admin already exists
-    const existingAdmin = await User.findOne({ username: adminData.username });
-    if (existingAdmin) {
-      console.log('Admin user already exists');
-      mongoose.connection.close();
-      return;
+    // Validate env variables
+    if (!process.env.MONGO_URI) {
+      throw new Error('❌ MONGO_URI is not set in .env');
+    }
+    if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
+      throw new Error('❌ ADMIN_USERNAME and ADMIN_PASSWORD must be set in .env');
     }
 
-    // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    adminData.password = await bcrypt.hash(adminData.password, salt);
+    // Connect to DB
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('✅ Connected to database:', mongoose.connection.name);
 
-    // Create the admin user
-    const admin = new User(adminData);
-    await admin.save();
+    // Check for existing admin user
+    let admin = await User.findOne({ username: process.env.ADMIN_USERNAME, role: 'admin' });
 
-    console.log('Admin user created successfully:', {
-      displayName: admin.displayName,
+    if (admin) {
+      console.log(`ℹ️ Admin "${process.env.ADMIN_USERNAME}" already exists. Updating password...`);
+      admin.password = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
+      await admin.save();
+      console.log('🔑 Admin password updated successfully.');
+    } else {
+      console.log(`ℹ️ Creating new admin "${process.env.ADMIN_USERNAME}"...`);
+      const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
+      admin = new User({
+        username: process.env.ADMIN_USERNAME,
+        displayName: process.env.ADMIN_DISPLAY_NAME ,
+        password: hashedPassword,
+        role: 'admin',
+      });
+      await admin.save();
+      console.log('✅ Admin user created successfully.');
+    }
+
+    console.log('👤 Admin details:', {
+      id: admin._id.toString(),
       username: admin.username,
       role: admin.role,
-      _id: admin._id
+      displayName: admin.displayName,
     });
 
   } catch (error) {
-    console.error('Error creating admin user:', error.message);
+    console.error('❌ Error creating admin:', error.message);
+    process.exitCode = 1;
   } finally {
-    mongoose.connection.close();
+    await mongoose.connection.close();
+    console.log('🔒 Database connection closed.');
   }
 }
 
-// Run the function
-createAdminUser();
+// Run script
+createAdmin();

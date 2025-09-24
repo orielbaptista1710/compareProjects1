@@ -10,12 +10,11 @@ const propertySchema = new mongoose.Schema({
   },
 
   featured: { type: Boolean, default: false }, 
+  
+  sourceUrl: { type: String },
 
   // Contact Information
-  firstName: { type: String, required: true},
-  lastName: { type: String },
-  email: { type: String },
-  phone: { type: String },
+  developerName : { type: String, required: true},
 
   // Property Information
   title: { type: String, required: true },
@@ -26,9 +25,8 @@ const propertySchema = new mongoose.Schema({
   mapLink: { type: String },
 
   // Location Details
-  location: { type: String},
   state: { type: String, required: true },
-  city: { type: String, required: true, index: true},
+  city: { type: String, required: true},
   locality: { type: String, required: true },
   address: { type: String, required: true },
   pincode: { type: Number, required: true },
@@ -64,29 +62,22 @@ const propertySchema = new mongoose.Schema({
   price: { 
     type: Number, 
     required: [true, 'Price is required'],
-    min: 0,
-    index: true
+    min: 0
   },
 
-   // Property details
-   propertyType: {
-    type: String,
-    required: true,
-    enum: [
-      "Flats/Apartments",
-      "Villa",
-      "Plot",
-      "Shop/Showroom",
-      "Industrial Warehouse",
-      "Retail"
-    ],
-    index: true 
-  },
-  propertyGroup: { // Derived field for easier grouping
+  propertyGroup: { 
     type: String,
     enum: ["Residential", "Commercial"],
-    required: true
   },
+
+  propertyType: {
+    type: String,
+    required: true,
+    enum:["Flats/Apartments", "Villa",
+       "Plot","Shop/Showroom","Industrial Warehouse",
+       "Retail", "Office Space"]
+  },
+ 
 
   furnishing: { 
     type: [String],
@@ -117,7 +108,7 @@ const propertySchema = new mongoose.Schema({
     default: "New"
   },
   totalFloors: { type: Number },
-  floor: { type: String },
+  floor: { type: String  },
   wing: String,
 
   unitsAvailable : { type: Number },
@@ -144,18 +135,18 @@ const propertySchema = new mongoose.Schema({
   floorPlans: [{
   type: { 
     type: String, 
-    enum: ['2D', '3D', 'Structural', 'Electrical'] 
+    enum: ['2D', '3D', 'Structural'] 
   },
   imageUrl: String,
-  unitType: String, // e.g. "1BHK Type A"
-  area: {
+  unitType: String, 
+  floorArea: {
     builtUp: Number,
     carpet: Number,
     terrace: Number
   },
   rooms: [{
-    name: String, // "Master Bedroom"
-    dimensions: String, // "10' x 12'"
+    name: String, 
+    dimensions: String, 
     windowCount: Number
   }]
 }],
@@ -196,7 +187,7 @@ propertySchema.pre('save', function(next) {
     : "Commercial";
   next();
 });
-
+ 
 propertySchema.virtual('pricePerSqft').get(function() {
   if (!this.price || !this.area || !this.area.value) return null;
   
@@ -240,7 +231,9 @@ propertySchema.set('toObject', {
   }
 });
 
-
-
+propertySchema.index({ price: 1, propertyType: 1 });
+propertySchema.index({ createdAt: -1 }); // For recent listings
+propertySchema.index({ featured: 1, status: 1 }); // For featured properties
+propertySchema.index({ userId: 1, status: 1 }); // For user's properties
 
 module.exports = mongoose.model('Property', propertySchema);

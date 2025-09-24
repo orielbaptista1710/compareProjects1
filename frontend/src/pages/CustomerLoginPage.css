@@ -1,0 +1,268 @@
+/* CustomerLoginPage.css */
+
+.login-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* .login-container.compact {
+  font-size: 0.9rem;
+} */
+
+/* Left Section Styles - Same as signup */
+.signup-left {
+  flex: 1;
+  background-color: #5d3b9e;
+  color: white;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-content {
+  max-width: 600px;
+}
+
+.signup-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  line-height: 1.2;
+}
+
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 40px;
+}
+
+.benefits-list li {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.check-icon {
+  color: #d90429;
+  margin-right: 10px;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.trusted-by {
+  margin-bottom: 40px;
+}
+
+.trusted-by p {
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #f0e6ff;
+}
+
+.brands {
+  display: flex;
+  gap: 20px;
+}
+
+.brand {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.testimonial {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 25px;
+  border-radius: 8px;
+}
+
+.quote {
+  font-style: italic;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.author {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.position {
+  font-size: 0.9rem;
+  color: #f0e6ff;
+}
+
+
+
+
+
+
+/* Right Section Styles */
+.login-right {
+  flex: 1;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+
+.login-right.compact {
+  padding: 20px;
+}
+
+.login-form-container {
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-form-container.compact {
+  max-width: 350px;
+}
+
+.login-form-container h2 {
+  font-size: 1.5rem;
+  color: #5d3b9e;
+  margin-bottom: 8px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.login-subheading {
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.login-form {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group.compact {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper.compact input {
+  padding-right: 35px;
+}
+
+.toggle-eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #5d3b9e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.login-btn.compact {
+  padding: 9px;
+  margin-top: 8px;
+}
+
+.login-btn:hover {
+  background-color: #4a2e7d;
+}
+
+.error {
+  color: #d90429;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.login-redirect {
+  text-align: center;
+  margin-top: 15px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.login-redirect.compact {
+  margin-top: 12px;
+}
+
+.login-redirect span {
+  color: #5d3b9e;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.login-redirect span:hover {
+  text-decoration: underline;
+}
+
+.forgot-password {
+  text-align: right;
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+.forgot-password a {
+  color: #5d3b9e;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .login-container {
+    flex-direction: column;
+  }
+  
+  .login-left, .login-right {
+    padding: 20px 15px;
+  }
+  
+  .brands {
+    flex-wrap: wrap;
+  }
+}

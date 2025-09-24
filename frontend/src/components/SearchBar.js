@@ -1,5 +1,6 @@
 import React from 'react';
-import { FiSearch } from 'react-icons/fi';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons/faSearch";
 import './SearchBar.css';
 
 function SearchBar({ searchTerm, setSearchTerm, onSearch }) {
@@ -25,7 +26,7 @@ function SearchBar({ searchTerm, setSearchTerm, onSearch }) {
           className="search-button"
           aria-label="Search"
         >
-          <FiSearch size={18} />
+          <FontAwesomeIcon icon={faSearch} size={18} />
         </button>
       </form>
     </div>

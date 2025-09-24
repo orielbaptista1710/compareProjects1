@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
 import './Footer.css';
-import banner from '../images/banner.jpg';
-import logo from '../images/logo.png';
+// import banner from '../images/banner.jpg';
 import API from '../api';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -98,7 +97,15 @@ const Footer = () => {
     <footer className="footer">
       {/* Logo and Tabs */}
       <div className="footer-top-row">
-        <img src={logo} alt="Logo" className="footer-logo" />
+        <img
+            className="footer-logo"
+            src="/imageslcp/logo.webp"
+            alt="Logo"
+            fetchPriority="high"
+            loading="eager"
+            decoding="async"
+            // onClick={() => handleScrollToSection("homee")}
+          />
         <div className="footer-tabs">
           {footerTabs.map(tab => (
             <div
@@ -119,9 +126,9 @@ const Footer = () => {
 
       {/* Bottom Section */}
       <div className="footer-bottom">
-        <div className="footer-banner">
+        {/* <div className="footer-banner">
           <img src={banner} alt="Great Place to Work" />
-        </div>
+        </div> */}
 
         <div className="footer-columns">
           <div>

@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const errorHandler = require('../backend/middleware/errorMiddleware');
 
 dotenv.config();
 
@@ -32,6 +33,9 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 console.log('Loading propertyRoutes');
 app.use('/api/properties', require('./routes/propertyRoutes'));
 
+console.log('Loading dev log Routes');
+app.use('/api/devlog', require('./routes/devResetPwdRoutes'));
+
 
 
 app.get('/', (req, res) => {
@@ -59,6 +63,8 @@ const connectDB = async () => {
 };
 
 connectDB();
+
+app.use(errorHandler);
 
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`);

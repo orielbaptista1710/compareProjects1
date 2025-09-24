@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  FaTrash, FaMapMarkerAlt, FaRulerCombined, FaCity, FaBed, FaBath, FaCar,
-  FaBuilding, FaCalendarAlt, FaCouch, FaEye,
-  FaStar, FaParking,
-  FaTree, FaSwimmingPool, FaWifi, FaUtensils, 
-  FaFireExtinguisher, FaWater, FaSolarPanel, FaUmbrellaBeach, FaShieldAlt, FaUser 
-} from "react-icons/fa";
-import { MdElevator } from "react-icons/md";
-import { BiSolidCctv } from "react-icons/bi";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faTrash, faMapMarkerAlt, faRulerCombined, faCity, faBed, faBath, faCar,
+  faBuilding, faCalendarAlt, faCouch, faEye, faStar, faParking, faTree,
+  faSwimmer, faWifi, faUtensils, faShieldAlt, faVideo, faFireExtinguisher,
+  faWater, faBolt, faUmbrellaBeach, faUser, faElevator, faCompass
+} from "@fortawesome/free-solid-svg-icons";
 import "./Compare.css";
 
 function Compare({ compareList, setCompareList, removeFromCompare }) {
@@ -44,26 +41,27 @@ function Compare({ compareList, setCompareList, removeFromCompare }) {
   // Get icon for amenity
   const getAmenityIcon = (amenity) => {
     const amenityIcons = {
-      'Parking': <FaParking />,
-      'Garden': <FaTree />,
-      'Swimming Pool': <FaSwimmingPool />,
-      'WiFi': <FaWifi />,
-      'Restaurant': <FaUtensils />,
-      'Security': <FaShieldAlt  />,
-      'CCTV': <BiSolidCctv />,
-      'Fire Safety': <FaFireExtinguisher />,
-      'Lift': <MdElevator />,
-      'Water Supply': <FaWater />,
-      'Power Backup': <FaSolarPanel />,
-      'Beach Access': <FaUmbrellaBeach />
-    };
+  'Parking': <FontAwesomeIcon icon={faParking} />,
+  'Garden': <FontAwesomeIcon icon={faTree} />,
+  'Swimming Pool': <FontAwesomeIcon icon={faSwimmer} />, 
+  'WiFi': <FontAwesomeIcon icon={faWifi} />,
+  'Restaurant': <FontAwesomeIcon icon={faUtensils} />, 
+  'Security': <FontAwesomeIcon icon={faShieldAlt} />,  
+  'CCTV': <FontAwesomeIcon icon={faVideo} />,
+  'Fire Safety': <FontAwesomeIcon icon={faFireExtinguisher} />,
+  'Lift': <FontAwesomeIcon icon={faElevator} />,
+  'Water Supply': <FontAwesomeIcon icon={faWater} />,
+  'Power Backup': <FontAwesomeIcon icon={faBolt} />,    
+  'Beach Access': <FontAwesomeIcon icon={faUmbrellaBeach} />
+};
+
     
-    return amenityIcons[amenity] || <FaStar />;
+    return amenityIcons[amenity] || <FontAwesomeIcon icon={faStar} />;
   };
 
   // Render property header with image and basic info
   const renderPropertyHeader = (property) => (
-    <div className="property-header">
+    <div className="compare-property-header">
       <div className="compare-property-image-container">
         <img 
           src={getPropertyImage(property)} 
@@ -79,11 +77,11 @@ function Compare({ compareList, setCompareList, removeFromCompare }) {
           <span className="type-badge">{property.propertyType}</span>
         </div>
         <div className="view-count">
-          <FaEye /> {property.viewCount || 0} views
+          <FontAwesomeIcon icon={faEye} /> {property.viewCount || 0} views
         </div>
       </div>
       <h3>{property.title}</h3>
-      <p className="location"><FaMapMarkerAlt /> {property.locality}, {property.city}</p>
+      <p className="location"><FontAwesomeIcon icon={faMapMarkerAlt} /> {property.locality}, {property.city}</p>
       <div className="price-tag">
         {formatPrice(property.price)}
         {property.pricePerSqft && (
@@ -97,7 +95,7 @@ function Compare({ compareList, setCompareList, removeFromCompare }) {
         className="remove-btn"
         onClick={() => removeProperty(property._id)}
       >
-        <FaTrash /> Remove
+        <FontAwesomeIcon icon={faTrash} /> Remove
       </button>
     </div>
   );
@@ -107,43 +105,43 @@ function Compare({ compareList, setCompareList, removeFromCompare }) {
     <div className="info-section">
       <div className="info-grid">
         <div className="contact-row">
-          <span className="info-label"><FaUser  />Developer:</span>
-          <span className="info-value">{property.firstName}</span>
+          <span className="info-label"><FontAwesomeIcon icon={faUser}  />Developer:</span>
+          <span className="info-value">{property.developerName}</span>
         </div>
         <div className="info-row">
-          <span className="info-label"><FaBed /> BHK:</span>
+          <span className="info-label"><FontAwesomeIcon icon={faBed} /> BHK:</span>
           <span className="info-value">{property.bhk || "N/A"}</span>
         </div>
         <div className="info-row">
-          <span className="info-label"><FaBath /> Bathrooms:</span>
+          <span className="info-label"><FontAwesomeIcon icon={faBath} /> Bathrooms:</span>
           <span className="info-value">{property.bathrooms || "N/A"}</span>
         </div>
         <div className="info-row">
-          <span className="info-label"><FaRulerCombined /> Area:</span>
+          <span className="info-label"><FontAwesomeIcon icon={faRulerCombined} /> Carpet Area:</span>
           <span className="info-value">
             {property.area?.value ? `${property.area.value} ${property.area.unit}` : "N/A"}
           </span>
         </div>
         <div className="info-row">
-          <span className="info-label"><FaBuilding /> Floor:</span>
+          <span className="info-label"><FontAwesomeIcon icon={faBuilding} /> Floor:</span>
           <span className="info-value">
             {property.floor ? `Floor ${property.floor} of ${property.totalFloors || 'N/A'}` : "N/A"}
           </span>
         </div>
         <div className="info-row">
-          <span className="info-label"><FaCouch /> Furnishing:</span>
+          <span className="info-label"><FontAwesomeIcon icon={faCouch} /> Furnishing:</span>
           <span className="info-value">{property.furnishing?.join(", ") || "N/A"}</span>
         </div>
         <div className="info-row">
-          <span className="info-label"><FaCalendarAlt /> Age:</span>
+          <span className="info-label"><FontAwesomeIcon icon={faCalendarAlt} /> Age:</span>
           <span className="info-value">{property.ageOfProperty || "N/A"}</span>
         </div>
         <div className="info-row">
-          <span className="info-label"><FaCar /> Parking:</span>
+          <span className="info-label"><FontAwesomeIcon icon={faCar} /> Parking:</span>
           <span className="info-value">{property.parkings?.length > 0 ? property.parkings.join(", ") : "N/A"}</span>
         </div>
         <div className="info-row">
-          <span className="info-label">Facing:</span>
+          <span className="info-label"><FontAwesomeIcon icon={faCompass} />Facing:</span>
           <span className="info-value">{property.facing || "N/A"}</span>
         </div>
         <div className="info-row">
@@ -240,7 +238,7 @@ function Compare({ compareList, setCompareList, removeFromCompare }) {
         <div className="security-list">
           {property.security.map((securityFeature, index) => (
             <span key={index} className="security-tag">
-              <FaShieldAlt  /> {securityFeature}
+              <FontAwesomeIcon icon={faShieldAlt} /> {securityFeature}
             </span>
           ))}
         </div>
@@ -264,7 +262,7 @@ function Compare({ compareList, setCompareList, removeFromCompare }) {
         </div>
         <div className="location-row">
           <span className="location-label">City:</span>
-          <span className="location-value"><FaCity /> {property.city}</span>
+          <span className="location-value"><FontAwesomeIcon icon={faCity} /> {property.city}</span>
         </div>
         <div className="location-row">
           <span className="location-label">State:</span>
@@ -534,7 +532,7 @@ function Compare({ compareList, setCompareList, removeFromCompare }) {
 
           <div className="compare-actions">
             <button className="clear-all-btn" onClick={clearAllProperties}>
-              <FaTrash /> Clear All Comparisons
+              <FontAwesomeIcon icon={faTrash} /> Clear All Comparisons
             </button>
             <button className="browse-more-btn" onClick={() => navigate("/properties")}>
               Browse More Properties

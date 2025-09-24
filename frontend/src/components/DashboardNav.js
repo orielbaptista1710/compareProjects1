@@ -1,12 +1,9 @@
 import React, { useState }  from 'react';
 import './DashboardNav.css';
-import {
-  FaHome,
-  FaPlusCircle,
-  FaClipboardList,
-  FaHeadset,
-  FaSignOutAlt
-} from 'react-icons/fa';
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome, faPlusCircle, faClipboardList, faHeadset, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+
 
 const DashboardNav = ({ activeTab, setActiveTab, user, handleLogout }) => {
   const [dashboardOpen, setDashboardOpen] = useState(false);
@@ -16,7 +13,7 @@ const DashboardNav = ({ activeTab, setActiveTab, user, handleLogout }) => {
       <div className='dashboard-nav-container'>
         <div className="profile-section">
           <div className="profile-name">Welcome,</div>
-          <div className="profile-name">{user?.displayName || 'Developer'}👋</div>
+          <div className="profile-name">{user?.displayName || 'Developer'}</div>
           {/* <p>Welcome to your property dashboard. Here you can manage your listings, update info, and view stats.</p> */}
         </div>
 
@@ -27,7 +24,7 @@ const DashboardNav = ({ activeTab, setActiveTab, user, handleLogout }) => {
                className="dropdown-trigger"
                onClick={() => setDashboardOpen(!dashboardOpen)}
              >
-               <FaHome className="nav-icon" />
+               <FontAwesomeIcon icon={faHome} className="nav-icon" />
                <span>Overview</span>
              </div>
 
@@ -44,7 +41,7 @@ const DashboardNav = ({ activeTab, setActiveTab, user, handleLogout }) => {
                className={`nav-item ${activeTab === 'sell' ? 'active' : ''}`}
                onClick={() => setActiveTab('sell')}
              >
-               <FaPlusCircle className="nav-icon" />
+               <FontAwesomeIcon icon={faPlusCircle} className="nav-icon" />
                Sell Property
              </li>
 
@@ -52,17 +49,17 @@ const DashboardNav = ({ activeTab, setActiveTab, user, handleLogout }) => {
                className={`nav-item ${activeTab === 'properties' ? 'active' : ''}`}
                onClick={() => setActiveTab('properties')}
              >
-               <FaClipboardList className="nav-icon" />
+               <FontAwesomeIcon icon={faClipboardList} className="nav-icon" />
                My Properties
              </li>
 
-             <li className="nav-item">
-               <FaHeadset className="nav-icon" />
+             <li className="nav-item" >
+               <FontAwesomeIcon icon={faHeadset} className="nav-icon" />
                Support / Help Center
              </li>
 
              <li className="nav-item" onClick={handleLogout}>
-               <FaSignOutAlt className="nav-icon" />
+               <FontAwesomeIcon icon={faSignOutAlt} className="nav-icon" />
                Log Out
              </li>
            </ul>

@@ -126,7 +126,7 @@
   min-width: 320px;
 }
 
-.property-header {
+.compare-property-header {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -223,7 +223,7 @@
   color: #721c24;
 }
 
-.property-header h3 {
+.compare-property-header h3 {
   font-size: 20px;
   margin: 5px 0;
   font-weight: 700;
@@ -231,7 +231,7 @@
   line-height: 1.3;
 }
 
-.property-header .location {
+.compare-property-header .location {
   display: flex;
   align-items: center;
   gap: 5px;

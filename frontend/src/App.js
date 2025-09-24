@@ -14,6 +14,7 @@ import NavigationBar from './components/NavigationBar';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedCustomerRoute from "./components/ProtectedCustomerRoute";
 
+import { AuthProvider } from "./contexts/AuthContext";
 
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -51,7 +52,7 @@ const AppContent = () => {   // ✅ fixed function syntax
   const { compareList, setCompareList, addToCompare, removeFromCompare } = useCompareList();
   const location = useLocation();
 
-  const hideNavRoutes = ["/properties", "/compare", "/login", "/dashboard", "/admin", "/property/:id"];
+  const hideNavRoutes = ["/properties", "/compare", "/login", "/dashboard", "/admin", "/property/:id", "/customer-signup", "/customer-login", "/customer-dashboard"];
   const showNavigationBar = !hideNavRoutes.some((route) =>
     location.pathname.startsWith(route)
   );
@@ -125,9 +126,11 @@ const AppContent = () => {   // ✅ fixed function syntax
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <AuthProvider>
     <Router>
       <AppContent />
     </Router>
+    </AuthProvider>
     {process.env.NODE_ENV === "development" && <ReactQueryDevtools />}
   </QueryClientProvider>
 );

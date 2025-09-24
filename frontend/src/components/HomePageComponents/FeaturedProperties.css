@@ -1,0 +1,365 @@
+:root {
+  --primary-color: #7B2FF7;
+  --primary-light: #9a2fd308;
+  --secondary-color: #6c1ee9;
+  --accent-color: #d32f2f;
+  --accent-light: #ff5252;
+  --text-dark: #111827;
+  --text-medium: #4b5563;
+  --text-light: #6b7280;
+  --border-color: rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+}
+
+/* Container */
+.main-featured-properties-container {
+  margin: 0 auto;
+  padding: 6rem 0rem 0rem 19rem;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Header */
+.featured-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 18rem 0rem 0rem;
+}
+
+.section-title-featured {
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+
+.section-title-featured .highlight {
+  color: #7B2FF7;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title-featured .highlight::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(#7B2FF7, #501ea1);
+  border-radius: 3px;
+}
+
+/* Button */
+.view-projects-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(95deg, #c604d9, #4d00a6);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+}
+
+.view-projects-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(123, 47, 247, 0.3);
+}
+
+.view-projects-btn .arrow-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  transition: transform 0.3s ease;
+}
+
+.view-projects-btn:hover .arrow-icon {
+  transform: translateX(3px);
+}
+
+/* Error & Retry */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  background: #f9f5ff;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(123, 47, 247, 0.1);
+}
+
+.error-icon {
+  width: 48px;
+  height: 48px;
+  fill: var(--primary-color);
+  margin-bottom: 1.5rem;
+}
+
+.retry-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  margin-top: 1.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.retry-btn:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Carousel */
+.featured-properties-container {
+  position: relative;
+  padding: 1rem 0 4rem;
+}
+
+.property-cards-containerrr {
+  display: flex;
+  gap: 3rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 2rem 0;
+  cursor: grab;
+  scrollbar-width: none;
+}
+
+.property-cards-containerrr::-webkit-scrollbar {
+  display: none;
+}
+
+.property-cards-containerrr:active {
+  cursor: grabbing;
+}
+
+/* Carousel Controls */
+.carousel-controls {
+  z-index: 10;
+  pointer-events: none;
+}
+.featured-carousel-dots{
+  visibility: hidden;
+}
+
+.carousel-nav {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Common style */
+.carousel-arrow {
+  width: 70px;
+  height: 70px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #e7eafb 0%, #7d9bfc 100%);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+}
+
+.carousel-arrow svg {
+  width: 60px;
+  height: 60px;
+  fill: #7B2FF7; 
+  stroke-width: 1.5; 
+}
+
+/* Hide logic */
+.hidden-arrow {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* LEFT ARROW */
+.left-arrow {
+  position: absolute;
+  top: 45%; 
+  left: -90px;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+/* RIGHT ARROW */
+.right-arrow {
+  position: absolute;
+  top: 45%; 
+  right: 560px;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+
+
+
+
+
+
+
+
+/* No Properties */
+.no-properties {
+  text-align: center;
+  padding: 4rem;
+  color: var(--text-medium);
+  font-size: 1.2rem;
+  background: #f9f9f9;
+  border-radius: var(--radius-md);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.no-properties .empty-icon {
+  width: 64px;
+  height: 64px;
+  fill: #e5e7eb;
+  margin-bottom: 1.5rem;
+}
+
+.browse-btn {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-color);
+  color: white;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.browse-btn:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive */
+/* Responsive */
+@media (max-width: 1200px) {
+  .main-featured-properties-container {
+    padding: 4rem 2rem;
+  }
+
+  .featured-header {
+    padding: 0 2rem;
+  }
+
+  .right-arrow {
+    right: 40px; /* bring arrow closer */
+  }
+}
+
+@media (max-width: 992px) {
+  .main-featured-properties-container {
+    padding: 3rem 1.5rem;
+  }
+
+  .featured-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0;
+  }
+
+  .right-arrow {
+    right: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-featured-properties-container {
+    padding: 2.5rem 1rem;
+  }
+
+  .property-cards-containerrr {
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+  }
+
+  .carousel-arrow {
+    width: 48px;
+    height: 48px;
+  }
+
+  .carousel-arrow svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .left-arrow,
+  .right-arrow {
+    position: static; 
+    transform: none;
+    margin: 0 10px;
+    width: 48px;
+    height: 48px;
+  }
+
+  .carousel-controls {
+    position: static;
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    pointer-events: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-featured-properties-container {
+    padding: 2rem 1rem;
+  }
+
+  .section-title-featured {
+    font-size: 1.6rem;
+  }
+
+  .view-projects-btn {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+  }
+
+  .property-cards-containerrr {
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .left-arrow,
+  .right-arrow {
+    width: 40px;
+    height: 40px;
+    margin: 0 6px;
+  }
+
+  .carousel-arrow svg {
+    width: 16px;
+    height: 16px;
+  }
+}

@@ -53,9 +53,9 @@ const PropertyCarousel = () => {
           <div key={property.id} className="property-card">
             <div className="property-badge">{property.status}</div>
             <img src={property.image} alt={property.title} className="property-image" loading="lazy"/>
-            <div className="property-details">
-              <div className="property-price">{property.price}</div>
-              <h3 className="property-title">{property.title}</h3>
+            <div className="caro-property-details">
+              <div className="caro-property-price">{property.price}</div>
+              <h3 className="caro-property-title">{property.title}</h3>
               <p className="property-address">{property.address}</p>
               <div className="property-features">
                 <span><strong>Beds:</strong> {property.beds}</span>

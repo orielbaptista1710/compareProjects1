@@ -1,20 +1,40 @@
 // constants/propertyFormConstants.js
-import { FaHome, FaBuilding, FaWarehouse, FaStore, FaMap } from "react-icons/fa";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCouch, faCar, faChess, faHouse, faBuilding, faWarehouse,
+  faStore, faMap, faSwimmer, faMapMarkedAlt, faPeopleRoof, faDoorClosed,
+  faWifi, faDumbbell, faShieldAlt, faTree, faWater, faParking, faRunning,
+  faFireExtinguisher, faUsers, faHome, faLock, faBook, faVideo,
+  faDrawPolygon, faFingerprint, faCoffee, faUmbrellaBeach, faTruckLoading,
+  faTruck, faSchool, faRoad, faBell, faBolt, faCloudRain, faBellConcierge,
+  faCarSide, faElevator, faSignOutAlt, faRestroom, faSnowflake,
+  faSolarPanel, faStreetView, faDrumstickBite, faIdCard, faUserShield,
+  faBorderAll, faTrafficLight, faUtensils, faShoePrints, faChild, faSeedling,
+  faExclamationTriangle, faMoon, faLightbulb, faUserLock, faFire,
+  faGraduationCap, faBus, faSubway, faShoppingCart, faHospital, faTrain,
+  faPlane, faBinoculars, faIndustry, faFutbol, faLeaf, faGamepad, faSpa,
+  faMoneyBillWave, faDoorOpen, faChessBoard,
+  faMicrophone,
+  faPlay,faUserTie
+} from "@fortawesome/free-solid-svg-icons";
+
+// ---------------- Dropdown / Select Options ----------------
+export const PROPERTY_GROUPS = [
+  { label: "Residential", value: "Residential" },
+  { label: "Commercial", value: "Commercial" },
+];
 
 export const PROPERTY_TYPES = [
-  { label: "Residential", icon: <FaHome /> },
-  { label: "Industrial", icon: <FaWarehouse /> },
-  { label: "Retail", icon: <FaStore /> },
-  { label: "Commercial", icon: <FaBuilding /> },
-  { label: "Plot", icon: <FaMap /> },
+  { label: "Flats/Apartments", icon: <FontAwesomeIcon icon={faHouse} /> },
+  { label: "Villa", icon: <FontAwesomeIcon icon={faBuilding} /> },
+  { label: "Plot", icon: <FontAwesomeIcon icon={faMap} /> },
+  { label: "Shop/Showroom", icon: <FontAwesomeIcon icon={faStore} /> },
+  { label: "Industrial Warehouse", icon: <FontAwesomeIcon icon={faWarehouse} /> },
+  { label: "Retail", icon: <FontAwesomeIcon icon={faStore} /> },
+  { label: "Office Space", icon: <FontAwesomeIcon icon={faBuilding} /> },
 ];
 
-export const FURNISHED_OPTIONS = [
-  "Furnished", 
-  "Semi Furnished", 
-  "Unfurnished", 
-  "Fully Furnished"
-];
+export const FURNISHED_OPTIONS = ["Semi Furnished", "Unfurnished", "Fully Furnished"];
 
 export const POSSESSION_STATUS_OPTIONS = [
   "Under Construction",
@@ -23,7 +43,8 @@ export const POSSESSION_STATUS_OPTIONS = [
   "Possession Within 3 Months",
   "Possession Within 6 Months",
   "Possession Within 1 Year",
-  "Ready for Sale"
+  "Ready for Sale",
+  "New Launch",
 ];
 
 export const BHK_OPTIONS = ["1", "2", "3", "4", "5+"];
@@ -31,155 +52,83 @@ export const BATHROOM_OPTIONS = ["1", "2", "3", "4", "5+"];
 export const BALCONY_OPTIONS = ["0", "1", "2", "3", "4+"];
 
 export const FACING_OPTIONS = [
-  "East", 
-  "West", 
-  "North", 
-  "South", 
-  "North-East", 
-  "North-West", 
-  "South-East", 
-  "South-West"
+  "East", "West", "North", "South",
+  "North-East", "North-West", "South-East", "South-West",
 ];
 
 export const PARKING_OPTIONS = [
-  "Available",
-  "Not Available",
-  "2 Wheeler",
-  "4 Wheeler",
-  "2 Parking Slots",
-  "No Parking",
-  "Disabled",
-  "Basement Parking",
-  "Disabled Access Parking",
-  "Visitor Parking"
+  "Available", "Not Available", "2 Wheeler", "4 Wheeler",
+  "2 Parking Slots", "No Parking", "Disabled",
+  "Basement Parking", "Disabled Access Parking", "Visitor Parking",
 ];
 
-export const AGE_OF_PROPERTY_OPTIONS = [
-  "New",
-  "1-5 years",
-  "5-10 years",
-  "10+ years"
+export const AGE_OF_PROPERTY_OPTIONS = ["New", "1-5 years", "5-10 years", "10+ years"];
+
+export const FLOOR_OPTIONS = ["Ground", "1", "2", "3", "4", "5+"];
+
+// ---------------- Amenities / Facilities / Security ----------------
+export const amenitiesList = [
+  { name: "Swimming Pool", icon: <FontAwesomeIcon icon={faSwimmer} /> },
+  { name: "Gym", icon: <FontAwesomeIcon icon={faDumbbell} /> },
+  { name: "Garden", icon: <FontAwesomeIcon icon={faTree} /> },
+  { name: "Internet / Wi-Fi", icon: <FontAwesomeIcon icon={faWifi} /> },
+  { name: "Fire Fighting System", icon: <FontAwesomeIcon icon={faFireExtinguisher} /> },
+  { name: "Closed Car Parking", icon: <FontAwesomeIcon icon={faCar} /> },
+  { name: "Gated Community", icon: <FontAwesomeIcon icon={faShieldAlt} /> },
+  { name: "Club House", icon: <FontAwesomeIcon icon={faCouch} /> },
+  { name: "Private Beach Access", icon: <FontAwesomeIcon icon={faUmbrellaBeach} /> },
+  { name: "Library", icon: <FontAwesomeIcon icon={faBook} /> },
+  { name: "Chess Board", icon: <FontAwesomeIcon icon={faChess} /> },
+  { name: "Cafeteria", icon: <FontAwesomeIcon icon={faCoffee} /> },
+];
+ 
+export const facilitiesList = [
+  { name: "Parking", icon: <FontAwesomeIcon icon={faParking} /> },
+  { name: "Water & Electricity Connections", icon: <FontAwesomeIcon icon={faWater} /> },
+  { name: "Power Backup", icon: <FontAwesomeIcon icon={faBolt} /> },
+  { name: "Wide Roads", icon: <FontAwesomeIcon icon={faRoad} /> },
+  { name: "Near Hospital", icon: <FontAwesomeIcon icon={faHospital} /> },
 ];
 
-export const FLOOR_OPTIONS = [
-  "Ground",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5+"
+export const securityList = [
+  { name: "CCTV Surveillance", icon: <FontAwesomeIcon icon={faVideo} /> },
+  { name: "Anti-Theft Alarms", icon: <FontAwesomeIcon icon={faExclamationTriangle} /> },
+  { name: "Fenced Boundary", icon: <FontAwesomeIcon icon={faDoorClosed} /> },
+  { name: "24/7 Security", icon: <FontAwesomeIcon icon={faUserShield} /> },
+  { name: "Security Guard", icon: <FontAwesomeIcon icon={faPeopleRoof} /> },
 ];
 
-export const amenitiesList = ["Swimming Pool",
-  "Pool",
-  "Internet / Wi-Fi",
-  "Gym",
-  "Fire Fighting System",
-  "Flower Garden",
-  "Garden",
-  "24X7 Water Supply",
-  "Closed Car Parking",
-  "Jogging Track",
-  "Gated Community",
-  "Children's Play Area",
-  "Senior Citizen Siteout",
-  "Yoga / Meditation",
-  "Conference Rooms",
-  "Private Beach Access",
-  "Loading Docks",
-  "Club House",
-  "Nearby Schools & Hospitals",
-  "Library",
-  "Chess Board",
-  "Public Restrooms",
-  "Wheelchair Accessibility",
+// ---------------- Amenity Lookup Map ----------------
+export const AMENITY_ICONS = {
+  "Swimming Pool": faSwimmer,
+  "Gym": faDumbbell,
+  "Garden": faTree,
+  "Internet / Wi-Fi": faWifi,
+  "Fire Fighting System": faFireExtinguisher,
+  "Closed Car Parking": faCar,
+  "Gated Community": faShieldAlt,
+  "Club House": faCouch,
+  "Private Beach Access": faUmbrellaBeach,
+  "Library": faBook,
+  "Chess Board": faChess,
+  "Cafeteria": faCoffee,
+  "Parking": faParking,
+  "Power Backup": faBolt,
+  "Wide Roads": faRoad,
+  "Near Hospital": faHospital,
+  "CCTV Surveillance": faVideo,
+  "Anti-Theft Alarms": faExclamationTriangle,
+  "Fenced Boundary": faDoorClosed,
+  "24/7 Security": faUserShield,
+  "Security Guard": faPeopleRoof,
+  "24/7 Water Supply": faWater,
+  "Security": faUserShield,
+  "Intercom": faMicrophone,
+  "Security Guards": faPeopleRoof,
+  "Clubhouse": faCouch,
+  "Children's Play Area": faChild,
+  "Lift": faElevator,
+  "Landscaped Gardens": faTree,
+  "Maintenance Staff": faUserTie,
 
-  // 🏢 **Commercial Amenities**
-  "Conference Room",
-  "Board Room",
-  "Cafeteria",
-  "Cafe",
-  "Lounge",
-  "Rooftop Garden",
-  "Fitness Center",
-
-  // 🏬 **Retail Amenities**
-  "ATM",
-  "Escalators",
-
-  // 🏭 **Industrial Amenities**
-  "Loading Dock","Near Hospital",
-  "Truck Parking","Near Ambulance Service",
-  "Warehouse","Near School Area",
-  "Canteen","Near College/University",
-
-  // 🏞 **Plot Amenities**
-  "Community Parks",
-  "Walking Paths",
-  "Playground",
-  "Green Landscaping",];
-
-  export const facilitiesList = ["Parking",
-  "Wide Roads",
-  "Water & Electricity Connections",
-  "Near Highway",
-  "Rainwater Harvesting",
-  "Lifts","Near Railway Station",
-  "Concierge Service","Near Airport",
-  "Near Stadium","Near Forest Reserve",
-  "Near Parks & Greenery",
-  "Near Shopping Mall","Near Public Transport",
-  "Near Metro Station","Near Beach",
-  "Near Lakes & Water Bodies",
-
-  // **Commercial Facilities**
-  "Basement Parking",
-  "Power Backup",
-  "Valet Parking",
-  "Lift(s)","Near Tourist Attractions",
-  "Multiple Entry & Exit Points",
-  "Near Industrial Hub",
-
-  // **Retail Facilities**
-  "Customer Parking",
-  "Public Toilets",
-  "Air Conditioning",
-
-  // **Industrial Facilities**
-  "Solar Power Backup",
-  "Water Treatment Plant",
-  "Multi-modal Transport Connectivity",
-
-  // **Plot Facilities**
-  "Street Lighting",
-  "Drainage System",
-  "Visitor Parking",];
-
-  export const securityList = ["CCTV Surveillance",
-  "Anti-Theft Alarms",
-  "Fenced Boundary","Digital Access Control",
-  "Biometric Access","Night Surveillance",
-  "24/7 Security","Emergency Alarm System",
-  "Security Guard",
-  "Smoke Detectors",
-  "Video Door Security",
-
-  // **Commercial Security**
-  "Access Card Entry",
-
-  // **Retail Security**
-  "Fire Safety System",
-  "RFID-based Entry",
-  "Security Guards","Near Fire Station",
-
-  // **Industrial Security**
-  "Fenced Perimeter","Emergency Medical Assistance",
-  "Gated Premises","Near Police Station",
-
-  // **Plot Security**
-  "Boundary Wall",
-  "Boom Barriers at Entrance",
-  "Street Lighting for Safety",
-  "Resident Access Control",
-
-];
+};

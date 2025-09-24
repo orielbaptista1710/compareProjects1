@@ -1,7 +1,7 @@
 import React,  { useState, useEffect } from 'react';
 import { 
   amenitiesList,
-  facilitiesList,
+  facilitiesList, 
   securityList
 } from '../constants/propertyFormConstants';
 import './SellPropertyForm.css';
@@ -209,7 +209,7 @@ const SellPropertyForm = ({
           handleAreaUnitChange={handleAreaUnitChange}
           availableFrom={availableFrom}
           handleDateChange={handleDateChange}
-          handleCheckboxChange={handleCheckboxChange}
+          handleCheckboxChange={handleCheckboxChange} 
         />
         
         {/* Amenities Section */}
@@ -218,19 +218,20 @@ const SellPropertyForm = ({
           <fieldset>
             <div className="checkbox-container">
               {amenitiesList.map((amenity) => (
-                <label 
-                  key={amenity} 
-                  className={`checkbox-label ${selectedAmenities.includes(amenity) ? "selected" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    value={amenity}
-                    checked={selectedAmenities.includes(amenity)}
-                    onChange={() => handleAmenityChange(amenity)}
-                  />
-                  {amenity}
-                </label>
-              ))}
+  <label 
+    key={amenity.name} // use the unique name as key in constants its stored as oject and n react can only render strings therefore need to be specific
+    className={`checkbox-label ${selectedAmenities.includes(amenity.name) ? "selected" : ""}`}
+  >
+    <input
+      type="checkbox"
+      value={amenity.name}
+      checked={selectedAmenities.includes(amenity.name)}
+      onChange={() => handleAmenityChange(amenity.name)}
+    />
+    {amenity.icon} {amenity.name}  {/* render icon + name */}
+  </label>
+))}
+
             </div>
           </fieldset>
         </div>
@@ -242,16 +243,16 @@ const SellPropertyForm = ({
             <div className="checkbox-container">
               {facilitiesList.map((facility) => (
                 <label 
-                  key={facility} 
-                  className={`checkbox-label ${selectedFacilities.includes(facility) ? "selected" : ""}`}
+                  key={facility.name} 
+                  className={`checkbox-label ${selectedFacilities.includes(facility.name) ? "selected" : ""}`}
                 >
                   <input
                     type="checkbox"
-                    value={facility}
-                    checked={selectedFacilities.includes(facility)}
-                    onChange={() => handleFacilityChange(facility)}
+                    value={facility.name}
+                    checked={selectedFacilities.includes(facility.name)}
+                    onChange={() => handleFacilityChange(facility.name)}
                   />
-                  {facility}
+                  {facility.name} {facility.icon}
                 </label>
               ))}
             </div>
@@ -265,16 +266,16 @@ const SellPropertyForm = ({
             <div className="checkbox-container">
               {securityList.map((security) => (
                 <label 
-                  key={security} 
-                  className={`checkbox-label ${selectedSecurity.includes(security) ? "selected" : ""}`}
+                  key={security.name} 
+                  className={`checkbox-label ${selectedSecurity.includes(security.name) ? "selected" : ""}`}
                 >
                   <input
                     type="checkbox"
-                    value={security}
-                    checked={selectedSecurity.includes(security)}
-                    onChange={() => handleSecurityChange(security)}
+                    value={security.name}
+                    checked={selectedSecurity.includes(security.name)}
+                    onChange={() => handleSecurityChange(security.name)}
                   />
-                  {security}
+                  {security.name}{security.icon}
                 </label>
               ))}
             </div>

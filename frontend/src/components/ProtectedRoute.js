@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children, roles }) => {
   // If roles are specified and user role is not in them → redirect home (or 403 page)
   if (roles && user && !roles.includes(user.role)) {
     return <Navigate to="/" replace />;
-  }
+  } 
 
   return children;
 };

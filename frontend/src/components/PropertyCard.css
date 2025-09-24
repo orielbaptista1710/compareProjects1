@@ -6,21 +6,24 @@
   max-width: 100%;
   margin: 0 0 20px 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
   border: 1px solid #eaeaea;
   position: relative;
 }
 
-.propertyy-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+/* Hover / focus for accessibility */
+.propertyy-card:hover,
+.propertyy-card:focus-within {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
+  outline: none;
 }
 
 .card-image-container {
   width: 35%;
   min-width: 280px;
   position: relative;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .card-image {
@@ -30,26 +33,29 @@
   transition: transform 0.4s ease;
 }
 
-.propertyy-card:hover .card-image {
+.propertyy-card:hover .card-image,
+.propertyy-card:focus-within .card-image {
   transform: scale(1.05);
 }
 
+/* Badge */
 .property-type-badge {
   position: absolute;
   top: 12px;
   left: 12px;
-  background-color: rgba(255, 255, 255, 0.95);
-  color: #D92228;
+  background-color: rgba(255, 255, 255, 0.98);
+  color: #d92228;
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  z-index: 2;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  user-select: none;
 }
 
+/* Action buttons on image */
 .image-actions {
   position: absolute;
   top: 12px;
@@ -61,8 +67,8 @@
 }
 
 .image-action-btn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.95);
   border: none;
@@ -70,19 +76,21 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: #555;
+  transition: background 0.2s ease, transform 0.2s ease;
+  color: #444;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.image-action-btn:hover {
+.image-action-btn:hover,
+.image-action-btn:focus {
   background: #fff;
   transform: scale(1.1);
-  color: #D92228;
+  color: #d92228;
+  outline: none;
 }
 
 .image-action-btn.liked {
-  color: #D92228;
+  color: #d92228;
 }
 
 .property-contentt {
@@ -93,6 +101,7 @@
   gap: 16px;
 }
 
+/* Headings & price */
 .property-headerr {
   display: flex;
   flex-direction: column;
@@ -109,7 +118,6 @@
   margin: 0;
   line-height: 1.3;
   text-align: left;
-  width: 100%;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -120,9 +128,7 @@
 .property-pricee {
   font-size: 1.3rem;
   font-weight: 800;
-  color: #D92228;
-  text-align: left;
-  width: 100%;
+  color: #d92228;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -132,12 +138,11 @@
   font-size: 0.9rem;
   font-weight: 500;
   color: #666;
-  margin-top: 2px;
 }
 
 .property-locationn {
   font-size: 0.95rem;
-  color: #555;
+  color: #444;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -145,11 +150,9 @@
 }
 
 .property-locationn svg {
-  color: #D92228;
-  font-size: 14px;
+  color: #d92228;
   width: 14px;
   height: 14px;
-  opacity: 0.9;
 }
 
 .property-agentt {
@@ -158,13 +161,14 @@
   font-weight: 500;
 }
 
+/* Features */
 .property-featuress {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
   padding: 16px 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
 .feature {
@@ -173,40 +177,40 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #444;
+  color: #333;
   min-width: 100px;
 }
 
 .feature svg {
-  color: #D92228;
-  font-size: 15px;
+  color: #d92228;
   width: 15px;
   height: 15px;
-  opacity: 0.9;
 }
 
+/* Description */
 .property-descriptionn {
   font-size: 0.95rem;
   color: #555;
   line-height: 1.6;
-  margin: 8px 0;
 }
 
 .toggle-descriptionn {
   background: none;
   border: none;
-  color: #D92228;
+  color: #d92228;
   cursor: pointer;
   font-weight: 600;
   margin-left: 6px;
-  padding: 0;
   font-size: 0.9rem;
 }
 
-.toggle-descriptionn:hover {
+.toggle-descriptionn:hover,
+.toggle-descriptionn:focus {
   text-decoration: underline;
+  outline: none;
 }
 
+/* Footer buttons */
 .property-footerr {
   display: flex;
   justify-content: flex-end;
@@ -216,6 +220,7 @@
 .property-actionss {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .compare-action-button,
@@ -226,28 +231,30 @@
   border-radius: 8px;
   cursor: pointer;
   border: none;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
   display: flex;
   align-items: center;
   gap: 6px;
-  min-width: 120px;
   justify-content: center;
+  min-width: 120px;
 }
 
 .compare-action-button {
   background-color: transparent;
-  color: #D92228;
-  border: 2px solid #D92228;
+  color: #d92228;
+  border: 2px solid #d92228;
 }
 
-.compare-action-button:hover {
-  background-color: #D92228;
-  color: white;
+.compare-action-button:hover,
+.compare-action-button:focus {
+  background-color: #d92228;
+  color: #fff;
+  outline: none;
 }
 
 .compare-action-button.in-compare {
-  background-color: #D92228;
-  color: white;
+  background-color: #d92228;
+  color: #fff;
 }
 
 .contact-action-button {
@@ -255,17 +262,20 @@
   color: #fff;
 }
 
-.contact-action-button:hover {
+.contact-action-button:hover,
+.contact-action-button:focus {
   background-color: #111827;
   transform: translateY(-1px);
+  outline: none;
 }
 
+/* Close button */
 .close-button {
   position: absolute;
   top: 12px;
   right: 12px;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.95);
   border: none;
@@ -277,16 +287,26 @@
   font-size: 18px;
   color: #555;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.close-button:hover {
+.close-button:hover,
+.close-button:focus {
   background: #f0f0f0;
-  color: #D92228;
+  color: #d92228;
   transform: scale(1.1);
+  outline: none;
 }
 
-/* Responsive design */
+/* Motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Responsive tweaks */
 @media (max-width: 1024px) {
   .card-image-container {
     min-width: 240px;
@@ -297,26 +317,18 @@
   .propertyy-card {
     flex-direction: column;
   }
-  
+
   .card-image-container {
     width: 100%;
     min-width: auto;
     height: 220px;
   }
-  
-  .property-featuress {
-    gap: 12px;
-  }
-  
-  .feature {
-    min-width: 80px;
-  }
-  
+
   .property-actionss {
     flex-direction: column;
     width: 100%;
   }
-  
+
   .compare-action-button,
   .contact-action-button {
     width: 100%;
@@ -327,25 +339,22 @@
   .property-contentt {
     padding: 16px;
   }
-  
+
   .property-titlee {
     font-size: 1.1rem;
   }
-  
+
   .property-pricee {
     font-size: 1.15rem;
   }
-  
-  .property-featuress {
-    gap: 10px;
-  }
-  
+
   .feature {
     font-size: 13px;
     min-width: 70px;
   }
-  
+
   .feature svg {
-    font-size: 13px;
+    width: 13px;
+    height: 13px;
   }
 }

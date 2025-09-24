@@ -2,19 +2,20 @@ const PropertyInformationSection = ({ formData, handleChange }) => (
   <section aria-labelledby="property-section">
     <h3 id="property-section" className="section-title">Property Information</h3>
     <div className="form-row">
-            <div className="form-col">
-            <label htmlFor="firstName">Developer Name</label>
-            <input
-              id="firstName"
-              className="form-input"
-              name="firstName"
-              placeholder="Your first name"
-              value={formData.firstName || ''}
-              onChange={handleChange}
-              required
-            />
-      </div>
-    </div>
+  <div className="form-col">
+    <label htmlFor="developerName">Developer Name</label>
+    <input
+      id="developerName"
+      className="form-input"
+      name="developerName"
+      placeholder="Enter developer name"
+      value={formData.developerName || ''}
+      onChange={handleChange}
+      required
+    />
+  </div>
+</div>
+
     <div className="form-row">
       <div className="form-col">
         <label htmlFor="title">Title</label>

@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import {
-  FiHelpCircle,
-  FiHome,
-  FiUsers,
-  FiTool,
-  FiPhone,
-  FiMail,
-  FiCheckCircle,
-  FiChevronDown,
-} from "react-icons/fi";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleQuestion } from "@fortawesome/free-solid-svg-icons/faCircleQuestion";
+import { faHouse } from "@fortawesome/free-solid-svg-icons/faHouse";
+import { faUsers } from "@fortawesome/free-solid-svg-icons/faUsers";
+import { faWrench } from "@fortawesome/free-solid-svg-icons/faWrench";
+import { faPhone } from "@fortawesome/free-solid-svg-icons/faPhone";
+import { faEnvelope } from "@fortawesome/free-solid-svg-icons/faEnvelope";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons/faCircleCheck";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
+
 import "./SupportHelp.css";
 // import RelatedArticles from "../components/RelatedArticles";
 
@@ -79,10 +79,10 @@ const checklistItems = [
 ];
 
 const tabIcons = {
-  "Getting Started": <FiHome />,
-  "Property Management": <FiTool />,
-  "For Customers": <FiUsers />,
-  "Support & Assistance": <FiHelpCircle />,
+  "Getting Started": <FontAwesomeIcon icon={faHouse} />,
+  "Property Management": <FontAwesomeIcon icon={faWrench} />,
+  "For Customers": <FontAwesomeIcon icon={faUsers} />,
+  "Support & Assistance": <FontAwesomeIcon icon={faCircleQuestion} />,
 };
 
 
@@ -127,7 +127,7 @@ const SupportHelp = () => {
             <h3>Property Visit Checklist</h3>
             <ul>
               {checklistItems.map((item, idx) => (
-                <li key={idx}><FiCheckCircle className="list-icon" /> {item}</li>
+                <li key={idx}><FontAwesomeIcon icon={faCircleCheck} className="list-icon" /> {item}</li>
               ))}
             </ul>
           </div>
@@ -135,16 +135,6 @@ const SupportHelp = () => {
 
         {/* RIGHT: FAQ Section */}
         <div className="support-right">
-          {/* Search Bar */}
-          {/* <div className="faq-search">
-            <FiSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search FAQs..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div> */}
 
           {/* Tabs */}
           <div className="support-tabs">
@@ -175,7 +165,7 @@ const SupportHelp = () => {
                   onClick={() => toggleFAQ(index)}
                 >
                   {faq.question}
-                  <FiChevronDown className={`chevron ${openIndex === index ? "open" : ""}`} />
+                  <FontAwesomeIcon icon={faChevronDown} className={`chevron ${openIndex === index ? "open" : ""}`} />
                 </button>
                 {openIndex === index && (
                   <div className="faq-answer">{faq.answer}</div>
@@ -200,12 +190,12 @@ const SupportHelp = () => {
         </p>
         <div className="support-contact">
           <div className="support-box">
-            <FiPhone className="support-icon" />
+            <FontAwesomeIcon icon={faPhone} className="support-icon" />
             <p>+ (856X) 093-6-49X</p>
             <small>We are always happy to help</small>
           </div>
           <div className="support-box">
-            <FiMail className="support-icon" />
+            <FontAwesomeIcon icon={faEnvelope} className="support-icon" />
             <p>support@compareprojects.com</p>
             <small>The best way to get faster support</small>
           </div>

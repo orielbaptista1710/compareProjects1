@@ -19,7 +19,7 @@
   top: 70px;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 999;
   border-bottom: 1px solid #e2e8f0;
   width: 100%;
   transition: top var(--transition-speed) ease;

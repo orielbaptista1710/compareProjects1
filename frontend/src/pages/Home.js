@@ -1,15 +1,15 @@
 import React from 'react';
 import './Home.css'; 
-import Gallery from '../components/Gallery'; 
-import MainSearchBar from '../components/MainSearchBar';
+import Gallery from '../components/HomePageComponents/Gallery'; 
+import MainSearchBar from '../components/HomePageComponents/MainSearchBar';
 import NavigationBar from '../components/NavigationBar';
-import FeaturedProperties from '../components/FeaturedProperties ';
-import RecentlyAdded from '../components/RecentlyAdded';
-import PostPropertyBanner from '../components/PostPropertyBanner';
-import HeroSection from '../components/HeroSection';
-import About from '../components/About';
-import ContactForm from '../components/ContactForm';
-import TestimonialSection from '../components/TestimonialSection';
+import FeaturedProperties from '../components/HomePageComponents/FeaturedProperties ';
+import RecentlyAdded from '../components/HomePageComponents/RecentlyAdded';
+import PostPropertyBanner from '../components/HomePageComponents/PostPropertyBanner';
+import HeroSection from '../components/HomePageComponents/HeroSection';
+import About from '../components/HomePageComponents/About';
+import ContactForm from '../components/HomePageComponents/ContactForm';
+import TestimonialSection from '../components/HomePageComponents/TestimonialSection';
 
 function Home() {
 

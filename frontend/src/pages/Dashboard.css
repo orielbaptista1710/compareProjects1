@@ -1,5 +1,6 @@
 /* Dashboard Container */
 .dashboard-container {
+  padding: 5rem 1rem;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -87,7 +88,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.property-header {
+.dashboard-property-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -96,7 +97,7 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
-.property-title {
+.dashbard-property-title {
   margin: 0;
   font-size: 1.2rem;
   color: #333;
@@ -133,7 +134,7 @@
   border-radius: 4px;
 }
 
-.property-details {
+.dashboard-property-details {
   padding: 1rem;
 }
 

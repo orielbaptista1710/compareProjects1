@@ -1,162 +1,181 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PropertyCard.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faLocationDot,
-  faBed,
-  faBath,
-  faCompass,
-  faHome,
-  faCalendarAlt,
-  faPhone,
-  faCodeCompare,
-  faCar,
-  faCouch,
-  faHeart,
-  faShareAlt,
-  faRulerCombined
-} from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot } from "@fortawesome/free-solid-svg-icons/faLocationDot";
+import { faBed } from "@fortawesome/free-solid-svg-icons/faBed";
+import { faBath } from "@fortawesome/free-solid-svg-icons/faBath";
+import { faCompass } from "@fortawesome/free-solid-svg-icons/faCompass";
+import { faHome } from "@fortawesome/free-solid-svg-icons/faHome";
+import { faCalendarAlt } from "@fortawesome/free-solid-svg-icons/faCalendarAlt";
+import { faPhone } from "@fortawesome/free-solid-svg-icons/faPhone";
+import { faCodeCompare } from "@fortawesome/free-solid-svg-icons/faCodeCompare";
+import { faCar } from "@fortawesome/free-solid-svg-icons/faCar";
+import { faCouch } from "@fortawesome/free-solid-svg-icons/faCouch";
+import { faHeart } from "@fortawesome/free-solid-svg-icons/faHeart";
+import { faShareAlt } from "@fortawesome/free-solid-svg-icons/faShareAlt";
+import { faRulerCombined } from "@fortawesome/free-solid-svg-icons/faRulerCombined";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons/faCircleCheck";
 
-const placeholderImage = 'https://via.placeholder.com/400x300?text=Property+Image';
 
-function PropertyCard({ 
-  property, 
-  addToCompare, 
-  goToComparePage, 
-  onRemove, 
+const placeholderImage =
+  'https://via.placeholder.com/400x300?text=Property+Image';
+
+function PropertyCard({
+  property,
+  addToCompare,
+  goToComparePage,
+  onRemove,
   cardType,
-  isInCompare 
+  isInCompare,
 }) {
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const [isLiked, setIsLiked] = useState(false); 
+  const [isLiked, setIsLiked] = useState(false);
 
-  if (!property) return <p>Invalid property data</p>;
+  /** ======================
+   *  EVENT HANDLERS
+   * ====================== */
+  const handleCompare = useCallback(
+    (e) => {
+      e.stopPropagation();
+      if (addToCompare) addToCompare(property);
+      if (goToComparePage && isInCompare) goToComparePage();
+    },
+    [addToCompare, goToComparePage, isInCompare, property]
+  );
 
-  const handleCompare = (e) => {
-    e.stopPropagation();
-    if (addToCompare) {
-      addToCompare(property);
-    }
-    if (goToComparePage && isInCompare) {
-      goToComparePage();
-    }
-  };
-
-  const handleCardClick = (e) => {
-    if (!e.target.closest('button') && !e.target.closest('a')) {
-      if (property && property._id) {
-        navigate(`/property/${property._id}`);
-      } else {
-        console.error("Property ID is missing");
+  const handleCardClick = useCallback(
+    (e) => {
+      if (!e.target.closest('button') && !e.target.closest('a')) {
+        if (property?._id) {
+          navigate(`/property/${property._id}`);
+        } else {
+          console.error('Property ID is missing');
+        }
       }
-    }
-  };
+    },
+    [navigate, property]
+  );
 
-  const formatLocation = () => {
-    return `${property.locality}, ${property.city}, ${property.state}`;
-  };
-
-  const handleImageError = () => {
+  const handleImageError = useCallback(() => {
     setImageError(true);
-  };
+  }, []);
 
-  const getImageUrl = () => {
-    if (imageError || !property.coverImage) {
-      return placeholderImage;
-    }
+  const toggleLike = useCallback(
+    (e) => {
+      e.stopPropagation();
+      setIsLiked((prev) => !prev);
+    },
+    []
+  );
+
+  const shareProperty = useCallback(
+    (e) => {
+      e.stopPropagation();
+      const shareData = {
+        title: property.title,
+        text: property.description?.substring(0, 100) || '',
+        url: `${window.location.origin}/property/${property._id}`,
+      };
+      if (navigator.share) {
+        navigator.share(shareData).catch((error) =>
+          console.log('Error sharing', error)
+        );
+      } else {
+        navigator.clipboard.writeText(shareData.url);
+        alert('Link copied to clipboard!');
+      }
+    },
+    [property]
+  );
+
+  /** ======================
+   *  FORMATTERS (memoized)
+   * ====================== */
+  const location = useMemo(
+    () => `${property.locality}, ${property.city}, ${property.state}`,
+    [property.locality, property.city, property.state]
+  );
+
+  const imageUrl = useMemo(() => {
+    if (imageError || !property.coverImage) return placeholderImage;
     return `${process.env.REACT_APP_API_URL}/uploads/${property.coverImage}`;
-  };
+  }, [imageError, property.coverImage]);
 
-  const formatPrice = (price) => {
-    if (typeof price !== 'number' || isNaN(price)) {
-      return "Price on Request";
-    }
-  
+  const formattedPrice = useMemo(() => {
+    const price = property.price;
+    if (typeof price !== 'number' || isNaN(price)) return 'Price on Request';
+
     if (price >= 10000000) {
       const crores = price / 10000000;
       return `₹${crores.toFixed(2)} Crore${crores !== 1 ? 's' : ''}`;
     }
-    
     if (price >= 100000) {
       const lakhs = price / 100000;
       return `₹${lakhs.toFixed(2)} Lakh${lakhs !== 1 ? 's' : ''}`;
     }
-  
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(price);
-  };
+  }, [property.price]);
 
-  const getPricePerSqFt = () => {
-    if (!property.price || !property.area) return null;
-    const pricePerSqFt = Math.round(property.price / property.area);
-    return `₹${pricePerSqFt.toLocaleString('en-IN')}/sq.ft`;
-  };
+  // const pricePerSqFt = useMemo(() => {
+  //   if (!property.price || !property.area) return null;
+  //   const perSqFt = Math.round(property.price / property.area);
+  //   return `₹${perSqFt.toLocaleString('en-IN')}/sq.ft`;
+  // }, [property.price, property.area]);
 
-  const formatArea = () => {
-    if (!property.area) return "N/A";
-    return `${property.area.toLocaleString('en-IN')} sq.ft`;
-  };
 
-  const toggleLike = (e) => {
-    e.stopPropagation();
-    setIsLiked(!isLiked);
-  };
-
-  const shareProperty = (e) => {
-    e.stopPropagation();
-    // Implement share functionality
-    if (navigator.share) {
-      navigator.share({
-        title: property.title,
-        text: property.description.substring(0, 100),
-        url: window.location.href,
-      })
-      .catch((error) => console.log('Error sharing', error));
-    } else {
-      // Fallback for browsers that don't support Web Share API
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
-    }
-  };
-
+  if (!property) return <p role="alert">Invalid property data</p>;
+  
+  /** ======================
+   *  RENDER
+   * ====================== */
   return (
-    <div 
+    <article
       className={`propertyy-card ${cardType === 'compare' ? 'compare-card' : 'default-card'} ${isInCompare ? 'in-compare' : ''}`}
       onClick={handleCardClick}
       role="button"
-      tabIndex="0"
+      tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && handleCardClick(e)}
-    > 
+      aria-label={`Property card for ${property.title}`}
+    >
+      {/* Remove button (for compare view) */}
       {onRemove && (
-        <button 
-          className="close-button" 
-          onClick={(e) => { 
-            e.stopPropagation(); 
-            onRemove(property._id); 
+        <button
+          type="button"
+          className="close-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(property._id);
           }}
-          aria-label="Remove property"
+          aria-label="Remove property from list"
         >
           &times;
         </button>
       )}
 
+      {/* Image Section */}
       <div className="card-image-container">
-        <div className="property-type-badge">{property.propertyType}</div>
+        {property.propertyType && (
+          <span className="property-type-badge">{property.propertyType}</span>
+        )}
         <div className="image-actions">
-          <button 
+          <button
+            type="button"
             className={`image-action-btn ${isLiked ? 'liked' : ''}`}
             onClick={toggleLike}
-            aria-label={isLiked ? "Unlike property" : "Like property"}
+            aria-pressed={isLiked}
+            aria-label={isLiked ? 'Unlike property' : 'Like property'}
           >
             <FontAwesomeIcon icon={faHeart} />
           </button>
-          <button 
+          <button
+            type="button"
             className="image-action-btn"
             onClick={shareProperty}
             aria-label="Share property"
@@ -164,109 +183,145 @@ function PropertyCard({
             <FontAwesomeIcon icon={faShareAlt} />
           </button>
         </div>
-        <img 
-          src={getImageUrl()}
-          alt={property.title}
+        <img
+          src={imageUrl}
+          alt={property.title || 'Property Image'}
           className="card-image"
           onError={handleImageError}
           loading="lazy"
         />
       </div>
 
+      {/* Content Section */}
       <div className="property-contentt">
-        <div className='submain-headerr'>                  
+        <header className="submain-headerr">
           <div className="property-headerr">
             <h2 className="property-titlee">{property.title}</h2>
             <div className="property-pricee">
-              {formatPrice(property.price)} 
-              <span className="price-per-sqft">{getPricePerSqFt()}</span>
+              {formattedPrice}
+              {<span className="price-per-sqft">₹{property.pricePerSqft || 'N/A'} /{property.area.unit|| 'sqft'}</span>}
             </div>
           </div>
-          <div className='more-details'>
+          <div className="more-details">
             <p className="property-locationn">
-              <FontAwesomeIcon icon={faLocationDot} /> {formatLocation()}
+              <FontAwesomeIcon icon={faLocationDot} aria-hidden="true" />{' '}
+              {location}
             </p>
-            <div className="property-agentt">By {property.firstName}</div>   
+            {property.developerName  && (
+              <div className="property-agentt">By {property.developerName || 'N/A' }</div>
+            )}
           </div>
-        </div>
+        </header>
 
-        <div className="property-featuress">
-          <div className="feature">
-            <FontAwesomeIcon icon={faBed} />
+        {/* Features */}
+        <ul className="property-featuress">
+          <li className="feature">
+            <FontAwesomeIcon icon={faBed} aria-hidden="true" />
             <span>{property.bhk || 'N/A'} BHK</span>
-          </div>
-          <div className="feature">
-            <FontAwesomeIcon icon={faBath} />
+          </li>
+          <li className="feature">
+            <FontAwesomeIcon icon={faBath} aria-hidden="true" />
             <span>{property.bathrooms || 'N/A'} Bath</span>
-          </div>
-          <div className="feature">
-            <FontAwesomeIcon icon={faRulerCombined} />
-            <span>{formatArea()}</span>
-          </div>
-          <div className="feature">
-            <FontAwesomeIcon icon={faCompass} />
+          </li>
+
+          <li className="feature">
+            <FontAwesomeIcon icon={faRulerCombined} aria-hidden="true" />
+            <span>{property.area.value || 'N/A'} {property.area.unit || 'sqft'}</span>
+          </li>
+          <li className="feature">
+            <FontAwesomeIcon icon={faCompass} aria-hidden="true" />
             <span>{property.facing || 'N/A'} Facing</span>
-          </div>
-          <div className="feature">
-            <FontAwesomeIcon icon={faHome} />
+          </li>
+          <li className="feature">
+            <FontAwesomeIcon icon={faHome} aria-hidden="true" />
             <span>{property.balconies || 'N/A'} Balcony</span>
-          </div>
-          <div className="feature">
-            <FontAwesomeIcon icon={faCar} />
-            <span>{property.parkings?.[0] || 'No Parking'}</span>
-          </div>
-          <div className="feature">
-            <FontAwesomeIcon icon={faCalendarAlt} />
+          </li>
+          <li className="feature">
+            <FontAwesomeIcon icon={faCircleCheck} aria-hidden="true" />
+            <span>{property.ageOfProperty || 'N/A'} </span>
+          </li>
+
+
+          {/* //// parking is saved in string figure out how to deal with this for filter n propertyCard */}
+          <li className="feature">
+            <FontAwesomeIcon icon={faCar} aria-hidden="true" />
+            <span>{property.parkings || 'No Parking'}</span>
+          </li>
+
+
+
+          <li className="feature">
+            <FontAwesomeIcon icon={faCalendarAlt} aria-hidden="true" />
             <span>{property.possessionStatus?.[0] || 'N/A'}</span>
-          </div>
-          <div className="feature">
-            <FontAwesomeIcon icon={faCouch} />
+          </li>
+          <li className="feature">
+            <FontAwesomeIcon icon={faCouch} aria-hidden="true" />
             <span>{property.furnishing?.[0] || 'N/A'}</span>
-          </div>
-        </div>
+          </li>
 
-        <div className={`property-descriptionn ${expanded ? 'expanded' : ''}`}>
+        </ul>
+
+        {/* Description */}
+        <div
+          className={`property-descriptionn ${expanded ? 'expanded' : ''}`}
+          aria-expanded={expanded}
+        >
           <p>
-            {expanded 
+            {expanded
               ? property.description
-              : `${property.description.substring(0, 100)}...`}
-            
-            <button 
-              className="toggle-descriptionn" 
-              onClick={(e) => {
-                e.stopPropagation(); 
-                setExpanded(!expanded);
-              }}
-            >
-              {expanded ? 'Read Less' : 'Read More'} 
-            </button>
+              : `${property.description?.substring(0, 100) || ''}...`}
           </p>
+          {property.description && property.description.length > 100 && (
+            <button
+              type="button"
+              className="toggle-descriptionn"
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpanded((prev) => !prev);
+              }}
+              aria-label={expanded ? 'Collapse description' : 'Expand description'}
+            >
+              {expanded ? 'Read Less' : 'Read More'}
+            </button>
+          )}
         </div>
 
-        <div className="property-footerr">
+        {/* Footer Actions */}
+        <footer className="property-footerr">
           <div className="property-actionss">
-            <button 
+            <button
+              type="button"
               className={`compare-action-button ${isInCompare ? 'in-compare' : ''}`}
               onClick={handleCompare}
+              aria-pressed={isInCompare}
             >
-              <FontAwesomeIcon className="contact-custom-btn-icon" icon={faCodeCompare} />
+              <FontAwesomeIcon
+                className="contact-custom-btn-icon"
+                icon={faCodeCompare}
+                aria-hidden="true"
+              />
               {isInCompare ? 'Comparing' : 'Compare'}
             </button>
-            <button 
+            <button
+              type="button"
               className="contact-action-button"
               onClick={(e) => {
                 e.stopPropagation();
-                // Implement contact functionality
+                // TODO: Implement contact functionality
               }}
             >
-              <FontAwesomeIcon className="contact-custom-btn-icon" icon={faPhone} />
+              <FontAwesomeIcon
+                className="contact-custom-btn-icon"
+                icon={faPhone}
+                aria-hidden="true"
+              />
               Contact Seller
             </button>
           </div>
-        </div>
+        </footer>
       </div>
-    </div>
+    </article>
   );
-};
+}
 
-export default PropertyCard;
+export default React.memo(PropertyCard);

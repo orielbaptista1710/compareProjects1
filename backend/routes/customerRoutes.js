@@ -24,25 +24,26 @@ const createToken = (customerId) => {
 
 // Signup
 router.post('/customer-signup', async (req, res) => {
+  console.log("Signup body:", req.body); 
   try {
-    const { name, email, phone, password } = req.body;
-    if (!name || !email || !phone || !password) {
+    const { customerName, customerEmail, customerPhone, customerPassword  } = req.body;
+    if (!customerName || !customerEmail || !customerPhone || !customerPassword ) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const exists = await Customer.findOne({ $or: [{ email }, { phone }] });
+    const exists = await Customer.findOne({ $or: [{ customerEmail }, { customerPhone }] });
     if (exists) return res.status(400).json({ message: 'Email or phone already registered' });
 
-    const customer = await Customer.create({ name, email, phone, password });
+    const customer = await Customer.create({ customerName, customerEmail, customerPhone, customerPassword  });
     const token = createToken(customer._id);
 
     res.status(201).json({
       token,
       customer: {
         _id: customer._id,
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
+        customerName: customer.customerName,
+        customerEmail: customer.customerEmail,
+        customerPhone: customer.customerPhone,
       },
     });
   } catch (err) {
@@ -54,15 +55,15 @@ router.post('/customer-signup', async (req, res) => {
 // Login
 router.post('/customer-login', async (req, res) => {
   try {
-    const { emailOrPhone, password } = req.body;
-    if (!emailOrPhone || !password) return res.status(400).json({ message: 'Missing credentials' });
+    const { emailOrPhone, customerPassword  } = req.body;
+    if (!emailOrPhone || !customerPassword ) return res.status(400).json({ message: 'Missing credentials' });
 
     const customer = await Customer.findOne({
-      $or: [{ email: emailOrPhone.toLowerCase() }, { phone: emailOrPhone }],
+      $or: [{ customerEmail: emailOrPhone.toLowerCase() }, { customerPhone: emailOrPhone }],
     });
     if (!customer) return res.status(400).json({ message: 'Invalid credentials' });
 
-    const isMatch = await customer.comparePassword(password);
+    const isMatch = await customer.comparePassword(customerPassword );
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
     const token = createToken(customer._id);
@@ -70,9 +71,9 @@ router.post('/customer-login', async (req, res) => {
       token,
       customer: {
         _id: customer._id,
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
+        customerName: customer.customerName,
+        customerEmail: customer.customerEmail,
+        customerPhone: customer.customerPhone,
       },
     });
   } catch (err) {
@@ -89,9 +90,9 @@ router.get('/me', protectCustomer, async (req, res) => {
       success: true,
       customer: {
         _id: c._id,
-        name: c.name,
-        email: c.email,
-        phone: c.phone,
+        customerName: c.customerName,
+        customerEmail: c.customerEmail,
+        customerPhone: c.customerPhone,
       },
     });
   } catch (err) {

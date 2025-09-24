@@ -1,17 +1,23 @@
+// LoginPage for Developers and Admin Staff
 import { useState } from 'react';
-// import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
 import API from '../api';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye } from "@fortawesome/free-solid-svg-icons/faEye";
+import {faEyeSlash} from "@fortawesome/free-solid-svg-icons/faEyeSlash";
+import DeveloperPopup from '../components/DeveloperPopup';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [rememberMe, setRememberMe] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showDeveloperPopup, setShowDeveloperPopup] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e) => { 
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -55,10 +61,14 @@ const LoginPage = () => {
 
   return (
     <div className="login-container">
+      <DeveloperPopup
+        isOpen={showDeveloperPopup}
+        onClose={() => setShowDeveloperPopup(false)}
+      />
+      
       <div className="login-box">
-
         <form className="login-form" onSubmit={handleSubmit}>
-          <h2 className="login-heading">Welcome Back</h2>
+          <h2 className="login-heading">Welcome Back Developer</h2>
 
           <label className="login-label">
             Username
@@ -73,17 +83,24 @@ const LoginPage = () => {
             />
           </label>
 
-          <label className="login-label">
+          <label className="login-label password-label">
             Password
-            <input
-              type="password"
-              name="password"
-              className="login-input"
-              placeholder="Enter password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className="login-input"
+                placeholder="Enter password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <FontAwesomeIcon
+                icon={showPassword ? faEyeSlash : faEye}
+                className="toggle-eye"
+                onClick={() => setShowPassword(!showPassword)}
+              />
+            </div>
           </label>
 
           <div className="login-extra">
@@ -95,10 +112,20 @@ const LoginPage = () => {
               />
               Remember me
             </label>
+            
             <button
               type="button"
               className="forgot-password"
-              onClick={() => alert('Reset link coming soon!')}
+              onClick={async () => {
+                const username = formData.username;
+                if (!username) return alert('Please enter your username first');
+                try {
+                  const { data } = await API.post('/api/devlog/developer-forgot-password', { username });
+                  alert(data.message);
+                } catch (err) {
+                  alert(err.response?.data?.message || 'Error sending temporary password');
+                }
+              }}
             >
               Forgot password?
             </button>
@@ -113,6 +140,17 @@ const LoginPage = () => {
           </button>
 
           {error && <div className="login-error">{error}</div>}
+
+          <p style={{ textAlign: "center", marginTop: "1rem", color: "#666" }}>
+            Don't have an account yet?{" "}
+            <span 
+              className="auth-link" 
+              onClick={() => setShowDeveloperPopup(true)}
+              style={{ color: "#7e5bd6", cursor: "pointer", fontWeight: "500" }}
+            >  
+              Contact Us
+            </span>
+          </p>
         </form>
       </div>
     </div>

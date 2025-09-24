@@ -1,0 +1,117 @@
+.customer-profile-page {
+  display: flex;
+  min-height: 100vh;
+  padding-top: 70px; /* header space */
+  background: #f7f6fb;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+/* Sidebar Layout */
+.sidebar {
+  width: 200px;
+  background: #5d3b9e;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem 0;
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+/* Toggle button */
+.sidebar-toggle {
+  color: #ffde59;
+  font-size: 1.2rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  text-align: right;
+}
+
+.sidebar-top,
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Sidebar items */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.sidebar-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  opacity: 1;
+}
+
+.sidebar-item.active {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffde59;
+  font-weight: bold;
+}
+
+.sidebar-icon {
+  font-size: 1.2rem;
+}
+
+.sidebar-label {
+  font-size: 0.95rem;
+}
+
+/* User section */
+.sidebar-user {
+  margin-top: 1.5rem;
+  padding: 0.8rem;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: #d90429; /* red accent */
+  color: white;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 0.5rem;
+  font-size: 1.1rem;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.user-email {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* Main Content */
+.profile-main {
+  flex: 1;
+  padding: 2rem;
+}
+
+.profile-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 10px rgba(93, 59, 158, 0.1);
+  min-height: 400px;
+}

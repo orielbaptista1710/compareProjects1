@@ -1,15 +1,190 @@
-import React, { useState } from 'react';
-import NavigationBar from '../components/NavigationBar';
+import React, { useState, useCallback } from 'react';
 import './Interiors.css';
+
+// Optimized Image Component
+const OptimizedImage = ({ 
+  src, 
+  alt, 
+  width, 
+  height, 
+  className = "",
+  loading = "lazy",
+  ...props 
+}) => {
+  // Extract base URL without query params
+  const baseUrl = src.split('?')[0];
+  
+  // Generate optimized URL with proper dimensions and compression
+  const optimizedUrl = `${baseUrl}?auto=format&fit=crop&w=${width}&h=${height}&q=80`;
+
+  return (
+    <img
+      src={optimizedUrl}
+      alt={alt}
+      width={width}
+      height={height}
+      loading={loading}
+      className={className}
+      fetchPriority='high'
+      {...props}
+    />
+  );
+};
 
 const Interiors = () => {
     const [activeTab, setActiveTab] = useState('home');
     const [activeFilter, setActiveFilter] = useState('all');
 
+    const handleTabChange = useCallback((tab) => {
+        setActiveTab(tab);
+    }, []);
+
+    const handleFilterChange = useCallback((filter) => {
+        setActiveFilter(filter);
+    }, []);
+
+    // Service data with optimized image dimensions
+    const homeServices = [
+        {
+            id: 1,
+            title: "Home Interiors",
+            description: "Complete home interior solutions including living rooms, bedrooms, kitchens, and more. We create spaces that reflect your personality.",
+            image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a",
+            width: 400,
+            height: 300,
+            link: "/home-interiors"
+            
+        },
+        {
+            id: 2,
+            title: "Consultation & Planning",
+            description: "From concept to execution, we provide expert guidance and detailed planning to ensure your project's success.",
+            image: "https://images.unsplash.com/photo-1497215842964-222b430dc094",
+            width: 400,
+            height: 300,
+            link: "/consultation"
+        },
+        {
+            id: 3,
+            title: "Kitchen Design",
+            description: "Beautiful and functional kitchen designs that maximize space and efficiency while reflecting your style.",
+            image: "https://images.unsplash.com/photo-1497215842964-222b430dc094",
+            width: 400,
+            height: 300,
+            link: "/kitchen-design"
+        }
+    ];
+
+    const commercialServices = [
+        {
+            id: 1,
+            title: "Commercial Interiors",
+            description: "Office, retail, and hospitality designs that enhance productivity and impress clients. Functional yet beautiful workspace solutions.",
+            image: "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
+            width: 400,
+            height: 300,
+            link: "/commercial-interiors"
+        },
+        {
+            id: 2,
+            title: "Office Design",
+            description: "Create productive and inspiring work environments with our professional office interior design services.",
+            image: "https://images.unsplash.com/photo-1497215842964-222b430dc094",
+            width: 400,
+            height: 300,
+            link: "/office-design"
+        },
+        {
+            id: 3,
+            title: "Retail Design",
+            description: "Attract more customers and enhance shopping experiences with our innovative retail space designs.",
+            image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a",
+            width: 400,
+            height: 300,
+            link: "/retail-design"
+        }
+    ];
+
+    const portfolioItems = [
+        {
+            id: 1,
+            title: "Modern Living Room",
+            category: "residential",
+            image: "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
+            width: 400,
+            height: 300
+        },
+        {
+            id: 2,
+            title: "Corporate Office",
+            category: "commercial",
+            image: "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
+            width: 400,
+            height: 300
+        },
+        {
+            id: 3,
+            title: "Luxury Bedroom",
+            category: "residential",
+            image: "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
+            width: 400,
+            height: 300
+        },
+        {
+            id: 4,
+            title: "Restaurant Design",
+            category: "hospitality",
+            image: "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
+            width: 400,
+            height: 300
+        },
+        {
+            id: 5,
+            title: "Minimalist Apartment",
+            category: "residential",
+            image: "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
+            width: 400,
+            height: 300
+        },
+        {
+            id: 6,
+            title: "Modern Workspace",
+            category: "office",
+            image: "https://images.unsplash.com/photo-1497215842964-222b430dc094",
+            width: 400,
+            height: 300
+        }
+    ];
+
+    const filteredPortfolio = activeFilter === 'all' 
+        ? portfolioItems 
+        : portfolioItems.filter(item => item.category === activeFilter);
+
+    const processSteps = [
+        {
+            icon: "fas fa-comments",
+            title: "Consultation",
+            description: "We begin with understanding your requirements, preferences, and budget."
+        },
+        {
+            icon: "fas fa-pencil-alt",
+            title: "Planning",
+            description: "Our designers create detailed plans and 3D visualizations of your space."
+        },
+        {
+            icon: "fas fa-couch",
+            title: "Execution",
+            description: "We handle everything from material selection to final installation."
+        },
+        {
+            icon: "fas fa-home",
+            title: "Handover",
+            description: "We deliver the completed project and ensure your satisfaction."
+        }
+    ];
+
     return (
         <div className="interiors-page">
-
-        {/* <NavigationBar /> */}
 
             <section className="interiors-hero">
                 <div className="interiors-hero-content">
@@ -27,89 +202,65 @@ const Interiors = () => {
                     <div className="interiors-tab-buttons">
                         <button 
                             className={`interiors-tab-button ${activeTab === 'home' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('home')}
+                            onClick={() => handleTabChange('home')}
+                            aria-selected={activeTab === 'home'}
+                            role="tab"
                         >
-                            <i className="fas fa-home"></i> Home Interiors
+                            <i className="fas fa-home" aria-hidden="true"></i> Home Interiors
                         </button>
                         <button 
                             className={`interiors-tab-button ${activeTab === 'commercial' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('commercial')}
+                            onClick={() => handleTabChange('commercial')}
+                            aria-selected={activeTab === 'commercial'}
+                            role="tab"
                         >
-                            <i className="fas fa-building"></i> Commercial Interiors
+                            <i className="fas fa-building" aria-hidden="true"></i> Commercial Interiors
                         </button>
                     </div>
                     
-                    <div className={`interiors-tab-content ${activeTab === 'home' ? 'active' : ''}`}>
+                    <div className={`interiors-tab-content ${activeTab === 'home' ? 'active' : ''}`} role="tabpanel">
                         <div className="interiors-service-cards">
-                            <div className="interiors-service-card">
-                                <div className="interiors-service-img">
-                                    <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80" alt="Residential Interior Design" />
+                            {homeServices.map(service => (
+                                <div key={service.id} className="interiors-service-card">
+                                    <div className="interiors-service-img">
+                                        <OptimizedImage 
+                                            src={service.image} 
+                                            alt={service.title}
+                                            width={service.width}
+                                            height={service.height}
+                                            loading="lazy"
+                                        />
+                                    </div>
+                                    <div className="interiors-service-content">
+                                        <h3>{service.title}</h3>
+                                        <p>{service.description}</p>
+                                        <a href={service.link} className="cta-button">Learn More</a>
+                                    </div>
                                 </div>
-                                <div className="interiors-service-content">
-                                    <h3>Home Interiors</h3>
-                                    <p>Complete home interior solutions including living rooms, bedrooms, kitchens, and more. We create spaces that reflect your personality.</p>
-                                    <a href="/home-interiors" className="cta-button">Learn More</a>
-                                </div>
-                            </div>
-                            
-                            <div className="interiors-service-card">
-                                <div className="service-img">
-                                    <img src="https://images.unsplash.com/photo-1497215842964-222b430dc094?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Consultation & Planning" />
-                                </div>
-                                <div className="service-content">
-                                    <h3>Consultation & Planning</h3>
-                                    <p>From concept to execution, we provide expert guidance and detailed planning to ensure your project's success.</p>
-                                    <a href="/consultation" className="cta-button">Learn More</a>
-                                </div>
-                            </div>
-                            
-                            <div className="interiors-service-card">
-                                <div className="service-img">
-                                    <img src="https://images.unsplash.com/photo-1497215842964-222b430dc094?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Kitchen Design" />
-                                </div>
-                                <div className="service-content">
-                                    <h3>Kitchen Design</h3>
-                                    <p>Beautiful and functional kitchen designs that maximize space and efficiency while reflecting your style.</p>
-                                    <a href="/kitchen-design" className="cta-button">Learn More</a>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                     
-                    <div className={`interiors-tab-content ${activeTab === 'commercial' ? 'active' : ''}`}>
+                    <div className={`interiors-tab-content ${activeTab === 'commercial' ? 'active' : ''}`} role="tabpanel">
                         <div className="interiors-service-cards">
-                            <div className="interiors-service-card">
-                                <div className="service-img">
-                                    <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1500&q=80" alt="Commercial Interior Design" />
+                            {commercialServices.map(service => (
+                                <div key={service.id} className="interiors-service-card">
+                                    <div className="interiors-service-img">
+                                        <OptimizedImage 
+                                            src={service.image} 
+                                            alt={service.title}
+                                            width={service.width}
+                                            height={service.height}
+                                            loading="lazy"
+                                        />
+                                    </div>
+                                    <div className="interiors-service-content">
+                                        <h3>{service.title}</h3>
+                                        <p>{service.description}</p>
+                                        <a href={service.link} className="cta-button">Learn More</a>
+                                    </div>
                                 </div>
-                                <div className="service-content">
-                                    <h3>Commercial Interiors</h3>
-                                    <p>Office, retail, and hospitality designs that enhance productivity and impress clients. Functional yet beautiful workspace solutions.</p>
-                                    <a href="/commercial-interiors" className="cta-button">Learn More</a>
-                                </div>
-                            </div>
-                            
-                            <div className="interiors-service-card">
-                                <div className="service-img">
-                                    <img src="https://images.unsplash.com/photo-1497215842964-222b430dc094?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Office Design" />
-                                </div>
-                                <div className="service-content">
-                                    <h3>Office Design</h3>
-                                    <p>Create productive and inspiring work environments with our professional office interior design services.</p>
-                                    <a href="/office-design" className="cta-button">Learn More</a>
-                                </div>
-                            </div>
-                            
-                            <div className="interiors-service-card">
-                                <div className="service-img">
-                                    <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80" alt="Retail Design" />
-                                </div>
-                                <div className="service-content">
-                                    <h3>Retail Design</h3>
-                                    <p>Attract more customers and enhance shopping experiences with our innovative retail space designs.</p>
-                                    <a href="/retail-design" className="cta-button">Learn More</a>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -120,87 +271,36 @@ const Interiors = () => {
                     <h2 className="interiors-section-title">Our Portfolio</h2>
                     <p className="interiors-section-subtitle">Browse through our recently completed projects</p>
                     
-                    <div className="interiors-portfolio-filters">
-                        <button 
-                            className={`interiors-filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
-                            onClick={() => setActiveFilter('all')}
-                        >
-                            All
-                        </button>
-                        <button 
-                            className={`interiors-filter-btn ${activeFilter === 'residential' ? 'active' : ''}`}
-                            onClick={() => setActiveFilter('residential')}
-                        >
-                            Residential
-                        </button>
-                        <button 
-                            className={`interiors-filter-btn ${activeFilter === 'commercial' ? 'active' : ''}`}
-                            onClick={() => setActiveFilter('commercial')}
-                        >
-                            Commercial
-                        </button>
-                        <button 
-                            className={`interiors-filter-btn ${activeFilter === 'office' ? 'active' : ''}`}
-                            onClick={() => setActiveFilter('office')}
-                        >
-                            Office
-                        </button>
-                        <button 
-                            className={`interiors-filter-btn ${activeFilter === 'hospitality' ? 'active' : ''}`}
-                            onClick={() => setActiveFilter('hospitality')}
-                        >
-                            Hospitality
-                        </button>
+                    <div className="interiors-portfolio-filters" role="tablist">
+                        {['all', 'residential', 'commercial', 'office', 'hospitality'].map(filter => (
+                            <button 
+                                key={filter}
+                                className={`interiors-filter-btn ${activeFilter === filter ? 'active' : ''}`}
+                                onClick={() => handleFilterChange(filter)}
+                                aria-selected={activeFilter === filter}
+                                role="tab"
+                            >
+                                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                            </button>
+                        ))}
                     </div>
                     
                     <div className="interiors-portfolio-grid">
-                        <div className="portfolio-item">
-                            <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1500&q=80" alt="Modern Living Room" />
-                            <div className="portfolio-overlay">
-                                <h3>Modern Living Room</h3>
-                                <p>Residential</p>
+                        {filteredPortfolio.map(item => (
+                            <div key={item.id} className="portfolio-item">
+                                <OptimizedImage 
+                                    src={item.image} 
+                                    alt={item.title}
+                                    width={item.width}
+                                    height={item.height}
+                                    loading="lazy"
+                                />
+                                <div className="portfolio-overlay">
+                                    <h3>{item.title}</h3>
+                                    <p>{item.category.charAt(0).toUpperCase() + item.category.slice(1)}</p>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div className="portfolio-item">
-                            <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1500&q=80" alt="Corporate Office" />
-                            <div className="portfolio-overlay">
-                                <h3>Corporate Office</h3>
-                                <p>Commercial</p>
-                            </div>
-                        </div>
-                        
-                        <div className="portfolio-item">
-                            <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1500&q=80" alt="Luxury Bedroom" />
-                            <div className="portfolio-overlay">
-                                <h3>Luxury Bedroom</h3>
-                                <p>Residential</p>
-                            </div>
-                        </div>
-                        
-                        <div className="portfolio-item">
-                            <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1500&q=80" alt="Restaurant Design" />
-                            <div className="portfolio-overlay">
-                                <h3>Restaurant Design</h3>
-                                <p>Hospitality</p>
-                            </div>
-                        </div>
-                        
-                        <div className="portfolio-item">
-                            <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1500&q=80" alt="Minimalist Apartment" />
-                            <div className="portfolio-overlay">
-                                <h3>Minimalist Apartment</h3>
-                                <p>Residential</p>
-                            </div>
-                        </div>
-                        
-                        <div className="portfolio-item">
-                            <img src="https://images.unsplash.com/photo-1497215842964-222b430dc094?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="Modern Workspace" />
-                            <div className="portfolio-overlay">
-                                <h3>Modern Workspace</h3>
-                                <p>Office</p>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -211,44 +311,18 @@ const Interiors = () => {
                     <p className="interiors-section-subtitle">How we bring your interior design vision to life</p>
                     
                     <div className="interiors-process-steps">
-                        <div className="step">
-                            <div className="step-icon">
-                                <i className="fas fa-comments"></i>
+                        {processSteps.map((step, index) => (
+                            <div key={index} className="step">
+                                <div className="step-icon">
+                                    <i className={step.icon} aria-hidden="true"></i>
+                                </div>
+                                <h3>{step.title}</h3>
+                                <p>{step.description}</p>
                             </div>
-                            <h3>Consultation</h3>
-                            <p>We begin with understanding your requirements, preferences, and budget.</p>
-                        </div>
-                        
-                        <div className="step">
-                            <div className="step-icon">
-                                <i className="fas fa-pencil-alt"></i>
-                            </div>
-                            <h3>Planning</h3>
-                            <p>Our designers create detailed plans and 3D visualizations of your space.</p>
-                        </div>
-                        
-                        <div className="step">
-                            <div className="step-icon">
-                                <i className="fas fa-couch"></i>
-                            </div>
-                            <h3>Execution</h3>
-                            <p>We handle everything from material selection to final installation.</p>
-                        </div>
-                        
-                        <div className="step">
-                            <div className="step-icon">
-                                <i className="fas fa-home"></i>
-                            </div>
-                            <h3>Handover</h3>
-                            <p>We deliver the completed project and ensure your satisfaction.</p>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
-
-            
-
-            
         </div>
     );
 };

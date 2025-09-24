@@ -2,7 +2,7 @@ import locationData from "../../database/locationData";
 
 const LocationDetailsSection = ({
   formData,
-  selectedState,
+  selectedState, 
   selectedCity,
   handleStateChange,
   handleCityChange,
@@ -107,7 +107,7 @@ const LocationDetailsSection = ({
                   value={formData.address || ''}
                   onChange={handleChange}
                   required
-                  rows={3}
+                  rows={4}
                 />
               </div>
             </div>
@@ -120,7 +120,7 @@ const LocationDetailsSection = ({
                    className="form-input"
                    name="mapLink"
                    type="url"
-                  //  pattern="https://.*"
+                   pattern="https://.*"
                    placeholder="https://maps.google.com/..."
                    value={formData.mapLink || ''}
                    onChange={handleChange}

@@ -89,18 +89,18 @@
     object-fit: cover;
   }
   
-  .property-details {
+  .caro-property-details {
     padding: 20px;
   }
   
-  .property-price {
+  .caro-property-price {
     font-size: 22px;
     font-weight: bold;
     color: #2c3e50;
     margin-bottom: 8px;
   }
   
-  .property-title {
+  .caro-property-title {
     font-size: 18px;
     margin: 0 0 5px 0;
     color: #333;

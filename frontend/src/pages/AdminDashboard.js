@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'; 
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; 
 import './AdminDashboard.css';
-
+import image1 from "../images/image1.jpg";
+ 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const AdminDashboard = () => {
@@ -29,9 +30,10 @@ const AdminDashboard = () => {
             src={`${API_BASE_URL}${media}`} 
             alt="Cover" 
             loading="lazy"
+            style={{ width: '100%', height: '250px', objectFit: 'cover' }}
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = '/placeholder-cover.jpg';
+              e.target.src = image1;
             }}
           />
         </div>
@@ -56,9 +58,10 @@ const AdminDashboard = () => {
                   <img 
                     src={`${API_BASE_URL}${src}`} 
                     alt={`Media ${index}`}
+                    style={{ width: '100%', height: '250px', objectFit: 'cover' }}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = '/placeholder-image.jpg';
+                      e.target.src = image1;
                     }}
                   />
                 )}
@@ -220,7 +223,7 @@ const AdminDashboard = () => {
                 <p><strong>Description:</strong> {property.description || 'N/A'}</p>
                 <p><strong>Details:</strong> {property.long_description || 'N/A'}</p>
                 <p><strong>Possession Status:</strong> {property.possessionStatus || 'N/A'}</p>
-                <p><strong>Agent:</strong> {property.firstName || 'N/A'}</p>
+                <p><strong>Agent:</strong> {property.developerName  || 'N/A'}</p>
                 <p><strong>Pincode:</strong> {property.pincode || 'N/A'}</p>
                 <p><strong>Price:</strong> {property.price || 'N/A'}</p>
                 <p><strong>Floor No:</strong> {property.floor || 'N/A'}</p>
@@ -286,7 +289,7 @@ const AdminDashboard = () => {
             allProperties.map(property => (
               <div key={property._id} className="property-card">
                 <h3>{property.title}</h3>
-                <p><strong>Developer:</strong> {property.firstName || 'N/A'}</p>
+                <p><strong>Developer:</strong> {property.developerName  || 'N/A'}</p>
                 <p><strong>Location:</strong> {property.state}, {property.city}, {property.locality}</p>
                 <p><strong>Address:</strong> {property.address || 'N/A'}</p>
                 <p><strong>Description:</strong> {property.description || 'N/A'}</p>

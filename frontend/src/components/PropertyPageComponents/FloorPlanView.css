@@ -1,0 +1,425 @@
+/* ================================
+   FloorPlanView.css (Production Ready)
+   ================================ */
+
+.floor-plan-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* -------- Header -------- */
+.floor-plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.floor-plan-header h2 {
+  margin: 0;
+  color: #1a1a1a;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+/* -------- Floor Selector -------- */
+.floor-selector {
+  display: flex;
+  gap: 8px;
+  background: #f8f9fa;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.floor-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  color: #666;
+  transition: all 0.25s ease;
+}
+
+.floor-btn.active {
+  background: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.floor-btn:hover:not(.active),
+.floor-btn:focus {
+  color: #1a1a1a;
+  outline: none;
+}
+
+/* -------- Layout -------- */
+.floor-plan-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 28px;
+}
+
+.floor-plan-visual {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  border: 1px solid #f0f0f0;
+}
+
+.floor-plan-image {
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.floor-plan-image:hover {
+  transform: scale(1.02);
+}
+
+.floor-plan-placeholder {
+  text-align: center;
+  color: #999;
+}
+
+.floor-plan-placeholder svg {
+  margin-bottom: 12px;
+  color: #ccc;
+}
+
+/* -------- Room Areas -------- */
+.room-areas-section {
+  margin-bottom: 28px;
+}
+
+.room-areas-section h3 {
+  margin: 0 0 16px;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.room-areas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.room-area-item {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid #f0f0f0;
+  transition: background 0.2s ease;
+}
+
+.room-area-item:hover {
+  background: #f1f3f5;
+}
+
+.area-value {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 14px;
+}
+
+/* -------- Summary -------- */
+.floor-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-item {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item.price {
+  background: #f9faff;
+  margin: 0 -12px;
+  padding: 16px 12px;
+  border-radius: 8px;
+}
+
+.summary-icon {
+  color: #666;
+  font-size: 14px;
+  width: 24px;
+  text-align: center;
+}
+
+.summary-label {
+  font-weight: 500;
+  color: #666;
+  font-size: 14px;
+}
+
+.summary-value {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 15px;
+}
+
+.summary-item.price .summary-value {
+  color: #111;
+  font-size: 16px;
+}
+
+/* -------- Unit Toggle -------- */
+.unit-switch {
+  background: #f1f3f5;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #333;
+  transition: background 0.2s ease;
+}
+
+.unit-switch:hover {
+  background: #e9ecef;
+}
+
+/* -------- Room Details -------- */
+.room-details {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 24px;
+}
+
+.room-details h3 {
+  margin: 0 0 16px;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.room-item {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.room-item:hover {
+  background: #f8f9fa;
+  transform: translateY(-2px);
+}
+
+.room-item h4 {
+  margin: 0 0 8px;
+  color: #1a1a1a;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.room-item p {
+  margin: 6px 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* -------- Empty State -------- */
+.floor-plan-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: #999;
+  background: #fafafa;
+  border-radius: 12px;
+  margin: 24px 0;
+  border: 1px solid #f0f0f0;
+}
+
+/* -------- Image Gallery -------- */
+.floor-image-gallery {
+  margin-top: 24px;
+}
+
+.gallery-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
+}
+
+.gallery-tab {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #666;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.gallery-tab.active {
+  background: #f8f9fa;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.gallery-tab:hover:not(.active),
+.gallery-tab:focus {
+  color: #1a1a1a;
+  outline: none;
+}
+
+.gallery-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.gallery-image:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* -------- Lightbox -------- */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  animation: fadeIn 0.3s ease;
+}
+
+.lightbox-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90%;
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 85vh;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: background 0.2s ease;
+}
+
+.lightbox-close:hover {
+  background: #f1f1f1;
+}
+
+/* -------- Responsive -------- */
+@media (max-width: 900px) {
+  .floor-plan-content {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .floor-plan-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .floor-selector {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .floor-plan-container {
+    padding: 20px;
+    margin: 20px 0;
+  }
+
+  .room-areas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rooms-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-content {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-content {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-image {
+    height: 200px;
+  }
+}
+
+/* -------- Animations -------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

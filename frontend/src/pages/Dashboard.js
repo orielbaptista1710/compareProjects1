@@ -16,7 +16,7 @@ const Dashboard = () => {
 
   const [formData, setFormData] = useState({
     // Contact Information
-    firstName: '',
+    developerName : '',
     lastName: '',
     email: '',
     phone: '',
@@ -46,6 +46,7 @@ const Dashboard = () => {
     price: '',
 
     // Property details
+    propertyGroup: '',
     propertyType: '',
     furnishing: '',
     possessionStatus: '',
@@ -112,7 +113,7 @@ const Dashboard = () => {
   // Redirect unauthenticated user
   useEffect(() => {
     if (!token) navigate('/login');
-  }, [token, navigate]);
+  }, [token, navigate]); 
 
   // Clear messages after 5s
   useEffect(() => {
@@ -259,6 +260,17 @@ const Dashboard = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+//Alerts- maybee use tosties
+//   if (!formData.price || formData.price <= 0) {
+//   alert("Please enter a valid property price.");
+//   return;
+// }
+// if (!formData.propertyType) {
+//   alert("Please select a property type.");
+//   return;
+// }
+
+
   const handleSubmit = (formData) => {
     const requiredFields = [
       'title', 'description', 
@@ -283,7 +295,7 @@ const Dashboard = () => {
   const handleEdit = (property) => {
     setEditingId(property._id);
     setFormData({
-      firstName: property.firstName || '',
+      developerName : property.developerName  || '',
       title: property.title || '',
       description: property.description || '',
       long_description: property.long_description || '',
@@ -327,7 +339,7 @@ const Dashboard = () => {
   const handleCancelEdit = () => {
     setEditingId(null);
     setFormData({
-      firstName: '',
+      developerName : '',
       lastName: '',
       email: '',
       phone: '',
@@ -407,8 +419,8 @@ const Dashboard = () => {
                 <div className="properties-grid">
                   {properties.map((p) => (
                     <div className="property-card" key={p._id}>
-                      <div className="property-header">
-                        <h4 className="property-title">{p.title}</h4>
+                      <div className="dashboard-property-header">
+                        <h4 className="dashbard-property-title">{p.title}</h4>
                         <div className="property-status" style={{
                           color: p.status === 'approved' ? 'green' : 
                                 p.status === 'rejected' ? 'red' : 'orange'
@@ -456,7 +468,7 @@ const Dashboard = () => {
 )}
 
 
-                      <div className="property-details">
+                      <div className="dashboard-property-details">
         <div className="detail-row">
           <span className="detail-label">Location:</span>
           <span>{p.state},{p.locality}, {p.city}</span>
@@ -508,7 +520,7 @@ const Dashboard = () => {
 
         <div className="detail-row">
           <span className="detail-label">Developer Name:</span>
-          <span>{p.firstName}</span>
+          <span>{p.developerName }</span>
         </div>
         <div className="detail-row">
           <span className="detail-label">Price:</span>

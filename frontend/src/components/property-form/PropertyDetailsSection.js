@@ -1,17 +1,19 @@
 import React from 'react';
 import { InputNumber, Select, DatePicker } from 'antd';
-import "react-datepicker/dist/react-datepicker.css";
+import dayjs from 'dayjs';
+// import "react-datepicker/dist/react-datepicker.css";
 import {
   AGE_OF_PROPERTY_OPTIONS,
   FLOOR_OPTIONS,
   PROPERTY_TYPES,
   FURNISHED_OPTIONS,
-  POSSESSION_STATUS_OPTIONS,
+  POSSESSION_STATUS_OPTIONS, 
   BHK_OPTIONS,
   BATHROOM_OPTIONS,
   BALCONY_OPTIONS,
   FACING_OPTIONS,
-  PARKING_OPTIONS
+  PARKING_OPTIONS,
+  // PROPERTY_GROUPS
 } from '../../constants/propertyFormConstants';
 
 const PropertyDetailsSection = ({
@@ -25,6 +27,11 @@ const PropertyDetailsSection = ({
   handleDateChange,
   handleCheckboxChange  
 }) => {
+
+  React.useEffect(() => {
+    console.log("Form Data:", formData);
+  }, [formData]);
+
   // Area units
   const AREA_UNITS = [
     { value: 'sqft', label: 'Square Feet' },
@@ -33,6 +40,42 @@ const PropertyDetailsSection = ({
     { value: 'hectares', label: 'Hectares' },
     { value: 'acres', label: 'Acres' }
   ];
+
+  const typeToGroupMap = {
+  "Flats/Apartments": "Residential",
+  "Villa": "Residential",
+  "Plot": "Residential",
+  "Shop/Showroom": "Commercial",
+  "Retail": "Commercial",
+  "Industrial Warehouse": "Commercial"
+};
+
+  const RadioGroup = ({ name, options, value, onChange, withSuffix }) => (
+  <div className="radio-container">
+    {options.map((opt) => {
+      const optionValue = typeof opt === "string" ? opt : opt.value;
+      const optionLabel = typeof opt === "string" ? opt : opt.label;
+
+      return (
+        <label 
+          key={optionValue} 
+          className={`radio-label ${value === optionValue ? "selected" : ""}`}
+        >
+          <input
+            type="radio"
+            name={name}
+            value={optionValue}
+            checked={value === optionValue}
+            onChange={onChange}
+          />
+          {optionLabel} {withSuffix ? withSuffix : ""}
+        </label>
+      );
+    })}
+  </div>
+);
+
+
 
   return (
     <>
@@ -104,23 +147,12 @@ const PropertyDetailsSection = ({
         {/* Age of Property */}
         <fieldset>
           <legend>Age of Property</legend>
-          <div className="radio-container">
-            {AGE_OF_PROPERTY_OPTIONS.map(option => (
-              <label 
-                key={option} 
-                className={`radio-label ${formData.ageOfProperty === option ? "selected" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="ageOfProperty"
-                  value={option}
-                  checked={formData.ageOfProperty === option}
-                  onChange={handleRadioChange}
-                />
-                {option}
-              </label>
-            ))}
-          </div>
+          <RadioGroup
+            name="ageOfProperty"
+            options={AGE_OF_PROPERTY_OPTIONS}
+            value={formData.ageOfProperty || ''}
+            onChange={handleRadioChange}
+          />
         </fieldset>
 
         {/* Total Floors */}
@@ -143,23 +175,12 @@ const PropertyDetailsSection = ({
         {/* Floor Number */}
         <fieldset>
           <legend>Floor Number</legend>
-          <div className="radio-container">
-            {FLOOR_OPTIONS.map(option => (
-              <label 
-                key={option} 
-                className={`radio-label ${formData.floor === option ? "selected" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="floor"
-                  value={option}
-                  checked={formData.floor === option}
-                  onChange={handleRadioChange}
-                />
-                {option}
-              </label>
-            ))}
-          </div>
+          <RadioGroup
+            name="floor"
+            options={FLOOR_OPTIONS}
+            value={formData.floor || ''}
+            onChange={handleRadioChange}
+          />
         </fieldset>
 
         {/* Property Area */}
@@ -206,165 +227,120 @@ const PropertyDetailsSection = ({
           <div className="form-col">
             <label htmlFor="availableFrom">Available From</label>
             <DatePicker
-              selected={availableFrom}
-              onChange={handleDateChange}
-              dateFormat="dd/MM/yyyy"
-              placeholderText="Select date"
-              className="form-control"
-              id="availableFrom"
+              value={availableFrom ? dayjs(availableFrom) : null}
+              onChange={(date) => handleDateChange(date ? date.toDate() : null)}
+              format="DD/MM/YYYY"
+              placeholder="Select date"
             />
           </div>
         </div>
 
-        {/* Property Type */}
-        <fieldset>
-          <legend>Property Type</legend>
-          <div className="property-type-container">
-            {PROPERTY_TYPES.map((type) => (
-              <div
-                key={type.label}
-                className={`property-type-card ${formData.propertyType === type.label ? "selected" : ""}`}
-                onClick={() => {
-                  setFormData(prev => ({ ...prev, propertyType: type.label }));
-                }}
-              >
-                {type.icon}
-                <span>{type.label}</span>
-              </div>
-            ))}
-          </div>
-        </fieldset>
+        {/* Property Group */}
+      {/* <fieldset>
+        <legend>Property Group</legend>
+        <RadioGroup
+          name="propertyGroup"
+          options={PROPERTY_GROUPS}
+          value={formData.propertyGroup}
+          onChange={handleRadioChange}
+        />
+      </fieldset> */}
+
+      {/* Property Type */}
+      <fieldset>
+  <legend>Property Type</legend>
+  <div className="property-type-container">
+    {PROPERTY_TYPES.map((type) => (
+      <div
+        key={type.label}
+        className={`property-type-card ${formData.propertyType === type.label ? "selected" : ""}`}
+        onClick={() => {
+          setFormData(prev => ({ 
+            ...prev, 
+            propertyType: type.label,
+            propertyGroup: typeToGroupMap[type.label] 
+          }));
+        }}
+      >
+        {type.icon}
+        <span>{type.label}</span>
+      </div>
+    ))}
+  </div>
+</fieldset>
+
 
         {/* Furnishings */}
         <fieldset>
           <legend>Furnishings</legend>
-          <div className="radio-container">
-            {FURNISHED_OPTIONS.map((furnished) => (
-              <label 
-                key={furnished} 
-                className={`radio-label ${formData.furnishing === furnished ? "selected" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="furnishing"
-                  value={furnished}
-                  checked={formData.furnishing === furnished}
-                  onChange={handleRadioChange}
-                />
-                {furnished}
-              </label>
-            ))}
-          </div>
+          <RadioGroup
+            name="furnishing"
+            options={FURNISHED_OPTIONS}
+            value={formData.furnishing}
+            onChange={handleRadioChange}
+            withSuffix={""}
+          />
         </fieldset>
 
         {/* Possession Status */}
         <fieldset>
           <legend>Possession Status</legend>
-          <div className="radio-container">
-            {POSSESSION_STATUS_OPTIONS.map((status) => (
-              <label 
-                key={status} 
-                className={`radio-label ${formData.possessionStatus === status ? "selected" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="possessionStatus"
-                  value={status}
-                  checked={formData.possessionStatus === status}
-                  onChange={handleRadioChange}
-                />
-                {status}
-              </label>
-            ))}
-          </div>
+          <RadioGroup
+            name="possessionStatus"
+            options={POSSESSION_STATUS_OPTIONS}
+            value={formData.possessionStatus}
+            onChange={handleRadioChange}
+            withSuffix={""} // No suffix needed for possession status
+          />
         </fieldset>
 
         {/* BHK Configuration */}
         <fieldset>
           <legend>BHK Configuration</legend>
-          <div className="radio-container">
-            {BHK_OPTIONS.map(option => (
-              <label 
-                key={option} 
-                className={`radio-label ${formData.bhk === option ? "selected" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="bhk"
-                  value={option}
-                  checked={formData.bhk === option}
-                  onChange={handleRadioChange}
-                />
-                {option} BHK
-              </label>
-            ))}
-          </div>
+          <RadioGroup
+            name="bhk"
+            options={BHK_OPTIONS}
+            value={formData.bhk}
+            onChange={handleRadioChange}
+            withSuffix="BHK"
+          />
         </fieldset>
+
 
         {/* Number of Bathrooms */}
         <fieldset>
           <legend>Number of Bathrooms</legend>
-          <div className="radio-container">
-            {BATHROOM_OPTIONS.map(options => (
-              <label 
-                key={options} 
-                className={`radio-label ${formData.bathrooms === options ? "selected" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="bathrooms"
-                  value={options}
-                  checked={formData.bathrooms === options}
-                  onChange={handleRadioChange}
-                />
-                {options}
-              </label>
-            ))}
-          </div>
+          <RadioGroup
+           name="bathrooms"
+           options={BATHROOM_OPTIONS}
+           value={formData.bathrooms}
+           onChange={handleRadioChange}
+           withSuffix="Bathroom"
+         />
         </fieldset>
 
         {/* Number of Balconies */}
         <fieldset>
           <legend>Number of Balconies</legend>
-          <div className="radio-container">
-            {BALCONY_OPTIONS.map(option =>(
-              <label
-                key={option}
-                className={`radio-label ${formData.balconies === option ? "selected" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="balconies"
-                  value={option}
-                  checked={formData.balconies === option}
-                  onChange={handleRadioChange}
-                />
-                {option}
-              </label>
-            ))}
-          </div>
+          <RadioGroup
+            name="balconies"
+            options={BALCONY_OPTIONS}
+            value={formData.balconies}
+            onChange={handleRadioChange}
+            withSuffix="Balcony"
+          />
         </fieldset>
 
         {/* Facing */}
         <fieldset>
           <legend>Facing</legend>
-          <div className="radio-container">
-            {FACING_OPTIONS.map(option =>(
-              <label
-                key={option}
-                className={`radio-label ${formData.facing === option ? "selected" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="facing"
-                  value={option}
-                  checked={formData.facing === option}
-                  onChange={handleRadioChange}
-                />
-                {option}
-              </label>
-            ))}
-          </div>
+          <RadioGroup
+            name="facing"
+            options={FACING_OPTIONS}
+            value={formData.facing}
+            onChange={handleRadioChange}
+            withSuffix={""}
+          />
         </fieldset>
 
         {/* Parking Availability */}

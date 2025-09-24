@@ -1,32 +1,31 @@
 /* HEADER */
 .header {
-      width: 100%;
-    background: #9417E2;
-    position: fixed;
-    top: 0;
-    left: 0;
-    padding: 10px 0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    height: 70px;
+  width: 100%;
+  background: #9417e2;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 10px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  height: 70px;
 }
 
 .header-navbar {
   display: flex;
-    justify-content: space-between;
-    padding: 5px 20px;
-    margin: auto;
+  justify-content: space-between;
+  padding: 5px 20px;
+  margin: auto;
 }
 
 /* LOGO */
 .header-logo {
   display: flex;
-    align-items: center;
-    cursor: pointer;
-    perspective: 1000px;
+  align-items: center;
+  cursor: pointer;
+  perspective: 1000px;
 }
 
-/* LOGO ANIMATION */
 .logo-img-header {
   height: 56px;
   width: auto;
@@ -45,7 +44,6 @@
   }
 }
 
-
 /* MENU ICON */
 .header-menu-icon {
   display: none;
@@ -62,7 +60,6 @@
   padding: 0;
   margin: 0;
   color: #fff;
-  size: 10px;
 }
 
 /* CENTER NAV LINKS */
@@ -82,288 +79,263 @@
   gap: 12px;
   margin-left: auto;
   padding-bottom: 14px;
+  position: relative;
+  overflow: visible;
 }
 
-/* NAV LINK STYLES */
+
 .header-nav-link {
   text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 5px;
   background: transparent;
   color: #fff;
   font-size: 17px;
   font-weight: 500;
   cursor: pointer;
   border: none;
-  position: relative; /* Required for the pseudo-element */
-  display: inline-block;
-  transition: color 0.3s ease;
-  padding-bottom: 20px;
 }
 
 
-
-/* COMPARE BUTTON */
-.compare-btn {
-  background-color: #d90429;
+/* POST PROPERTY BUTTON */
+.post-property-btn {
+  background: linear-gradient(135deg, #9417E2 0%, #ef233c 100%);
   color: #fff;
-  padding: 6px 14px;
   border: none;
-  border-radius: 101px;
-  font-size: 15px;
-  font-weight: 500;
-  height: 36px;
+  border-radius: 30px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 12px rgba(148, 23, 226, 0.35);
+  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  gap: 8px;
+}
+
+.post-property-btn::before {
+  content: '+';
+  font-weight: bold;
+  font-size: 18px;
+}
+
+
+
+.post-property-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(148, 23, 226, 0.35);
+}
+
+/* LOGIN/PROFILE BUTTONS */
+.customer-login-btn,
+.signup-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
   text-decoration: none;
-  transition: background-color 0.4s ease;
+  padding: 9px 18px;
+  border-radius: 22px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  gap: 6px;
 }
 
-.compare-btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
+.customer-login-btn::before {
+  content: '👤';
+  font-size: 16px;
+}
+
+.signup-btn::before {
+  /* content: '⭐'; */
+  font-size: 16px;
+}
+
+.customer-login-btn:hover,
+.signup-btn:hover {
   background: rgba(255, 255, 255, 0.15);
-  transform: skewX(-15deg);
-  animation: ripple-left-right 2s linear infinite;
 }
 
-@keyframes ripple-left-right {
-  0% {
-      left: -100%;
-  }
-  100% {
-      left: 100%;
-  }
-}
-
-/* DEVELOPERS LINK */
+/* DEVELOPERS LOGIN BUTTON */
 .nav-link-deveopers {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #fcbf49;
-  border-radius: 101px;
-  padding: 6px 14px;
+  border: 1px solid rgba(252, 191, 73, 0.7);
+  border-radius: 22px;
+  padding: 9px 18px;
   color: #fcbf49;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  height: 36px;
+  height: 38px;
   text-decoration: none;
-  transition: background-color 0.3s ease;
-  gap: -2px;
+  transition: all 0.3s ease;
+  background: rgba(252, 191, 73, 0.1);
+  gap: 6px;
 }
 
 .nav-link-deveopers:hover {
-  color: #fff;
+  color: #2d3748;
   background-color: #fcbf49;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(252, 191, 73, 0.3);
 }
 
 .header-nav-icon {
-  margin-right: 5px;
+  font-size: 16px;
 }
 
-/* MOBILE RESPONSIVE STYLES */
-@media (max-width: 968px) {
-  .header-navbar {
-    padding: 5px 15px;
-  }
-  
+/* LOADING STATE */
+.loading-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-style: italic;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading-text::before {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #fcbf49;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+
+/* Responsive styles */
+@media (max-width: 1299px) {
+  .header-menu-overlay-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999; 
+  transition: opacity 0.3s ease-in-out;
+}
+
   .header-menu-icon {
-    display: block;
+    display: block; 
+    color: black;
+    z-index: 1200;
   }
-  
+
   .header-nav-items {
     position: fixed;
     top: 0;
-    right: -100%;
-    width: 280px;
+    right: -100%; 
+    width: 75%;
+    max-width: 320px;
     height: 100vh;
-    background: linear-gradient(135deg, #7a12c2 0%, #9417E2 100%);
+    background: #fff;
     flex-direction: column;
-    justify-content: flex-start;
     align-items: flex-start;
-    padding: 80px 25px 30px;
-    transition: right 0.4s ease-in-out;
-    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.15);
+    justify-content: flex-start;
+    padding: 80px 20px 20px;
+    gap: 20px;
+    transition: right 0.3s ease-in-out;
+    box-shadow: -4px 0 12px rgba(0,0,0,0.2);
+    z-index: 1200;
+    overflow-y: auto;
   }
-  
+
+  /* When menu is open */
   .header-nav-items.show-menu {
+    z-index: 1000;
     right: 0;
   }
-  
+
   .header-nav-center {
     position: static;
     transform: none;
     flex-direction: column;
+    width: 100%;
+    gap: 20px;
     align-items: flex-start;
-    gap: 0;
-    width: 100%;
-    margin-bottom: 30px;
+
   }
-  
-  .header-nav-center li {
-    width: 100%;
-    margin-bottom: 15px;
-    padding-right: 148px;     /* Adjusted padding to accommodate the close button */
-  }
-  
-  .header-nav-link {
-    display: block;
-    padding: 12px 15px;
-    font-size: 18px;
-    width: 100%;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
+
+
   .nav-right {
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px;
-    margin-left: 0;
-    padding-bottom: 0;
     width: 100%;
+    gap: 10px;
   }
-  
-  .compare-btn,
+
+  /* Override colors for readability on white background */
+  .header-nav-link,
+  .customer-login-btn,
+  .signup-btn,
   .nav-link-deveopers {
-    width: 100%;
-    justify-content: flex-start;
-    padding: 12px 15px;
-    height: auto;
+    color: #333 !important;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
   }
-  
-  .nav-dev-item {
+
+  .post-property-btn {
     width: 100%;
-  }
-  
-  /* Close button style */
-  .header-nav-items::before {
-    content: '✕';
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 24px;
-    color: #fff;
-    cursor: pointer;
+    justify-content: center;
   }
 }
 
-/* SMALL MOBILE RESPONSIVE STYLES */
-/* POPUP MENU FOR SMALL MOBILE DEVICES (like in the image) */
-@media (max-width: 480px) {
-  .header {
-    height: 60px;
-  }
-  
-  .logo-img-header {
-    height: 46px;
-  }
-  
-  .header-nav-items {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    width: 280px;
-    height: auto;
-    background: #7a12c2;
-    border-radius: 16px;
-    padding: 20px 0;
+
+/* Default (desktop) – hide the extra links */
+.extra-links {
+  display: none;
+}
+
+/* Tablet & mobile (≤992px) – show extra links stacked */
+@media (max-width: 992px) {
+  .extra-links {
+    display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 1000;
+    margin-top: 0.5rem;
+    padding-left: 0;
+    list-style: none;
   }
-  
-  .header-nav-items.show-menu {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-    visibility: visible;
+
+  .extra-links li {
+    margin: 0.25rem 0;
   }
-  
-  .header-nav-center {
-    position: static;
-    transform: none;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    width: 100%;
-    margin-bottom: 15px;
-  }
-  
-  .header-nav-center li {
-    width: 100%;
-    margin-bottom: 0;
-  }
-  
-  .header-nav-link {
+
+  .extra-links .header-nav-link {
     display: block;
-    padding: 14px 25px;
-    font-size: 16px;
     width: 100%;
-    padding-bottom: 14px;
-    border-bottom: none;
+    padding: 0.5rem 0;
     text-align: left;
-    font-weight: 500;
-  }
-  
-  .nav-right {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    margin-left: 0;
-    padding-bottom: 0;
-    width: 100%;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-    padding-top: 15px;
-  }
-  
-  .compare-btn,
-  .nav-link-deveopers {
-    width: 100%;
-    justify-content: flex-start;
-    padding: 12px 25px;
-    height: auto;
-    border-radius: 8px;
-    margin: 0 15px;
-    width: calc(100% - 30px);
-    font-weight: 500;
-  }
-  
-  .compare-btn {
-    background-color: #d90429;
-  }
-  
-  .nav-dev-item {
-    width: 100%;
-  }
-  
-  /* Remove the close button from the sidebar style */
-  .header-nav-items::before {
-    content: none;
-  }
-  
-  /* Menu items divider */
-  .header-nav-items li:not(:last-child) {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-  
-  /* Menu icon adjustment */
-  .header-menu-icon {
-    font-size: 24px;
-    padding: 8px;
+    border-bottom: 1px solid #eee;
   }
 }
+
+
+
+
+
+
 

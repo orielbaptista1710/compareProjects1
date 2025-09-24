@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+  import { useMemo } from "react"; // if not already imported
 // import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import PropertyCard from "../components/PropertyCard";
@@ -7,15 +8,15 @@ import "./Properties.css";
 import API from '../api';
 import FilterPanel from "../components/FilterPanel";
 import ProjectViewSideBar from "../components/ProjectViewSideBar";
-import { 
-  FiChevronDown, 
-  FiX, 
-  FiSliders, 
-  FiLoader, 
-  FiCheck,
-  FiTrash2,
-  FiMessageCircle
-} from "react-icons/fi";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
+import { faXmark } from "@fortawesome/free-solid-svg-icons/faXmark";
+import { faSliders } from "@fortawesome/free-solid-svg-icons/faSliders";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons/faSpinner";
+import { faCheck } from "@fortawesome/free-solid-svg-icons/faCheck";
+import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash";
+import { faCommentDots } from "@fortawesome/free-solid-svg-icons/faCommentDots";
+
 
 
 const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
@@ -59,6 +60,8 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
     fetchProperties();
     fetchFilters();
   }, []);
+
+
 
   const handleFilterChange = useCallback((filterName, value) => {
     setFilters((prev) => ({
@@ -106,17 +109,27 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
     return compareList.some(item => normalizeId(item._id) === normalizeId(propertyId));
   }, [compareList]);
 
-  const filteredProperties = properties.filter((p) => {
+  const filteredProperties = useMemo(() => {
+  return properties.filter((p) => {
     let match = true;
     if (filters.city && p.city !== filters.city) match = false;
-    if (filters.furnishing && p.furnishing !== filters.furnishing) match = false;
+    if (filters.furnishing && !p.furnishing?.includes(filters.furnishing)) match = false;
     if (filters.bhk && p.bhk !== filters.bhk) match = false;
+    if (filters.status && !p.possessionStatus?.includes(filters.status)) match = false;
     if (filters.budget && Number(p.price) > Number(filters.budget)) match = false;
-    if (filters.status && p.status !== filters.status) match = false;
-    if (searchQuery && !p.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
+    if (filters.facing && p.facing !== filters.facing) match = false;
+    if (filters.parkings && !p.parking?.includes(filters.parkings)) match = false;
+    if (filters.propertyType && p.propertyType !== filters.propertyType) match = false;
+    if (filters.featured && !p.featured) match = false;
+    if (filters.ageOfProperty && p.ageOfProperty !== filters.ageOfProperty) match = false;
+    // if (filters.area && p.area?.value > Number(filters.area)) match = false;
+
+    if (searchQuery && !p.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
         !p.description.toLowerCase().includes(searchQuery.toLowerCase())) match = false;
     return match;
   });
+}, [properties, filters, searchQuery]);
+
 
   // const filteredCities = filterOptions.cities?.filter(city => 
   //   city.toLowerCase().includes(citySearch.toLowerCase())
@@ -144,9 +157,9 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
     <div className="properties-page">
       {/* Compare Toast Notification */}
       {showCompareToast && (
-        <div className="compare-toast">
+        <div className="compare-toast" aria-live="polite">
           <div className="toast-content">
-            <FiCheck size={18} />
+            <FontAwesomeIcon icon={faCheck} size={18} />
             <span>Property added to comparison!</span>
             <button 
               className="toast-action"
@@ -181,7 +194,7 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
                       onClick={() => removeFromCompare(property._id)}
                       aria-label="Remove from comparison"
                     >
-                      <FiX size={14} />
+                      <FontAwesomeIcon icon={faXmark} size={14} />
                     </button>
                   </div>
                 ))}
@@ -196,7 +209,7 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
                 className="compare-clear-btn"
                 onClick={() => navigate('/compare')}
               >
-                <FiTrash2 size={14} />
+                <FontAwesomeIcon icon={faTrash} size={14} />
                 Clear All
               </button>
               <button 
@@ -216,7 +229,7 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
           className="filter-toggle-btn"
           onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
         >
-          <FiSliders size={18} />
+          <FontAwesomeIcon icon={faSliders} size={18} />
           <span>Filters</span>
           {Object.keys(filters).length > 0 && (
             <span className="filter-count">{Object.keys(filters).length}</span>
@@ -228,7 +241,7 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
           className="contact-form-toggle-btn"
           onClick={() => setShowContactForm(!showContactForm)}
         >
-          <FiMessageCircle size={18} />
+          <FontAwesomeIcon icon={faCommentDots} size={18} />
           <span>Contact</span>
         </button>
       </div>
@@ -277,7 +290,7 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
                   <option value="newest">Newest</option>
                   <option value="oldest">Oldest</option>
                 </select>
-                <FiChevronDown className="dropdown-arrow" />
+                <FontAwesomeIcon icon={faChevronDown} className="dropdown-arrow" />
               </div>
             </div>
           </div>
@@ -326,7 +339,7 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
                     >
                       {isLoadingMore ? (
                         <>
-                          <FiLoader className="spinner" />
+                          <FontAwesomeIcon icon={faSpinner} className="spinner" />
                           Loading...
                         </>
                       ) : (
@@ -351,13 +364,13 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
         {/* Smart Contact Form - Desktop */}
         <div className="contact-and-sideview">
         <div className={`contact-form-sidebar ${showContactForm ? 'expanded' : ''}`}>
-          <div className="contact-form-header">
-            <h3><FiMessageCircle /> Get Expert Help</h3>
+          <div className="propertiespage-contact-form-header">
+            <h3><FontAwesomeIcon icon={faCommentDots} /> Get Expert Help</h3>
             <button 
               className="contact-form-toggle"
               onClick={() => setShowContactForm(!showContactForm)}
             >
-              {showContactForm ? <FiX /> : <FiMessageCircle />}
+              {showContactForm ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faCommentDots} />}
             </button>
           </div>
           
@@ -381,24 +394,7 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
           ></div>
         )}
 
-
-
-        {/* Mobile Contact Form */}
-        {/* <div className={`mobile-contact-form ${showContactForm ? 'mobile-open' : ''}`}>
-          <div className="mobile-contact-form-header">
-            <h3>Get Expert Help</h3>
-            <button onClick={() => setShowContactForm(false)}>
-              <FiX />
-            </button>
-          </div>
-          <div className="mobile-contact-form-content">
-            <SmartContactForm />
-          </div>
-        </div> */}
-
         
-      
-
 
       </div>
     </div>
