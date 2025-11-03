@@ -49,3 +49,9 @@ Feature specific properties.
 Monitor user & developer analytics(futute improvments)
 
 
+------------------------------------------------------------------------------------------
+Analytics & Monitoring (Optional for Production)
+
+Before going live:
+Add Google Analytics (GA4) or Meta Pixel via <Seo> or a dedicated component.
+Use Sentry or LogRocket for error monitoring in production.
