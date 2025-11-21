@@ -1,0 +1,134 @@
+/* ---------------- HERO SECTION ---------------- */
+
+.contact-hero {
+  width: 100%;
+  height: 270px;
+  background: linear-gradient(135deg, #004b9a, #0077cc);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-hero-overlay {
+  background-image: url("https://i.imgur.com/1Xv2uXn.png");
+  background-size: cover;
+  background-position: right center;
+  opacity: 0.25;
+  position: absolute;
+  inset: 0;
+}
+
+.contact-hero-content {
+  position: relative;
+  text-align: center;
+  color: white;
+  max-width: 650px;
+  padding: 0 20px;
+}
+
+.contact-hero-content h1 {
+  font-size: 42px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.contact-hero-content p {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+/* ---------------- MAIN CONTENT ---------------- */
+
+.contact-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: -80px auto 60px;
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* LEFT PANEL */
+
+.contact-left {
+  padding: 30px;
+  border-right: 1px solid #eee;
+}
+
+.contact-left h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.contact-desc {
+  color: #555;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.contact-info-item {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+
+.contact-icon {
+  color: #0077cc;
+  min-width: 30px;
+  height: 30px;
+}
+
+.contact-info-item h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.contact-info-item p {
+  margin: 3px 0 0 0;
+  color: #444;
+  font-size: 15px;
+}
+
+.contact-action-btn {
+  margin-top: 20px;
+  background: #0077cc;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: 0.25s ease;
+}
+
+.contact-action-btn:hover {
+  background: #005fa3;
+}
+
+/* RIGHT PANEL */
+
+.contact-right {
+  padding: 20px;
+}
+
+/* ---------------- MAP ---------------- */
+
+.contact-map {
+  width: 100%;
+  height: 380px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  margin-bottom: 60px;
+}

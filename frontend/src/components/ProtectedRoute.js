@@ -1,19 +1,31 @@
-// src/components/ProtectedRoute.js
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import API from '../api';
 
 const ProtectedRoute = ({ children, roles }) => {
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user'));
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
-  // No token → redirect to login
-  if (!token) {
-    return <Navigate to="/login" />;
-  }
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const { data } = await API.get('/api/auth/me', { withCredentials: true });
+        setUser(data.user);
+      } catch (err) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // If roles are specified and user role is not in them → redirect home (or 403 page)
-  if (roles && user && !roles.includes(user.role)) {
-    return <Navigate to="/" replace />;
-  } 
+    fetchUser(); 
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  if (!user) return <Navigate to="/login" replace />;
+
+  if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
 
   return children;
 };

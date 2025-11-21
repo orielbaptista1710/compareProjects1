@@ -1,4 +1,11 @@
 // middleware/errorMiddleware.js
+// global error-handling middleware that:
+
+// Catches any errors thrown in your routes or controllers
+
+// Logs them to your server console (for developers)
+
+// Sends a consistent JSON response to the frontend
 const errorHandler = (err, req, res, next) => {
   console.error(err.stack); // server log
 

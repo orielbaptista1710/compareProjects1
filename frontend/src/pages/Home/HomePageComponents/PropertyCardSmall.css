@@ -1,0 +1,190 @@
+/* PropertyCardSmall.css — Improved Version */
+
+/* CARD WRAPPER */
+.modern-property-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+
+  transition: all 0.28s ease;
+  cursor: pointer;
+  gap: 16px;
+}
+
+.modern-property-card:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* LEFT IMAGE */
+.modern-property-image {
+  position: relative;
+  width: 120px;
+  height: 100px;
+  flex-shrink: 0;
+
+  border-radius: 10px;
+  overflow: hidden;
+
+  background: #f3f4f6;
+}
+
+.modern-property-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* TAG LABEL */
+.tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+
+  padding: 4px 8px;
+  border-radius: 6px;
+
+  background: linear-gradient(135deg, #ff34d2, #b100ff 70%);
+  color: #fff;
+
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+/* MIDDLE SECTION */
+.modern-property-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+}
+
+
+.small-property-title {
+  margin-bottom: 5px;
+  font-size: 18px;
+  color: #111827;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.property-sub {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.property-sub .span_propertytype {
+  color: #6b7280;
+}
+
+.property-sub .span_developerName {
+  color: #7c00ff;
+  font-weight: 600;
+}
+
+/* FEATURES */
+.property-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.small-feature {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.small-feature svg {
+  width: 14px;
+  height: 14px;
+  color: #7c00ff;
+}
+
+/* RIGHT SIDE */
+.modern-property-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.modern-property-price {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* COMPARE BUTTON */
+.small-compare-btn {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+
+  background: linear-gradient(135deg, #7c00ff, #b100ff, #ff00e0);
+  color: #fff;
+
+  transition: all 0.22s ease;
+  box-shadow:
+    0 4px 12px rgba(255,0,255,0.35),
+    inset 0 0 8px rgba(255,255,255,0.18);
+}
+
+.small-compare-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 20px rgba(255,0,255,0.45),
+    inset 0 0 12px rgba(255,255,255,0.32);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .modern-property-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .modern-property-image {
+    width: 100%;
+    height: 160px;
+  }
+
+  .modern-property-side {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+/* ACCESSIBILITY */
+.modern-property-card:focus,
+.small-compare-btn:focus {
+  outline: 2px solid #7c3aed;
+  outline-offset: 3px;
+}

@@ -1,0 +1,163 @@
+/* ==============================
+   Developer Property List
+   ============================== */
+
+.properties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 30px;
+  margin-top: 25px;
+}
+
+.property-card {
+  background-color: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.property-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.dashboard-property-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 18px;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #eee;
+}
+
+.dashboard-property-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #222;
+  flex: 1;
+}
+
+.property-status {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* Cover Image */
+.property-cover img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+}
+
+/* Details */
+.dashboard-property-details {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #222;
+}
+
+/* Description Section */
+.property-description {
+  padding: 15px 20px;
+  background-color: #fafafa;
+  border-top: 1px solid #eee;
+}
+
+.property-description h5 {
+  color: #D90429;
+  margin-bottom: 5px;
+}
+
+.property-description p {
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Rejection Section */
+.property-rejection {
+  background-color: #ffeaea;
+  border-top: 1px solid #f5c2c2;
+  padding: 12px 20px;
+}
+
+.property-rejection h5 {
+  color: #b40321;
+  margin-bottom: 5px;
+}
+
+/* Actions */
+.property-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px 20px 20px;
+  border-top: 1px solid #eee;
+}
+
+.property-actions button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: none;
+}
+
+.edit-button {
+  background-color: #D90429;
+  color: #fff;
+}
+
+.edit-button:hover {
+  background-color: #b40321;
+}
+
+.delete-button {
+  background-color: #444;
+  color: #fff;
+}
+
+.delete-button:hover {
+  background-color: #222;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .properties-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .property-card {
+    margin-bottom: 20px;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+
+  .property-actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}

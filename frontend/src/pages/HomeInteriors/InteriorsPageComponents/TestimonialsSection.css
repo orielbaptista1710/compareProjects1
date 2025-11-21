@@ -1,0 +1,53 @@
+
+/* =====================================
+   TESTIMONIALS
+   ===================================== */
+.interiors-testimonials-section {
+  position: relative;
+  padding: 100px 6%;
+  background: url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c") center/cover no-repeat;
+}
+
+.interiors-testimonials-bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.interiors-testimonials-content {
+  position: relative;
+  color: white;
+  z-index: 2;
+}
+
+.interiors-testimonials-grid {
+  margin-top: 40px;
+  display: grid;
+  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.interiors-testimonial-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  padding: 28px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.interiors-testimonial-stars {
+  display: flex;
+  gap: 4px;
+  color: #ffd700;
+}
+
+.interiors-testimonial-content {
+  margin: 16px 0;
+  font-size: 1rem;
+  opacity: 0.95;
+}
+
+.interiors-testimonial-author h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+}

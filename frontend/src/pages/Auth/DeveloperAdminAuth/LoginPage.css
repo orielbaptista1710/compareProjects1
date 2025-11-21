@@ -1,0 +1,221 @@
+/* LoginPage.css */
+
+/* Base Styles */
+/* body {
+  background-color: #f9f6ff;
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  margin: 0;
+  padding: 0;
+} */
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f9f6ff;
+  padding: 20px;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(149, 107, 230, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.login-box:hover {
+  transform: translateY(-2px);
+}
+
+.login-heading {
+  color: #5d3b9e; /* Deep purple */
+  text-align: center;
+  margin-bottom: 1.8rem;
+  font-weight: 600;
+  font-size: 1.8rem;
+}
+
+/* Form Elements */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.login-label {
+  display: block;
+  color: #4a4a4a;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.password-label {
+  position: relative;
+}
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.login-input {
+  margin: 5px 0;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid #e0d6f5;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #fcfaff;
+  box-sizing: border-box;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #9e7ae0;
+  box-shadow: 0 0 0 3px rgba(158, 122, 224, 0.2);
+}
+
+.login-input::placeholder {
+  color: #b8b8b8;
+}
+
+/* Eye icon for password */
+.toggle-eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7e5bd6;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.toggle-eye:hover {
+  color: #5d3b9e;
+}
+
+/* Remember Me & Forgot Password */
+.login-extra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  cursor: pointer;
+}
+
+.remember-me input {
+  accent-color: #7e5bd6;
+}
+
+.forgot-password {
+  background: none;
+  border: none;
+  color: #7e5bd6;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 0.25rem 0;
+  transition: color 0.2s;
+}
+
+.forgot-password:hover {
+  color: #5d3b9e;
+  text-decoration: underline;
+}
+
+/* Login Button */
+.login-button {
+  background-color: #7e5bd6;
+  color: white;
+  border: none;
+  padding: 0.9rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.login-button:hover {
+  background-color: #6a48c2;
+  transform: translateY(-1px);
+}
+
+.login-button:disabled {
+  background-color: #b8a7e0;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Error Message */
+.login-error {
+  color: #d32f2f;
+  background-color: #fde8e8;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Auth link */
+.auth-link {
+  color: #7e5bd6;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.auth-link:hover {
+  color: #5d3b9e;
+  text-decoration: underline;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 10px;
+  }
+  
+  .login-box {
+    padding: 2rem 1.5rem;
+  }
+  
+  .login-heading {
+    font-size: 1.5rem;
+  }
+  
+  .login-extra {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .forgot-password {
+    align-self: flex-end;
+  }
+}
+
+/* Remove duplicate styles */
+.login-page {
+  display: none; /* This class isn't used in the component */
+}

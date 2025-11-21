@@ -38,6 +38,12 @@ const customerSchema = new mongoose.Schema({
         'Password must be at least 8 characters and include one uppercase letter, one number, and one special character.'
     }
   },
+
+  heartProperties: [{ type: mongoose.Schema.Types.ObjectId, ref: "Property" }],
+  // comparedProperties: [{ type: mongoose.Schema.Types.ObjectId, ref: "Property" }],
+  // shortlistedProperties: [{ type: mongoose.Schema.Types.ObjectId, ref: "Property" }],
+
+
 }, { timestamps: true });
 
 // Hash password before saving
@@ -51,5 +57,9 @@ customerSchema.pre('save', async function (next) {
 customerSchema.methods.comparePassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.customerPassword);
 };
+
+customerSchema.index({ customerEmail: 1 });
+customerSchema.index({ customerPhone: 1 });
+
 
 module.exports = mongoose.model('Customer', customerSchema);

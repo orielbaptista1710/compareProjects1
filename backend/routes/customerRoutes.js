@@ -1,4 +1,5 @@
 // routes/customerRoutes.js
+//login and signup api for customers 
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const Customer = require('../models/Customer');
@@ -30,8 +31,8 @@ router.post('/customer-signup', async (req, res) => {
     if (!customerName || !customerEmail || !customerPhone || !customerPassword ) {
       return res.status(400).json({ message: 'All fields are required' });
     }
-
-    const exists = await Customer.findOne({ $or: [{ customerEmail }, { customerPhone }] });
+    const customerEmailLower = customerEmail.toLowerCase();
+    const exists = await Customer.findOne({ $or: [{ customerEmail: customerEmailLower }, { customerPhone }] });
     if (exists) return res.status(400).json({ message: 'Email or phone already registered' });
 
     const customer = await Customer.create({ customerName, customerEmail, customerPhone, customerPassword  });

@@ -1,0 +1,48 @@
+.error-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f8f9fb, #eef1f7);
+  color: #333;
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-content {
+  max-width: 500px;
+}
+
+.error-content h1 {
+  font-size: 8rem;
+  font-weight: 700;
+  color: #d90429;
+  margin: 0;
+  line-height: 1;
+}
+
+.error-content h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.error-content p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.error-btn {
+  background-color: #d90429;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.75rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.error-btn:hover {
+  background-color: #b50322;
+}

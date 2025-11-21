@@ -1,6 +1,6 @@
-// AUTH for Csutomer Loginn for Header and CustomerProfilePage
-//src/contexts/AuthContext.js
+// src/contexts/AuthContext.js
 import { createContext, useState, useEffect } from "react";
+import API from "../api";
 
 export const AuthContext = createContext();
 
@@ -10,26 +10,35 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const token = localStorage.getItem("customerToken");
-    if (!token) {
+    if (!token || currentUser) {
       setLoading(false);
       return;
     }
 
-    fetch("http://localhost:5000/api/customers/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Invalid/expired token");
-        const data = await res.json();
+    const fetchUser = async () => {
+      try {
+        const { data } = await API.get("/api/customers/me");
         setCurrentUser(data.customer);
-      })
-      .catch(() => localStorage.removeItem("customerToken"))
-      .finally(() => setLoading(false));
-  }, []);
+      } catch (err) {
+        console.error("AuthContext: Invalid or expired token", err);
+        localStorage.removeItem("customerToken");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [currentUser]);
+
+  // Central logout
+  const logout = () => {
+    localStorage.removeItem("customerToken");
+    setCurrentUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ currentUser, setCurrentUser, loading }}>
-      {children}
+    <AuthContext.Provider value={{ currentUser, setCurrentUser, loading, logout }}>
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
