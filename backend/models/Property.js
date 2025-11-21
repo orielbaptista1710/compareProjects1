@@ -11,26 +11,36 @@ const propertySchema = new mongoose.Schema({
 
   featured: { type: Boolean, default: false }, 
   
-  sourceUrl: { type: String },
+  sourceUrl: { type: String },// original source if scraped/imported
+  tierType: { type: String, enum: ['tier1', 'tier2'] }, 
 
   // Contact Information
   developerName : { type: String, required: true},
 
   // Property Information
-  title: { type: String, required: true },
-  description: { type: String, required: true },
+  title: { type: String, required: true, trim: true },
+  description: { type: String, required: true},
   long_description: { type: String },
 
-  brochure: { type: String },
+  // Location Details
+  state: { type: String, required: true, trim: true },
+  city: { type: String, required: true, trim: true},
+  locality: { type: String, required: true, trim: true },
+  address: { type: String, required: true, trim: true},
+  pincode: { type: Number, required: true },
+
   mapLink: { type: String },
 
-  // Location Details
-  state: { type: String, required: true },
-  city: { type: String, required: true},
-  locality: { type: String, required: true },
-  address: { type: String, required: true },
-  pincode: { type: Number, required: true },
-  landmarks: {
+
+   //add this in the Dashboard.js?
+//mapping, search, and distance filters.
+coordinates: {
+  lat: { type: Number },
+  lng: { type: Number }
+},
+
+  //secondary locations
+  landmarks: {    
   type: [
     {
       name: String,
@@ -42,6 +52,7 @@ const propertySchema = new mongoose.Schema({
   ],
   default: []
 },
+
   availableFrom: {
     type: Date,
   },
@@ -49,7 +60,7 @@ const propertySchema = new mongoose.Schema({
   area: {
     value: { type: Number, min: 0 },
     unit: { 
-      type: String, 
+      type: String,  
       enum: ['sqft', 'sqmts','guntas', 'hectares', 'acres'],
       default: 'sqft'
     }
@@ -64,12 +75,12 @@ const propertySchema = new mongoose.Schema({
     required: [true, 'Price is required'],
     min: 0
   },
+  emiStarts: { type: Number, min: 0 }, //ask danny about this 
 
   propertyGroup: { 
     type: String,
     enum: ["Residential", "Commercial"],
   },
-
   propertyType: {
     type: String,
     required: true,
@@ -85,31 +96,22 @@ const propertySchema = new mongoose.Schema({
   },
   possessionStatus: { 
     type: [String],
-    enum: [
-      'Under Construction', 
-      'Ready to Move',
-      'Ready for Development',
-      'Possession Within 3 Months',
-      'Possession Within 6 Months',
-      'Possession Within 1 Year',
-      'Ready for Sale'
-    ]
   },
 
   bhk: { type: String },
   bathrooms: { type: String },
   facing: { type: String },
   balconies: { type: String },
-  parkings: { type: [String] },
+  parkings: { type: String },
 
   ageOfProperty: { 
     type: String,
-    enum: ["New", "1-5 years", "5-10 years", "10+ years"],
+    // enum: ["New","5 months", "1-5 years", "5-10 years", "10+ years"],
     default: "New"
   },
   totalFloors: { type: Number },
   floor: { type: String  },
-  wing: String,
+  wing: { type: String  },
 
   unitsAvailable : { type: Number },
   
@@ -117,49 +119,71 @@ const propertySchema = new mongoose.Schema({
   facilities: { type: [String] },
   security: { type: [String] },
 
+  // Media (optimized)
   coverImage: {
-    type: String,
-    default: ''
+    url: String,       // CDN URL
+    thumbnail: String  // CDN thumbnail for list view
   },
-  galleryImages: {
-    type: [String],
-    default: []
-  },
-
-  //  floorplanImages: {
-  //   type: [String],
-  //   default: []
-  // },
-
-
+  galleryImages: [{
+    url: String,       // CDN URL
+    thumbnail: String,
+    caption: String,
+  }],
   floorPlans: [{
-  type: { 
-    type: String, 
-    enum: ['2D', '3D', 'Structural'] 
-  },
+  planType: { type: String, enum: ['2D', '3D', 'Structural'] },
   imageUrl: String,
-  unitType: String, 
-  floorArea: {
-    builtUp: Number,
-    carpet: Number,
-    terrace: Number
-  },
-  rooms: [{
-    name: String, 
-    dimensions: String, 
-    windowCount: Number
-  }]
+  unitType: String,
+  builtUpArea: Number,
+  carpetArea: Number,
+  terraceArea: Number,
+  rooms: [{ name: String, dimensions: String, windowCount: Number }]
 }],
-
   mediaFiles: [{
-    type: { type: String, enum: ['image', 'video'] },
-    src: String
+    type: { type: String, enum: ['image','video'] },
+    src: String,           // CDN URL
+    thumbnail: String
   }],
   virtualTours: [{
-  type: { type: String, enum: ['3d', 'video', 'panorama'] },
-  url: String,
-  thumbnail: String
-}],
+    type: { type: String, enum: ['3d','video','panorama'] },
+    url: String,           // CDN URL
+    thumbnail: String
+  }],
+  brochure: { type: String },
+
+
+  // Review- metadata for auditing and revalidate scraped data
+  dataSource: { type: String, enum: ['manual', 'scraper', 'developer'], default: 'manual' },
+  importedAt: { type: Date }, 
+
+  metadata: {
+    
+  //SEO and marketing metadata
+    seo: {
+      metaTitle: String,
+      metaDescription: String,
+      slug: {type: String,unique: true, trim: true},
+      tags: [String], //Recommendations tags for search engine
+    },
+    marketing: {
+    utmSource: String,
+    utmMedium: String,
+    utmCampaign: String,
+    leadSource: String
+  },
+  moderation: {
+    dataQualityScore: { type: Number, default: 0 },
+    verifiedByAdmin: { type: Boolean, default: false },
+    verificationNotes: String
+  },
+  // Stats
+  analytics: {
+    viewCount: { type: Number, default: 0, min: 0 },
+    popularityScore: { type: Number, default: 0 }
+  }
+
+  },
+
+
 
   // Timestamps
   submittedAt: { type: Date, default: Date.now },
@@ -167,12 +191,7 @@ const propertySchema = new mongoose.Schema({
   reviewedAt: Date,
   rejectionReason: String,
 
-  viewCount: {
-  type: Number,
-  default: 0,
-  min: 0
-}
-
+  
 }, { 
   timestamps: true,
   toJSON: { virtuals: true },
@@ -187,6 +206,17 @@ propertySchema.pre('save', function(next) {
     : "Commercial";
   next();
 });
+
+propertySchema.pre('save', function(next) {
+  if (!this.slug) {
+    this.slug = this.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+  }
+  next();
+});
+
  
 propertySchema.virtual('pricePerSqft').get(function() {
   if (!this.price || !this.area || !this.area.value) return null;
@@ -235,5 +265,28 @@ propertySchema.index({ price: 1, propertyType: 1 });
 propertySchema.index({ createdAt: -1 }); // For recent listings
 propertySchema.index({ featured: 1, status: 1 }); // For featured properties
 propertySchema.index({ userId: 1, status: 1 }); // For user's properties
+
+ // For full-text search- 
+propertySchema.index(
+  {
+    title: 'text',
+    description: 'text',
+    long_description: 'text',
+    city: 'text',
+    locality: 'text',
+    state: 'text',
+  },
+  {
+    weights: {
+      title: 10,
+      city: 5,
+      locality: 5,
+      description: 2,
+      long_description: 1
+    },
+    name: 'PropertyTextIndex'
+  }
+);
+
 
 module.exports = mongoose.model('Property', propertySchema);

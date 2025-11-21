@@ -14,7 +14,7 @@
   margin-bottom: 30px;
 }
 
-.section-title {
+.news-section-title {
   font-size: 28px;
   font-weight: 700;
   color: #1a202c;
@@ -231,7 +231,7 @@
     gap: 15px;
   }
   
-  .section-title {
+  .news-section-title {
     font-size: 24px;
   }
   

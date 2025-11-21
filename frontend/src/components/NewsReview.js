@@ -81,7 +81,7 @@ const NewsReview = () => {
   return (
     <div className="news-review">
       <div className="news-header">
-        <h2 className="section-title">News & Articles</h2>
+        <h2 className="news-section-title">News & Articles</h2>
         <div className="controls">
           <button 
             className="control-btn prev" 

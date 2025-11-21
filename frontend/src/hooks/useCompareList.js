@@ -1,3 +1,6 @@
+// this hook is used to manage the compare list state
+// it also saves the state to localStorage
+
 import { useState, useEffect } from "react"; 
 import { toast } from "react-toastify";
 

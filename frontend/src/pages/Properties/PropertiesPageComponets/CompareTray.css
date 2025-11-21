@@ -1,0 +1,232 @@
+/* ============================================================
+   Compare Tray (horizontal)
+============================================================ */
+.compare-tray {
+  width: 100%;
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.compare-tray-items {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x mandatory;
+}
+
+.compare-tray-items::-webkit-scrollbar {
+  height: 6px;
+}
+
+/* ============================================================
+   Compare Card
+============================================================ */
+.compare-card {
+  min-width: 300px;
+  max-width: 320px;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  scroll-snap-align: start;
+  border: 1px solid #ececec;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+  transition: 0.2s ease;
+}
+.compare-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+/* Image */
+.compare-image-wrapper {
+  position: relative;
+}
+.compare-image {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+}
+
+/* Remove */
+.compare-remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ffffffd8;
+  border: none;
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* Body */
+.compare-body {
+  padding: 14px 16px;
+}
+.compare-title {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #111;
+}
+.compare-location {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+/* Price */
+.compare-price {
+  font-size: 19px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.compare-price small {
+  font-size: 13px;
+  font-weight: 400;
+  color: #777;
+}
+
+/* ============================================================
+   Tray Buttons
+============================================================ */
+.compare-tray-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.compare-preview-btn,
+.compare-page-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  font-size: 15px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.compare-preview-btn {
+  background: #f2f2f2;
+  color: #333;
+}
+.compare-preview-btn:hover {
+  background: #e7e7e7;
+}
+
+.compare-page-btn {
+  background: #111;
+  color: #fff;
+}
+.compare-page-btn:hover {
+  background: #000;
+}
+
+/* ============================================================
+   ComparePanel — Fullscreen Overlay
+============================================================ */
+.compare-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.compare-panel {
+  width: 92%;
+  max-width: 1200px;
+  max-height: 90vh;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.compare-panel-header {
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+.compare-panel-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Body */
+.compare-panel-body {
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Grid */
+.compare-grid {
+  display: grid;
+  grid-auto-rows: auto;
+  gap: 12px;
+}
+
+.compare-row {
+  display: grid;
+  grid-template-columns: 180px repeat(auto-fill, minmax(180px, 1fr));
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.compare-row-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.compare-col img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.compare-actions-row .compare-col button {
+  background: #ff5252;
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* Footer */
+.compare-panel-footer {
+  padding: 14px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.cmp-footer-close {
+  background: #111;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 50px;
+  cursor: pointer;
+}

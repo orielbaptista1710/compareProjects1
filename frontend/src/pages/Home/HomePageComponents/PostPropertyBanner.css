@@ -1,0 +1,76 @@
+.postproperty-banner-container {
+  position: relative;
+  padding: 90px 50px;
+  text-align: center;
+  color: #fff;
+
+  /* Background Image + Overlay */
+  background: 
+    linear-gradient(
+      rgba(88, 0, 135, 0.65), 
+      rgba(45, 0, 80, 0.75)
+    ),
+    url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c'); /* replace with your path */
+  
+  background-size: cover;
+  background-position: center;
+}
+
+.contactus-banner-container {
+  padding: 90px 50px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(
+    135deg,
+    #4b1f71 0%,
+    #6d2ba5 50%,
+    #37145b 100%
+  );
+}
+
+/* Bigger heading */
+.banner-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+/* Medium subtitle */
+.banner-subtitle {
+  font-size: 1.25rem;
+  max-width: 700px;
+  margin: 0 auto 25px auto;
+  line-height: 1.5;
+}
+
+/* Button styling */
+.banner-button {
+  background: #ffffff;
+  color: #1f2937;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.banner-button:hover {
+  background: #f4f4f4;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .postproperty-banner-container, .contactus-banner-container {
+    padding: 60px 30px;
+  }
+
+  .banner-title {
+    font-size: 2rem;
+  }
+
+  .banner-subtitle {
+    font-size: 1.1rem;
+  }
+}

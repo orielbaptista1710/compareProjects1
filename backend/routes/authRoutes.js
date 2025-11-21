@@ -28,25 +28,38 @@ router.post('/login', asyncHandler(async (req, res) => {
     throw new Error('Username and password are required');
   }
 
+  console.log('Searching for user: ', username);
   const user = await User.findOne({ username });
-
+  console.log('User found: ', user);
+  console.log(`Username length: ${username.length}`);
   if (!user) {
     res.status(400);
     throw new Error('User not found: Invalid credentials');
   }
+  console.log(user.password, user.username)
+  console.log(`Password length: ${password.length}`);
+
 
   const isMatch = await bcrypt.compare(password, user.password);
-
   if (!isMatch) {
     res.status(400);
     throw new Error('Password mismatch: Invalid credentials');
   }
 
+  // Create JWT token
   const token = jwt.sign(
     { id: user._id, role: user.role }, 
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
   );
+
+  // Send JWT as HTTP-only cookie
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: false,                //secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
+    sameSite: 'Lax',              //sameSite: 'strict',
+    maxAge: 60 * 60 * 1000 // 1 hour
+  });
 
   const userData = {
     _id: user._id,
@@ -55,10 +68,18 @@ router.post('/login', asyncHandler(async (req, res) => {
     role: user.role
   };
 
-  res.json({
-    token,
-    user: userData
-  });
+  res.json({ user: userData });
 }));
+
+// make changes here during production
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'Lax'
+  });
+  res.json({ message: 'Logged out successfully' });
+});
+
 
 module.exports = router;

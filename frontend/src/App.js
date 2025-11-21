@@ -2,38 +2,46 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// import { ToastContainer } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
 
-import LoadingSpinner from './components/LoadingSpinner';
-import './components/LoadingSpinner.css';
+import { HeadProvider  } from "react-head";
+import { CompareProvider, useCompare } from "./contexts/CompareContext";
 
-import Header from './components/Header';
-import Footer from './components/Footer';
+import LoadingSpinner from '../src/components/sharedComponents/LoadingSpinner';
+import '../src/components/sharedComponents/LoadingSpinner.css';
+
+import Header from './components/sharedComponents/Header';
+import Footer from './components/sharedComponents/Footer';
 import NavigationBar from './components/NavigationBar';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedCustomerRoute from "./components/ProtectedCustomerRoute";
 
-import { AuthProvider } from "./contexts/AuthContext";
 
 import ErrorBoundary from './components/ErrorBoundary';
 
-import useCompareList from "./hooks/useCompareList";
+// contexts
+import { AuthProvider } from "./contexts/AuthContext";
 
-const Home = lazy(() => import('./pages/Home'));
-const Properties = lazy(() => import('./pages/Properties'));
-const Compare = lazy(() => import('./pages/Compare'));
-const PropertyPage = lazy(() => import('./pages/PropertyPage'));
-const SupportHelp = lazy(() => import('./pages/SupportHelp'));
-const Interiors = lazy(() => import('./pages/Interiors'));
-const ApnaLoan = lazy(() => import('./pages/ApnaLoansHome'));
 
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const CustomerSignupPage = lazy(() => import('./pages/CustomerSignupPage'));
-const CustomerLoginPage = lazy(() => import('./pages/CustomerLoginPage'));
-const CustomerProfilePage = lazy(() => import('./pages/CustomerProfilePage')); 
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+// import useCompareList from "./hooks/useCompareList";
+
+const Home = lazy(() => import('./pages/Home/Home'));
+const Properties = lazy(() => import('./pages/Properties/Properties'));
+const Compare = lazy(() => import('./pages/Compare/Compare'));
+const PropertyPage = lazy(() => import('./pages/PropertyPage/PropertyPage'));
+const SupportHelp = lazy(() => import('./pages/SupportAndHelp/SupportHelp'));
+const Interiors = lazy(() => import('./pages/HomeInteriors/Interiors'));
+const UpnaLoan = lazy(() => import('./pages/UupnaLoans/UpnaLoansHome'));
+const PropertyGuide = lazy(() => import('./pages/PropertyGuideBlog/PropertyGuide'));
+const ErrorPage = lazy(() => import("./pages/ErrorPage"));
+ 
+const LoginPage = lazy(() => import('./pages/Auth/DeveloperAdminAuth/LoginPage'));
+const CustomerSignupPage = lazy(() => import('./pages/Auth/CustomerAuth/CustomerSignupPage'));
+const CustomerLoginPage = lazy(() => import('./pages/Auth/CustomerAuth/CustomerLoginPage'));
+const CustomerProfilePage = lazy(() => import('./pages/CustomerProfileDashboard/CustomerProfilePage')); 
+const Dashboard = lazy(() => import('./pages/DeveloperDashboard/Dashboard'));
+const AdminDashboard = lazy(() => import('../src/pages/Admin/AdminDashboard'));
 
 
 
@@ -49,20 +57,30 @@ const queryClient = new QueryClient({
 });
 
 const AppContent = () => {   // ✅ fixed function syntax
-  const { compareList, setCompareList, addToCompare, removeFromCompare } = useCompareList();
+  const { compareList, setCompareList, addToCompare, removeFromCompare } = useCompare();
   const location = useLocation();
 
-  const hideNavRoutes = ["/properties", "/compare", "/login", "/dashboard", "/admin", "/property/:id", "/customer-signup", "/customer-login", "/customer-dashboard"];
-  const showNavigationBar = !hideNavRoutes.some((route) =>
-    location.pathname.startsWith(route)
-  );
+  const hideNavRoutes = [
+  "/properties",
+  "/compare",
+  "/login",
+  "/dashboard",
+  "/admin",
+  "/customer-signup",
+  "/customer-login",
+  "/customer-profile",
+];
+
+const showNavigationBar = !hideNavRoutes.some((path) =>
+  location.pathname.startsWith(path)
+);
+
 
   return (
     <>
       <Header compareCount={compareList.length} />
       {showNavigationBar && <NavigationBar />}
 
-      <ErrorBoundary>
         <Suspense fallback={
           <div className="spinner-container">
             <LoadingSpinner size="lg" text="Loading page..." />
@@ -89,7 +107,8 @@ const AppContent = () => {   // ✅ fixed function syntax
         <Route path="/property/:id" element={<PropertyPage addToCompare={addToCompare} compareList={compareList} />} />
         <Route path="/supportHelp" element={<SupportHelp />} />
         <Route path="/interior" element={<Interiors />} />
-        <Route path="/apnaloan" element={<ApnaLoan />} />
+        <Route path="/apnaloan" element={<UpnaLoan />} />
+        <Route path="/property-guide" element={<PropertyGuide />} />
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/customer-signup" element={<CustomerSignupPage />} />
@@ -97,41 +116,56 @@ const AppContent = () => {   // ✅ fixed function syntax
         
         {/* 🔐 Protected Routes */}
         <Route path="/dashboard" element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={['user', 'admin']}>
             <Dashboard />
           </ProtectedRoute>
         } />
         <Route path="/admin" element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={['admin']}>
             <AdminDashboard />
           </ProtectedRoute>
         } />    
-        <Route path="/customer-dashboard" element={
+        <Route path="/customer-profile" element={
           <ProtectedCustomerRoute>
             <CustomerProfilePage />
           </ProtectedCustomerRoute>
         } />     
 
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<ErrorPage />} />
       </Routes>
 
       </Suspense>
-      </ErrorBoundary>
 
       <Footer />
-      <ToastContainer position="top-right" autoClose={3000} />
+      {/* <ToastContainer 
+  position="top-right"
+  autoClose={3000}
+  limit={3}
+  hideProgressBar={false}
+  newestOnTop
+  closeOnClick
+  pauseOnHover
+  theme="colored"
+/> */}
+
     </>
   );
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
+  <QueryClientProvider client={queryClient}>   
+    <HeadProvider > 
     <AuthProvider>
+    <CompareProvider> 
+    <ErrorBoundary>
     <Router>
-      <AppContent />
+              <AppContent />
     </Router>
+    </ErrorBoundary>
+    </CompareProvider>
     </AuthProvider>
     {process.env.NODE_ENV === "development" && <ReactQueryDevtools />}
+    </HeadProvider >
   </QueryClientProvider>
 );
 

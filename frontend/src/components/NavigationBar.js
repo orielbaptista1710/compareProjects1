@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './NavigationBar.css';
 import { menuItems } from "../database/menuData";
+// import ExpandableSearch from './HomePageComponents/ExpandableSearch';
 
 const NavigationBar = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -73,6 +74,7 @@ const NavigationBar = () => {
                   </span>
                 )}
 
+
                 {activeDropdown === index && item.items && (
                   <div className="dropdown-menu">
                     {item.items.map((subItem) => (
@@ -89,6 +91,7 @@ const NavigationBar = () => {
               </li>
             ))}
           </ul>
+          
         </div>
       </div>
     </nav>

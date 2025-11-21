@@ -1,0 +1,256 @@
+/* ------------------------------
+  MAIN SECTION
+--------------------------------*/
+.testimonial-section {
+    background: white;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 136px;
+    width: 100%;
+    overflow: hidden;
+    height: 60vh;
+    align-items: center;
+}
+
+/* This fixes the alignment issue on Home.js */
+.testimonial-container {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;               /* center inside Home.js */
+  padding: 0 24px;              /* reduced for production layouts */
+}
+
+
+/* ------------------------------
+  HEADINGS
+--------------------------------*/
+.testimonial-section h2 {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #000;
+  line-height: 1.2;
+}
+
+.testimonial-section h2 span {
+  font-size: 40px;
+  margin-top: 6px;
+  display: inline-block;
+}
+
+
+/* ------------------------------
+  METADATA TAG
+--------------------------------*/
+.trustpilot-info {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  margin-bottom: 45px;
+
+  padding: 10px 18px;
+  border-radius: 40px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+
+  /* Faster rendering on Chrome */
+  will-change: transform;
+}
+
+
+/* ------------------------------
+  LAYOUT
+--------------------------------*/
+.testimonial-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+}
+
+/* Large screens */
+@media (min-width: 992px) {
+  .testimonial-content-wrapper {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+
+
+/* ------------------------------
+  LEFT SIDE HEADER
+--------------------------------*/
+.testimonial-header {
+  text-align: center;
+  max-width: 260px;
+}
+
+@media (min-width: 992px) {
+  .testimonial-header {
+    text-align: left;
+    margin-top: 10px;
+  }
+}
+
+.quote-icon {
+  font-size: 54px;
+  color: #dee2e6;
+  font-weight: 700;
+}
+
+.testimonial-header h3 {
+  font-size: 22px;
+  margin: 12px 0;
+  color: #000;
+}
+
+
+/* ------------------------------
+  SLIDER NAV
+--------------------------------*/
+.slider-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.slider-nav .line {
+  width: 22px;
+  height: 2px;
+  background: #000;
+}
+
+.arrow {
+  font-size: 20px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+  color: #000;
+  border-radius: 4px;
+  transition: color 0.25s ease;
+}
+
+.arrow:hover {
+  color: #9417E2;
+}
+
+
+/* ------------------------------
+  TESTIMONIAL CAROUSEL
+--------------------------------*/
+.testimonials {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding: 10px 4px;
+  width: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+}
+
+.testimonials::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* ------------------------------
+  CARDS
+--------------------------------*/
+.testimonial-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: rgba(0, 0, 0, 0.06) 0 8px 20px;
+  padding: 26px;
+  min-width: 300px;
+  max-width: 340px;
+  text-align: left;
+  flex-shrink: 0;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: rgba(0, 0, 0, 0.1) 0 14px 30px;
+}
+
+.testimonial-card p {
+  font-size: 15px;
+  margin-bottom: 18px;
+  color: #333;
+  line-height: 1.55;
+  font-style: italic;
+}
+
+.stars {
+  color: #fcbf49;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+
+/* ------------------------------
+  USER INFO
+--------------------------------*/
+.user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #f8f9fa;
+}
+
+.user strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.time {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+
+/* ------------------------------
+  RESPONSIVE IMPROVEMENTS
+--------------------------------*/
+@media (max-width: 992px) {
+  .testimonial-section {
+    padding: 70px 0;
+  }
+
+  .testimonial-section h2 {
+    font-size: 26px;
+  }
+
+  .testimonial-section h2 span {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  .testimonial-section {
+    padding: 50px 0;
+  }
+
+  .testimonial-container {
+    padding: 0 16px;
+  }
+
+  .testimonial-card {
+    min-width: 260px;
+    padding: 20px;
+  }
+}

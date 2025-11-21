@@ -1,0 +1,40 @@
+/* Outermost wrapper to center everything */
+.base-layout {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  overflow-x: hidden;
+}
+
+/* Inner content container */
+.base-container {
+  width: 100%;
+  max-width: 1300px;       /* Desktop max width */
+  padding: 0 20px;         /* Standard spacing */
+  box-sizing: border-box;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .base-container {
+    max-width: 900px;
+    padding: 0 16px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .base-container {
+    max-width: 100%;
+    padding: 0 12px;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .base-container {
+    padding: 0 10px;
+  }
+}
