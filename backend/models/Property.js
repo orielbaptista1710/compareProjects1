@@ -31,15 +31,14 @@ const propertySchema = new mongoose.Schema({
 
   mapLink: { type: String },
 
-
-   //add this in the Dashboard.js?
+//add this in the Dashboard.js?
 //mapping, search, and distance filters.
 coordinates: {
   lat: { type: Number },
   lng: { type: Number }
 },
 
-  //secondary locations
+  //secondary locations- fix this
   landmarks: {    
   type: [
     {
@@ -88,7 +87,6 @@ coordinates: {
        "Plot","Shop/Showroom","Industrial Warehouse",
        "Retail", "Office Space"]
   },
- 
 
   furnishing: { 
     type: [String],
