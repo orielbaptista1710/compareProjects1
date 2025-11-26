@@ -6,7 +6,7 @@ import {
   MapPin,
   Clock,
   ArrowRight,
-} from "lucide-react";
+} from "lucide-react"; 
 import ContactForm from "../components/HomePageComponents/ContactForm";
 
 export default function ContactPage() {

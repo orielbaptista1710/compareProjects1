@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './DeveloperPopup.css';
+import './DeveloperPopup.css'; 
 
 const DeveloperPopup = ({ isOpen, onClose }) => {
   const [formData, setFormData] = useState({
