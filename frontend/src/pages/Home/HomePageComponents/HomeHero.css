@@ -5,11 +5,11 @@
   height: 75vh;
   background:
     linear-gradient(
-      rgba(80, 25, 180, 0.4),
-      rgba(150, 60, 220, 0.35)
-    ),
-    url("../../../assests/images/homehero.jpg")
-      no-repeat center center / cover;
+      rgba(88, 28, 199, 0.4),
+      rgba(156, 69, 222, 0.35)
+    );
+    /* url("../../../assests/images/homehero.jpg")
+      no-repeat center center / cover; */
 
   display: flex;
   align-items: center;

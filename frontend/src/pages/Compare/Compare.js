@@ -10,6 +10,7 @@ import {
 import Seo from '../../database/Seo';
 import "./Compare.css";
 
+
 function Compare({ compareList, setCompareList, removeFromCompare }) {
   const [properties, setProperties] = useState(compareList);
   const [activeTab, setActiveTab] = useState("overview");

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Home.css'; 
+// import './Home.css'; 
 import Gallery from './HomePageComponents/Gallery'; 
 import MainSearchBar from './HomePageComponents/MainSearchBar';
 import NavigationBar from '../../components/NavigationBar';

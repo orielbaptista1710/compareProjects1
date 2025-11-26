@@ -12,7 +12,7 @@ const propertySchema = new mongoose.Schema({
   featured: { type: Boolean, default: false }, 
   
   sourceUrl: { type: String },// original source if scraped/imported
-  tierType: { type: String, enum: ['tier1', 'tier2'] }, 
+  tierType: { type: String, enum: ['Tier 1', 'Tier 2'] }, 
 
   // Contact Information
   developerName : { type: String, required: true},

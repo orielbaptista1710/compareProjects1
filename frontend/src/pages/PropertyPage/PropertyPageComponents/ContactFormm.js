@@ -5,13 +5,14 @@ import {
   Paper,
   Typography,
   Divider,
-  TextField,
+  TextField, 
   Button,
   Avatar,
   FormControlLabel,
   Checkbox,
   FormGroup,
 } from "@mui/material";
+import useSnackbar from "../../../hooks/useSnackbar";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +23,7 @@ export const contactSchema = z.object({
   name: z.string().min(1, "Name is required"),
   phone: z
     .string()
-    .regex(/^\d{10}$/, "Enter a valid 10-digit phone number"),
+    .regex(/^\d{10}$/, "Enter a valid 10-digit phone number"), 
   email: z.string().email("Enter a valid email address"),
   message: z.string().optional(),
   contactConsent: z.boolean(),
@@ -31,6 +32,8 @@ export const contactSchema = z.object({
 });
 
 const ContactFormm = ({ property }) => {
+  const { showSuccess, showError, SnackbarUI } = useSnackbar();
+
   const {
     handleSubmit,
     control,
@@ -50,13 +53,21 @@ const ContactFormm = ({ property }) => {
   });
 
   const onSubmit = async (data) => {
-    try {
-      await API.post("/contact", data);
-      reset(); // Clears the form
-    } catch (err) {
-      console.error("Failed to submit contact form:", err);
-    }
-  };
+  try {
+    await API.post("/api/leads", {
+      ...data,
+      formType: "property_contact",
+      source: window.location.pathname,
+      propertyId: property?._id || null,
+      //utm: getUtmFromUrl(), // optional helper
+    });
+    showSuccess("Thank you! We'll pass this to the sales team.");
+    reset();
+  } catch (err) {
+    showError("Something went wrong. Try again later.");
+  }
+};
+
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -71,7 +82,7 @@ const ContactFormm = ({ property }) => {
         {/* Header */}
         <Box sx={{ mb: 2 }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Contact Sellers in
+            Contact Developer in
           </Typography>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 1 }}>
@@ -85,11 +96,11 @@ const ContactFormm = ({ property }) => {
             >
               {property?.developerName
                 ? property.developerName.charAt(0)
-                : "A"}
+                : "D"}
             </Avatar>
 
             <Typography sx={{ fontWeight: 500, color: "#4a4a4a" }}>
-              {property?.developerName || "Developer Name"}
+              {property?.developerName || "Developer"}
             </Typography>
           </Box>
         </Box>
@@ -109,6 +120,7 @@ const ContactFormm = ({ property }) => {
             render={({ field }) => (
               <TextField
                 {...field}
+                disabled={isSubmitting}
                 label="Name"
                 fullWidth
                 variant="outlined"
@@ -126,6 +138,7 @@ const ContactFormm = ({ property }) => {
             render={({ field }) => (
               <TextField
                 {...field}
+                disabled={isSubmitting}
                 label="Phone Number"
                 fullWidth
                 variant="outlined"
@@ -143,6 +156,7 @@ const ContactFormm = ({ property }) => {
             render={({ field }) => (
               <TextField
                 {...field}
+                disabled={isSubmitting}
                 label="Email Address"
                 type="email"
                 fullWidth
@@ -161,6 +175,7 @@ const ContactFormm = ({ property }) => {
             render={({ field }) => (
               <TextField
                 {...field}
+                disabled={isSubmitting}
                 label="Message (optional)"
                 multiline
                 rows={3}
@@ -232,7 +247,7 @@ const ContactFormm = ({ property }) => {
             }}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : "Get Contact Details"}
+            {isSubmitting ? "Submitting..." : "Contact Developer"}
           </Button>
 
           {/* SHORTLIST */}
@@ -253,6 +268,10 @@ const ContactFormm = ({ property }) => {
           </Box>
         </Box>
       </Paper>
+
+      <SnackbarUI />
+
+
     </Box>
   );
 };
