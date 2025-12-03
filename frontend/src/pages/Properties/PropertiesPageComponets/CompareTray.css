@@ -1,232 +1,382 @@
-/* ============================================================
-   Compare Tray (horizontal)
-============================================================ */
+/* =====================================================
+   Compare Tray — clean production-grade container
+   ===================================================== */
 .compare-tray {
-  width: 100%;
-  background: #fff;
-  padding: 16px;
+  margin: 30px 0;
+  padding: 20px;
+  background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e8e8;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 20px;
+  gap: 22px;
 }
 
+/* =====================================================
+   Items Row
+   ===================================================== */
 .compare-tray-items {
   display: flex;
   gap: 18px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scroll-snap-type: x mandatory;
+  flex-wrap: wrap;
 }
 
-.compare-tray-items::-webkit-scrollbar {
-  height: 6px;
-}
-
-/* ============================================================
-   Compare Card
-============================================================ */
+/* =====================================================
+   Slim modern compare item (not a bulky card)
+   ===================================================== */
 .compare-card {
-  min-width: 300px;
-  max-width: 320px;
-  background: #ffffff;
-  border-radius: 12px;
+  width: 260px;
+  background: #fafafa;
+  border: 1px solid #e6e6e6;
+  border-radius: 14px;
   overflow: hidden;
-  scroll-snap-align: start;
-  border: 1px solid #ececec;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+  position: relative;
   transition: 0.2s ease;
 }
+
 .compare-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  border-color: #dcdcdc;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
 }
 
-/* Image */
+/* =====================================================
+   Image
+   ===================================================== */
 .compare-image-wrapper {
+  width: 100%;
+  height: 150px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #eaeaea;
   position: relative;
 }
+
 .compare-image {
   width: 100%;
-  height: 170px;
+  height: 100%;
   object-fit: cover;
 }
 
-/* Remove */
+/* Remove (X) button */
 .compare-remove {
   position: absolute;
-  top: 10px;
   right: 10px;
-  background: #ffffffd8;
+  top: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   border: none;
-  padding: 6px;
-  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: 0.2s;
 }
 
-/* Body */
+.compare-remove:hover {
+  background: white;
+}
+
+/* =====================================================
+   Content
+   ===================================================== */
 .compare-body {
-  padding: 14px 16px;
+  padding: 12px 14px 16px;
 }
+
 .compare-title {
-  font-size: 17px;
-  font-weight: 700;
-  margin-bottom: 4px;
-  color: #111;
-}
-.compare-location {
-  color: #666;
-  font-size: 14px;
-  margin-bottom: 10px;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #222;
   line-height: 1.3;
 }
 
-/* Price */
-.compare-price {
-  font-size: 19px;
-  font-weight: 700;
-  margin-bottom: 4px;
+.compare-location {
+  margin: 6px 0 12px;
+  font-size: 0.82rem;
+  color: #666;
+  line-height: 1.4;
 }
+
+.compare-price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111;
+}
+
 .compare-price small {
-  font-size: 13px;
-  font-weight: 400;
+  font-size: 0.76rem;
   color: #777;
 }
 
-/* ============================================================
-   Tray Buttons
-============================================================ */
+/* =====================================================
+   Actions
+   ===================================================== */
 .compare-tray-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 14px;
 }
 
 .compare-preview-btn,
 .compare-page-btn {
   display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
-  font-size: 15px;
-  border-radius: 50px;
-  border: none;
   cursor: pointer;
   font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  transition: 0.25s ease;
+  border: none;
 }
 
+/* Preview (outlined) */
 .compare-preview-btn {
-  background: #f2f2f2;
-  color: #333;
-}
-.compare-preview-btn:hover {
-  background: #e7e7e7;
+  background: #f8f8f8;
+  border: 1px solid #dcdcdc;
 }
 
+.compare-preview-btn:hover {
+  background: #f1f1f1;
+}
+
+/* Main CTA "Compare" */
 .compare-page-btn {
-  background: #111;
+  background: #5a38fd;
   color: #fff;
+  box-shadow: 0 3px 10px rgba(90, 56, 253, 0.3);
 }
+
 .compare-page-btn:hover {
-  background: #000;
+  background: #4424db;
 }
+
+/* =====================================================
+   Responsive Adjustments
+   ===================================================== */
+@media (max-width: 768px) {
+  .compare-tray-items {
+    flex-direction: column;
+  }
+
+  .compare-card {
+    width: 100%;
+  }
+
+  .compare-tray-actions {
+    flex-direction: column;
+  }
+
+  .compare-preview-btn,
+  .compare-page-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ============================================================
    ComparePanel — Fullscreen Overlay
 ============================================================ */
+/* ============
+   BACKDROP
+   ============ */
 .compare-panel-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding: 90px 20px;
   z-index: 9999;
 }
 
+/* ============
+   PANEL WRAPPER
+   ============ */
 .compare-panel {
-  width: 92%;
+  width: 100%;
   max-width: 1200px;
-  max-height: 90vh;
-  background: white;
-  border-radius: 16px;
+  background: #ffffff;
+  border-radius: 14px;
   overflow: hidden;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+  animation: fadeUp 0.25s ease;
   display: flex;
   flex-direction: column;
 }
 
-/* Header */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============
+   HEADER
+   ============ */
 .compare-panel-header {
-  padding: 18px 24px;
+  padding: 16px 22px;
+  border-bottom: 1px solid #ebebeb;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #eee;
-}
-.compare-panel-close {
-  background: none;
-  border: none;
-  cursor: pointer;
 }
 
-/* Body */
-.compare-panel-body {
-  overflow-y: auto;
-  padding: 20px;
-}
-
-/* Grid */
-.compare-grid {
-  display: grid;
-  grid-auto-rows: auto;
-  gap: 12px;
-}
-
-.compare-row {
-  display: grid;
-  grid-template-columns: 180px repeat(auto-fill, minmax(180px, 1fr));
-  align-items: center;
-  gap: 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.compare-row-title {
+.compare-panel-header h2 {
+  font-size: 1.15rem;
+  margin: 0;
   font-weight: 600;
-  color: #333;
+  color: #1a1a1a;
 }
 
-.compare-col img {
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.compare-actions-row .compare-col button {
-  background: #ff5252;
+.compare-panel-close {
   border: none;
-  color: #fff;
-  padding: 6px 12px;
+  background: #f5f5f5;
+  padding: 6px;
   border-radius: 8px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+.compare-panel-close:hover {
+  background: #e4e4e4;
 }
 
-/* Footer */
-.compare-panel-footer {
-  padding: 14px;
-  border-top: 1px solid #eee;
+/* ============
+   BODY
+   ============ */
+.compare-panel-body {
+  overflow-x: auto;
+  padding: 0;
+}
+
+.compare-grid {
+  width: 100%;
+  min-width: 900px; /* for horizontal scroll on small screens */
+}
+
+/* ROW */
+.compare-row {
+  display: grid;
+  grid-template-columns: 180px repeat(auto-fill, minmax(220px, 1fr));
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.compare-row:last-child {
+  border-bottom: none;
+}
+
+/* TITLES (left column) */
+.compare-row-title {
+  background: #fafafa;
+  padding: 16px;
+  font-weight: 600;
+  color: #444;
+  border-right: 1px solid #f1f1f1;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+/* COLUMNS (property values) */
+.compare-col {
+  padding: 16px;
+  font-size: 0.9rem;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ============
+   IMAGE ROW
+   ============ */
+.compare-row-images img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #e2e2e2;
+}
+
+/* ============
+   ACTIONS
+   ============ */
+.compare-actions-row .cmp-action-remove {
+  background: #f7f7f7;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.compare-actions-row .cmp-action-remove:hover {
+  background: #ececec;
+}
+
+/* ============
+   FOOTER
+   ============ */
+.compare-panel-footer {
+  padding: 14px 20px;
+  border-top: 1px solid #ebebeb;
+  text-align: right;
 }
 
 .cmp-footer-close {
-  background: #111;
-  color: #fff;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 50px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  background: #f5f5f5;
   cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.cmp-footer-close:hover {
+  background: #e9e9e9;
+}
+
+/* ============
+   RESPONSIVE
+   ============ */
+@media (max-width: 768px) {
+  .compare-row-title {
+    font-size: 0.8rem;
+  }
+  .compare-col {
+    font-size: 0.8rem;
+    padding: 12px;
+  }
+  .compare-row-images img {
+    height: 90px;
+  }
 }

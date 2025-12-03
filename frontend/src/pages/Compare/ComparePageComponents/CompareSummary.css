@@ -1,0 +1,34 @@
+.compare-summary {
+  /* width: 100%;
+  max-width: 1200px;
+  margin: 20px auto 40px auto;
+  padding: 10px 0; */
+}
+
+.summary-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.summary-text {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.6;
+  max-width: 85%;
+}
+
+.summary-readmore {
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: #0066cc;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 0;
+}
+
+.summary-readmore:hover {
+  text-decoration: underline;
+}
