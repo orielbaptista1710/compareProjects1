@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } = require("../models/propertyType");
+const slugify = require("slugify");
 
 const propertySchema = new mongoose.Schema({
 
@@ -12,11 +14,14 @@ const propertySchema = new mongoose.Schema({
   featured: { type: Boolean, default: false }, 
   
   sourceUrl: { type: String },// original source if scraped/imported
-  tierType: { type: String, enum: ['Tier 1', 'Tier 2'] }, 
+  tierType: { type: String, enum: ['tier1', 'tier2'] }, 
 
   // Contact Information
   developerName : { type: String, required: true},
-
+  developerAvatar: {
+  url: { type: String, default: null },
+    thumbnail: { type: String, default: null },
+},
   // Property Information
   title: { type: String, required: true, trim: true },
   description: { type: String, required: true},
@@ -81,25 +86,23 @@ coordinates: {
     enum: ["Residential", "Commercial"],
   },
   propertyType: {
-    type: String,
-    required: true,
-    enum:["Flats/Apartments", "Villa",
-       "Plot","Shop/Showroom","Industrial Warehouse",
-       "Retail", "Office Space"]
-  },
+  type: String,
+  required: true,
+  enum: [...RESIDENTIAL_TYPES, ...COMMERCIAL_TYPES]
+},
 
   furnishing: { 
-    type: [String],
+    type: String,
     enum: ['Furnished', 'Semi Furnished', 'Unfurnished', 'Fully Furnished'] 
   },
   possessionStatus: { 
-    type: [String],
+    type: String,         /////////////////enum has to be added 
   },
 
-  bhk: { type: String },
-  bathrooms: { type: String },
+  bhk: { type: Number },
+  bathrooms: { type: Number },
   facing: { type: String },
-  balconies: { type: String },
+  balconies: { type: Number },
   parkings: { type: String },
 
   ageOfProperty: { 
@@ -113,39 +116,56 @@ coordinates: {
 
   unitsAvailable : { type: Number },
   
-  amenities: { type: [String] },
-  facilities: { type: [String] },
-  security: { type: [String] },
+  amenities: { type: [String] ,default: []},
+  facilities: { type: [String], default: [] },
+  security: { type: [String], default: [] },
 
   // Media (optimized)
   coverImage: {
     url: String,       // CDN URL
     thumbnail: String  // CDN thumbnail for list view
   },
-  galleryImages: [{
-    url: String,       // CDN URL
+  galleryImages: {
+  type: [{
+    url: String,
     thumbnail: String,
-    caption: String,
+    caption: String
   }],
-  floorPlans: [{
-  planType: { type: String, enum: ['2D', '3D', 'Structural'] },
-  imageUrl: String,
-  unitType: String,
-  builtUpArea: Number,
-  carpetArea: Number,
-  terraceArea: Number,
-  rooms: [{ name: String, dimensions: String, windowCount: Number }]
-}],
-  mediaFiles: [{
+  default: []
+}
+,
+  floorPlans: {
+  type: [{
+    planType: { type: String, enum: ['2D', '3D', 'Structural'] },
+    imageUrl: String,
+    unitType: String,
+    builtUpArea: Number,
+    carpetArea: Number,
+    terraceArea: Number,
+    rooms: [{
+      name: String,
+      dimensions: String,
+      windowCount: Number
+    }]
+  }],
+  default: []
+},
+  mediaFiles: {
+  type: [{
     type: { type: String, enum: ['image','video'] },
-    src: String,           // CDN URL
+    src: String,
     thumbnail: String
   }],
-  virtualTours: [{
+  default: []
+},
+  virtualTours: {
+  type: [{
     type: { type: String, enum: ['3d','video','panorama'] },
-    url: String,           // CDN URL
+    url: String,
     thumbnail: String
   }],
+  default: []
+},
   brochure: { type: String },
 
 
@@ -159,7 +179,7 @@ coordinates: {
     seo: {
       metaTitle: String,
       metaDescription: String,
-      slug: {type: String,unique: true, trim: true},
+      slug: {type: String,unique: true, trim: true},  ///should i add slug inside or outsie metadata confirm !!!!!!!
       tags: [String], //Recommendations tags for search engine
     },
     marketing: {
@@ -198,22 +218,36 @@ coordinates: {
 
 // Middleware to set propertyGroup automatically
 propertySchema.pre('save', function(next) {
-  const residentialTypes = ["Flats/Apartments", "Villa", "Plot"];
-  this.propertyGroup = residentialTypes.includes(this.propertyType) 
-    ? "Residential" 
+  this.propertyGroup = RESIDENTIAL_TYPES.includes(this.propertyType)
+    ? "Residential"
     : "Commercial";
   next();
 });
+////this needs to be checked again-- also single hook?
+propertySchema.pre("save", async function (next) {
+  if (!this.isModified("title")) return next();
 
-propertySchema.pre('save', function(next) {
-  if (!this.slug) {
-    this.slug = this.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
+  const baseSlug = slugify(this.title, {
+    lower: true,
+    strict: true,
+    trim: true
+  });
+
+  let slug = baseSlug;
+  let count = 1;
+
+  // Use this.constructor instead of Property
+  while (await this.constructor.exists({ slug })) {
+    slug = `${baseSlug}-${count++}`;
   }
+
+  this.slug = slug;
   next();
 });
+
+
+
+
 
  
 propertySchema.virtual('pricePerSqft').get(function() {
@@ -260,6 +294,7 @@ propertySchema.set('toObject', {
 });
 
 propertySchema.index({ price: 1, propertyType: 1 });
+propertySchema.index({ slug: 1 }, { unique: true, sparse: true }); // For SEO and URL  --  check what sparse means
 propertySchema.index({ createdAt: -1 }); // For recent listings
 propertySchema.index({ featured: 1, status: 1 }); // For featured properties
 propertySchema.index({ userId: 1, status: 1 }); // For user's properties

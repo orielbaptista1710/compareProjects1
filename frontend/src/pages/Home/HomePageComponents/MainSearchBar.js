@@ -149,6 +149,7 @@ const MainSearchBar = () => {
           {/* City Selector */}
           <div className="search-field">
             <Select
+              classNamePrefix="msb"  ///why used????
               placeholder="Select City"
               isClearable
               isSearchable
@@ -189,6 +190,7 @@ const MainSearchBar = () => {
           {/* Property Type */}
           <div className="search-field-type">
             <Select
+              classNamePrefix="msb"  ///why used????
               placeholder="Property Type"
               isClearable
               value={filters.propertyType ? { value: filters.propertyType, label: filters.propertyType } : null}

@@ -1,16 +1,15 @@
 /* ----------------------------------------------------
-   MAIN SEARCH BAR — Clean White Minimal (as screenshot)
+   MAIN SEARCH BAR — Clean White Minimal UI
 ---------------------------------------------------- */
 
 .mainsearch-bar {
   width: 100%;
   display: flex;
-  justify-content: center;
-  margin-top: 10px;
-
-  margin: 0 auto;
-  flex-direction: column; /* Place children vertically */
+  flex-direction: column;
+  align-items: center;
+  margin: 10px auto 0;
   gap: 12px;
+  z-index: 10; /* Ensures dropdown never hides */
 }
 
 .main-search-container-section {
@@ -28,7 +27,7 @@
   padding: 18px 26px;
 
   border: 1px solid #ececec;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.04);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.04);
 
   width: 100%;
 }
@@ -43,7 +42,7 @@
 }
 
 /* ----------------------------------------------------
-   NATIVE SELECT
+   NATIVE SELECTS (Budget + Locality)
 ---------------------------------------------------- */
 
 .dropdown-main {
@@ -73,46 +72,83 @@
 }
 
 /* ----------------------------------------------------
-   REACT-SELECT (City + Property Type)
+   REACT-SELECT — Stable Styling with classNamePrefix="msb"
 ---------------------------------------------------- */
 
-.css-b62m3t-container {
-  width: 100%;
-}
-
-/* default control */
-.css-13cymwt-control {
+/* container */
+.msb__control {
   border-radius: 16px !important;
   min-height: 50px !important;
   border: 1px solid #e4e4e4 !important;
   box-shadow: none !important;
+  padding: 2px 6px;
+  cursor: pointer;
 }
 
 /* hover */
-.css-13cymwt-control:hover {
+.msb__control:hover {
   border-color: #cfcfcf !important;
 }
 
 /* focused */
-.css-t3ipsp-control {
-  border-radius: 16px !important;
+.msb__control--is-focused {
   border-color: #a45cff !important;
   box-shadow: 0 0 0 2px rgba(164, 92, 255, 0.25) !important;
 }
 
-/* placeholder text */
-.css-1jqq78o-placeholder {
+/* placeholder */
+.msb__placeholder {
   color: #6a6a6a !important;
   font-size: 15px !important;
 }
 
-/* text value */
-.css-1dimb5e-singleValue {
+/* selected text */
+.msb__single-value {
   color: #404040 !important;
+  font-size: 15px;
+}
+
+/* indicators spacing */
+.msb__indicators {
+  padding-right: 6px !important;
+}
+
+/* dropdown menu */
+.msb__menu {
+  z-index: 9999 !important;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* menu list */
+.msb__menu-list {
+  padding: 0 !important;
+}
+
+/* option */
+.msb__option {
+  padding: 12px 14px !important;
+  font-size: 15px !important;
+  background: #fff !important;
+  color: #444 !important;
+  cursor: pointer;
+}
+
+/* hover */
+.msb__option--is-focused {
+  background-color: #f1e6ff !important;
+  color: #000 !important;
+}
+
+/* selected */
+.msb__option--is-selected {
+  background-color: #a45cff !important;
+  color: #fff !important;
 }
 
 /* ----------------------------------------------------
-   SEARCH BUTTON — Gradient (Purple → Pink)
+   SEARCH BUTTON — Purple → Pink Gradient
 ---------------------------------------------------- */
 
 .mainsearch-btn {
@@ -140,13 +176,44 @@
 .mainsearch-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
   box-shadow: none;
 }
+
+/* ----------------------------------------------------
+   EXPANDABLE SEARCH
+---------------------------------------------------- */
 
 .expandable-search-wrapper {
   width: 100%;
   position: relative;
-  z-index: 4; 
+  z-index: 1; /* Prevents overlap issues */
 }
 
+/* ----------------------------------------------------
+   RESPONSIVE
+---------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .main-search-container {
+    flex-wrap: wrap;
+    border-radius: 26px;
+    gap: 14px;
+    padding: 16px 20px;
+  }
+
+  .mainsearch-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 500px) {
+  .main-search-container {
+    padding: 14px;
+  }
+
+  .search-field,
+  .search-field-type {
+    min-width: 100%;
+  }
+}

@@ -1,589 +1,318 @@
-.compare-container {
-  padding: 150px 40px;
-  max-width: 1800px;
-  margin: 0 auto;
-  padding-top: 120px;
-}
-
-.comparison-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  padding: 30px;
-  border-radius: 12px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  text-align: center;
-}
-
-.comparison-header h1 {
-  color: #2c3e50;
-  margin-bottom: 15px;
-  font-size: 32px;
-  font-weight: 700;
-}
-
-.header-description {
-  color: #555;
-  margin-bottom: 25px;
-  line-height: 1.6;
-  font-size: 16px;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.header-stats {
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-  flex-wrap: wrap;
-  margin-top: 20px;
-}
-
-.stat-card {
-  background: white;
-  padding: 15px 25px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  min-width: 120px;
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-5px);
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: #d90429;
-}
-
-.stat-label {
-  font-size: 14px;
-  color: #6c757d;
-  margin-top: 5px;
-}
-
-.comparison-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.comparison-tabs button {
-  padding: 12px 24px;
-  background: #f8f9fa;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  color: #495057;
-}
-
-.comparison-tabs button:hover {
-  background: #e9ecef;
-}
-
-.comparison-tabs button.active {
-  background: #d90429;
-  color: white;
-  box-shadow: 0 4px 8px rgba(217, 4, 41, 0.3);
-}
-
-.compare-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-bottom: 40px;
-}
-
-.compare-row {
-  display: flex;
-  background-color: #fff;
-  border-radius: 12px;
-  overflow-x: auto;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  transition: transform 0.2s;
-}
-
-.compare-row:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.compare-cell {
-  flex: 1 1 320px;
-  border-left: 1px solid #eee;
-  padding: 25px;
-  min-width: 320px;
-}
-
-.compare-property-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 12px;
-}
-
-.compare-property-image-container {
+/* ----------------------------------------------------------
+   GLOBAL PAGE LAYOUT
+---------------------------------------------------------- */
+.compare-page {
   width: 100%;
-  height: 200px;
-  margin-bottom: 15px;
-  overflow: hidden;
-  border-radius: 10px;
-  position: relative;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  max-width: 1400px;
+  margin: 95px  auto 40px auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
 }
 
-.property-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s;
-}
-
-.compare-property-image-container:hover .property-image {
-  transform: scale(1.05);
-}
-
-.property-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.featured-badge {
-  background: #ffc107;
-  color: #212529;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
+/* ----------------------------------------------------------
+   TITLE
+---------------------------------------------------------- */
+.compare-header h1 {
+  font-size: 26px;
   font-weight: 600;
+  margin-bottom: 20px;
+  color: #222;
 }
 
-.type-badge {
-  background: #d90429;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.view-count {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(0,0,0,0.7);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.status-badge {
-  margin-top: 5px;
-}
-
-.status {
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.status.pending {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.status.approved {
-  background: #d4edda;
-  color: #155724;
-}
-
-.status.rejected {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.compare-property-header h3 {
-  font-size: 20px;
-  margin: 5px 0;
-  font-weight: 700;
-  color: #2c3e50;
-  line-height: 1.3;
-}
-
-.compare-property-header .location {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 14px;
-  color: #6c757d;
-  margin: 0;
-}
-
-.price-tag {
-  font-size: 22px;
-  font-weight: 700;
-  color: #d90429;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.price-per-unit {
-  font-size: 14px;
-  font-weight: 500;
-  color: #6c757d;
-}
-
-.remove-btn {
-  margin-top: 15px;
-  padding: 8px 15px;
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 13px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: background-color 0.2s;
-}
-
-.remove-btn:hover {
-  background-color: #5a6268;
-}
-
-/* Section Styles */
-.info-section, .details-section, .amenities-section, 
-.facilities-section, .security-section, .location-section, 
-.contact-section, .overview-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.info-grid, .details-grid, .location-grid, .contact-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.info-row, .details-row, .location-row, .contact-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  padding: 8px 0;
-  border-bottom: 1px dashed #eee;
-}
-
-.info-row:last-child, 
-.details-row:last-child, 
-.location-row:last-child,
-.contact-row:last-child {
-  border-bottom: none;
-}
-
-.info-label, .details-label, .location-label, .contact-label {
-  font-weight: 600;
-  color: #495057;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.info-value, .details-value, .location-value, .contact-value {
-  color: #6c757d;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  text-align: right;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-/* Overview Section Styles */
-.overview-section {
-  gap: 25px;
-}
-
-.overview-category {
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.category-title {
-  background: #f8f9fa;
-  padding: 12px 15px;
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #2c3e50;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.category-content {
-  padding: 15px;
-}
-
-.overview-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-/* Amenities, Facilities, Security Styles */
-.amenities-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-}
-
-.amenity-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-}
-
-.amenity-icon {
-  color: #d90429;
-  font-size: 16px;
-}
-
-.facilities-list, .security-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.facility-tag, .security-tag {
-  background: #e9ecef;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: #495057;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.security-tag {
-  background: #fff3cd;
-}
-
-.landmark-item {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.coordinates {
-  font-size: 12px;
-  color: #6c757d;
-  margin-left: 8px;
-}
-
-.map-link {
-  color: #d90429;
-  text-decoration: none;
-}
-
-.map-link:hover {
-  text-decoration: underline;
-}
-
-.info-value a, .details-value a, .location-value a, .contact-value a {
-  color: #d90429;
-  text-decoration: none;
-}
-
-.info-value a:hover, .details-value a:hover, .location-value a:hover, .contact-value a:hover {
-  text-decoration: underline;
-}
-
-.no-data {
-  color: #6c757d;
-  font-style: italic;
-  text-align: center;
-  padding: 20px;
-}
-
+/* ----------------------------------------------------------
+   EMPTY STATE
+---------------------------------------------------------- */
 .empty-compare {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* vertical center */
+  align-items: center;        /* horizontal center */
+
   text-align: center;
-  margin: 50px 0;
-  padding: 40px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+  width: 100%;
+  max-width: 1400px;
+
+  margin: 0 auto;             /* center horizontally */
+  min-height: 80vh;           /* center vertically relative to screen */
 }
 
 .empty-icon {
-  font-size: 60px;
+  font-size: 100px;
   margin-bottom: 20px;
 }
 
-.empty-compare h3 {
-  font-size: 24px;
-  color: #2c3e50;
-  margin-bottom: 10px;
+.empty-compare-h3{
+  font-size: 30px;
+  font-weight: 600;
+  margin-bottom: 12px;
 }
-
-.empty-compare p {
-  color: #6c757d;
-  margin-bottom: 25px;
-  font-size: 16px;
+.empty-compare-p{
+  font-size: 18px;
+  color: #777;
 }
-
 .empty-compare button {
-  margin-top: 20px;
-  padding: 12px 30px;
-  background-color: #d90429;
+  padding: 12px 28px;
+  background: #D90429;
   color: #fff;
   border: none;
-  border-radius: 30px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 16px;
-  transition: all 0.3s;
+  margin-top: 12px;
+  font-weight: 500;
+  font-size: medium;
 }
 
 .empty-compare button:hover {
-  background-color: #c1121f;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(217, 4, 41, 0.3);
+  opacity: 0.92;
 }
 
-.compare-actions {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 30px;
+/* ----------------------------------------------------------
+   HEADER GRID (4 columns)
+---------------------------------------------------------- */
+.compare-grid-header {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-top: 10px;
 }
 
-.clear-all-btn, .browse-more-btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  font-weight: 600;
+.compare-header-cell {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  min-height: 370px;
+}
+
+/* ----------------------------------------------------------
+   PROPERTY HEADER CARD
+---------------------------------------------------------- */
+.compare-header-card img {
+  width: 100%;
+  height: 150px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.property-title {
   font-size: 16px;
-  transition: all 0.3s;
+  font-weight: 600;
+  margin: 4px 0;
+  color: #222;
+  min-height: 45px;
+}
+
+.developer {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 6px;
+}
+
+.location {
+  font-size: 13px;
+  color: #666;
+}
+
+.price {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #D90429;
+}
+
+/* REMOVE BUTTON */
+.remove-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  background: #eee;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.remove-btn:hover {
+  background: #e2e2e2;
+}
+
+/* ----------------------------------------------------------
+   ADD PROPERTY BOX
+---------------------------------------------------------- */
+.add-property-box {
+  border: 2px dashed #ccc;
+  height: 100%;
+  min-height: 330px;
+  border-radius: 14px;
+  background: #fff;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.add-property-box:hover {
+  border-color: #999;
+  background: #f7f7f7;
+}
+
+.add-icon {
+  font-size: 42px;
+  font-weight: 300;
+  margin-bottom: 8px;
+}
+
+/* ----------------------------------------------------------
+   TABS
+---------------------------------------------------------- */
+.compare-tabs {
+  display: flex;
+  gap: 14px;
+  margin: 30px 0 20px;
+}
+
+.compare-tabs button {
+  padding: 10px 22px;
+  background: #f1f1f1;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.compare-tabs button.active {
+  background: #D90429;
+  color: #fff;
+}
+
+.compare-tabs button:hover:not(.active) {
+  background: #e7e7e7;
+}
+
+/* ----------------------------------------------------------
+   CONTENT GRID (4 columns)
+---------------------------------------------------------- */
+.compare-grid-content {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.compare-content-cell {
+  background: #fff;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  min-height: 350px;
+  font-size: 14px;
+}
+
+/* ----------------------------------------------------------
+   TAB INFORMATION
+---------------------------------------------------------- */
+.tab-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 10px 0 2px;
+  color: #222;
+}
+
+.info-row p {
+  margin: 4px 0;
+}
+
+.map-btn,
+.map-link {
+  margin-top: 6px;
+  display: inline-block;
+  font-size: 13px;
+  color: #D90429;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* AMENITIES CHIPS */
+.amenities-row {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+  margin-top: 6px;
 }
 
-.clear-all-btn {
-  background-color: #6c757d;
-  color: white;
+.amenity-chip {
+  padding: 6px 10px;
+  background: #f1f1f1;
+  border-radius: 8px;
+  font-size: 13px;
 }
 
-.clear-all-btn:hover {
-  background-color: #5a6268;
-  transform: translateY(-2px);
+/* ----------------------------------------------------------
+   ACTION BUTTONS
+---------------------------------------------------------- */
+.compare-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
+  gap: 14px;
 }
 
-.browse-more-btn {
-  background-color: #d90429;
-  color: white;
+.clear-btn,
+.add-more-btn {
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
 }
 
-.browse-more-btn:hover {
-  background-color: #c1121f;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(217, 4, 41, 0.3);
+.clear-btn {
+  background: #eee;
 }
 
-/* Responsive adjustments */
+.clear-btn:hover {
+  background: #e2e2e2;
+}
+
+.add-more-btn {
+  background: #D90429;
+  color: #fff;
+}
+
+.add-more-btn:hover {
+  opacity: 0.92;
+}
+
+/* ----------------------------------------------------------
+   RESPONSIVE
+---------------------------------------------------------- */
 @media (max-width: 1024px) {
-  .compare-container {
-    padding: 120px 20px;
-    padding-top: 100px;
-  }
-  
-  .compare-cell {
-    min-width: 280px;
-  }
-  
-  .amenities-grid {
-    grid-template-columns: 1fr;
+  .compare-grid-header,
+  .compare-grid-content {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 768px) {
-  .compare-container {
-    padding: 100px 15px;
-    padding-top: 80px;
+@media (max-width: 650px) {
+  .compare-grid-header,
+  .compare-grid-content {
+    grid-template-columns: repeat(1, 1fr);
   }
-  
-  .comparison-header {
-    padding: 20px;
-  }
-  
-  .comparison-header h1 {
-    font-size: 28px;
-  }
-  
-  .header-stats {
-    gap: 15px;
-  }
-  
-  .stat-card {
-    padding: 10px 15px;
-    min-width: 100px;
-  }
-  
-  .stat-value {
-    font-size: 20px;
-  }
-  
-  .comparison-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    justify-content: flex-start;
-    padding: 10px;
-  }
-  
-  .comparison-tabs button {
-    white-space: nowrap;
-    font-size: 14px;
-    padding: 10px 15px;
-  }
-  
-  .compare-cell {
-    min-width: 250px;
-    padding: 15px;
-  }
-  
-  .compare-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .clear-all-btn, .browse-more-btn {
-    width: 100%;
-    max-width: 300px;
-    justify-content: center;
+
+  .compare-tabs {
+    flex-wrap: wrap;
   }
 }
