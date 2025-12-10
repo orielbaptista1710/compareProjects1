@@ -5,7 +5,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import API from "../../api"
 import debounce from "lodash.debounce";
 
 import AdminPropertyTable from "../Admin/AdminDasboardComponents/AdminPropertyTable";
@@ -20,18 +20,18 @@ const fetchProperties = async ({ queryKey }) => {
     propertyType: filters.propertyType,
     q: filters.search,
   };
-  const { data } = await axios.get("/api/admin/properties", { params });
+  const { data } = await API.get("/api/admin/properties", { params });
   return data;
 };
 
 
 // Approve / Reject API
 const approveProperty = async (id) => {
-  const { data } = await axios.put(`/api/admin/approve/${id}`);
+  const { data } = await API.put(`/api/admin/approve/${id}`);
   return data;
 };
 const rejectProperty = async ({ id, reason }) => {
-  const { data } = await axios.put(`/api/admin/reject/${id}`, { rejectionReason: reason });
+  const { data } = await API.put(`/api/admin/reject/${id}`, { rejectionReason: reason });
   return data;
 };
 
@@ -50,7 +50,7 @@ export default function AdminDashboard() {
 
 const handleRowClick = async (property) => {
   try {
-    const res = await axios.get(`/api/admin/property/${property._id}`);
+    const res = await API.get(`/api/admin/property/${property._id}`);
     setSelectedProperty(res.data.data);   // ⭐ FIX HERE
     setDetailsModalOpen(true);
   } catch (e) {
