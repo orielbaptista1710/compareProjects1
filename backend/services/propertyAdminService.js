@@ -19,6 +19,7 @@ exports.fetchProperties = async ({ page = 1, limit = 20, status, city, state, pr
   const LIST_PROJECTION = {
     title: 1,
     developerName: 1,
+    propertyType: 1,
     price: 1,
     state: 1,
     city: 1,
@@ -46,6 +47,18 @@ exports.fetchProperties = async ({ page = 1, limit = 20, status, city, state, pr
 
   return { data: properties, total };
 };
+
+exports.fetchPropertyById = async (id) => {
+  const property = await Property.findById(id)
+    .populate('userId', 'displayName email phone')
+    .populate('reviewedBy', 'displayName')
+    .lean();
+
+  if (!property) throw new Error('Property not found');
+
+  return property;
+};
+
 
 exports.updatePropertyStatus = async (id, status, adminId, rejectionReason = null) => {
   const update = {

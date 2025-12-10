@@ -3,12 +3,8 @@
   position: relative;
   width: 100%;
   height: 75vh;
-  background:
-    linear-gradient(
-      rgba(88, 28, 199, 0.4),
-      rgba(156, 69, 222, 0.35)
-    );
-    /* url("../../../assests/images/homehero.jpg")
+  background:#9417e2;
+    /* url("../../../assests/images/homyy.png")
       no-repeat center center / cover; */
 
   display: flex;

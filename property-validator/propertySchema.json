@@ -1,0 +1,209 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Strict Property Schema",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "userId",
+    "developerName",
+    "title",
+    "description",
+    "state",
+    "city",
+    "locality",
+    "address",
+    "pincode",
+    "price",
+    "propertyType"
+  ],
+
+  "properties": {
+    "userId": { "type": "string", "pattern": "^[a-fA-F0-9]{24}$" },
+
+    "status": {
+      "type": "string",
+      "enum": ["pending", "approved", "rejected"],
+      "default": "pending"
+    },
+
+    "featured": { "type": "boolean", "default": false },
+
+    "sourceUrl": { "type": "string" },
+
+    "tierType": {
+      "type": "string",
+      "enum": ["tier1", "tier2"]
+    },
+
+    "developerName": { "type": "string", "minLength": 1 },
+
+    "developerAvatar": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "url": { "type": ["string", "null"] },
+        "thumbnail": { "type": ["string", "null"] }
+      }
+    },
+
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "long_description": { "type": ["string", "null"] },
+
+    "state": { "type": "string", "minLength": 1 },
+    "city": { "type": "string", "minLength": 1 },
+    "locality": { "type": "string", "minLength": 1 },
+    "address": { "type": "string", "minLength": 1 },
+
+    "pincode": { "type": "number" },
+
+    "mapLink": { "type": ["string", "null"] },
+
+    "coordinates": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "lat": { "type": ["number", "null"] },
+        "lng": { "type": ["number", "null"] }
+      }
+    },
+
+    "availableFrom": { "type": ["string", "null"], "format": "date-time" },
+
+    "area": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": { "type": ["number", "null"], "minimum": 0 },
+        "unit": {
+          "type": "string",
+          "enum": ["sqft", "sqmts", "guntas", "hectares", "acres"]
+        }
+      }
+    },
+
+    "reraApproved": { "type": "boolean" },
+    "reraNumber": { "type": ["string", "null"] },
+
+    "priceNegotiable": { "type": "boolean" },
+
+    "price": {
+      "type": "number",
+      "minimum": 0
+    },
+
+    "emiStarts": { "type": ["number", "null"], "minimum": 0 },
+
+    "propertyType": { "type": "string" },
+
+    "furnishing": {
+      "type": ["string", "null"],
+      "enum": ["Furnished", "Semi Furnished", "Unfurnished", "Fully Furnished"]
+    },
+
+    "possessionStatus": { "type": ["string", "null"] },
+
+    "bhk": { "type": ["number", "null"] },
+    "bathrooms": { "type": ["number", "null"] },
+    "facing": { "type": ["string", "null"] },
+    "balconies": { "type": ["number", "null"] },
+    "parkings": { "type": ["string", "null"] },
+
+    "ageOfProperty": { "type": "string" },
+
+    "totalFloors": { "type": ["number", "null"] },
+    "floor": { "type": ["string", "null"] },
+    "wing": { "type": ["string", "null"] },
+
+    "unitsAvailable": { "type": ["number", "null"] },
+
+    "amenities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "facilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    "security": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+
+    
+
+        "dataSource": {
+      "type": "string",
+      "enum": ["manual", "scraper", "developer"]
+    },
+
+    "importedAt": { "type": ["string", "null"], "format": "date-time" },
+
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "seo": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "metaTitle": { "type": ["string", "null"] },
+            "metaDescription": { "type": ["string", "null"] },
+            "slug": { "type": ["string", "null"] },
+            "tags": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        },
+
+        "marketing": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "utmSource": { "type": ["string", "null"] },
+            "utmMedium": { "type": ["string", "null"] },
+            "utmCampaign": { "type": ["string", "null"] },
+            "leadSource": { "type": ["string", "null"] }
+          }
+        },
+
+        "moderation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "dataQualityScore": { "type": ["number", "null"] },
+            "verifiedByAdmin": { "type": "boolean" },
+            "verificationNotes": { "type": ["string", "null"] }
+          }
+        },
+
+        "analytics": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "viewCount": { "type": ["number", "null"], "minimum": 0 },
+            "popularityScore": { "type": ["number", "null"] }
+          }
+        }
+      }
+    },
+
+    "submittedAt": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+
+    "reviewedBy": { "type": ["string", "null"], "pattern": "^[a-fA-F0-9]{24}$" },
+
+    "reviewedAt": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+
+    "rejectionReason": { "type": ["string", "null"] }
+  }
+}

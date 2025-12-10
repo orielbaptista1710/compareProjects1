@@ -18,6 +18,16 @@ exports.getProperties = asyncHandler(async (req, res) => {
   res.json(result);
 });
 
+// GET /api/admin/properties/:id
+exports.getDeveloperDetails = asyncHandler(async (req, res) => {
+  const property = await propertyService.fetchPropertyById(req.params.id);
+
+  res.json({
+    success: true,
+    data: property
+  });
+});
+
 // PUT /api/admin/approve/:id
 exports.approveProperty = asyncHandler(async (req, res) => {
   const property = await propertyService.updatePropertyStatus(req.params.id, 'approved', req.user._id);

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const protect = require('../middleware/protect');
-const {  searchProperties} = require('../controllers/searchController')
+const {searchProperties} = require('../controllers/searchController')
 const {
   getFilterOptions,
   getPropertiesByType,
@@ -12,7 +12,8 @@ const {
   getMyProperties,
   updateProperty,
   deleteProperty,
-  getPropertyById
+  getPropertyById,
+  getLocalitiesByCity
 } = require('../controllers/propertyController');
 
 // routes
@@ -27,7 +28,7 @@ router.get('/my-properties', protect, getMyProperties);
 router.put('/update/:id', protect, updateProperty);
 router.delete('/delete/:id', protect, deleteProperty);
 router.get('/:id', getPropertyById);
-
+router.get("/localities/:city", getLocalitiesByCity);
 
 
 // ===== LOCALITIES FOR CITY =====

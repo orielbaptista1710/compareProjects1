@@ -109,6 +109,31 @@ const Property = require('../models/Property');
             res.json(property);
       });
 
+
+
+      const getLocalitiesByCity = asyncHandler(async (req, res) => {
+  try {
+    const city = req.params.city;
+
+    if (!city) {
+      return res.status(400).json({ message: "City is required" });
+    }
+
+    // Case-insensitive match (handles Mumbai / mumbai / MUMBAI)
+    const localities = await Property.distinct("locality", {
+      city: { $regex: new RegExp(`^${city}$`, "i") }
+    });
+
+    res.json({ localities });
+  } catch (error) {
+    console.error("Error fetching localities:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
+
+
+
+
       module.exports = {
         getFilterOptions,
         getPropertiesByType,
@@ -119,7 +144,8 @@ const Property = require('../models/Property');
         getMyProperties,
         updateProperty,
         deleteProperty,
-        getPropertyById
+        getPropertyById,
+        getLocalitiesByCity 
       }
 
     

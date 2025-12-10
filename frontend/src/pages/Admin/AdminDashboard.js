@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
-  Box, Typography, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, Paper, TablePagination, TextField, Select,
+  Box, Typography, TextField, Select,
   MenuItem, Button, CircularProgress, Stack, Snackbar, Alert,
   Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
@@ -9,28 +8,22 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import debounce from "lodash.debounce";
 
+import AdminPropertyTable from "../Admin/AdminDasboardComponents/AdminPropertyTable";
+import DeveloperDetailsModal from "../Admin/AdminDasboardComponents/DeveloperDetailsModal";
 // Fetch properties
 const fetchProperties = async ({ queryKey }) => {
-  const [_key, filters] = queryKey;
+  const [, filters] = queryKey;
   const params = {
-    _page: filters.page,
-    _limit: filters.limit,
+    page: filters.page,
+    limit: filters.limit,
     status: filters.status,
-    // developerId: filters.developerId,
     propertyType: filters.propertyType,
     q: filters.search,
-    _sort: "submittedAt",
-    _order: "DESC",
   };
   const { data } = await axios.get("/api/admin/properties", { params });
   return data;
 };
 
-// Fetch all developers
-// const fetchDevelopers = async () => {
-//   const { data } = await axios.get("/api/admin/developers");
-//   return data; // [{_id, name}]
-// };
 
 // Approve / Reject API
 const approveProperty = async (id) => {
@@ -50,12 +43,29 @@ export default function AdminDashboard() {
   const [rowsPerPage, setRowsPerPage] = useState(20);
   const [statusFilter, setStatusFilter] = useState("");
   const [search, setSearch] = useState("");
-  // const [developerFilter, setDeveloperFilter] = useState("");
   const [propertyTypeFilter, setPropertyTypeFilter] = useState("");
+
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+
+const handleRowClick = async (property) => {
+  try {
+    const res = await axios.get(`/api/admin/property/${property._id}`);
+    setSelectedProperty(res.data.data);   // ⭐ FIX HERE
+    setDetailsModalOpen(true);
+  } catch (e) {
+    console.error("Failed to fetch full property", e);
+  }
+};
+
+
 
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState(search);
-  const debounceSearch = useCallback(debounce((val) => setDebouncedSearch(val), 500), []);
+  const debounceSearch = useMemo(
+  () => debounce((val) => setDebouncedSearch(val), 500),
+  []
+);
   useEffect(() => { debounceSearch(search); }, [search, debounceSearch]);
 
   // Snackbar
@@ -64,12 +74,6 @@ export default function AdminDashboard() {
   // Reject Modal
   const [rejectModal, setRejectModal] = useState({ open: false, propertyId: null, reason: "" });
 
-  // Fetch developers
-  // const { data: developers = [], isLoading: loadingDevelopers } = useQuery({
-  //   queryKey: ["developers"],
-  //   queryFn: fetchDevelopers,
-  //   staleTime: 60000,
-  // });
 
   // Fetch properties
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
@@ -77,13 +81,14 @@ export default function AdminDashboard() {
       page: page + 1,
       limit: rowsPerPage,
       status: statusFilter,
-      // developerId: developerFilter,
       propertyType: propertyTypeFilter,
       search: debouncedSearch,
     }],
     queryFn: fetchProperties,
     keepPreviousData: true,
     staleTime: 30000,
+    retry: 2,
+    retryDelay: 1500,
   });
 
   // Mutations
@@ -123,28 +128,14 @@ export default function AdminDashboard() {
   if (isError) return <Typography color="error">Failed to load properties. <Button onClick={refetch}>Retry</Button></Typography>;
 
   return (
-    <Box p={3}>
-      <Typography variant="h4" gutterBottom>
+    <Box p={3} pt={13}>
+      <Typography variant="h4" gutterBottom >
         Admin Dashboard {isFetching && <CircularProgress size={16} sx={{ ml: 1 }} />}
       </Typography>
 
       {/* Filters */}
       <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={2}>
         <TextField label="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
-
-        {/* <Select
-          value={developerFilter}
-          onChange={(e) => setDeveloperFilter(e.target.value)}
-          displayEmpty
-          disabled={loadingDevelopers}
-        >
-          <MenuItem value="">All Developers</MenuItem>
-          {developers.map((dev) => (
-            <MenuItem key={dev._id} value={dev._id}>
-              {dev.name}
-            </MenuItem>
-          ))}
-        </Select> */}
 
         <Select
           value={propertyTypeFilter}
@@ -170,71 +161,25 @@ export default function AdminDashboard() {
       </Stack>
 
       {/* Properties Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Title</TableCell>
-              <TableCell>Developer</TableCell>
-              <TableCell>Type</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Submitted</TableCell>
-              <TableCell>Reviewed At</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.data.length === 0 ? (
-              <TableRow><TableCell colSpan={8} align="center">No properties found</TableCell></TableRow>
-            ) : (
-              data.data.map((prop) => (
-                <TableRow key={prop._id}>
-                  <TableCell>{prop.title || "N/A"}</TableCell>
-                  <TableCell>{prop.developerName || "N/A"}</TableCell>
-                  <TableCell>{prop.propertyType || "N/A"}</TableCell>
-                  <TableCell>{prop.price != null ? prop.price.toLocaleString() : "N/A"}</TableCell>
-                  <TableCell>{prop.status}</TableCell>
-                  <TableCell>{prop.submittedAt ? new Date(prop.submittedAt).toLocaleString() : "N/A"}</TableCell>
-                  <TableCell>{(prop.status === "approved" || prop.status === "rejected") && prop.reviewedAt ? new Date(prop.reviewedAt).toLocaleString() : "-"}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      color="success"
-                      size="small"
-                      disabled={prop.status==="approved" || approveMutation.isLoading}
-                      onClick={()=>handleApprove(prop._id)}
-                      sx={{mr:1}}
-                    >
-                      {approveMutation.isLoading ? <CircularProgress size={16} /> : "Approve"}
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="error"
-                      size="small"
-                      disabled={prop.status==="rejected" || rejectMutation.isLoading}
-                      onClick={()=>handleOpenReject(prop._id)}
-                    >
-                      {rejectMutation.isLoading ? <CircularProgress size={16} /> : "Reject"}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <AdminPropertyTable
+  data={data}
+  page={page}
+  rowsPerPage={rowsPerPage}
+  setPage={setPage}
+  setRowsPerPage={setRowsPerPage}
+  handleApprove={handleApprove}
+  handleOpenReject={handleOpenReject}
+  approveMutation={approveMutation}
+  rejectMutation={rejectMutation}
+  onRowClick={handleRowClick}
+/>
 
-      {/* Pagination */}
-      <TablePagination
-        component="div"
-        count={data.total}
-        page={page}
-        onPageChange={(_, newPage)=>setPage(newPage)}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={(e)=>{setRowsPerPage(Math.min(parseInt(e.target.value,10),100)); setPage(0);}}
-        rowsPerPageOptions={[10,20,50,100]}
-      />
+    <DeveloperDetailsModal 
+  open={detailsModalOpen}
+  onClose={() => setDetailsModalOpen(false)}
+  property={selectedProperty}
+/>
+
 
       {/* Reject Reason Modal */}
       <Dialog open={rejectModal.open} onClose={()=>setRejectModal({ open:false, propertyId:null, reason:"" })}>

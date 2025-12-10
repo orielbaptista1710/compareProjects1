@@ -19,7 +19,7 @@ const propertySchema = new mongoose.Schema({
   // Contact Information
   developerName : { type: String, required: true},
   developerAvatar: {
-  url: { type: String, default: null },
+    url: { type: String, default: null },
     thumbnail: { type: String, default: null },
 },
   // Property Information
