@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require('express'); 
 const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
@@ -56,8 +56,9 @@ router.post('/login', asyncHandler(async (req, res) => {
   // Send JWT as HTTP-only cookie
   res.cookie('token', token, {
     httpOnly: true,
-    secure: false,                //secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
-    sameSite: 'Lax',              //sameSite: 'strict',
+    // required for cross-site cookie
+    secure: true,                //secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
+    sameSite: "none",              //sameSite: 'strict', Lax??? prevents sending cookies cross-site
     maxAge: 60 * 60 * 1000 // 1 hour
   });
 
@@ -75,7 +76,7 @@ router.post('/login', asyncHandler(async (req, res) => {
 router.post('/logout', (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
-    secure: false,
+    sameSite: "none",
     sameSite: 'Lax'
   });
   res.json({ message: 'Logged out successfully' });

@@ -225,23 +225,6 @@ function PropertyCard({
           </div>
         </header>
 
-        {/* Details Row */}
-        <div className="property-details-row">
-          <div className="detail-item">
-            <span className="detail-label">Details:</span>
-            <span className="detail-value">
-              {formattedPricePerSqft ? `₹${formattedPricePerSqft}/sq.ft` : 'N/A'}
-            </span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Status:</span>
-            <span className="detail-value">
-              {property.furnishing?.[0] || 'Unfurnished'}
-              {property.possessionStatus?.[0] && `, ${property.possessionStatus[0]}`}
-            </span>
-          </div>
-        </div>
-
         {/* Features */}
         <ul className="property-featuress">
           {property.bhk && (
@@ -269,6 +252,23 @@ function PropertyCard({
             <span>{parkingCount} Parking</span>
           </li>
         </ul>
+
+        {/* Details Row */}
+        <div className="property-details-row">
+          <div className="detail-item">
+            <span className="detail-label">Details:</span>
+            <span className="detail-value">
+              {formattedPricePerSqft ? `₹${formattedPricePerSqft}/sq.ft` : 'N/A'}
+            </span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-label">Status:</span>
+            <span className="detail-value">
+              {property.furnishing?.[0] || 'Unfurnished'}
+              {property.possessionStatus?.[0] && `, ${property.possessionStatus[0]}`}
+            </span>
+          </div>
+        </div>
 
         {/* Additional Info Pills */}
         {(property.ageOfProperty || property.balconies || property.floor) && (

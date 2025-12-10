@@ -1,0 +1,122 @@
+/* ==========================================================================
+   PROPERTY TYPE PILLS — PRODUCTION-READY PREMIUM UI
+   Left-aligned labels, clean spacing, soft active accents
+========================================================================== */
+
+.ptp-container {
+  width: 100%;
+  max-width: 760px;
+  padding: 20px 10px;
+  background: #fff;
+
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+
+  border-radius: 8px;
+  border: 1px solid #ececec;
+}
+
+/* -----------------------------------------------------------
+   SECTION — LABEL LEFT, PILLS RIGHT
+----------------------------------------------------------- */
+.ptp-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+/* Left label (fixed width for consistent alignment) */
+.ptp-group-label {
+  flex: 0 0 120px; /* Keeps labels vertically aligned */
+  font-size: 15.5px;
+  font-weight: 600;
+  color: #5a5a5a;
+  padding-top: 6px;
+}
+
+/* Pills area */
+.ptp-pills-row {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+
+/* -----------------------------------------------------------
+   DEFAULT PILL
+----------------------------------------------------------- */
+.ptp-pill {
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #fff;
+
+  font-size: 14.5px;
+  color: #3a3a3a;
+
+  border: 1px solid #d7d7d7;
+
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    color 0.15s ease,
+    transform 0.12s ease;
+}
+
+/* Hover */
+.ptp-pill:hover {
+  background: #fafafa;
+  border-color: #cfcfcf;
+}
+
+/* Active state — soft pink */
+.ptp-pill-active {
+  background: #fee9ed;
+  border-color: #efc3ca;
+  color: #1e1e1e;
+  font-weight: 600;
+
+  box-shadow:
+    0 0 0 1px #f4d5da inset,
+    0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Tap feedback */
+.ptp-pill:active {
+  transform: scale(0.97);
+}
+
+
+/* -----------------------------------------------------------
+   RESPONSIVE — Mobile optimization
+----------------------------------------------------------- */
+@media (max-width: 640px) {
+  .ptp-container {
+    padding: 16px 10px;
+    gap: 24px;
+    border-radius: 6px;
+  }
+
+  .ptp-section {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ptp-group-label {
+    flex: unset;
+    padding-top: 0;
+    font-size: 15px;
+  }
+
+  .ptp-pills-row {
+    gap: 8px;
+  }
+
+  .ptp-pill {
+    padding: 7px 16px;
+    font-size: 13.8px;
+  }
+}
