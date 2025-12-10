@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
-// import axios from 'axios';
 import FeaturedPropertyCard from './FeaturedPropertyCard';
 import './FeaturedProperties.css';
 import LoadingSpinner from '../LoadingSpinner';
