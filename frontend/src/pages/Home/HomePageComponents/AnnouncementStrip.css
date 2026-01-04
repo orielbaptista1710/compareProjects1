@@ -1,0 +1,45 @@
+.announcement-strip {
+  position: fixed;
+  top: 130px; /* 70px header + 60px nav */
+  left: 0;
+  width: 100%;
+  z-index: 998; /* below nav (999), above hero */
+  overflow: hidden;
+
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  padding: 8px 0;
+}
+
+
+.announcement-track {
+  display: flex;
+  width: max-content;
+  animation: scroll-left 20s linear infinite;
+}
+
+.announcement-track span {
+  white-space: nowrap;
+  font-size: 14px;
+  color: #fff;
+  padding-right: 48px;
+}
+
+.announcement-track strong {
+  color: #ffd166;
+}
+
+@keyframes scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .announcement-track span {
+    font-size: 12px;
+  }
+}

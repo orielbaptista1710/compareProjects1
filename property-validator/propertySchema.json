@@ -56,7 +56,7 @@
     "locality": { "type": "string", "minLength": 1 },
     "address": { "type": "string", "minLength": 1 },
 
-    "pincode": { "type": "number" },
+    "pincode": { "type": "string" },
 
     "mapLink": { "type": ["string", "null"] },
 
@@ -69,7 +69,7 @@
       }
     },
 
-    "availableFrom": { "type": ["string", "null"], "format": "date-time" },
+    "availableFrom": { "type": ["string", "null"], "format": "data" },
 
     "area": {
       "type": "object",

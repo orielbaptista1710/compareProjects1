@@ -11,6 +11,13 @@ const propertySchema = new mongoose.Schema({
     default: 'pending' 
   },
 
+  slug: {
+    type: String,
+    index: true,
+    unique: true,
+    sparse: true // TEMPORARY
+  },
+
   featured: { type: Boolean, default: false }, 
   
   sourceUrl: { type: String },// original source if scraped/imported
@@ -32,7 +39,12 @@ const propertySchema = new mongoose.Schema({
   city: { type: String, required: true, trim: true},
   locality: { type: String, required: true, trim: true },
   address: { type: String, required: true, trim: true},
-  pincode: { type: Number, required: true },
+  pincode: {
+    type: String,
+    required: true,
+    trim: true,
+    match: /^[0-9]{6}$/ // India-safe
+  },
 
   mapLink: { type: String },
 
@@ -170,7 +182,7 @@ coordinates: {
 
 
   // Review- metadata for auditing and revalidate scraped data
-  dataSource: { type: String, enum: ['manual', 'scraper', 'developer'], default: 'manual' },
+  dataSource: { type: String, enum: ['manual', 'scraper', 'developer','test'], default: 'manual' },
   importedAt: { type: Date }, 
 
   metadata: {
@@ -179,7 +191,6 @@ coordinates: {
     seo: {
       metaTitle: String,
       metaDescription: String,
-      slug: {type: String,unique: true, trim: true},  ///should i add slug inside or outsie metadata confirm !!!!!!!
       tags: [String], //Recommendations tags for search engine
     },
     marketing: {
@@ -216,6 +227,23 @@ coordinates: {
   toObject: { virtuals: true }
 });
 
+propertySchema.pre("save", function (next) {
+  if (this.pincode !== undefined && this.pincode !== null) {
+    this.pincode = String(this.pincode).trim();
+  }
+  next();
+});
+
+propertySchema.pre("save", function(next) {
+  const textFields = ["state", "city", "locality", "address", "developerName", "title"];
+  textFields.forEach(field => {
+    if (this[field]) this[field] = this[field].trim();
+  });
+  next();
+});
+
+
+
 // Middleware to set propertyGroup automatically
 propertySchema.pre('save', function(next) {
   this.propertyGroup = RESIDENTIAL_TYPES.includes(this.propertyType)
@@ -235,6 +263,7 @@ propertySchema.pre("save", async function (next) {
 
   let slug = baseSlug;
   let count = 1;
+
 
   // Use this.constructor instead of Property
   while (await this.constructor.exists({ slug })) {
@@ -293,6 +322,7 @@ propertySchema.set('toObject', {
   }
 });
 
+propertySchema.index({ city: 1, locality: 1 });
 propertySchema.index({ price: 1, propertyType: 1 });
 propertySchema.index({ slug: 1 }, { unique: true, sparse: true }); // For SEO and URL  --  check what sparse means
 propertySchema.index({ createdAt: -1 }); // For recent listings

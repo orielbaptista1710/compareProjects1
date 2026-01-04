@@ -45,15 +45,43 @@ const Property = require('../models/Property');
  
       // Get Featured Properties
       const getFeaturedProperties = asyncHandler(async (req, res) => {
-        const featuredProperties = await Property.find({ featured: true });
-        res.json(featuredProperties);
-      });
+  const { city } = req.query;
+
+  const filter = {
+    featured: true,
+  };
+
+  // Apply city filter only if provided
+  if (city) {
+    filter.city = city;
+  }
+
+  const featuredProperties = await Property.find(filter)
+    .sort({ createdAt: -1 });
+
+  res.json(featuredProperties);
+});
+
 
       // Get Recent Properties - used in the Top Projects on the Home Page - HAVE TO MAKE CHANGES
-      const getRecentProperties = asyncHandler(async (req, res) => {
-        const recentProperties = await Property.find().sort({ createdAt: -1 }).limit(3);
-        res.json(recentProperties);
-      });
+      // Get Recent Properties (City-aware)
+const getRecentProperties = asyncHandler(async (req, res) => {
+  const { city, limit = 3 } = req.query;
+
+  const query = {};
+
+  // Apply city filter if provided
+  if (city) {
+    query.city = city;
+  }
+
+  const recentProperties = await Property.find(query)
+    .sort({ createdAt: -1 })
+    .limit(Number(limit));
+
+  res.json(recentProperties);
+});
+
 
       // Get Properties by approved developer/user- these properties are shown on the website
       const getAllApprovedProperties = asyncHandler(async (req, res) => {

@@ -1,30 +1,57 @@
-import React, { useState, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
-import { Link } from 'react-router-dom';
-import FeaturedPropertyCard from './FeaturedPropertyCard';
-import './FeaturedProperties.css';
-import LoadingSpinner from '../LoadingSpinner';
-import API from "../../api";
- 
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+} from "react";
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+
+import FeaturedPropertyCard from "./FeaturedPropertyCard";
+import LoadingSpinner from "../../../shared/LoadingSpinners/LoadingSpinner";
+import API from "../../../api";
+import { useCity } from "../../../contexts/CityContext";
+
+import "./FeaturedProperties.css";
+
 const AUTO_ROTATE_INTERVAL = 3000; // ms
 const CARD_GAP = 48; // px
 
 const FeaturedProperties = () => {
-  const [properties, setProperties] = useState([]);
+  const { city } = useCity();
+
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isPaused, setIsPaused] = useState(false);
 
   const carouselRef = useRef(null);
   const timerRef = useRef(null);
 
+  /* ---------------- PRICE FORMATTER ---------------- */
   const formatIndianPrice = useCallback((price) => {
-    if (!price) return 'Price on Request';
+    if (!price) return "Price on Request";
     if (price >= 1e7) return `${(price / 1e7).toFixed(2)} Cr`;
     if (price >= 1e5) return `${(price / 1e5).toFixed(2)} Lakh`;
-    return `₹${price.toLocaleString('en-IN')}`;
+    return `₹${price.toLocaleString("en-IN")}`;
   }, []);
 
+  /* ---------------- DATA FETCH ---------------- */
+  const {
+    data: properties = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ["featured-properties", city],
+    queryFn: async () => {
+      const res = await API.get(
+        `/api/properties/featured?city=${city}`
+      );
+      return res.data;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  /* ---------------- CAROUSEL HELPERS ---------------- */
   const clampIndex = useCallback(
     (index) => Math.max(0, Math.min(index, properties.length - 1)),
     [properties.length]
@@ -40,7 +67,7 @@ const FeaturedProperties = () => {
 
       container.scrollTo({
         left: clamped * (cardWidth + CARD_GAP),
-        behavior: 'smooth',
+        behavior: "smooth",
       });
 
       setCurrentIndex(clamped);
@@ -48,31 +75,19 @@ const FeaturedProperties = () => {
     [clampIndex]
   );
 
-  const nextSlide = useCallback(() => scrollToIndex(currentIndex + 1 >= properties.length ? 0 : currentIndex + 1), [
-    currentIndex,
-    properties.length,
-    scrollToIndex,
-  ]);
+  const nextSlide = useCallback(() => {
+    scrollToIndex(
+      currentIndex + 1 >= properties.length ? 0 : currentIndex + 1
+    );
+  }, [currentIndex, properties.length, scrollToIndex]);
 
-  const prevSlide = useCallback(() => scrollToIndex(currentIndex - 1 < 0 ? properties.length - 1 : currentIndex - 1), [
-    currentIndex,
-    properties.length,
-    scrollToIndex,
-  ]);
+  const prevSlide = useCallback(() => {
+    scrollToIndex(
+      currentIndex - 1 < 0 ? properties.length - 1 : currentIndex - 1
+    );
+  }, [currentIndex, properties.length, scrollToIndex]);
 
-  const fetchProperties = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const res = await API.get("/api/properties/featured");
-      setProperties(res.data);
-    } catch {
-      setError('Failed to load featured properties. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  /* ---------------- AUTO ROTATE ---------------- */
   const startAutoRotate = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (properties.length <= 1) return;
@@ -82,29 +97,25 @@ const FeaturedProperties = () => {
     }, AUTO_ROTATE_INTERVAL);
   }, [isPaused, nextSlide, properties.length]);
 
-  useEffect(() => {
-    fetchProperties();
-  }, []);
-
   useLayoutEffect(() => {
-    startAutoRotate();
+    if (properties.length > 0) {
+      startAutoRotate();
+    }
     return () => clearInterval(timerRef.current);
-  }, [startAutoRotate]);
+  }, [startAutoRotate, properties.length]);
 
-  const handleMouseEnter = () => setIsPaused(true);
-  const handleMouseLeave = () => setIsPaused(false);
-
+  /* ---------------- UI STATES ---------------- */
   if (isLoading) {
-    return (
-      <LoadingSpinner size="lg" />
-    );
+    return <LoadingSpinner size="lg" />;
   }
 
-  if (error) {
+  if (isError) {
     return (
       <section className="main-featured-properties-container error-container">
-        <p>{error}</p>
-        <button className="retry-btn" onClick={fetchProperties}>Retry</button>
+        <p>Failed to load featured properties.</p>
+        <button className="retry-btn" onClick={refetch}>
+          Retry
+        </button>
       </section>
     );
   }
@@ -112,29 +123,42 @@ const FeaturedProperties = () => {
   if (properties.length === 0) {
     return (
       <section className="main-featured-properties-container no-properties">
-        <p>No featured properties available at the moment.</p>
-        <Link to="/properties" className="browse-btn">Browse All Properties</Link>
+        <p>No featured properties in {city}.</p>
+        <Link
+          to={`/properties?city=${encodeURIComponent(city)}`}
+          className="browse-btn"
+        >
+          Browse Properties in {city}
+        </Link>
       </section>
     );
   }
 
+  /* ---------------- RENDER ---------------- */
   return (
     <section
       className="main-featured-properties-container"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
     >
       <header className="featured-header">
         <h2 className="section-title-featured">
-          <span className="highlight">Featured</span> Properties
+          <span className="highlight">Featured</span> Properties in {city}
         </h2>
-        <Link to="/properties" className="view-projects-btn">
+
+        <Link
+          to={`/properties?city=${encodeURIComponent(city)}`}
+          className="view-projects-btn"
+        >
           View More Projects
         </Link>
       </header>
 
       <div className="featured-properties-container">
-        <div className="property-cards-containerrr" ref={carouselRef}>
+        <div
+          className="property-cards-containerrr"
+          ref={carouselRef}
+        >
           {properties.map((property) => (
             <FeaturedPropertyCard
               key={property._id}
@@ -146,7 +170,9 @@ const FeaturedProperties = () => {
 
         <nav className="carousel-controls">
           <button
-            className={`carousel-arrow left-arrow ${currentIndex === 0 ? 'hidden-arrow' : ''}`}
+            className={`carousel-arrow left-arrow ${
+              currentIndex === 0 ? "hidden-arrow" : ""
+            }`}
             onClick={prevSlide}
             aria-label="Previous"
           >
@@ -157,7 +183,9 @@ const FeaturedProperties = () => {
             {properties.map((_, index) => (
               <button
                 key={index}
-                className={`carousel-dot ${index === currentIndex ? 'active' : ''}`}
+                className={`carousel-dot ${
+                  index === currentIndex ? "active" : ""
+                }`}
                 onClick={() => scrollToIndex(index)}
                 aria-label={`Go to slide ${index + 1}`}
               />
@@ -165,7 +193,11 @@ const FeaturedProperties = () => {
           </div>
 
           <button
-            className={`carousel-arrow right-arrow ${currentIndex === properties.length - 1 ? 'hidden-arrow' : ''}`}
+            className={`carousel-arrow right-arrow ${
+              currentIndex === properties.length - 1
+                ? "hidden-arrow"
+                : ""
+            }`}
             onClick={nextSlide}
             aria-label="Next"
           >

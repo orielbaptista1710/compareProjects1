@@ -17,6 +17,7 @@
     "dayjs": "^1.11.18",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.553.0",
+    "notistack": "^3.0.2",
     "pdfjs-dist": "^5.4.149",
     "ra-data-simple-rest": "^5.11.3",
     "react": "^19.1.0",

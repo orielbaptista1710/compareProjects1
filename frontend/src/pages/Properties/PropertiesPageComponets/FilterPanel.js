@@ -44,7 +44,7 @@ const FilterPanel = ({
   filterOptions,
   searchQuery,
   setSearchQuery,
-  citySearch,
+  citySearch, 
   setCitySearch,
 }) => {
   const filteredCities =

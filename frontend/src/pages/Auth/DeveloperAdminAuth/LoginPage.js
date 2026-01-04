@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import './LoginPage.css';
 import API from '../../../api'; 
 import { Eye, EyeOff } from 'lucide-react'; // ✅ Lucide React icons
-import DeveloperPopup from '../../../components/sharedComponents/DeveloperPopup';
+import DeveloperPopup from '../../../shared/Popups/DeveloperPopup';
 // import Seo from '../constants/Seo';
 
 const LoginPage = () => {

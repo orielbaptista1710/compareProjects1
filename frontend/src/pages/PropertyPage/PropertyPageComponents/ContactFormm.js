@@ -12,7 +12,7 @@ import {
   Checkbox,
   FormGroup,
 } from "@mui/material";
-import useSnackbar from "../../../hooks/useSnackbar";
+import useAppSnackbar from "../../../hooks/useAppSnackbar";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +32,8 @@ export const contactSchema = z.object({
 });
 
 const ContactFormm = ({ property }) => {
-  const { showSuccess, showError, SnackbarUI } = useSnackbar();
+  const snackbar = useAppSnackbar();
+
 
   const {
     handleSubmit,
@@ -61,11 +62,13 @@ const ContactFormm = ({ property }) => {
       propertyId: property?._id || null,
       //utm: getUtmFromUrl(), // optional helper
     });
-    showSuccess("Thank you! We'll pass this to the sales team.");
+    snackbar.success("Thank you! We'll pass this to the sales team.");
     reset();
   } catch (err) {
-    showError("Something went wrong. Try again later.");
-  }
+  snackbar.error(
+    err?.response?.data?.message || "Something went wrong. Please try again later."
+  );
+}
 };
 
 
@@ -269,7 +272,6 @@ const ContactFormm = ({ property }) => {
         </Box>
       </Paper>
 
-      <SnackbarUI />
 
 
     </Box>
