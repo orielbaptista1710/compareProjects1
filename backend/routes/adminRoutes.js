@@ -7,6 +7,9 @@ const adminController = require('../controllers/adminController');
 // GET /api/admin/properties
 router.get('/properties', protect, isAdmin, adminController.getProperties);
 
+router.get("/cities", protect, isAdmin, adminController.getCities);
+router.get("/localities", protect, isAdmin, adminController.getLocalities);
+
 // GET full property details by ID
 router.get('/property/:id', protect, isAdmin, adminController.getDeveloperDetails);
 

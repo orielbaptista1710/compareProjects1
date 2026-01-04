@@ -28,7 +28,7 @@ export default function AdminPropertyTable({
     return "transparent";
   };
 
-  return (
+  return ( 
     <>
       <TableContainer component={Paper}>
         <Table>
@@ -36,6 +36,7 @@ export default function AdminPropertyTable({
             <TableRow>
               <TableCell>Title</TableCell>
               <TableCell>Developer</TableCell>
+              <TableCell>Location</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Price</TableCell>
               <TableCell>Status</TableCell>
@@ -65,6 +66,7 @@ export default function AdminPropertyTable({
                 >
                   <TableCell>{prop.title || "N/A"}</TableCell>
                   <TableCell>{prop.developerName || "N/A"}</TableCell>
+                  <TableCell>{prop.city}, {prop.locality}</TableCell>
                   <TableCell>{prop.propertyType || "N/A"}</TableCell>
                   <TableCell>{Number(prop.price)?.toLocaleString("en-IN") || "N/A"}</TableCell>
                   <TableCell>{prop.status}</TableCell>

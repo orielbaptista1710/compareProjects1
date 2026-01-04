@@ -1,10 +1,9 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-// import './Home.css'; 
+
+//components import 
 import Gallery from './HomePageComponents/Gallery'; 
-import MainSearchBar from './HomePageComponents/MainSearchBar';
-import NavigationBar from '../../components/NavigationBar';
-// import FeaturedProperties from '../components/HomePageComponents/FeaturedProperties ';
+import NavigationBar from '../../shared/NavigationBar/NavigationBar';
+import FeaturedProperties from '../Home/HomePageComponents/FeaturedProperties';
 import RecentlyAdded from './HomePageComponents/RecentlyAdded';
 import PostPropertyBanner from './HomePageComponents/PostPropertyBanner';
 import ContactUsBanner from './HomePageComponents/ContactUsBanner';
@@ -18,9 +17,11 @@ import { useCompare } from '../../contexts/CompareContext';
 import CompareBar from './HomePageComponents/CompareBar';
 import BaseLayout from '../../layouts/BaseLayout';
 import FullWidthSection from '../../layouts/FullWidthSection';
+import AnnouncementStrip from '../Home/HomePageComponents/AnnouncementStrip';
+
 
 function Home() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const {compareList , removeFromCompare } = useCompare();
 
   return (
@@ -37,6 +38,9 @@ function Home() {
 
        <NavigationBar />
 
+       {/* ✅ Secondary info */}
+      <AnnouncementStrip />
+
 
       {/* <HeroSection /> */}
 
@@ -50,14 +54,17 @@ function Home() {
         />
       )}
       </section>
+      
+
       </FullWidthSection>
 
 
-    <BaseLayout>
-
       <section>
-      {/* <FeaturedProperties /> */}
+      <FeaturedProperties />
       </section>
+
+
+    <BaseLayout>
 
 
       {/* Team Section */}
@@ -76,7 +83,7 @@ function Home() {
 
 
 
-      <BaseLayout>
+      <FullWidthSection>
 
       <section>
         <About />
@@ -91,16 +98,16 @@ function Home() {
       <section>
         <Gallery />
       </section>
-    </BaseLayout>
+    </FullWidthSection>
 
-      <FullWidthSection>
+      <BaseLayout>
 
       {/* Testimonial Section */}
       <section>
         <TestimonialSection />
       </section>
 
-      </FullWidthSection>
+      </BaseLayout>
 
       <FullWidthSection>
       {/* Post Property Section */}

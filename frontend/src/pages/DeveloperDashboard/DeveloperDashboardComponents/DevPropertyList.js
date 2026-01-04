@@ -4,7 +4,7 @@
 // Supports: View, Edit, Delete, and handles loading states
 
 import React from "react";
-import SkeletonPropertyCard from "../../../components/SkeletonComponents/SkeletonPropertyCard";
+import SkeletonPropertyCard from "../../../shared/SkeletonComponents/SkeletonPropertyCard";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 // import { ToastContainer } from "react-toastify";
@@ -8,20 +8,20 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { HeadProvider  } from "react-head";
 import { CompareProvider, useCompare } from "./contexts/CompareContext";
 
-import LoadingSpinner from '../src/components/sharedComponents/LoadingSpinner';
-import '../src/components/sharedComponents/LoadingSpinner.css';
+import LoadingSpinner from './shared/LoadingSpinners/LoadingSpinner';
 
-import Header from './components/sharedComponents/Header';
-import Footer from './components/sharedComponents/Footer';
-import NavigationBar from './components/NavigationBar';
+import Header from './shared/Header/Header';
+import Footer from './shared/Footer/Footer';
+import NavigationBar from './shared/NavigationBar/NavigationBar';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedCustomerRoute from "./components/ProtectedCustomerRoute";
 
 
-import ErrorBoundary from './components/ErrorBoundary';
+import ErrorBoundary from './shared/ErrorBoundary/ErrorBoundary';
 
 // contexts
 import { AuthProvider } from "./contexts/AuthContext";
+import { CityProvider } from "./contexts/CityContext";
 
 
 // import useCompareList from "./hooks/useCompareList";
@@ -137,31 +137,23 @@ const showNavigationBar = !hideNavRoutes.some((path) =>
       </Suspense>
 
       <Footer />
-      {/* <ToastContainer 
-  position="top-right"
-  autoClose={3000}
-  limit={3}
-  hideProgressBar={false}
-  newestOnTop
-  closeOnClick
-  pauseOnHover
-  theme="colored"
-/> */}
 
     </>
   );
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>   
+  <QueryClientProvider client={queryClient}>    
     <HeadProvider > 
     <AuthProvider>
-    <CompareProvider> 
+    <CompareProvider>
+    <CityProvider> 
     <ErrorBoundary>
     <Router>
               <AppContent />
     </Router>
     </ErrorBoundary>
+    </CityProvider>
     </CompareProvider>
     </AuthProvider>
     {process.env.NODE_ENV === "development" && <ReactQueryDevtools />}

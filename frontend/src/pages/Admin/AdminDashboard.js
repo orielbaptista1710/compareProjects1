@@ -7,9 +7,12 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import API from "../../api"
 import debounce from "lodash.debounce";
+import { Autocomplete } from "@mui/material";
 
 import AdminPropertyTable from "../Admin/AdminDasboardComponents/AdminPropertyTable";
 import DeveloperDetailsModal from "../Admin/AdminDasboardComponents/DeveloperDetailsModal";
+import AdminFilters from "../Admin/AdminDasboardComponents/AdminFilters";
+
 // Fetch properties
 const fetchProperties = async ({ queryKey }) => {
   const [, filters] = queryKey;
@@ -19,11 +22,16 @@ const fetchProperties = async ({ queryKey }) => {
     status: filters.status,
     propertyType: filters.propertyType,
     q: filters.search,
+    city: filters.city || undefined,
+    locality: filters.locality || undefined,
+    sortBy: filters.sortBy,
+    imageFilter: filters.imageFilter,
+
   };
   const { data } = await API.get("/api/admin/properties", { params });
   return data;
-};
 
+};    
 
 // Approve / Reject API
 const approveProperty = async (id) => {
@@ -48,6 +56,17 @@ export default function AdminDashboard() {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
+  const [cityFilter, setCityFilter] = useState("");
+
+  const [localityFilter, setLocalityFilter] = useState(null);
+  const [localitySearch, setLocalitySearch] = useState("");
+
+
+  const [sortBy, setSortBy] = useState("latest"); 
+
+  const [imageFilter, setImageFilter] = useState("");
+
+
 const handleRowClick = async (property) => {
   try {
     const res = await API.get(`/api/admin/property/${property._id}`);
@@ -58,15 +77,20 @@ const handleRowClick = async (property) => {
   }
 };
 
-
-
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState(search);
+
   const debounceSearch = useMemo(
   () => debounce((val) => setDebouncedSearch(val), 500),
   []
 );
   useEffect(() => { debounceSearch(search); }, [search, debounceSearch]);
+  // ✅ Reset locality when city changes
+  useEffect(() => {
+    setLocalityFilter(null);
+    setLocalitySearch("");
+  }, [cityFilter]);
+
 
   // Snackbar
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
@@ -83,6 +107,11 @@ const handleRowClick = async (property) => {
       status: statusFilter,
       propertyType: propertyTypeFilter,
       search: debouncedSearch,
+      city: cityFilter,  
+      locality: localityFilter,
+      sortBy: sortBy,
+      imageFilter: imageFilter ,
+
     }],
     queryFn: fetchProperties,
     keepPreviousData: true,
@@ -90,6 +119,28 @@ const handleRowClick = async (property) => {
     retry: 2,
     retryDelay: 1500,
   });
+
+  const { data: cityList = [] } = useQuery({
+  queryKey: ["cities"],
+  queryFn: async () => {
+    const { data } = await API.get("/api/admin/cities");
+    return data;
+  }
+});
+
+const { data: localities = [], isFetching: loadingLocalities } = useQuery({
+  queryKey: ["localities", cityFilter, localitySearch],
+  queryFn: async () => {
+    if (!cityFilter) return [];
+    const { data } = await API.get("/api/admin/localities", {
+      params: { city: cityFilter, q: localitySearch }
+    });
+    return data;
+  },
+  enabled: !!cityFilter,
+  staleTime: 5 * 60 * 1000
+});
+
 
   // Mutations
   const approveMutation = useMutation({ 
@@ -122,7 +173,7 @@ const handleRowClick = async (property) => {
   const handleRejectConfirm = () => rejectMutation.mutate({ id: rejectModal.propertyId, reason: rejectModal.reason });
 
   // Reset page when filters/search change
-  useEffect(() => { setPage(0); }, [debouncedSearch, statusFilter, propertyTypeFilter]);
+  useEffect(() => { setPage(0); }, [debouncedSearch, statusFilter, propertyTypeFilter, cityFilter,localityFilter, sortBy,imageFilter ]);
 
   if (isLoading) return <CircularProgress />;
   if (isError) return <Typography color="error">Failed to load properties. <Button onClick={refetch}>Retry</Button></Typography>;
@@ -134,31 +185,34 @@ const handleRowClick = async (property) => {
       </Typography>
 
       {/* Filters */}
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={2}>
-        <TextField label="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
+      <AdminFilters
+  search={search}
+  setSearch={setSearch}
 
-        <Select
-          value={propertyTypeFilter}
-          onChange={(e) => setPropertyTypeFilter(e.target.value)}
-          displayEmpty
-        >
-          <MenuItem value="">All Types</MenuItem>
-          <MenuItem value="Flats/Apartments">Flats/Apartments</MenuItem>
-          <MenuItem value="Villa">Villa</MenuItem>
-          <MenuItem value="Plot">Plot</MenuItem>
-          <MenuItem value="Shop/Showroom">Shop/Showroom</MenuItem>
-          <MenuItem value="Industrial Warehouse">Industrial Warehouse</MenuItem>
-          <MenuItem value="Retail">Retail</MenuItem>
-          <MenuItem value="Office Space">Office Space</MenuItem>
-        </Select>
+  propertyTypeFilter={propertyTypeFilter}
+  setPropertyTypeFilter={setPropertyTypeFilter}
 
-        <Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} displayEmpty>
-          <MenuItem value="">All Status</MenuItem>
-          <MenuItem value="pending">Pending</MenuItem>
-          <MenuItem value="approved">Approved</MenuItem>
-          <MenuItem value="rejected">Rejected</MenuItem>
-        </Select>
-      </Stack>
+  statusFilter={statusFilter}
+  setStatusFilter={setStatusFilter}
+
+  cityFilter={cityFilter}
+  setCityFilter={setCityFilter}
+  cityList={cityList}
+
+  localityFilter={localityFilter}
+  setLocalityFilter={setLocalityFilter}
+  localitySearch={localitySearch}
+  setLocalitySearch={setLocalitySearch}
+  localities={localities}
+  loadingLocalities={loadingLocalities}
+
+  imageFilter={imageFilter}
+  setImageFilter={setImageFilter}
+
+  sortBy={sortBy}
+  setSortBy={setSortBy}
+/>
+
 
       {/* Properties Table */}
       <AdminPropertyTable

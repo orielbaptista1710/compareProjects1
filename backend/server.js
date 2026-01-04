@@ -35,9 +35,11 @@ app.use('/api/auth', require('./routes/authRoutes'));
 console.log('Loading adminRoutes');
 app.use('/api/admin', require('./routes/adminRoutes'));
 
+
 console.log('Loading propertyRoutes');
 app.use('/api/properties', require('./routes/propertyRoutes'));
 
+//have to still working on this funtion
 console.log('Loading dev log Routes');
 app.use('/api/devlog', require('./routes/devResetPwdRoutes'));
 

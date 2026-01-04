@@ -165,8 +165,6 @@ input, select, textarea {
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #7e57c2;
-  box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.2);
 }
 
 .error {

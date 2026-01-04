@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './PostPropertyBanner.css';
-import DeveloperPopup from '../../../components/sharedComponents/DeveloperPopup';
+import DeveloperPopup from '../../../shared/Popups/DeveloperPopup';
 
 const PostPropertyBanner = () => {
   const [showPopup, setShowPopup] = useState(false);
