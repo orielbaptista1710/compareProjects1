@@ -87,7 +87,7 @@
   position: relative;
   width: 100%;
   min-height: 75vh;
-  background: url("../../../assests/images/homyy.png")
+  background: url("../../../assests/images/homyy.jpg")
       no-repeat center center / cover;
   display: flex;
   align-items: center;
@@ -107,7 +107,7 @@
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  /* background: rgba(0, 0, 0, 0.35); */
   z-index: 1;
 }
 
