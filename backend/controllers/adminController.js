@@ -1,7 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const propertyService = require('../services/propertyAdminService');
 
-// GET /api/admin/properties
+// GET /api/admin/properties - here are all the properties that are not approved/approved/pending for the admin to review
 exports.getProperties = asyncHandler(async (req, res) => {
   const { page, limit, status, propertyType, q, city, locality , sortBy, imageFilter } = req.query;
 
@@ -44,13 +44,13 @@ exports.getDeveloperDetails = asyncHandler(async (req, res) => {
   });
 });
 
-// PUT /api/admin/approve/:id
+// PUT /api/admin/approve/:id - this approves the individual property via AdminDashboard - makes status = approved - CHECK THIS when large no of approvals what to do? - needed security for this?
 exports.approveProperty = asyncHandler(async (req, res) => {
   const property = await propertyService.updatePropertyStatus(req.params.id, 'approved', req.user._id);
   res.json({ success: true, message: 'Property approved successfully', property });
 });
 
-// PUT /api/admin/reject/:id
+// PUT /api/admin/reject/:id - this rejects the individual property via AdminDashboard
 exports.rejectProperty = asyncHandler(async (req, res) => {
   const reason = req.body.rejectionReason || 'No reason provided';
   const property = await propertyService.updatePropertyStatus(req.params.id, 'rejected', req.user._id, reason);

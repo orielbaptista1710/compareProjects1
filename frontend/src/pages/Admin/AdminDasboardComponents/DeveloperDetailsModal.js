@@ -235,7 +235,7 @@ function DeveloperDetailsModal({
                 <strong>Pincode:</strong> {property?.pincode ?? "N/A"}
               </Typography>
               <Typography>
-                <strong>Available Date:</strong> {property?.availableFrom ?? "N/A"}
+                <strong>Available Date:</strong> {property?.reraDate ?? "N/A"}
               </Typography>
 
 

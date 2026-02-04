@@ -1,12 +1,12 @@
 // src/pages/Interiors/Interiors.js
 import React, { useState } from "react";
 import "./Interiors.css";
-import {
-  residentialServices,
-  commercialServices,
-  portfolioItems,
-  testimonials,
-} from "../../database/interiorsData";
+// import {
+//   residentialServices,
+//   commercialServices,
+//   portfolioItems,
+//   testimonials,
+// } from "../../database/interiorsData";
 import BaseLayout from "../../layouts/BaseLayout";
 import FullWidthSection from "../../layouts/FullWidthSection";
 

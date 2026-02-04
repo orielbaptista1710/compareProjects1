@@ -26,6 +26,7 @@
     "react-dom": "^19.1.0",
     "react-head": "^3.4.2",
     "react-hot-toast": "^2.6.0",
+    "react-loading-skeleton": "^3.5.0",
     "react-modal": "^3.16.3",
     "react-pdf": "^10.1.0",
     "react-router-dom": "^7.9.1",
@@ -43,7 +44,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint src --ext .js,.jsx"
   },
   "eslintConfig": {
     "extends": [

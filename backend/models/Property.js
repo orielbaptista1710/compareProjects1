@@ -10,15 +10,15 @@ const propertySchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'rejected'], 
     default: 'pending' 
   },
-
+ 
   slug: {
     type: String,
     index: true,
     unique: true,
-    sparse: true // TEMPORARY
   },
 
   featured: { type: Boolean, default: false }, 
+  
   
   sourceUrl: { type: String },// original source if scraped/imported
   tierType: { type: String, enum: ['tier1', 'tier2'] }, 
@@ -49,13 +49,51 @@ const propertySchema = new mongoose.Schema({
   mapLink: { type: String },
 
 //add this in the Dashboard.js?
-//mapping, search, and distance filters.
+//this cooridate is the souce it is used to derive geo.cooridates
+//human-friendly used for direct ui display,confidence score, used to derive geo coordinates
 coordinates: {
   lat: { type: Number },
-  lng: { type: Number }
+  lng: { type: Number },
+
+  source: {
+    type: String,
+    enum: ['address', 'locality', 'city', 'manual'],
+    default: 'address'
+  },
+
+  confidence: {
+    type: String,
+    enum: ['high', 'medium', 'low'],
+  },
+
+  geocodedAt: { type: Date }
+},
+
+// Note to scrapper-NEVER do Property.updateOne({ geo: ... }) directly
+// Always update via coordinates
+
+
+// MongoDB-native geolocation (for geo queries)
+//used for queries, searching, mapping , filters 
+//derived from coordinates
+geo: {
+  type: {
+    type: String,
+    enum: ['Point'],
+    default: 'Point',
+    immutable: true
+
+  },
+  coordinates: {
+    type: [Number], // [lng, lat]
+    index: '2dsphere',
+    immutable: true
+
+  }
 },
 
   //secondary locations- fix this
+  //landmarks u can keep blank for now im still working on this
   landmarks: {    
   type: [
     {
@@ -69,10 +107,6 @@ coordinates: {
   default: []
 },
 
-  availableFrom: {
-    type: Date,
-  },
-
   area: {
     value: { type: Number, min: 0 },
     unit: { 
@@ -82,8 +116,14 @@ coordinates: {
     }
   },
 
-  reraApproved: { type: Boolean, default: false },
+  //from the rera website
+  reraApproved: { type: Boolean, default: false },//if data contains reraNumber or not 
   reraNumber: { type: String , required: false },
+  reraDate: { type: Date }, //reraDate of Completion
+  reraQR: {type: String },
+  possessionStatus: { type: String },//possessionStatus of the property depends on reraDate- classify into Immediate n UnderConstruction
+  //ADD ENUM TO THIS ONCE RERA IS SETTLED
+
 
   priceNegotiable: { type: Boolean, default: false },
   price: { 
@@ -97,6 +137,7 @@ coordinates: {
     type: String,
     enum: ["Residential", "Commercial"],
   },
+
   propertyType: {
   type: String,
   required: true,
@@ -107,24 +148,22 @@ coordinates: {
     type: String,
     enum: ['Furnished', 'Semi Furnished', 'Unfurnished', 'Fully Furnished'] 
   },
-  possessionStatus: { 
-    type: String,         /////////////////enum has to be added 
-  },
 
-  bhk: { type: Number },
-  bathrooms: { type: Number },
+  bhk: { type: Number, min: 0 },
+  bathrooms: { type: Number, min: 0 },
   facing: { type: String },
   balconies: { type: Number },
   parkings: { type: String },
 
   ageOfProperty: { 
     type: String,
-    // enum: ["New","5 months", "1-5 years", "5-10 years", "10+ years"],
     default: "New"
   },
-  totalFloors: { type: Number },
-  floor: { type: String  },
-  wing: { type: String  },
+
+  totalFloors: { type: Number }, //the total no of floors in the building
+  floor: { type: Number  },//the floor on which the unit is located
+  floorLabel: { type: String },//new field added u can add eg:  Ground / Podium / Basement / Penthouse / Mezzanine / Attic / High Rise / Mid Rise etc 
+  wing: { type: String  },// the wing of the building where the unit is located eg: G / B1 / 12
 
   unitsAvailable : { type: Number },
   
@@ -215,7 +254,7 @@ coordinates: {
 
 
   // Timestamps
-  submittedAt: { type: Date, default: Date.now },
+  submittedAt: { type: Date, default: Date.now }, //this is for the time when the property is submitted by developer??
   reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   reviewedAt: Date,
   rejectionReason: String,
@@ -227,31 +266,56 @@ coordinates: {
   toObject: { virtuals: true }
 });
 
-propertySchema.pre("save", function (next) {
+//should i pre('validate') propertyGroup as well?
+propertySchema.pre("validate", function (next) {
+  //Normalize pincode - CHECK THIS 
   if (this.pincode !== undefined && this.pincode !== null) {
     this.pincode = String(this.pincode).trim();
   }
-  next();
-});
-
-propertySchema.pre("save", function(next) {
+  
+  //Trim common text fields- ie it will remove leading and trailing spaces
   const textFields = ["state", "city", "locality", "address", "developerName", "title"];
   textFields.forEach(field => {
     if (this[field]) this[field] = this[field].trim();
   });
+
+  // Auto set propertyGroup
+  // Middleware to set propertyGroup automatically
+  if (RESIDENTIAL_TYPES.includes(this.propertyType)) {
+  this.propertyGroup = "Residential";
+} else if (COMMERCIAL_TYPES.includes(this.propertyType)) {
+  this.propertyGroup = "Commercial";
+} else {
+  this.invalidate('propertyType', 'Unknown property type');
+}
+
+
+  if (this.coordinates?.lat != null && this.coordinates?.lng != null) {
+  const { lat, lng } = this.coordinates;
+
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    this.invalidate('coordinates', 'Invalid latitude or longitude- TO BE LOGGED');
+  } else {
+    this.geo = {
+      type: 'Point',
+      coordinates: [
+        this.coordinates.lng, //lng always first
+        this.coordinates.lat
+      ]
+    };
+  }
+}
+
   next();
 });
 
 
+//pre('validate') runs earlier than 'save'
 
-// Middleware to set propertyGroup automatically
-propertySchema.pre('save', function(next) {
-  this.propertyGroup = RESIDENTIAL_TYPES.includes(this.propertyType)
-    ? "Residential"
-    : "Commercial";
-  next();
-});
-////this needs to be checked again-- also single hook?
+
+
+
+//CHECK THIS -- CHECK SLUG USE SLUGIFY?
 propertySchema.pre("save", async function (next) {
   if (!this.isModified("title")) return next();
 
@@ -265,7 +329,7 @@ propertySchema.pre("save", async function (next) {
   let count = 1;
 
 
-  // Use this.constructor instead of Property
+  // Use this.constructor instead of Property -- CHECK THIS -- CHECK SLUG USE SLUGIFY?
   while (await this.constructor.exists({ slug })) {
     slug = `${baseSlug}-${count++}`;
   }
@@ -273,10 +337,6 @@ propertySchema.pre("save", async function (next) {
   this.slug = slug;
   next();
 });
-
-
-
-
 
  
 propertySchema.virtual('pricePerSqft').get(function() {
@@ -322,12 +382,54 @@ propertySchema.set('toObject', {
   }
 });
 
-propertySchema.index({ city: 1, locality: 1 });
-propertySchema.index({ price: 1, propertyType: 1 });
-propertySchema.index({ slug: 1 }, { unique: true, sparse: true }); // For SEO and URL  --  check what sparse means
-propertySchema.index({ createdAt: -1 }); // For recent listings
-propertySchema.index({ featured: 1, status: 1 }); // For featured properties
-propertySchema.index({ userId: 1, status: 1 }); // For user's properties
+propertySchema.index(
+  { featured: 1, createdAt: -1 },
+  { partialFilterExpression: { status: "approved" } }
+);
+
+
+// Core public search index
+propertySchema.index({
+  status: 1,
+  city: 1,
+  propertyType: 1,
+  bhk: 1,
+  price: 1,
+  //have to add for locations here
+});
+
+// Featured listings
+propertySchema.index({
+  status: 1,
+  featured: -1,
+  createdAt: -1,
+});
+
+// City → locality drilldown
+propertySchema.index({
+  status: 1,
+  city: 1,
+  locality: 1,
+});
+
+// User dashboard
+propertySchema.index({
+  userId: 1,
+  status: 1,
+});
+
+// Recent properties
+propertySchema.index({
+  status: 1,
+  createdAt: -1,
+});
+
+// SEO slug
+propertySchema.index(
+  { slug: 1 },
+  { unique: true }
+);
+
 
  // For full-text search- 
 propertySchema.index(

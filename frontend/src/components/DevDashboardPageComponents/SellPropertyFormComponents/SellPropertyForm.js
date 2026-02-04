@@ -20,7 +20,7 @@ import {
   PARKING_OPTIONS,
   FLOOR_OPTIONS,
 } from "../../../assests/constants/propertyFormConstants";
-import PropertyDetailsSection from "../SellPropertyFormComponents/property-form/PropertyDetailsSection";
+// import PropertyDetailsSection from "../SellPropertyFormComponents/property-form/PropertyDetailsSection";
 import "./SellPropertyForm.css";
 
 // ✅ Zod Validation Schema

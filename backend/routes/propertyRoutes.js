@@ -13,80 +13,26 @@ const {
   updateProperty,
   deleteProperty,
   getPropertyById,
-  getLocalitiesByCity
+  getLocalitiesByCity,
+  getLocationOptions
 } = require('../controllers/propertyController');
 
 // routes
-router.get('/search', searchProperties);
-router.get('/filters', getFilterOptions);
-router.get('/featured', getFeaturedProperties);
-router.get('/localities-by-type', getPropertiesByType);
-router.get('/recent', getRecentProperties);
-router.get('/', getAllApprovedProperties);
+router.get('/search', searchProperties); //used in ExpandableSeachBar - check if can be usd in AdminDashboard CHECK THIS 
+router.get('/filters', getFilterOptions);  // used in the FilterPanel
+router.get('/featured', getFeaturedProperties);  // used in the FeaturedProperties on HomePage
+router.get('/localities-by-type', getPropertiesByType);  //i want to use it in the footer but idk if i should i have to decide on seo n links for the footer
+router.get('/recent', getRecentProperties); // used in top projects on HomePage
+
+router.get("/localities/:city", getLocalitiesByCity);//i think its used in the Footer im not sure-- CHECK THIS
+router.get("/location-options", getLocationOptions); //to be used for location seach for MainSeachBar
+
+//used in the Developer dashboard to get all the properties CRUD  by the developer
+router.get('/', getAllApprovedProperties);//use for optional listing in the Properties Page 
 router.post('/add', protect, addProperty);
 router.get('/my-properties', protect, getMyProperties);
 router.put('/update/:id', protect, updateProperty);
 router.delete('/delete/:id', protect, deleteProperty);
 router.get('/:id', getPropertyById);
-router.get("/localities/:city", getLocalitiesByCity);
-
-
-// ===== LOCALITIES FOR CITY =====
-// router.get('/localities/:city', asyncHandler(async (req, res) => {
-//   const { city } = req.params;
-//   const localities = await Property.distinct('locality', {
-//     city: { $regex: new RegExp(`^${city}$`, 'i') }
-//   });
-//   res.json({ localities });
-// }));
-
-// ===== PROPERTY TYPES =====
-// router.get('/property-types', asyncHandler(async (req, res) => {
-//   const availablePropertyTypes = await Property.distinct('propertyType');
-//   const propertyTypeStructure = {
-//     Residential: ['Flats/Apartments','Villa','Plot'],
-//     Commercial: ['Shop/Showroom','Industrial Warehouse','Retail']
-//   };
-
-//   const filteredPropertyTypes = {};
-//   Object.keys(propertyTypeStructure).forEach(group => {
-//     const availableInGroup = propertyTypeStructure[group].filter(type => availablePropertyTypes.includes(type));
-//     if (availableInGroup.length > 0) {
-//       filteredPropertyTypes[group] = availableInGroup.map(type => ({ value: type, label: type }));
-//     }
-//   });
-
-//   const propertyTypeOptions = Object.keys(filteredPropertyTypes).map(group => ({
-//     label: group,
-//     options: filteredPropertyTypes[group]
-//   }));
-
-//   res.json({ propertyTypes: propertyTypeOptions, availablePropertyTypes });
-// }));
-
-// ===== LOCALITIES BY TYPE =====
-// router.get('/localities-by-type', asyncHandler(async (req, res) => {
-//   const result = {};
-//   const types = ['Residential','Industrial','Commercial','Plot','Retail'];
-
-//   for (const type of types) {
-//     const localities = await Property.distinct('locality', { propertyType: type, status: 'approved' });
-//     result[type.toLowerCase()] = localities;
-//   }
-
-//   res.json(result);
-// }));
-
-// ===== LOCALITIES GROUPED =====
-// router.get('/localities', asyncHandler(async (req, res) => {
-//   const localities = await Property.aggregate([
-//     { $group: { _id: { propertyType: '$propertyType', locality: '$locality' }, count: { $sum: 1 } } },
-//     { $project: { _id: 0, propertyType: '$_id.propertyType', name: '$_id.locality', count: 1 } },
-//     { $sort: { count: -1 } }
-//   ]);
-//   res.json(localities);
-// }));
-
-
 
 module.exports = router;

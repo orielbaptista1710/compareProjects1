@@ -1,3 +1,4 @@
+//PropertyDetails.js is used in PropertyPage.js?
 import React from "react";
 import { Bed, Ruler, CheckCircle, Home } from "lucide-react";
 import PropTypes from "prop-types";
@@ -5,6 +6,7 @@ import "./PropertyDetails.css";
 
 const PropertyDetails = ({ property = {} }) => {
   // Format area with commas
+  //CHECK THIS - USE FORMATTER.JS HERE????
   const formatArea = (value) =>
     value ? new Intl.NumberFormat("en-IN").format(value) : "N/A";
 
@@ -14,17 +16,18 @@ const PropertyDetails = ({ property = {} }) => {
       aria-labelledby="property-details-heading"
     >
       <h2 id="property-details-heading" className="sr-only">
-        Property Details
+        Property DetailsSSSS
       </h2>
 
       <div className="property-details-grid">
         {/* Property Group */}
+        {/* hAVE TO USE THE DERIVED propertyGroup here */}
         <div className="property-detail-item" aria-label="Property Type">
           <div className="detail-icon" aria-hidden="true">
             <Home size={18} strokeWidth={1.5} />
           </div>
           <div className="detail-content">
-            <span className="detail-label">Property</span>
+            <span className="detail-label">PropertyYYY</span>
             <span className="detail-value">
               {property.propertyGroup ?? "N/A"}
             </span>

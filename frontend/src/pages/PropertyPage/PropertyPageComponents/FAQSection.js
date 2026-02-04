@@ -45,8 +45,8 @@ const FAQSection = ({ property = {} }) => {
     },
     {
       question: `What are the possession status and possession date of ${property.title || "this property"}?`,
-      answer: property.availableFrom || property.possessionStatus
-        ? `Possession date: ${property.availableFrom || "N/A"}. Status: ${property.possessionStatus || "N/A"}.`
+      answer: property.reraDate || property.possessionStatus
+        ? `Possession date: ${property.reraDate || "N/A"}. Status: ${property.possessionStatus || "N/A"}.`
         : "Possession details not available.",
     },
     {

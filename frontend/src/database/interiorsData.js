@@ -98,6 +98,9 @@ export const portfolioItems = [
   },
 ];
 
+  ////////PROPERTY TYPE CHANGE?????
+
+
 
 // ----------------------------------------
 // TESTIMONIALS

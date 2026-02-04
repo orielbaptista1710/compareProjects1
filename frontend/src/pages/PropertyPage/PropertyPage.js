@@ -80,11 +80,12 @@ function PropertyPage() {
     fetchProperty();
   }, [id]);
 
+  //CHECK THIS USED FORMATTER.JS HERE FOR PRICE AND PRICE PER SQFT
   const formatPrice = (value) => {
     if (!value || isNaN(value)) return "";
     return new Intl.NumberFormat("en-IN").format(value);
   };
-
+ //FORMATTER.JS FOR THIS TOO PLEASE -- OR CAN WE DO SOMETHING ELSE FOR THIS 
   const formatPriceToWords = (price) => {
     if (!price || isNaN(price)) return "";
     if (price >= 10000000) return (price / 10000000).toFixed(2).replace(/\.00$/, "") + " Crore";
@@ -119,7 +120,7 @@ function PropertyPage() {
               {property.locality}, {property.city}, {property.state} - {property.pincode}
             </p>
             <p className="property-page-price">
-              ₹{formatPriceToWords(property.price)} (₹{formatPrice(property.pricePerSqft)}/sqft)
+              ₹{formatPriceToWords(property.price)} 
             </p>
           </div>
 
@@ -172,6 +173,9 @@ function PropertyPage() {
       { label: "BHK", value: property.bhk || "NA" },
       { label: "Bathrooms", value: property.bathrooms || "NA" },
 
+
+
+      ///////check this 
       {
         label: "Property Area",
         value:
@@ -180,13 +184,14 @@ function PropertyPage() {
             : "NA",
       },
 
-      {
-        label: "Price per sqft",
-        value:
-          property.pricePerSqft && property.area?.unit
-            ? `₹${property.pricePerSqft}/${property.area.unit}`
-            : "NA",
-      },
+      //GET PROPRTY FROM DERIVED pricePerSqft n fallback on property.area?.unit etc
+      // {
+      //   label: "Price per sqft",
+      //   value:
+      //     property.pricePerSqft && property.area?.unit
+      //       ? `₹${property.pricePerSqft}/${property.area.unit}`
+      //       : "NA",
+      // },
 
       { label: "Furnishing", value: property.furnishing || "NA" },
 
@@ -238,7 +243,7 @@ function PropertyPage() {
               { label: "RERA Approved", value: property.reraApproved ? 'Yes' : 'No' },
               ...(property.reraApproved ? [{ label: "RERA Number", value: property.reraNumber }] : []),
               { label: "Price Negotiable", value: property.priceNegotiable ? 'Yes' : 'No' },
-              { label: "Available From", value: property.availableFrom ? new Date(property.availableFrom).toLocaleDateString() : 'Immediate' },
+              { label: "Available From", value: property.reraDate ? new Date(property.reraDate).toLocaleDateString() : 'Immediate' },
               { label: "Units Available", value: property.unitsAvailable }
             ].map((item, idx) => (
               <div className="info-item" key={idx}>
@@ -265,19 +270,22 @@ function PropertyPage() {
           <p className="full-address">{property?.address || "Address not available"}</p>
 
           {property.mapLink && (
-            <div className="map-container">
-              <iframe
-                src={property.mapLink}
-                width="100%"
-                height="300"
-                style={{ border: 0 }}
-                allowFullScreen=""
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Property Location"
-              />
-            </div>
-          )}
+  <div className="map-container">
+    <iframe
+      src={`${property.mapLink.replace(
+        "https://maps.google.com/?q=",
+        "https://www.google.com/maps?q="
+      )}&output=embed`}
+      width="100%"
+      height="300"
+      style={{ border: 0 }}
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+      title="Property Location"
+    />
+  </div>
+)}
+
 
           {/* Neighborhood / Landmarks */}
           {property.landmarks && property.landmarks.length > 0 && (

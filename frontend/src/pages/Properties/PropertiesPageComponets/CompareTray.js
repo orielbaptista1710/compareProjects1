@@ -4,7 +4,7 @@ import "./CompareTray.css";
 import { X, Eye, ArrowRight } from "lucide-react";
 import ComparePanel from "./ComparePanel";
 import { useNavigate } from "react-router-dom";
-
+ 
 const CompareTray = ({ compareList, removeFromCompare }) => {
   const [openPreview, setOpenPreview] = useState(false);
   const navigate = useNavigate();
@@ -87,4 +87,4 @@ const CompareTray = ({ compareList, removeFromCompare }) => {
   );
 };
 
-export default CompareTray;
+export default React.memo(CompareTray);

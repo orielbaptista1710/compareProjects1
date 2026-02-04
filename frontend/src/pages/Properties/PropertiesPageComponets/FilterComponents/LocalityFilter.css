@@ -1,0 +1,29 @@
+
+.locality-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background: #fff;
+}
+
+.locality-search input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+}
+
+.filter-panel-scroll .checkbox-group {
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.filter-loading {
+  font-size: 13px;
+  color: #888;
+}

@@ -1,250 +1,169 @@
 // src/components/MainSearchBar/MainSearchBar.js
-import React, { useState, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import Select from "react-select";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import API from "../../../api";
+
 import ExpandableSearch from "./ExpandableSearch";
+import PropertyTypePills from "../../Home/HomePageComponents/MainSeachBarComponets/PropertyTypePills";
+import { DEFAULT_FILTERS } from "../../../utils/filters.schema";
 import "./MainSearchBar.css";
 
-import PropertyTypePills from "../../Home/HomePageComponents/MainSeachBarComponets/PropertyTypePills";
-import { components } from "react-select";
-
-// ----------------------------
-// CONSTANTS
-// ----------------------------
-const BUDGET_OPTIONS = [
-  { value: "", label: "Select Budget" },
-  { value: "500000", label: "Up to ₹5 Lakh" },
-  { value: "1000000", label: "Up to ₹10 Lakh" },
-  { value: "2000000", label: "Up to ₹20 Lakh" },
-  { value: "5000000", label: "Up to ₹50 Lakh" },
-  { value: "10000000", label: "Up to ₹1 Cr" },
-  { value: "20000000", label: "Up to ₹2 Cr" },
-  { value: "50000000", label: "Up to ₹5 Cr" }
-];
-
-
-// ----------------------------
-// COMPONENT
-// ----------------------------
 const MainSearchBar = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const dropdownRef = useRef(null);
 
-  const [filters, setFilters] = useState({
-    propertyType: "",
-    budget: "",
-    city: "",
-    locality: ""
-  });
+  const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
 
-  const [localities, setLocalities] = useState([]);
-  const [localityLoading, setLocalityLoading] = useState(false);
 
-  // ----------------------------
-  // CITY FETCH (React Query)
-  // ----------------------------
+
+  const [isPropertyOpen, setIsPropertyOpen] = useState(false);
+
+  /* -------------------- FETCH FILTER OPTIONS -------------------- */
   const {
-    data: cityData,
-    isLoading: cityLoading,
-    error: cityError
+    data: filterOptions,
+    isLoading,
+    // isError,
   } = useQuery({
-    queryKey: ["cities"],
+    queryKey: ["property-filter-options"],
+    // queryFn: () =>
+    //   API.get("/api/properties/filters").then((res) => res.data),
+    // staleTime: 1000 * 60 * 10,
     queryFn: async () => {
-      const res = await API.get("/api/properties/filters");
-      return res.data?.cities || [];
-    },
-    staleTime: 1000 * 60 * 10,
-    retry: 2
+  const res = await API.get("/api/properties/filters");
+  console.log("FILTER API RAW RESPONSE:", res);
+  return res.data;
+},
+
   });
 
-  const cities = useMemo(() => cityData || [], [cityData]);
-
-  // ----------------------------
-  // FETCH LOCALITIES
-  // ----------------------------
-  const fetchLocalitiesForCity = useCallback(async (city) => {
-    if (!city) return setLocalities([]);
-
-    setLocalityLoading(true);
-    try {
-      const res = await API.get(
-        `/api/properties/localities/${encodeURIComponent(city)}`
-      );
-      setLocalities(res.data.localities || []);
-    } catch {
-      setLocalities([]);
-    } finally {
-      setLocalityLoading(false);
-    }
-  }, []);
-
-  // ----------------------------
-// CUSTOM MENU FOR PROPERTY TYPE
-// ----------------------------
-const CustomPropertyTypeMenu = (props) => {
-  const { selectProps } = props;
-
-  return (
-    <components.Menu {...props}>
-      <PropertyTypePills
-        value={selectProps.value?.value || ""}
-        onChange={(val) => {
-          selectProps.onChange({ value: val, label: val });
-        }}
-        closeMenu={selectProps.onMenuClose}
-      />
-    </components.Menu>
+  /* -------------------- URL → FILTER STATE -------------------- */
+  const filters = useMemo(
+    () => ({
+      // ...DEFAULT_FILTERS,
+      propertyType: searchParams.get("propertyType") || "",
+      bhk: searchParams.get("bhk") || "",
+    }),
+    [searchParams]
   );
+
+  
+
+  useEffect(() => {
+  setDraftFilters(filters);
+}, [filters]);
+
+
+
+  /* -------------------- UPDATE URL -------------------- */
+  const handleSearch = () => {
+  const params = new URLSearchParams();
+
+  Object.entries(draftFilters).forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
+
+  navigate(`/properties?${params.toString()}`);
 };
 
 
-  // ----------------------------
-  // HANDLERS
-  // ----------------------------
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
+  /* -------------------- PROPERTY LABEL -------------------- */
+  const getPropertyTypeLabel = () => {
+  const source = isPropertyOpen ? draftFilters : filters;
 
-  const handleCityChange = (option) => {
-    const city = option?.value || "";
-    setFilters((prev) => ({ ...prev, city, locality: "" }));
-    fetchLocalitiesForCity(city);
-  };
-
-  const handlePropertyTypeChange = (option) => {
-    setFilters((prev) => ({
-      ...prev,
-      propertyType: option?.value || ""
-    }));
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-
-    if (!filters.city) {
-      alert("Please select a city before searching.");
-      return;
-    }
-
-    const queryParams = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) queryParams.append(key, value);
-    });
-
-    navigate(`/properties?${queryParams.toString()}`);
-  };
-
-  const isLoading = cityLoading || localityLoading;
-
-  if (cityError) {
-    return (
-      <div className="error-message">
-        Failed to load search options. Please try refreshing the page.
-      </div>
-    );
+  if (!source.propertyType && !source.bhk) {
+    return "Property Type";
   }
 
-  // ----------------------------
-  // RENDER
-  // ----------------------------
+  return [
+    source.propertyType,
+    source.bhk && `${source.bhk} BHK`,
+  ]
+    .filter(Boolean)
+    .join(" + ");
+};
+
+
+  /* -------------------- OUTSIDE CLICK + ESC -------------------- */
+  useEffect(() => {
+    if (!isPropertyOpen) return;
+
+    const handlePointer = (e) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target)
+      ) {
+        setIsPropertyOpen(false);
+      }
+    };
+
+    const handleKey = (e) => {
+      if (e.key === "Escape") setIsPropertyOpen(false);
+    };
+
+    document.addEventListener("pointerdown", handlePointer);
+    document.addEventListener("keydown", handleKey);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointer);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [isPropertyOpen]);
+
+
+
+console.log("filterOptions", filterOptions);
+
+
+
   return (
     <div className="mainsearch-bar">
-
-      <form className="main-search-container-section" onSubmit={handleSearch}>
+      <div className="main-search-container-section">
         <div className="main-search-container">
 
-          {/* CITY */}
-          <div className="search-field">
-            <Select
-              placeholder="Select City"
-              isClearable
-              isSearchable
-              className="dropdown-main"
-              value={filters.city ? { value: filters.city, label: filters.city } : null}
-              onChange={handleCityChange}
-              options={cities.map((c) => ({ value: c, label: c }))}
-              isDisabled={cityLoading}
-            />
-          </div>
-
-          {/* LOCALITY */}
-          <div className="search-field">
-            <select
-              id="locality"
-              name="locality"
-              className="dropdown-main"
-              value={filters.locality}
-              onChange={handleInputChange}
-              disabled={!filters.city || localityLoading}
+          {/* PROPERTY TYPE + BHK */}
+          <div className="search-field-type" ref={dropdownRef}>
+            <button
+              type="button"
+              className={`property-type-trigger ${
+                isPropertyOpen ? "active" : ""
+              }`}
+              aria-expanded={isPropertyOpen}
+              onClick={() => setIsPropertyOpen((p) => !p)}
             >
-              <option value="">
-                {!filters.city
-                  ? "Select City First"
-                  : localityLoading
-                  ? "Loading..."
-                  : localities.length === 0
-                  ? "No Localities"
-                  : "Select Locality"}
-              </option>
+              <span>{getPropertyTypeLabel()}</span>
+              <span className="chevron">▾</span>
+            </button>
 
-              {localities.map((loc, i) => (
-                <option key={i} value={loc}>
-                  {loc}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* PROPERTY TYPE */}
-          <div className="search-field-type">
-            <Select
-  classNamePrefix="msb"
-  placeholder="Property Type"
-  value={
-    filters.propertyType
-      ? { value: filters.propertyType, label: filters.propertyType }
-      : null
+            {isPropertyOpen && (
+              <div className="property-type-dropdown">
+                <PropertyTypePills
+  valueMap={draftFilters}
+  onChange={(key, value) =>
+    setDraftFilters((prev) => ({
+      ...prev,
+      [key]: value,
+    }))
   }
-  onChange={handlePropertyTypeChange}
-  components={{ Menu: CustomPropertyTypeMenu }}   // 👈 MAGIC LINE
-  isSearchable={false}
-  menuShouldScrollIntoView={false}
-  menuPosition="fixed"
-  // menuPlacement="auto"
 />
 
+              </div>
+            )}
           </div>
 
-          {/* BUDGET */}
-          <div className="search-field">
-            <select
-              id="budget"
-              name="budget"
-              className="dropdown-main"
-              value={filters.budget}
-              onChange={handleInputChange}
-            >
-              {BUDGET_OPTIONS.map((opt, i) => (
-                <option key={i} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <button
+  className="mainsearch-btn"
+  type="button"
+  onClick={handleSearch}
+>
+  Search
+</button>
 
-          {/* SEARCH BUTTON */}
-          <button className="mainsearch-btn" type="submit" disabled={isLoading}>
-            {isLoading ? "Loading..." : "Compare →"}
-          </button>
         </div>
-      </form>
-
-      <div className="expandable-search-wrapper">
-        <ExpandableSearch />
       </div>
 
+      <ExpandableSearch />
     </div>
   );
 };

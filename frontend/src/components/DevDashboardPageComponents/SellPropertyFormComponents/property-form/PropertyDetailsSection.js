@@ -4,7 +4,7 @@ import { InputNumber, Select, DatePicker } from "antd";
 import dayjs from "dayjs";
 import {
   AGE_OF_PROPERTY_OPTIONS,
-  FLOOR_OPTIONS,
+  // FLOOR_OPTIONS,
   PROPERTY_TYPES,
   FURNISHED_OPTIONS,
   POSSESSION_STATUS_OPTIONS,
@@ -31,6 +31,8 @@ const typeToGroupMap = {
   Retail: "Commercial",
   "Industrial Warehouse": "Commercial",
 };
+  ////////PROPERTY TYPE CHANGE
+
 
 const PropertyDetailsSection = () => {
   const { control, watch, setValue, getValues, register } = useFormContext();
@@ -228,7 +230,7 @@ const PropertyDetailsSection = () => {
         <div className="form-col">
           <label>Available From</label>
           <Controller
-            name="availableFrom"
+            name="reraDate"
             control={control}
             render={({ field }) => (
               <DatePicker
@@ -243,6 +245,7 @@ const PropertyDetailsSection = () => {
       </div>
 
       {/* Property Type */}
+      {/* CHECK THIS FOR SELLPROPERTYFORM CAUSE propertyGroup is derived from propertyType- not needed in form */}
       <fieldset>
         <legend>Property Type</legend>
         <div className="property-type-container">

@@ -1,0 +1,139 @@
+/* ================================
+   Filter Panel.css
+================================ */
+
+/* Root Panel */
+.filter-panel {
+  width: 280px;
+  height: calc(100vh - 90px);
+  background: #ffffff;
+  border-right: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* Header */
+.filter-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid #e9d5ff;
+  background: #fff;
+  /* Removed: position: sticky; top: 0; z-index: 10; */
+}
+
+.filter-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #7c3aed; /* purple */
+  margin: 0;
+}
+
+/* Scrollable content */
+.filter-panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 20px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+/* ================================
+   Filter Sections
+================================ */
+
+.filter-section {
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.filter-section header {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-section header span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.filter-section header svg {
+  color: #7c3aed;
+}
+
+/* Body */
+.filter-body {
+  padding: 8px 18px 14px 18px;
+}
+
+/* ================================
+   Search
+================================ */
+
+.search-box {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #a855f7;
+  pointer-events: none;
+}
+
+.filter-search {
+  width: 100%;
+  padding: 8px 10px 8px 32px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  outline: none;
+}
+
+.filter-search:focus {
+  border-color: #c084fc;
+}
+
+/* ================================
+   Checkbox Group
+================================ */
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #7c3aed;
+}
+
+/* ================================
+   Scrollbar (hidden)
+================================ */
+
+.filter-panel-scroll::-webkit-scrollbar {
+  display: none;
+}

@@ -14,11 +14,12 @@ const PropertyGallery = ({ coverImage, galleryImages = [], mediaFiles = [] }) =>
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Merge all media files safely with fallback
-  const allMedia = [
-    ...(coverImage ? [coverImage] : []),
-    ...(galleryImages || []),
-    ...(mediaFiles?.map((m) => m?.src).filter(Boolean) || []),
-  ].map((url) => url || PLACEHOLDER_IMG); // Fallback for missing URLs
+const allMedia = [
+  ...(coverImage?.url ? [coverImage.url] : []),
+  ...(galleryImages?.map((img) => img?.url).filter(Boolean) || []),
+  ...(mediaFiles?.map((m) => m?.src).filter(Boolean) || [])
+].map((url) => url || PLACEHOLDER_IMG);
+
 
   const openLightbox = useCallback((index) => {
     setCurrentImageIndex(index);
@@ -77,12 +78,12 @@ const PropertyGallery = ({ coverImage, galleryImages = [], mediaFiles = [] }) =>
               onKeyPress={(e) => e.key === "Enter" && openLightbox(idx + 1)}
             >
               <img
-                src={img || PLACEHOLDER_IMG}
-                alt={`Property gallery view ${idx + 1}`}
-                loading="lazy"
-                decoding="async"
-                onError={(e) => (e.target.src = PLACEHOLDER_IMG)}
-              />
+    src={img?.thumbnail || img?.url || PLACEHOLDER_IMG}
+    alt={`Property gallery view ${idx + 1}`}
+    loading="lazy"
+    decoding="async"
+    onError={(e) => (e.target.src = PLACEHOLDER_IMG)}
+  />
             </div>
           ))}
         </div>

@@ -4,34 +4,34 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Collapse,
+  // Collapse,
   Avatar,
   Box,
   Typography,
   Divider,
   useMediaQuery,
   IconButton,
-  Paper,
+  // Paper,
   Toolbar,
 } from "@mui/material";
 import {
-  Home as HomeIcon,
+  // Home as HomeIcon,
   AddCircleOutline as AddCircleIcon,
   ListAlt as ListAltIcon,
   HeadsetMic as HeadsetIcon,
   Logout as LogoutIcon,
-  ExpandLess,
-  ExpandMore,
+  // ExpandLess,
+  // ExpandMore,
   Menu as MenuIcon,
   Close as CloseIcon,
-  Dashboard as DashboardIcon,
+  // Dashboard as DashboardIcon,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 
 const drawerWidth = 300;
 
 const DashboardNav = ({ activeTab, setActiveTab, user, handleLogout }) => {
-  const [dashboardOpen, setDashboardOpen] = useState(false);
+  // const [dashboardOpen, setDashboardOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));

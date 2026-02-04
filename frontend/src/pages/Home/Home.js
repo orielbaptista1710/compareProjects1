@@ -3,7 +3,7 @@ import React from 'react';
 //components import 
 import Gallery from './HomePageComponents/Gallery'; 
 import NavigationBar from '../../shared/NavigationBar/NavigationBar';
-import FeaturedProperties from '../Home/HomePageComponents/FeaturedProperties';
+import DiscoverFeaturedProjects from '../Home/HomePageComponents/DiscoverFeaturedProjects';
 import RecentlyAdded from './HomePageComponents/RecentlyAdded';
 import PostPropertyBanner from './HomePageComponents/PostPropertyBanner';
 import ContactUsBanner from './HomePageComponents/ContactUsBanner';
@@ -18,8 +18,7 @@ import CompareBar from './HomePageComponents/CompareBar';
 import BaseLayout from '../../layouts/BaseLayout';
 import FullWidthSection from '../../layouts/FullWidthSection';
 import AnnouncementStrip from '../Home/HomePageComponents/AnnouncementStrip';
-
-
+import RankedProjects from '../Home/HomePageComponents/RankedProjects'
 function Home() {
   // const navigate = useNavigate();
   const {compareList , removeFromCompare } = useCompare();
@@ -34,7 +33,7 @@ function Home() {
         // url="https://www.compareprojects.com/"
         // image="https://www.compareprojects.com/assets/home-og.jpg"
       />
-
+ 
 
        <NavigationBar />
 
@@ -54,13 +53,15 @@ function Home() {
         />
       )}
       </section>
+
+      <RankedProjects />
       
 
       </FullWidthSection>
 
 
       <section>
-      <FeaturedProperties />
+      <DiscoverFeaturedProjects />
       </section>
 
 

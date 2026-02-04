@@ -1,0 +1,75 @@
+.location-search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Collapsed input */
+.location-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #fff;
+  font-size: 15px;
+}
+
+.location-input.active {
+  border-color: #d90429;
+}
+
+.location-icon {
+  color: #d90429;
+  font-size: 18px;
+}
+
+.location-input span {
+  color: #888;
+}
+
+.location-input span.filled {
+  color: #111;
+}
+
+/* Dropdown */
+.location-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Inputs inside dropdown */
+.location-dropdown input {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+/* Apply button */
+.apply-location-btn {
+  margin-top: 6px;
+  background: #d90429;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.apply-location-btn:hover {
+  background: #b80322;
+}

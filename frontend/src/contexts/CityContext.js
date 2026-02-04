@@ -4,11 +4,15 @@ const CityContext = createContext(null);
 
 export const CityProvider = ({ children }) => {
   const [city, setCity] = useState(() => {
-    return localStorage.getItem("selectedCity") || "Mumbai";
+    return localStorage.getItem("selectedCity"); // can be null
   });
 
   useEffect(() => {
-    localStorage.setItem("selectedCity", city);
+    if (city) {
+      localStorage.setItem("selectedCity", city);
+    } else {
+      localStorage.removeItem("selectedCity");
+    }
   }, [city]);
 
   return (

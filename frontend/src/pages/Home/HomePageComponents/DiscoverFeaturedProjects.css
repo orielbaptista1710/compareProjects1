@@ -1,0 +1,201 @@
+/* =========================
+   LAYOUT
+========================= */
+
+.discover-projects {
+  display: grid;
+  grid-template-columns: 0.55fr 2fr;
+  gap: 24px;
+  padding: 40px 56px;
+}
+
+
+/* =========================
+   INFO CARD
+========================= */
+
+.discover-info {
+  background: #111827;
+  color: #fff;
+  border-radius: 20px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.discover-info h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.discover-info p {
+  font-size: 13.5px;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.discover-btn {
+  margin-top: 20px;
+  background: #fff;
+  color: #111827;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+  transition: transform 0.2s ease;
+}
+
+.discover-btn:hover {
+  transform: translateY(-1px);
+}
+
+
+/* =========================
+   CARDS GRID
+========================= */
+
+.discover-cards {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 18px;
+}
+
+
+/* =========================
+   CARD
+========================= */
+
+.project-card-discover-feature {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 240px;
+  cursor: pointer;
+}
+
+.project-card-discover-feature.large {
+  min-height: 270px;
+}
+
+
+/* =========================
+   IMAGE
+========================= */
+
+.project-card-discover-feature img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.project-card-discover-feature:hover img {
+  transform: scale(1.04);
+}
+
+
+/* =========================
+   OVERLAY
+========================= */
+
+.project-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.55),
+    rgba(0,0,0,0.1)
+  );
+}
+
+.project-tag {
+  background: rgba(255,255,255,0.9);
+  color: #111827;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
+  width: fit-content;
+  margin-bottom: 6px;
+}
+
+.project-overlay h3 {
+  font-size: 16.5px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.project-overlay p {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.85);
+}
+
+
+/* =========================
+   RIGHT → LEFT HOVER GLANCE
+========================= */
+
+.property-glance {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 55%;
+  background: rgba(0,0,0,0.85);
+  padding: 18px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+
+  transform: translateX(100%);
+  transition: transform 0.35s ease;
+}
+
+.project-card-discover-feature:hover .property-glance {
+  transform: translateX(0);
+}
+
+.glance-label {
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.glance-value {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #fff;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1024px) {
+  .discover-projects {
+    grid-template-columns: 1fr;
+    padding: 32px;
+  }
+
+  .discover-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .property-glance {
+    width: 100%;
+    transform: translateY(100%);
+  }
+
+  .project-card-discover-feature:hover .property-glance {
+    transform: translateY(0);
+  }
+}

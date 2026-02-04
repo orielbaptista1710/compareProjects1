@@ -1,3 +1,4 @@
+//citySelectorData.js
 import {
   Landmark,
   Building2,
@@ -17,11 +18,11 @@ export const TOP_SELECTOR_CITIES = [
     icon: Building2,
   },
   {
-    name: "Chennai",
+    name: "Noida",
     icon: Factory,
   },
   {
-    name: "Delhi",
+    name: "Bengaluru",
     icon: Castle,
   },
   {
@@ -29,7 +30,7 @@ export const TOP_SELECTOR_CITIES = [
     icon: University,
   },
   {
-    name: "Kolkata",
+    name: "Goa",
     icon: Home,
   },
   {
