@@ -16,13 +16,24 @@ const RecentlyAdded = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["recent-properties", city],
+    queryKey: ["recent-properties", city ?? "all"],
+
     queryFn: async () => {
+      const params = new URLSearchParams();
+      params.append("limit", 3);
+
+      // ✅ only send city if selected
+      if (city) {
+        params.append("city", city);
+      }
+
       const res = await API.get(
-        `/api/properties/recent?city=${city}&limit=3`
+        `/api/properties/recent?${params.toString()}`
       );
+
       return res.data;
     },
+
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
@@ -37,7 +48,8 @@ const RecentlyAdded = () => {
   return (
     <div className="recently-added-container">
       <h2 className="section-title-added" style={{ paddingBottom: "50px" }}>
-        <span className="highlight">Top</span> Projects in {city}
+        <span className="highlight">Recently Added</span>
+        {city && ` in ${city}`}
       </h2>
 
       <div className="card-container">
@@ -84,12 +96,17 @@ const RecentlyAdded = () => {
 
       <div className="view-more-container">
         <button
-  className="view-more-link"
-  onClick={() => navigate(`/properties?city=${encodeURIComponent(city)}`)}
->
-  View More
-</button>
-
+          className="view-more-link"
+          onClick={() =>
+            navigate(
+              city
+                ? `/properties?city=${encodeURIComponent(city)}`
+                : "/properties"
+            )
+          }
+        >
+          View More
+        </button>
       </div>
     </div>
   );

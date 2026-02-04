@@ -17,7 +17,7 @@ import {
   Info as InfoIcon,
   Mail as MailIcon,
   Description as DocIcon,
-  Feedback as FeedbackIcon,
+  // Feedback as FeedbackIcon,
 } from "@mui/icons-material";
 
 const DeveloperSupport = () => {

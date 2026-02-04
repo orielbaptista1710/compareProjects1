@@ -1,0 +1,175 @@
+.ranked-projects {
+  padding: 64px 0;
+  background: #ffffff;
+}
+
+.ranked-projects > * {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 40px;
+}
+
+
+.hp-header{
+  margin-bottom: 32px;
+}
+
+.hp-header-h2{
+    font-size: 2.5rem;
+  font-weight: 700;
+  text-align: left;
+  color: #1a1a1a;
+  margin-bottom: 0;
+  padding-bottom: 3rem !important;
+  max-width: 1300px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.hp-header-h2 .highlight {
+  color: #7B2FF7;
+  position: relative;
+  display: inline-block;
+  text-decoration: underline;
+}
+
+.hp-header p {
+  max-width: 900px;
+  color: #555;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.hp-tabs {
+  display: flex;
+  gap: 14px;
+  margin: 30px 0 40px;
+  flex-wrap: wrap;
+}
+
+.hp-tab {
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  font-weight: 600;
+}
+
+.hp-tab.active {
+  background: #1a1a1a;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+
+.hp-tab:hover {
+  border-color: #111;
+}
+
+.hp-tab.active {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+.hp-cards {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.hp-cards::-webkit-scrollbar {
+  height: 6px;
+}
+
+.hp-cards::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.hp-card {
+  cursor: pointer;
+  background-clip: padding-box;
+}
+
+.hp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Rank number overlay */
+.hp-rank {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 72px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1;
+  z-index: 2;
+  pointer-events: none;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* Make sure image container is positioned */
+.hp-image {
+  position: relative;
+  height: 190px;
+  overflow: hidden;
+}
+
+
+.hp-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.hp-card:hover .hp-image img {
+  transform: scale(1.05);
+}
+
+
+.hp-content {
+  padding: 16px;
+}
+
+.hp-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1a1a1a;
+}
+
+.hp-location {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.hp-price {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+
+@media (max-width: 768px) {
+  .hp-header h2 {
+    font-size: 26px;
+  }
+
+  .hp-card {
+    min-width: 260px;
+    max-width: 260px;
+  }
+
+  .hp-rank {
+    font-size: 60px;
+  }
+}

@@ -1,6 +1,7 @@
 // controllers/searchController.js
 // Once you upgrade to M10, you can replace MongoDB regex + Fuse.js with Atlas Search easily.
 
+//where is seachController used ? -it is 
 const asyncHandler = require('express-async-handler');
 const Fuse = require('fuse.js');  //can be used only for small databases
 const Property = require('../models/Property');
@@ -10,7 +11,7 @@ function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// Smart search controller
+// Smart search controller- used in ExpandableSeachBar.js
 const searchProperties = asyncHandler(async (req, res) => {
   const { query, limit = 5} = req.query;
   if (!query || query.trim().length < 2) return res.json({ properties: [], fuzzy: false });

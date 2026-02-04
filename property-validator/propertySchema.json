@@ -69,7 +69,7 @@
       }
     },
 
-    "availableFrom": { "type": ["string", "null"], "format": "data" },
+    "reraDate": { "type": ["string", "null"], "format": "data" },
 
     "area": {
       "type": "object",

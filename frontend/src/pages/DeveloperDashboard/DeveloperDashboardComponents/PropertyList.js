@@ -124,12 +124,6 @@ const PropertyCardDashboard = ({ property, index, style, onEdit, onDelete, forma
           <span>{property.facing}</span>
         </div>
 
-        {/* <div className='detail-row'>
-          <span className="detail-label">Parking:</span>
-          <span>{(property.parkings || []).join(', ')}</span>
-        </div>   */}
-        {/* needed here cause its an object group */}
-
         <div className="detail-row">
           <span className="detail-label">Developer Name:</span>
           <span>{property.developerName }</span>
@@ -169,8 +163,8 @@ const PropertyCardDashboard = ({ property, index, style, onEdit, onDelete, forma
         <span className="detail-label">Availability Date:</span>
   
         <span>
-        {property.availableFrom 
-          ? new Date(property.availableFrom).toLocaleString('en-IN', {
+        {property.reraDate 
+          ? new Date(property.reraDate).toLocaleString('en-IN', {
               timeZone: 'Asia/Kolkata',
               day: '2-digit',
               month: 'short',

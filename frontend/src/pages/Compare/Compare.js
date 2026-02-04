@@ -177,8 +177,8 @@ const renderHeaderCard = useCallback(
           <p><strong>Parkings:</strong> {safeText(property.parkings)}</p>
           <p><strong>Units Available:</strong> {safeText(property.unitsAvailable)}</p>
           <p><strong>Available From:</strong> 
-            {property.availableFrom 
-              ? new Date(property.availableFrom).toLocaleDateString("en-IN") 
+            {property.reraDate 
+              ? new Date(property.reraDate).toLocaleDateString("en-IN") 
               : "—"}
           </p>
         </div>

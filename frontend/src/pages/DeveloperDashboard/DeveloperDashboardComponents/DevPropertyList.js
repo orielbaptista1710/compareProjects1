@@ -163,8 +163,8 @@ const DevPropertyList = ({
             <div className="detail-row">
               <span className="detail-label">Availability Date:</span>
               <span>
-                {p.availableFrom
-                  ? new Date(p.availableFrom).toLocaleString("en-IN", {
+                {p.reraDate
+                  ? new Date(p.reraDate).toLocaleString("en-IN", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",

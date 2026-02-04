@@ -1,28 +1,96 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
+import { scorePropertiesAI } from "../../../utils/compareAI";
 import "./CompareSummary.css";
 
-const CompareSummary = ({ properties }) => {
-  if (!properties || properties.length < 2) return null;
+const formatPrice = (price) =>
+  typeof price === "number"
+    ? `₹${price.toLocaleString("en-IN")}`
+    : "Price on Request";
 
-  const p1 = properties[0];
-  const p2 = properties[1];
+const CompareSummary = ({ properties = [] }) => {
+  const [expanded, setExpanded] = useState(false);
 
-  const title = `${p1.title || "Property 1"} vs ${p2.title || "Property 2"}`;
+  const summaryData = useMemo(() => {
+    const prices = properties.map(p => p.price).filter(Number);
 
-  const summaryText = `Here’s a quick comparison between ${p1.title} located in ${p1.city}, 
-priced at ₹${p1.price}, and ${p2.title} located in ${p2.city}, 
-priced at ₹${p2.price}. Scroll below for a detailed comparison across 
-location, amenities, specifications, and more.`;
+    return {
+      count: properties.length,
+      cities: [...new Set(properties.map(p => p.city).filter(Boolean))],
+      minPrice: prices.length ? Math.min(...prices) : null,
+      maxPrice: prices.length ? Math.max(...prices) : null,
+    };
+  }, [properties]);
+
+  const aiRecommendation = useMemo(() => {
+    const scored = scorePropertiesAI(properties);
+    if (!scored.length) return null;
+
+    const sorted = [...scored].sort((a, b) => b.aiScore - a.aiScore);
+    return sorted[0]?.aiScore > 0
+      ? { best: sorted[0] }
+      : null;
+  }, [properties]);
+
+  if (properties.length < 2) return null;
+
+  const title =
+    properties.length === 2
+      ? `${properties[0]?.title || "Property 1"} vs ${properties[1]?.title || "Property 2"}`
+      : `Comparing ${summaryData.count} Properties`;
 
   return (
-    <div className="compare-summary">
+    <section className="compare-summary" aria-live="polite">
       <h2 className="summary-title">{title}</h2>
-      <p className="summary-text">{summaryText}</p>
 
-      <button className="summary-readmore">
-        Read More
+      <p className="summary-text">
+        {expanded ? (
+          <>
+            This comparison includes {summaryData.count} properties
+            {summaryData.cities.length
+              ? ` across ${summaryData.cities.join(", ")}`
+              : ""}.
+            {summaryData.minPrice && summaryData.maxPrice && (
+              <>
+                {" "}Prices range from{" "}
+                <strong>{formatPrice(summaryData.minPrice)}</strong> to{" "}
+                <strong>{formatPrice(summaryData.maxPrice)}</strong>.
+              </>
+            )}
+          </>
+        ) : (
+          `You’re comparing ${summaryData.count} properties. Review prices, amenities, specifications, and approvals below.`
+        )}
+      </p>
+
+      <button
+        type="button"
+        className="summary-readmore"
+        onClick={() => setExpanded(p => !p)}
+        aria-expanded={expanded}
+      >
+        {expanded ? "Show Less" : "Read More"}
       </button>
-    </div>
+
+      {aiRecommendation && (
+        <aside className="ai-recommendation" role="note">
+          <h3>🤖 Which one should you choose?</h3>
+
+          <p>
+            Based on value, size, amenities, readiness, and trust signals,{" "}
+            <strong>{aiRecommendation.best.title || "this property"}</strong>{" "}
+            emerges as the strongest overall option.
+          </p>
+
+          {aiRecommendation.best.aiReasons?.length > 0 && (
+            <ul>
+              {aiRecommendation.best.aiReasons.map((reason, i) => (
+                <li key={i}>✅ {reason}</li>
+              ))}
+            </ul>
+          )}
+        </aside>
+      )}
+    </section>
   );
 };
 

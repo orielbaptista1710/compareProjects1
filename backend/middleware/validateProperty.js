@@ -1,8 +1,10 @@
+//CHECK THIS - where is this file used and what is it for?- it is not used anywhere in the project?
 const Joi = require('joi');
 
 const propertySchema = Joi.object({
   title: Joi.string().required(),
   description: Joi.string().required(),
+  ///////////////where the daf is this file used
   location: Joi.string().required(),
   city: Joi.string().required(),
   // Add all other required fields

@@ -1,8 +1,9 @@
 import React from 'react';
 import './PropertyCarousel.css';
-
+//CHECK THIS - IS THIS EVEN USED SOMEWHERE IF USING CHANGE THE USE OF STATUS INTHE dummy properties data 
 const PropertyCarousel = () => {
   // Dummy data matching your image style
+  
   const properties = [
     {
       id: 1,

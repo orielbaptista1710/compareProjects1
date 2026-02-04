@@ -58,6 +58,8 @@ export default function AdminFilters({
         <MenuItem value="Industrial Warehouse">Industrial Warehouse</MenuItem>
         <MenuItem value="Retail">Retail</MenuItem>
         <MenuItem value="Office Space">Office Space</MenuItem>
+          {/* ////////PROPERTY TYPE CHANGE */}
+        
       </Select>
 
       {/* Status */}

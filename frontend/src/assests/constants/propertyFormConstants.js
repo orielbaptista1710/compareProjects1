@@ -19,10 +19,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 // ---------------- Dropdown / Select Options ----------------
-export const PROPERTY_GROUPS = [
-  { label: "Residential", value: "Residential" },
-  { label: "Commercial", value: "Commercial" },
-];
+// export const PROPERTY_GROUPS = [
+//   { label: "Residential", value: "Residential" },
+//   { label: "Commercial", value: "Commercial" },
+// ];  // this is not really used as mostly PROPERTY_TYPES are used in the developer sellpropertyForm n then when saved in the mongodb its saved as residential or commercial(grouped)
  
 export const PROPERTY_TYPES = [
   { label: "Flats/Apartments", icon: <FontAwesomeIcon icon={faHouse} /> },
@@ -30,9 +30,12 @@ export const PROPERTY_TYPES = [
   { label: "Plot", icon: <FontAwesomeIcon icon={faMap} /> },
   { label: "Shop/Showroom", icon: <FontAwesomeIcon icon={faStore} /> },
   { label: "Industrial Warehouse", icon: <FontAwesomeIcon icon={faWarehouse} /> },
+  ////////PROPERTY TYPE CHANGE
   { label: "Retail", icon: <FontAwesomeIcon icon={faStore} /> },
   { label: "Office Space", icon: <FontAwesomeIcon icon={faBuilding} /> },
 ];
+
+export const BHK_OPTIONS = ["1", "2", "3", "4", "5+"];
 
 const AREA_UNITS = [
   { value: "sqft", label: "Square Feet" },
@@ -56,7 +59,7 @@ export const POSSESSION_STATUS_OPTIONS = [
 ];
 export const AGE_OF_PROPERTY_OPTIONS = ["New", "1-5 years", "5-10 years", "10+ years"];
 
-export const BHK_OPTIONS = ["1", "2", "3", "4", "5+"];
+
 export const BATHROOM_OPTIONS = ["1", "2", "3", "4", "5+"];
 export const BALCONY_OPTIONS = ["0", "1", "2", "3", "4+"];
 

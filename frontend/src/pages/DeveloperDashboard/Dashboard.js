@@ -51,7 +51,7 @@ const initialFormData = {
   floor: "",
   wing: "",
   unitsAvailable: "",
-  availableFrom: null,
+  reraDate: null,
   amenities: [],
   facilities: [],
   security: [],
@@ -74,7 +74,7 @@ const normalizePropertyData = (property = {}) => ({
   security: property.security || [],
   reraApproved: !!property.reraApproved,
   priceNegotiable: !!property.priceNegotiable,
-  availableFrom: property.availableFrom || null,
+  reraDate: property.reraDate || null,
 });
 
 

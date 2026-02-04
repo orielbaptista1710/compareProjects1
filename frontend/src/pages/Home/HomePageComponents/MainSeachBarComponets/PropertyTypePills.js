@@ -1,51 +1,52 @@
-// src/components/PropertyTypePills/PropertyTypePills.js
 import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { PROPERTY_TYPE_CONFIG } from "../../../../assests/constants/propertyTypeConfig";
 import "./PropertyTypePills.css";
 
-const PROPERTY_TYPES = [
-  {
-    group: "Residential",
-    items: ["Flats/Apartments", "Villa", "Plot"],
-  },
-  {
-    group: "BHK",
-    items: ["1 Bhk", "2 Bhk", "3 Bhk", "4 Bhk", "5 Bhk", "5+ Bhk"],
-  },
-  {
-    group: "Commercial",
-    items: ["Shop/Showroom", "Industrial Warehouse", "Office Space","Retail" ],
-  },
-];
-
-const PropertyTypePills = ({ value, onChange, closeMenu }) => {
+const PropertyTypePills = ({ valueMap, onChange }) => {
   return (
     <div className="ptp-container">
-      {PROPERTY_TYPES.map((section, idx) => (
-        <div key={idx} className="ptp-section">
-          {/* Group Label */}
-          <div className="ptp-group-label">{section.group}</div>
+      {PROPERTY_TYPE_CONFIG.map((section) => {
+        const currentValue = valueMap[section.target];
 
-          {/* Pills */}
-          <div className="ptp-pills-row">
-            {section.items.map((item) => {
-              const active = value === item;
+        return (
+          <div key={section.key} className="ptp-section">
+            <div className="ptp-group-label">{section.group}</div>
 
-              return (
-                <div
-                  key={item}
-                  className={`ptp-pill ${active ? "ptp-pill-active" : ""}`}
-                  onClick={() => {
-                    onChange(active ? "" : item);
-                    if (closeMenu) closeMenu();
-                  }}
-                >
-                  {item}
-                </div>
-              );
-            })}
+            <div className="ptp-pills-row">
+              {section.items.map((item) => {
+                const itemValue = item.value; // keep as string
+                const active = currentValue === itemValue;
+
+                return (
+                  <button
+                    key={`${section.target}-${itemValue}`}
+                    type="button"
+                    className={`ptp-pill ${
+                      active ? "ptp-pill-active" : ""
+                    }`}
+                    aria-pressed={active}
+                    onClick={() =>
+                      onChange(
+                        section.target,
+                        active ? "" : itemValue
+                      )
+                    }
+                  >
+                    {item.icon && (
+                      <FontAwesomeIcon
+                        icon={item.icon}
+                        className="ptp-icon"
+                      />
+                    )}
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
