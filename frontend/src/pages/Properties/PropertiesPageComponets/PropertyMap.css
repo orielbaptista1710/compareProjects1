@@ -1,0 +1,183 @@
+/* ==========================================================================
+   PropertyMap.css - Simple & Clean Alignment
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Map Wrapper
+   -------------------------------------------------------------------------- */
+
+.property-map-wrapper {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+
+.property-map-container {
+  height: 300px;
+  width: 100%;
+}
+
+
+/* --------------------------------------------------------------------------
+   Leaflet Popup - White & Clean
+   -------------------------------------------------------------------------- */
+
+.leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+}
+
+.leaflet-popup-close-button {
+  color: #9ca3af !important;
+  font-size: 18px !important;
+  padding: 4px !important;
+}
+
+.leaflet-popup-close-button:hover {
+  color: #374151 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Popup Layout - Image Left, Content Right
+   -------------------------------------------------------------------------- */
+
+.property-popup-compact {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: #ffffff;
+  min-width: 260px;
+  max-width: 300px;
+  border-radius: 8px;
+
+}
+
+/* Image - Fixed size on left */
+.popup-thumb {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+/* Content - Flexible on right */
+.popup-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Text Styles - Simple & Clean
+   -------------------------------------------------------------------------- */
+
+/* Title */
+.popup-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Price - Purple */
+.popup-price {
+  font-size: 15px;
+  font-weight: 800;
+  color: #7c3aed;
+}
+
+/* Meta (BHK • Type) */
+.popup-meta {
+  display: flex;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+}
+
+/* Location */
+.popup-location {
+  display: flex;
+  gap: 4px;
+  font-size: 12px;
+  color: #6b7280;
+  align-items: flex-start;
+}
+
+.popup-location svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #a855f7;
+}
+
+/* Link */
+.popup-link {
+  font-size: 13px;
+  font-weight: 700;
+  color: #7c3aed;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.popup-link:hover {
+  color: #6d28d9;
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Clusters - Purple
+   -------------------------------------------------------------------------- */
+
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+  border: 2px solid #a855f7 !important;
+}
+
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+  background: #a855f7 !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 480px) {
+  .property-popup-compact {
+    flex-direction: column;
+    min-width: 200px;
+  }
+
+  .popup-thumb {
+    width: 100%;
+    height: 100px;
+  }
+}

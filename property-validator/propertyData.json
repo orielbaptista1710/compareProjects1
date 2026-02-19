@@ -5239,7 +5239,7 @@
   "emiStarts": 45000,
   "propertyGroup": "Residential",
   "propertyType": "Apartment",
-  "furnishing": "Semi Furnished",
+  "furnishing": "Semi-Furnished",
   "possessionStatus": "Ready to move",
   "bhk": 3,
   "bathrooms": 3,
@@ -7106,7 +7106,7 @@
     "Tennis Court"
   ],
   "furnishing": [
-    "Semi Furnished"
+    "Semi-Furnished"
   ],
   "bathrooms": 3,
   "balconies": 2,
@@ -7240,7 +7240,7 @@
   "bhk": 2,
   "bathrooms": 3,
   "furnishing": [
-    "Semi Furnished"
+    "Semi-Furnished"
   ],
   "possessionStatus": "Ready to Move",
   "ageOfProperty": "New",
@@ -23655,7 +23655,7 @@
   "propertyGroup": "Residential",
   "propertyType": "Flats/Apartments",
   "furnishing": [
-    "Semi Furnished"
+    "Semi-Furnished"
   ],
   "possessionStatus": "Ready to Move",
   "bhk": 1,

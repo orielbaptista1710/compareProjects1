@@ -1,27 +1,24 @@
-import React from 'react';
-import './PostPropertyBanner.css';
+import React, { useCallback } from "react";
+import GradientBanner from "../../../pages/Home/HomePageComponents/GradientBanner";
 
 const ContactUsBanner = () => {
-
-  const handleScrollToContact = () => {
-    const section = document.getElementById('contact-section');
+  const handleScrollToContact = useCallback(() => {
+    const section = document.getElementById("contact-section");
     if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  };
+  }, []);
 
   return (
-    <div className="contactus-banner-container">
-      <h2 className="banner-title">Need Help Finding the Right Property?</h2>
-      <p className="banner-subtitle">
-        Our team is here to guide you. Get expert assistance tailored to your needs.
-      </p>
-
-      <button className="banner-button" onClick={handleScrollToContact}>
-        Contact Us
-      </button>
-    </div>
+    <GradientBanner
+      id="contact-us-banner"
+      ariaLabelledBy="contact-us-heading"
+      title="Need Help Finding the Right Property?"
+      subtitle="Our team is here to guide you. Get expert assistance tailored to your needs."
+      buttonText="Contact Us"
+      onButtonClick={handleScrollToContact}
+    />
   );
 };
 
-export default ContactUsBanner;
+export default React.memo(ContactUsBanner);

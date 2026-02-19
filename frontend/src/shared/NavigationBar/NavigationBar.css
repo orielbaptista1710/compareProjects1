@@ -186,7 +186,7 @@
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 992px) {
+@media (max-width: 1199px) {
   .navigation-bar {
     display: none;
   }

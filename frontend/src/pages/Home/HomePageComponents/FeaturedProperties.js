@@ -37,7 +37,7 @@ const FeaturedProperties = () => {
   /* ---------------- DATA FETCH ---------------- */
   const {
     data: properties = [],
-    isLoading,
+    isLoading, 
     isError,
     refetch,
   } = useQuery({
@@ -150,7 +150,7 @@ const FeaturedProperties = () => {
           to={`/properties?city=${encodeURIComponent(city)}`}
           className="view-projects-btn"
         >
-          View More Projects
+          View More ProjectsSSS
         </Link>
       </header>
 

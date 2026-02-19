@@ -17,7 +17,7 @@ import { useCompare } from '../../contexts/CompareContext';
 import CompareBar from './HomePageComponents/CompareBar';
 import BaseLayout from '../../layouts/BaseLayout';
 import FullWidthSection from '../../layouts/FullWidthSection';
-import AnnouncementStrip from '../Home/HomePageComponents/AnnouncementStrip';
+import AnnouncementStrip from './HomePageComponents/AnnouncementStrip';
 import RankedProjects from '../Home/HomePageComponents/RankedProjects'
 function Home() {
   // const navigate = useNavigate();
@@ -43,29 +43,30 @@ function Home() {
 
       {/* <HeroSection /> */}
 
-      <FullWidthSection>
+      
+
+      {/* <FullWidthSection> */}
       <section>
       <HomeHero />
       {compareList.length > 0 && (
         <CompareBar 
           compareList={compareList}
           removeFromCompare={removeFromCompare}
+          
         />
       )}
       </section>
 
       <RankedProjects />
-      
-
-      </FullWidthSection>
-
 
       <section>
       <DiscoverFeaturedProjects />
       </section>
+      
 
+      {/* </FullWidthSection> */}
 
-    <BaseLayout>
+    {/* <BaseLayout> */}
 
 
       {/* Team Section */}
@@ -73,18 +74,18 @@ function Home() {
       <RecentlyAdded />
       </section>
 
-      </BaseLayout>
+      {/* </BaseLayout> */}
 
-      <FullWidthSection>
+      {/* <FullWidthSection> */}
       {/* Post Property Section */}
       <section>
         <PostPropertyBanner />
       </section>
-      </FullWidthSection>
+      {/* </FullWidthSection> */}
 
 
 
-      <FullWidthSection>
+      {/* <FullWidthSection> */}
 
       <section>
         <About />
@@ -99,32 +100,32 @@ function Home() {
       <section>
         <Gallery />
       </section>
-    </FullWidthSection>
+    {/* </FullWidthSection> */}
 
-      <BaseLayout>
+      {/* <BaseLayout> */}
 
       {/* Testimonial Section */}
       <section>
         <TestimonialSection />
       </section>
 
-      </BaseLayout>
+      {/* </BaseLayout> */}
 
-      <FullWidthSection>
+      {/* <FullWidthSection> */}
       {/* Post Property Section */}
       <section>
         <ContactUsBanner />
       </section>
-      </FullWidthSection>
+      {/* </FullWidthSection> */}
 
 
 
-      <BaseLayout>
+      {/* <BaseLayout> */}
       {/* Contact Section */}
       <section id="contact-section">
         <ContactForm />
       </section>
-      </BaseLayout>
+      {/* </BaseLayout> */}
 
 
     </div>

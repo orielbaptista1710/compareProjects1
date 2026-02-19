@@ -1,13 +1,5 @@
 /* LoginPage.css */
 
-/* Base Styles */
-/* body {
-  background-color: #f9f6ff;
-  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  margin: 0;
-  padding: 0;
-} */
-
 .login-container {
   display: flex;
   justify-content: center;

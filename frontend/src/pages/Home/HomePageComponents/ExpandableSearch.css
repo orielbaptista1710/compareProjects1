@@ -1,285 +1,594 @@
-/* ================== Root Wrapper ================== */
+/* ==========================================================================
+   AI PILL SEARCH - Compact Home Page Version
+========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Root Wrapper
+   -------------------------------------------------------------------------- */
+
 .search-wrapper {
   position: relative;
+  overflow: visible;
   width: 100%;
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: Inter, system-ui, sans-serif;
 }
 
-/* ================== Search Container ================== */
+/* --------------------------------------------------------------------------
+   AI Search Container - Compact Pill
+   -------------------------------------------------------------------------- */
+
 .ai-search-container {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(18px);
-  border-radius: 999px;
-  padding: 0.38rem 0.7rem;
-  box-shadow:
-    0 6px 18px rgba(0, 0, 0, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.06);
+  justify-content: center;
+  gap: 8px;
+  
+  /* Collapsed: Smaller pill */
+  width: auto;
+  min-width: 120px;
+  height: 42px;
+  
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  
+  border-radius: 50px;
+  padding: 5px 6px;
+  
+  box-shadow: 
+    0 3px 12px rgba(124, 58, 237, 0.25),
+    0 1px 4px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  
   cursor: pointer;
-  transition:
-    box-shadow 0.25s ease,
-    transform 0.25s ease,
-    background 0.25s ease;
+  
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
   position: relative;
+  z-index: 100;
+  
 }
 
-.ai-search-container:hover:not(.expanded) {
-  transform: translateY(-1px);
-  box-shadow:
-    0 10px 26px rgba(0, 0, 0, 0.12),
-    0 2px 4px rgba(0, 0, 0, 0.08);
+/* Hover state when collapsed */
+.ai-search-container:not(.expanded):hover {
+  transform: translateY(-2px) scale(1.01);
+  
+  box-shadow: 
+    0 6px 18px rgba(124, 58, 237, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-/* Expanded container */
+/* Active/click feedback */
+.ai-search-container:not(.expanded):active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Expanded state - Compact search bar */
 .ai-search-container.expanded {
   width: 100%;
-  max-width: 760px;
-  padding: 0.55rem 0.9rem;
+  max-width: 640px;
+  
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  
+  padding: 6px 10px;
+  
   cursor: default;
+  
+  box-shadow: 
+    0 10px 32px rgba(124, 58, 237, 0.12),
+    0 3px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  
   transform: none;
+  
+  animation: expandPill 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ================== Toggle Button ================== */
+@keyframes expandPill {
+  0% {
+    width: 120px;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+  }
+  50% {
+    width: 45%;
+  }
+  100% {
+    width: 100%;
+    max-width: 640px;
+    background: rgba(255, 255, 255, 0.98);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Toggle Button / Icon - Compact
+   -------------------------------------------------------------------------- */
+
 .ai-search-toggle {
   all: unset;
+  
   display: flex;
   align-items: center;
   justify-content: center;
+  
+  flex-shrink: 0;
+  
   cursor: pointer;
+  
+  transition: all 0.2s ease;
 }
 
-/* ================== Ask Rubi (Collapsed) ================== */
+.expanded .ai-search-toggle svg {
+  color: #7c3aed;
+}
+
+/* --------------------------------------------------------------------------
+   "Ask Rubi" Pill - Compact
+   -------------------------------------------------------------------------- */
+
 .ask-rubi-minimal {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.32rem 0.65rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #faf5ff 0%, #fdf4ff 100%);
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #6d28d9;
+  gap: 6px;
+  
+  padding: 6px 12px;
+  
+  color: #ffffff;
+  
+  font-size: 13px;
+  font-weight: 700;
   letter-spacing: -0.01em;
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+  
+  transition: all 0.2s ease;
+  
+  white-space: nowrap;
 }
 
-.ask-rubi-minimal:hover {
-  background: linear-gradient(135deg, #f3e8ff, #fce7f3);
-}
-
-/* Sparkle dot (calmer) */
-.ai-sparkle-small {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #9333ea, #ec4899);
-  box-shadow: 0 0 4px rgba(147, 51, 234, 0.4);
-  animation: sparkle 2.4s ease-in-out infinite;
+.ask-rubi-minimal svg {
+  flex-shrink: 0;
+  animation: sparkle 2s ease-in-out infinite;
 }
 
 @keyframes sparkle {
-  0%, 100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.35); opacity: 0.6; }
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.85;
+  }
 }
 
-/* ================== Search Form ================== */
+/* --------------------------------------------------------------------------
+   Search Form - Compact
+   -------------------------------------------------------------------------- */
+
 .ai-search-form {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 8px;
   width: 100%;
+  
+  animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.15s backwards;
 }
 
-/* Input wrapper */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Input Wrapper - Compact */
 .ai-input-wrapper {
   flex: 1;
+  
   background: #f9fafb;
-  border-radius: 999px;
-  padding: 0.42rem 0.85rem;
-  transition:
-    background 0.2s ease,
-    box-shadow 0.2s ease;
+  
+  border-radius: 50px;
+  padding: 8px 14px;
+  
+  transition: all 0.2s ease;
 }
 
 .ai-input-wrapper:focus-within {
   background: #ffffff;
-  box-shadow:
-    0 0 0 3px rgba(147, 51, 234, 0.18);
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.12);
 }
 
-/* Input */
+/* Input - Compact */
 .ai-search-input {
   width: 100%;
+  
   border: none;
   outline: none;
   background: transparent;
-  font-size: 0.9rem;
-  color: #18181b;
+  
+  font-size: 13px;
+  font-weight: 500;
+  color: #1f2937;
+  
+  line-height: 1.4;
 }
 
 .ai-search-input::placeholder {
-  color: #a1a1aa;
+  color: #9ca3af;
+  font-weight: 400;
 }
 
-/* ================== Action Buttons ================== */
+/* --------------------------------------------------------------------------
+   Action Buttons - Compact
+   -------------------------------------------------------------------------- */
+
 .ai-action-buttons {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
-.ai-search-submit {
+/* Base button - Smaller */
+.ai-search-submit,
+.ai-search-close {
   all: unset;
-  width: 34px;
-  height: 34px;
+  
+  width: 36px;
+  height: 36px;
+  
   border-radius: 50%;
-  background: #9333ea;
-  color: #ffffff;
+  
   display: flex;
   align-items: center;
   justify-content: center;
+  
   cursor: pointer;
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease;
+  
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  flex-shrink: 0;
+}
+
+/* Submit Button */
+.ai-search-submit {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  color: #ffffff;
+  
+  box-shadow: 
+    0 3px 10px rgba(124, 58, 237, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .ai-search-submit:hover {
-  background: #7e22ce;
-  transform: scale(1.06);
+  background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
+  transform: scale(1.04);
+  
+  box-shadow: 
+    0 4px 14px rgba(124, 58, 237, 0.35),
+    0 2px 5px rgba(0, 0, 0, 0.12);
 }
 
+.ai-search-submit:active {
+  transform: scale(0.98);
+}
+
+/* Close Button */
 .ai-search-close {
-  all: unset;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #e5e7eb;
-  color: #52525b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease;
+  background: #f3f4f6;
+  color: #6b7280;
 }
 
 .ai-search-close:hover {
-  background: #d4d4d8;
-  transform: rotate(90deg);
+  background: #e5e7eb;
+  color: #374151;
+  transform: rotate(90deg) scale(1.04);
 }
 
-/* ================== Quick Suggestions ================== */
+.ai-search-close:active {
+  transform: rotate(90deg) scale(0.96);
+}
+
+/* --------------------------------------------------------------------------
+   Quick Suggestions - Compact
+   -------------------------------------------------------------------------- */
+
 .quick-suggestions-container {
-  margin-top: 0.7rem;
+  margin-top: 12px;
   display: flex;
-  gap: 0.45rem;
+  gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
+  
+  animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .suggestion-pill {
   all: unset;
-  padding: 0.38rem 0.7rem;
-  border-radius: 999px;
-  background: #fafafa;
-  font-size: 0.78rem;
-  color: #6d28d9;
+  
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  
+  padding: 6px 12px;
+  
+  background: rgba(124, 58, 237, 0.06);
+  color: white;
+  
+  border: 1.5px solid whitesmoke;
+  border-radius: 50px;
+  
+  font-size: 12px;
+  font-weight: 600;
+  
   cursor: pointer;
-  transition: background 0.2s ease;
+  
+  transition: all 0.2s ease;
 }
 
 .suggestion-pill:hover {
-  background: #f3e8ff;
+  background: rgba(124, 58, 237, 0.12);
+  transform: translateY(-1px);
+  
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.15);
 }
 
-/* ================== Dropdown ================== */
+.suggestion-pill:active {
+  transform: translateY(0);
+}
+
+.suggestion-pill svg {
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Results Dropdown - Compact
+   -------------------------------------------------------------------------- */
+
 .search-results-dropdown {
   position: absolute;
-  top: calc(100% + 0.55rem);
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  
   width: 100%;
-  max-width: 760px;
+  max-width: 640px;
+  
   background: #ffffff;
+  
   border-radius: 16px;
-  padding: 0.75rem;
-  box-shadow:
-    0 24px 48px rgba(0, 0, 0, 0.16);
-  z-index: 100;
-  animation: dropdownFade 0.18s ease;
+  border: 1px solid #f3f4f6;
+  
+  padding: 10px;
+  
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.1),
+    0 6px 16px rgba(124, 58, 237, 0.06);
+  
+  z-index: 999;
+  
+  animation: dropdownSlide 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes dropdownFade {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
-/* Results */
-.property-results {
+/* --------------------------------------------------------------------------
+   Loading State - Compact
+   -------------------------------------------------------------------------- */
+
+.search-loading {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-}
-
-.property-result-item {
-  border-radius: 12px;
-  transition: background 0.15s ease;
-}
-
-.property-result-item.highlighted {
-  background: #f3e8ff;
-}
-
-/* ================== Loading / Error / Empty ================== */
-.search-loading,
-.search-error,
-.no-results {
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.9rem;
+  align-items: center;
+  gap: 10px;
+  padding: 32px 16px;
+  
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
 }
 
 .loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #e5e7eb;
-  border-top-color: #9333ea;
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid #f3f4f6;
+  border-top-color: #7c3aed;
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 0.5rem;
+  
+  animation: spin 0.7s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
+
+/* --------------------------------------------------------------------------
+   Error State - Compact
+   -------------------------------------------------------------------------- */
 
 .search-error {
+  padding: 18px;
+  text-align: center;
+  
   color: #dc2626;
   background: #fef2f2;
+  
   border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.no-results-icon {
-  font-size: 1.7rem;
-  opacity: 0.6;
+/* --------------------------------------------------------------------------
+   No Results - Compact
+   -------------------------------------------------------------------------- */
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  
+  text-align: center;
 }
 
-/* ================== Responsive ================== */
+.no-results svg {
+  color: #d1d5db;
+}
+
+.no-results p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* --------------------------------------------------------------------------
+   Fuzzy Indicator - Compact
+   -------------------------------------------------------------------------- */
+
+.fuzzy-indicator {
+  padding: 5px 12px;
+  margin-bottom: 6px;
+  
+  color: #92400e;
+    
+  font-size: 11px;
+  box-shadow: 0 1px 4px rgba(251, 191, 36, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   Property Results - Compact (Next step: PropertyCardSmall)
+   -------------------------------------------------------------------------- */
+
+.property-result-item {
+  border-radius: 12px;
+  cursor: pointer;
+  
+  padding: 4px;
+  margin: -4px;
+  
+  transition: all 0.2s ease;
+}
+
+.property-result-item:active {
+  transform: scale(0.99);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Design
+   -------------------------------------------------------------------------- */
+
 @media (max-width: 768px) {
   .ai-search-container.expanded {
-    max-width: 100%;
+    max-width: calc(100vw - 24px);
   }
-
+  
   .search-results-dropdown {
-    max-width: 100%;
+    max-width: calc(100vw - 24px);
+  }
+  
+  .quick-suggestions-container {
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-search-container {
+    min-width: 110px;
+    height: 40px;
+  }
+  
+  .ask-rubi-minimal {
+    padding: 5px 10px;
+    font-size: 12px;
+    gap: 5px;
+  }
+  
+  .ai-input-wrapper {
+    padding: 7px 12px;
+  }
+  
+  .ai-search-input {
+    font-size: 12px;
+  }
+  
+  .ai-search-submit,
+  .ai-search-close {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .suggestion-pill {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Accessibility
+   -------------------------------------------------------------------------- */
+
+.ai-search-toggle:focus-visible,
+.ai-search-submit:focus-visible,
+.ai-search-close:focus-visible,
+.suggestion-pill:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced Motion
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-search-container,
+  .suggestion-pill,
+  .ai-search-submit,
+  .ai-search-close,
+  .property-result-item,
+  .loading-spinner,
+  .ask-rubi-minimal svg,
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Print Styles
+   -------------------------------------------------------------------------- */
+
+@media print {
+  .search-wrapper {
+    display: none !important;
   }
 }

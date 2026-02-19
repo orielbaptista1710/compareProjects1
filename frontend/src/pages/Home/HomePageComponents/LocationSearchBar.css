@@ -1,75 +1,186 @@
-.location-search-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 420px;
-}
+/* =========================================================
+   LOCATION SEARCH BAR - Complementing MainSearchBar
+========================================================= */
 
-/* Collapsed input */
-.location-input {
+.location-search {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #fff;
-  font-size: 15px;
+  
+  flex: 1;
+  height: 44px;
+  padding: 0 16px;
+  
+  border: none;
+  border-radius: 24px;
+  background: transparent;
+  
+  transition: background-color 0.2s ease;
 }
 
-.location-input.active {
-  border-color: #d90429;
+.location-search:hover {
+  background-color: #f9fafb;
 }
 
-.location-icon {
-  color: #d90429;
-  font-size: 18px;
+.location-search:focus-within {
+  background-color: #f3f4f6;
 }
 
-.location-input span {
-  color: #888;
+/* Icon - Purple accent */
+.location-search svg {
+  color: #a855f7;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
 }
 
-.location-input span.filled {
-  color: #111;
+.location-search:focus-within svg {
+  color: #7c3aed;
 }
 
-/* Dropdown */
+/* Input - Clean and minimal */
+.location-search input {
+  flex: 1;
+  height: 100%;
+  
+  border: none;
+  outline: none;
+  background: transparent;
+  
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.location-search input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+/* =========================================================
+   LOCATION DROPDOWN - Professional
+========================================================= */
+
 .location-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 12px);
   left: 0;
+  
   width: 100%;
-  background: #fff;
+  min-width: 280px;
+  max-width: 360px;
+  
+  background: #ffffff;
+  
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12), 
+              0 4px 12px rgba(0, 0, 0, 0.08);
+  
+  padding: 8px;
+  
+  z-index: 1000;
+  
+  animation: slideDown 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Location Items - Clean hover
+   -------------------------------------------------------------------------- */
+
+.location-item {
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  
+  background: none;
+  border: none;
   border-radius: 10px;
-  padding: 14px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-  z-index: 20;
+  
+  cursor: pointer;
+  
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 3px;
+  
+  transition: background-color 0.15s ease;
 }
 
-/* Inputs inside dropdown */
-.location-dropdown input {
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
+.location-item:hover {
+  background-color: #f9fafb;
+}
+
+.location-item:active {
+  background-color: #f3f4f6;
+}
+
+/* Location name - Bold */
+.location-item strong {
   font-size: 14px;
-}
-
-/* Apply button */
-.apply-location-btn {
-  margin-top: 6px;
-  background: #d90429;
-  color: white;
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
   font-weight: 600;
+  color: #1f2937;
 }
 
-.apply-location-btn:hover {
-  background: #b80322;
+/* Location details - Light gray */
+.location-item span {
+  font-size: 12px;
+  font-weight: 400;
+  color: #9ca3af;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 480px) {
+  .location-dropdown {
+    min-width: 260px;
+    max-width: calc(100vw - 40px);
+  }
+  
+  .location-item {
+    padding: 10px 12px;
+  }
+  
+  .location-item strong {
+    font-size: 13px;
+  }
+  
+  .location-item span {
+    font-size: 11px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Focus States (Accessibility)
+   -------------------------------------------------------------------------- */
+
+.location-item:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: -2px;
+}
+
+/* --------------------------------------------------------------------------
+   Empty State (Optional)
+   -------------------------------------------------------------------------- */
+
+.location-dropdown:empty::after {
+  content: "No locations found";
+  display: block;
+  padding: 16px;
+  text-align: center;
+  font-size: 13px;
+  color: #9ca3af;
 }

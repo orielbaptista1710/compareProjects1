@@ -1,52 +1,54 @@
+/* =========================
+   RANKED PROJECTS
+   Standardized Dimensions
+========================= */
+
 .ranked-projects {
-  padding: 64px 0;
+  padding: 50px 0;
   background: #ffffff;
 }
 
 .ranked-projects > * {
-  max-width: 1280px;
+  max-width: 1500px;
   margin-left: auto;
   margin-right: auto;
-  padding: 0 40px;
+  padding: 0 60px;
 }
 
-
-.hp-header{
+/* Header */
+.hp-header {
   margin-bottom: 32px;
 }
 
-.hp-header-h2{
-    font-size: 2.5rem;
+.hp-header-h2 {
+  font-size: 38px;
   font-weight: 700;
   text-align: left;
   color: #1a1a1a;
   margin-bottom: 0;
-  padding-bottom: 3rem !important;
-  max-width: 1300px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-bottom: 28px !important;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .hp-header-h2 .highlight {
-  color: #7B2FF7;
-  position: relative;
-  display: inline-block;
+  color: #7b2ff7;
   text-decoration: underline;
 }
 
 .hp-header p {
   max-width: 900px;
   color: #555;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.6;
+  margin: 0;
 }
 
+/* Tabs */
 .hp-tabs {
   display: flex;
   gap: 14px;
-  margin: 30px 0 40px;
+  margin: 28px 0 36px;
   flex-wrap: wrap;
 }
 
@@ -54,31 +56,39 @@
   padding: 10px 20px;
   border-radius: 14px;
   border: 1px solid #ddd;
+  background: transparent;
+  color: #1a1a1a;
+  font-size: 14px;
   font-weight: 600;
+  cursor: pointer;
+  min-height: 42px;
+  transition: all 0.2s ease;
 }
-
-.hp-tab.active {
-  background: #1a1a1a;
-  color: #fff;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
 
 .hp-tab:hover {
   border-color: #111;
+  background: #f9fafb;
 }
 
 .hp-tab.active {
   background: #1a1a1a;
   color: #fff;
   border-color: #1a1a1a;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
+.hp-tab:focus-visible {
+  outline: 2px solid #7b2ff7;
+  outline-offset: 2px;
+}
+
+/* Cards Container */
 .hp-cards {
   display: flex;
   gap: 24px;
   overflow-x: auto;
   padding-bottom: 10px;
+  scroll-behavior: smooth;
 }
 
 .hp-cards::-webkit-scrollbar {
@@ -86,42 +96,40 @@
 }
 
 .hp-cards::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 4px;
+  background: #cbd5e1;
+  border-radius: 3px;
 }
 
+/* Card */
 .hp-card {
+  min-width: 320px;
+  max-width: 320px;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  background-clip: padding-box;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
 }
 
 .hp-card:hover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
 }
 
-
-/* Rank number overlay */
-.hp-rank {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  font-size: 72px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1;
-  z-index: 2;
-  pointer-events: none;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+.hp-card:focus-visible {
+  outline: 3px solid #7b2ff7;
+  outline-offset: 2px;
 }
 
-/* Make sure image container is positioned */
+/* Image */
 .hp-image {
   position: relative;
-  height: 190px;
+  height: 210px;
   overflow: hidden;
+  background: #e5e7eb;
 }
-
 
 .hp-image img {
   width: 100%;
@@ -134,34 +142,205 @@
   transform: scale(1.05);
 }
 
+/* Rank Badge */
+.hp-rank {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 72px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1;
+  z-index: 2;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
 
+/* Content */
 .hp-content {
-  padding: 16px;
+  padding: 16px 18px 18px;
 }
 
 .hp-content h3 {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin: 0 0 8px 0;
   color: #1a1a1a;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .hp-location {
   font-size: 14px;
-  color: #666;
-  margin-bottom: 10px;
+  color: #6b7280;
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .hp-price {
   font-size: 16px;
   font-weight: 600;
   color: #1a1a1a;
+  margin: 0;
+  line-height: 1.3;
 }
 
+/* Responsive */
+@media (max-width: 1024px) {
+  .ranked-projects > * {
+    padding: 0 40px;
+  }
+
+  .hp-header {
+    margin-bottom: 28px;
+  }
+
+  .hp-header-h2 {
+    font-size: 32px;
+    padding-bottom: 24px !important;
+  }
+
+  .hp-header p {
+    font-size: 14px;
+  }
+
+  .hp-tabs {
+    margin: 24px 0 32px;
+  }
+
+  .hp-card {
+    min-width: 300px;
+    max-width: 300px;
+  }
+
+  .hp-image {
+    height: 200px;
+  }
+
+  .hp-rank {
+    font-size: 64px;
+  }
+
+  .hp-content h3 {
+    font-size: 16px;
+  }
+
+  .hp-location {
+    font-size: 13px;
+  }
+
+  .hp-price {
+    font-size: 15px;
+  }
+}
 
 @media (max-width: 768px) {
-  .hp-header h2 {
-    font-size: 26px;
+  .ranked-projects {
+    padding: 40px 0;
+  }
+
+  .ranked-projects > * {
+    padding: 0 28px;
+  }
+
+  .hp-header {
+    margin-bottom: 24px;
+  }
+
+  .hp-header-h2 {
+    font-size: 28px;
+    padding-bottom: 20px !important;
+  }
+
+  .hp-header p {
+    font-size: 13px;
+  }
+
+  .hp-tabs {
+    gap: 12px;
+    margin: 20px 0 28px;
+  }
+
+  .hp-tab {
+    padding: 9px 18px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+
+  .hp-cards {
+    gap: 20px;
+  }
+
+  .hp-card {
+    min-width: 280px;
+    max-width: 280px;
+  }
+
+  .hp-image {
+    height: 190px;
+  }
+
+  .hp-rank {
+    font-size: 60px;
+  }
+
+  .hp-content {
+    padding: 14px 16px 16px;
+  }
+
+  .hp-content h3 {
+    font-size: 15px;
+  }
+
+  .hp-location {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .hp-price {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ranked-projects {
+    padding: 32px 0;
+  }
+
+  .ranked-projects > * {
+    padding: 0 16px;
+  }
+
+  .hp-header {
+    margin-bottom: 20px;
+  }
+
+  .hp-header-h2 {
+    font-size: 24px;
+    padding-bottom: 16px !important;
+  }
+
+  .hp-header p {
+    font-size: 12px;
+  }
+
+  .hp-tabs {
+    gap: 10px;
+    margin: 18px 0 24px;
+  }
+
+  .hp-tab {
+    padding: 8px 16px;
+    font-size: 12px;
+    min-height: 38px;
+  }
+
+  .hp-cards {
+    gap: 18px;
   }
 
   .hp-card {
@@ -169,7 +348,63 @@
     max-width: 260px;
   }
 
+  .hp-image {
+    height: 170px;
+  }
+
   .hp-rank {
-    font-size: 60px;
+    font-size: 52px;
+    top: 12px;
+    left: 12px;
+  }
+
+  .hp-content {
+    padding: 12px 14px 14px;
+  }
+
+  .hp-content h3 {
+    font-size: 14px;
+    margin-bottom: 6px;
+  }
+
+  .hp-location {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+
+  .hp-price {
+    font-size: 13px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+
+  .hp-cards {
+    scroll-behavior: auto;
+  }
+}
+
+@media print {
+  .ranked-projects {
+    padding: 0;
+  }
+
+  .hp-tabs {
+    display: none;
+  }
+
+  .hp-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .hp-card {
+    min-width: auto;
+    max-width: none;
   }
 }

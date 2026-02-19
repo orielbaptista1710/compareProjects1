@@ -10,6 +10,7 @@ import {
   Ruler,
   CheckCircle,
   MapPin,
+  Compass,
 } from 'lucide-react';
 
 const placeholderImage = 'https://placehold.co/600x400/000000/FFFFFF/png';
@@ -88,10 +89,11 @@ function PropertyCard({
     return placeholderImage;
   }, [imageError, property.coverImage]);
 
-  const location = useMemo(
-    () => `${property.locality}, ${property.city}`,
-    [property.locality, property.city]
-  );
+  const location = useMemo(() => {
+  const parts = [property.locality, property.city].filter(Boolean);
+  return parts.join(', ');
+}, [property.locality, property.city]);
+
 
   const formattedPrice = useMemo(() => {
     const price = property.price;
@@ -133,13 +135,7 @@ function PropertyCard({
     return property.pricePerSqft.toLocaleString('en-IN');
   }, [property.pricePerSqft]);
 
-  const parkingCount = useMemo(() => {
-    if (!property.parkings) return '0';
-    if (Array.isArray(property.parkings)) {
-      return property.parkings.length.toString();
-    }
-    return property.parkings.toString();
-  }, [property.parkings]);
+  
 
   if (!property) return <p role="alert">Invalid property data</p>;
 
@@ -207,7 +203,11 @@ function PropertyCard({
       <div className="property-contentt">
         <header className="submain-headerr">
           <div className="property-headerr">
-            <h2 className="property-titlee">{property.title}</h2>
+            
+            <h2 className="property-titlee">
+              {property.title || "Untitled Property"}
+            </h2>
+
             <div className="property-pricee">
               <span className="price-amount">{formattedPrice}</span>
               {formattedEMI && (
@@ -216,70 +216,109 @@ function PropertyCard({
             </div>
           </div>
           <div className="more-details">
-            <p className="property-locationn">
-              <MapPin size={16} /> {location}
-            </p>
+
+            {location && (
+              <p className="property-locationn">
+                <MapPin /> {location}
+              </p>
+            )}
+
             {property.developerName && (
               <p className="property-agentt">By {property.developerName}</p>
             )}
+
           </div>
         </header>
 
         {/* Features */}
         <ul className="property-featuress">
+          
           {property.bhk && (
             <li className="feature">
-              <BedDouble size={16} />
+              <BedDouble />
               <span>{property.bhk} BHK</span>
             </li>
           )}
+
           {property.bathrooms && (
             <li className="feature">
-              <Bath size={16} />
+              <Bath />
               <span>{property.bathrooms} Bath</span>
             </li>
           )}
           {property.area?.value && (
             <li className="feature">
-              <Ruler size={16} />
+              <Ruler />
               <span>
                 {property.area.value} {property.area.unit || 'sqft'}
               </span>
             </li>
           )}
-          <li className="feature">
-            <Car size={16} />
-            <span>{parkingCount} Parking</span>
-          </li>
+
+          {property.parkings && (
+            <li className="feature">
+              <Car />
+              <span>{property.parkings}</span>
+            </li>
+          )}
+
+
+          {property.parkings && (
+            <li className="feature">
+              <Compass />
+              <span>{property.facing} Facing</span>
+            </li>
+          )}
+
         </ul>
 
         {/* Details Row */}
         <div className="property-details-row">
-          <div className="detail-item">
-            <span className="detail-label">Details:</span>
-            <span className="detail-value">
-              {formattedPricePerSqft ? `₹${formattedPricePerSqft}/sq.ft` : 'N/A'}
-            </span>
-          </div>
-          <div className="detail-item">
-            <span className="detail-label">Status:</span>
-            <span className="detail-value">
-              {property.furnishing?.[0] || 'Unfurnished'}
-              {property.possessionStatus?.[0] && `, ${property.possessionStatus[0]}`}
-            </span>
-          </div>
-        </div>
+  <div className="property-card-detail-item">
+
+    {formattedPricePerSqft && (
+      <>
+        <span className="property-card-detail-label">Price/Sqft:</span>
+        <span className="property-card-detail-value">
+          ₹{formattedPricePerSqft}/sq.ft
+        </span>
+      </>
+    )}
+
+    {property.possessionStatus && (
+      <>
+        <span className="property-card-detail-label">Status:</span>
+        <span className="property-card-detail-value">
+          {property.possessionStatus}
+        </span>
+      </>
+    )}
+
+    {property.furnishing && (
+      <>
+        <span className="property-card-detail-label">Furnishing:</span>
+        <span className="property-card-detail-value">
+          {property.furnishing}
+        </span>
+      </>
+    )}
+
+  </div>
+</div>
+
 
         {/* Additional Info Pills */}
-        {(property.ageOfProperty || property.balconies || property.floor) && (
+        {(property.propertyGroup || property.balconies || property.floor) && (
           <div className="property-pills">
-            {property.ageOfProperty && property.ageOfProperty !== 'New' && (
-              <span className="info-pill">{property.ageOfProperty}</span>
+            {property.propertyGroup && (
+              <span className="info-pill">{property.propertyGroup}</span>
             )}
             {property.balconies && (
               <span className="info-pill">{property.balconies} Balcony</span>
             )}
+            {property.totalFloors && <span className="info-pill">totalFloors {property.totalFloors}</span>}
             {property.floor && <span className="info-pill">Floor {property.floor}</span>}
+            {property.floorLabel && <span className="info-pill">{property.floorLabel}</span>}
             {property.unitsAvailable && (
               <span className="info-pill">{property.unitsAvailable} Units Available</span>
             )}
@@ -288,7 +327,7 @@ function PropertyCard({
 
         {/* Description */}
         {property.description && (
-          <div className={`property-descriptionn ${expanded ? 'expanded' : ''}`}>
+          <div className={`property-description ${expanded ? 'expanded' : ''}`}>
             <p>
               {expanded
                 ? property.description

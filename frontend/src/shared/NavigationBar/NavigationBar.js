@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './NavigationBar.css';
 import { menuItems } from "../../database/menuData";
-// import ExpandableSearch from './HomePageComponents/ExpandableSearch';
 
 const NavigationBar = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);

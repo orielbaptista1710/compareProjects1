@@ -1,3 +1,4 @@
+//routes/authRoutes.js
 const express = require('express'); 
 const router = express.Router();
 const User = require('../models/User');
@@ -36,8 +37,8 @@ router.post('/login', asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('User not found: Invalid credentials');
   }
-  console.log(user.password, user.username)
-  console.log(`Password length: ${password.length}`);
+  console.log(user.password, user.username)          //REMOVE THIS
+  console.log(`Password length: ${password.length}`);//REMOVE THIS 
 
 
   const isMatch = await bcrypt.compare(password, user.password);

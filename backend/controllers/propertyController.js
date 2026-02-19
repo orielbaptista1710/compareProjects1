@@ -1,3 +1,4 @@
+//controllers/propertyController.js
 const asyncHandler = require('express-async-handler');
 const Fuse = require('fuse.js');
 // import slugify from "slugify"; 
@@ -7,11 +8,18 @@ const {
   COMMERCIAL_TYPES,
 } = require("../models/propertyType");
 
+const escapeRegex = (str) => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
 
-      /**
- * GET /api/properties/filters
- * Returns distinct values & ranges needed to render filter UI
- */
+const validateSearchQuery = (search) => {
+  if (!search || typeof search !== 'string') return null;
+  
+  const trimmed = search.trim();
+  if (trimmed.length < 2 || trimmed.length > 100) return null;
+  
+  return escapeRegex(trimmed);
+};
 
 const getFilterOptions = asyncHandler(async (req, res) => {
   /**
@@ -21,7 +29,9 @@ const getFilterOptions = asyncHandler(async (req, res) => {
    * - Lightweight response
    */
 
-  const matchStage = { status: "approved" };
+  const matchStage = { status: "approved", bhk: { $ne: 0 }, };
+
+
 
   const [
     cities,
@@ -47,17 +57,10 @@ const getFilterOptions = asyncHandler(async (req, res) => {
   });
 });
 
-// module.exports = { getFilterOptions };
 
 
     const getPropertiesByType = asyncHandler(async (req, res) => {
-  /**
-   * Production principles:
-   * - Backend enums are the source of truth
-   * - Group-based querying
-   * - Approved properties only
-   * - Clean predictable response
-   */
+
 
   const statusFilter = { status: "approved" };
 
@@ -209,13 +212,16 @@ if (req.query.parkings) {
 }
 
     if (req.query.search) {
-      query.$or = [
-        { title: { $regex: req.query.search, $options: "i" } },
-        { description: { $regex: req.query.search, $options: "i" } },
-        { long_description: { $regex: req.query.search, $options: "i" } },
-        { locality: { $regex: req.query.search, $options: "i" } },
-      ];
-    }
+  const safeSearch = validateSearchQuery(req.query.search);
+  
+  if (safeSearch) {
+    query.$or = [
+      { title: { $regex: safeSearch, $options: "i" } },
+      { description: { $regex: safeSearch, $options: "i" } },
+      { locality: { $regex: safeSearch, $options: "i" } },
+    ];
+  }
+}
     const totalMatched = await Property.countDocuments(query);
 
     const properties = await Property.find(query)
@@ -320,55 +326,55 @@ if (req.query.parkings) {
 
 //used for the Location seach for MainSeachBar -- needs to be updated still
 const getLocationOptions = asyncHandler(async (req, res) => {
-  const { q } = req.query;
+  const { q, city } = req.query;
 
-  if (!q) {
+  if (!q || q.length < 2) {
     return res.json([]);
   }
 
   const regex = new RegExp(q, "i");
 
+  const match = {
+    status: "approved",
+    $or: [
+      { locality: regex },
+      { city: regex },
+      { pincode: regex },
+    ],
+  };
+
+  if (city) {
+    match.city = city;
+  }
+
   const results = await Property.aggregate([
-    {
-      $match: {
-        $or: [
-          { state: regex },
-          { city: regex },
-          { locality: regex },
-          { pincode: regex }
-        ]
-      }
-    },
+    { $match: match },
     {
       $group: {
         _id: {
-          state: "$state",
           city: "$city",
           locality: "$locality",
-          pincode: "$pincode"
-        }
-      }
+          pincode: "$pincode",
+        },
+      },
     },
-    { $limit: 10 }
+    { $limit: 8 },
   ]);
 
-  const formatted = results.map(item => {
-    const { state, city, locality, pincode } = item._id;
-
-    return {
-      label: locality
-        ? `${locality}, ${city}`
-        : `${city}, ${state}`,
-      type: locality ? "locality" : "city",
-      state,
-      city,
-      locality,
-      pincode
-    };
-  });
-
-  res.json(formatted);
+  res.json(
+    results.map(({ _id }) => ({
+      label: _id.locality
+        ? `${_id.locality}, ${_id.city}`
+        : _id.city,
+      city: _id.city,
+      locality: _id.locality,
+      pincode: _id.pincode,
+      type: _id.locality ? "locality" : "city",
+    }))
+  );
 });
+
+
 
 
 

@@ -2,13 +2,13 @@
 
 // constants/propertyTypeConfig.js
 import {
-  faHouse,
-  faBuilding,
-  faMap,
-  faStore,
-  faWarehouse,
-  faIndustry,
-} from "@fortawesome/free-solid-svg-icons";
+  Home,
+  Building2,
+  Map,
+  Store,
+  Warehouse,
+  Factory,
+} from "lucide-react";
 
 export const PROPERTY_TYPE_CONFIG = [
   {
@@ -16,9 +16,9 @@ export const PROPERTY_TYPE_CONFIG = [
     key: "residential",
     target: "propertyType",
     items: [
-      { label: "Flats / Apartments", value: "Flats/Apartments", icon: faHouse },
-      { label: "Villa", value: "Villa", icon: faBuilding },
-      { label: "Plot", value: "Plot", icon: faMap },
+      { label: "Flats / Apartments", value: "Flats/Apartments", icon: Home },
+      { label: "Villa", value: "Villa", icon: Building2 },
+      { label: "Plot", value: "Plot", icon: Map },
     ],
   },
 
@@ -40,31 +40,19 @@ export const PROPERTY_TYPE_CONFIG = [
     key: "commercial",
     target: "propertyType",
     items: [
-      {
-        label: "Shop / Showroom",
-        value: "Shop/Showroom",
-        icon: faStore,
-      },
-      {
-        label: "Office Space",
-        value: "Office Space",
-        icon: faBuilding,
-      },
+      { label: "Shop / Showroom", value: "Shop/Showroom", icon: Store },
+      { label: "Office Space", value: "Office Space", icon: Building2 },
       {
         label: "Industrial Warehouse / Godown",
         value: "Industrial Warehouse/Godown",
-        icon: faWarehouse,
+        icon: Warehouse,
       },
       {
         label: "Industrial Building",
         value: "Industrial Building",
-        icon: faIndustry,
+        icon: Factory,
       },
-      {
-        label: "Commercial Land",
-        value: "Commercial Land",
-        icon: faMap,
-      },
+      { label: "Commercial Land", value: "Commercial Land", icon: Map },
     ],
   },
 ];
@@ -74,7 +62,7 @@ export const PROPERTY_TYPE_CONFIG = [
 //src/assests/constants/propertyTypeConfig.js
 export const FILTER_LABELS = {
   city: "City",
-  locality: "Locality",
+  locality: "Location",
 
   propertyType: "Property Type",
   bhk: "BHK",
@@ -82,8 +70,5 @@ export const FILTER_LABELS = {
   furnishing: "Furnishing",
   facing: "Facing",
   parkings: "Parkings",
-
-  // minBudget: "Min Budget",
-  // maxBudget: "Max Budget",
 };
 

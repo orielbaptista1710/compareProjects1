@@ -1,11 +1,11 @@
-
-/* =====================================
-   TESTIMONIALS
-   ===================================== */
+/* 
 .interiors-testimonials-section {
   position: relative;
-  padding: 100px 6%;
-  background: url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c") center/cover no-repeat;
+  padding: 90px 6%;
+  background: url("https://images.unsplash.com/photo-1600585154340-be6161a56a0c")
+    center/cover no-repeat;
+  background-attachment: fixed;
+  overflow: hidden;
 }
 
 .interiors-testimonials-bg {
@@ -16,23 +16,48 @@
 
 .interiors-testimonials-content {
   position: relative;
-  color: white;
-  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: #fff;
+}
+
+.interiors-section-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.interiors-section-heading {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 40px;
+  line-height: 1.2;
 }
 
 .interiors-testimonials-grid {
-  margin-top: 40px;
   display: grid;
-  gap: 30px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 28px;
 }
 
 .interiors-testimonial-card {
   background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
   padding: 28px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  transition: 0.3s ease;
+}
+
+.interiors-testimonial-card:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-4px);
 }
 
 .interiors-testimonial-stars {
@@ -42,12 +67,49 @@
 }
 
 .interiors-testimonial-content {
-  margin: 16px 0;
-  font-size: 1rem;
-  opacity: 0.95;
+  font-size: 15px;
+  line-height: 1.6;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.95);
+  flex-grow: 1;
+}
+
+.interiors-testimonial-author {
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .interiors-testimonial-author h4 {
-  font-size: 1.1rem;
+  font-size: 16px;
   font-weight: 600;
+  margin-bottom: 4px;
 }
+
+.interiors-testimonial-author span {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 768px) {
+  .interiors-testimonials-section {
+    padding: 70px 5%;
+    background-attachment: scroll;
+  }
+
+  .interiors-section-heading {
+    font-size: 32px;
+  }
+
+  .interiors-testimonials-grid {
+    gap: 20px;
+  }
+
+  .interiors-testimonial-card {
+    padding: 22px;
+  }
+}
+
+.interiors-testimonial-card:focus-visible {
+  outline: 2px solid #ffd700;
+  outline-offset: 2px;
+} */

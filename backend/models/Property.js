@@ -23,7 +23,7 @@ const propertySchema = new mongoose.Schema({
   sourceUrl: { type: String },// original source if scraped/imported
   tierType: { type: String, enum: ['tier1', 'tier2'] }, 
 
-  // Contact Information
+  // Contact Information 
   developerName : { type: String, required: true},
   developerAvatar: {
     url: { type: String, default: null },
@@ -146,7 +146,7 @@ geo: {
 
   furnishing: { 
     type: String,
-    enum: ['Furnished', 'Semi Furnished', 'Unfurnished', 'Fully Furnished'] 
+    enum: ['Furnished', 'Semi-Furnished', 'Unfurnished', 'Fully Furnished'] 
   },
 
   bhk: { type: Number, min: 0 },
@@ -160,11 +160,15 @@ geo: {
     default: "New"
   },
 
+  // what do i do about this 
   totalFloors: { type: Number }, //the total no of floors in the building
   floor: { type: Number  },//the floor on which the unit is located
-  floorLabel: { type: String },//new field added u can add eg:  Ground / Podium / Basement / Penthouse / Mezzanine / Attic / High Rise / Mid Rise etc 
-  wing: { type: String  },// the wing of the building where the unit is located eg: G / B1 / 12
+  floorLabel: { type: String },//new field added u can add eg:  High Rise / Mid Rise / Low Floor dependent on floor n totalFloors
 
+
+  wing: { type: String  },// the wing of the building where the unit is located eg: G / B1 / 12
+  phase: { type: String },// the phase of the building where the unit is located eg: Phase 1 / Phase 2 / Phase 3 etc  //CHECK THIS 
+  tower: { type: Number },// the tower of the building where the unit is located eg: Tower A / Tower B / Tower C etc
   unitsAvailable : { type: Number },
   
   amenities: { type: [String] ,default: []},
@@ -222,7 +226,7 @@ geo: {
 
   // Review- metadata for auditing and revalidate scraped data
   dataSource: { type: String, enum: ['manual', 'scraper', 'developer','test'], default: 'manual' },
-  importedAt: { type: Date }, 
+  importedAt: { type: Date },  //json 
 
   metadata: {
     
@@ -395,7 +399,6 @@ propertySchema.index({
   propertyType: 1,
   bhk: 1,
   price: 1,
-  //have to add for locations here
 });
 
 // Featured listings

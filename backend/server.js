@@ -30,11 +30,10 @@ console.log('Loading customerActivityRoutes- saved, compared properties for cust
 app.use('/api/customerActivity', require('./routes/customerActivityRoutes'));
 
 console.log('Loading authRoutes');
-app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/auth', require('./routes/authRoutes'));   /////////////////////
 
 console.log('Loading adminRoutes');
-app.use('/api/admin', require('./routes/adminRoutes'));
-
+app.use('/api/admin', require('./routes/adminRoutes'));     
 
 console.log('Loading propertyRoutes');
 app.use('/api/properties', require('./routes/propertyRoutes'));
@@ -46,13 +45,9 @@ app.use('/api/devlog', require('./routes/devResetPwdRoutes'));
 console.log('Loading discover Footer Routes');
 app.use('/api/discover', require('./routes/discoverRoutes'));
 
-
-
 app.get('/', (req, res) => {
   res.json({ message: "API is running 🚀" });
 });
-
-
 
 const connectDB = async () => {
     try {

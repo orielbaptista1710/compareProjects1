@@ -1,3 +1,4 @@
+//models/User.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -12,10 +13,12 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
-  this.password = await bcrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 12);
 });
 
-userSchema.index({  role: 1, username:1,password:1, displayName: 1 });
+userSchema.index({ username: 1 });
+userSchema.index({ role: 1 });
+
 
 module.exports = mongoose.model('User', userSchema);
  

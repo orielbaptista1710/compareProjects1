@@ -1,4 +1,7 @@
+//services/propertyAdminService.js
+
 const Property = require("../models/Property");
+
 
 /**
  * Fetch paginated properties for Admin Dashboard
@@ -166,7 +169,7 @@ exports.fetchProperties = async ({
  * -------------------------------------------------- */
 exports.fetchPropertyById = async (id) => {
   const property = await Property.findById(id)
-    .populate("userId", "displayName email phone")
+    .populate("userId", "displayName")  ////
     .populate("reviewedBy", "displayName")
     .lean();
 
@@ -182,10 +185,16 @@ exports.fetchPropertyById = async (id) => {
  * -------------------------------------------------- */
 exports.updatePropertyStatus = async (
   id,
-  status,
+  status,  
   adminId,
   rejectionReason = null
 ) => {
+  const allowedStatuses = ["approved", "rejected", "pending"];
+
+  if (!allowedStatuses.includes(status)) {
+    throw new Error("Invalid status");
+  }
+
   const update = {
     status,
     reviewedBy: adminId,

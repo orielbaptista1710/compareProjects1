@@ -1,30 +1,31 @@
 /* ===========================
-   PROPERTY CARD - MAIN CONTAINER
+   PROPERTY CARD - COMPACT & REFINED
    =========================== */
 .propertyy-card {
   display: flex;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   background: #fff;
   max-width: 100%;
-  margin: 0 0 24px 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  margin: 0 0 18px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid #e5e5e5;
   position: relative;
   cursor: pointer;
+  height: 350px;
 }
 
 .propertyy-card:hover,
 .propertyy-card:focus-within {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
   border-color: #d0d0d0;
   outline: none;
 }
 
 /* ===========================
-   IMAGE SECTION
+   IMAGE SECTION - COMPACT
    =========================== */
 .card-image-container {
   width: 280px;
@@ -42,111 +43,68 @@
 }
 
 .propertyy-card:hover .card-image {
-  transform: scale(1.08);
-  filter: brightness(1);
+  transform: scale(1.06);
 }
 
-/* Red Accent Bar */
-/* .property-type-badge {
-  position: absolute;
-  top: 0;
-  left: 0;
-  background: #d92228;
-  color: transparent;
-  padding: 0;
-  width: 4px;
-  height: 80px;
-  border-radius: 0;
-  font-size: 0;
-  box-shadow: none;
-  user-select: none;
-  z-index: 2;
-} */
-
-/* Property Type Label - Enhanced */
+/* Property Type Label */
 .property-type-label {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 10px;
+  left: 10px;
   background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(10px);
   color: #1a1a1a;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  letter-spacing: 0.6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   z-index: 2;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* RERA Badge - Enhanced */
+/* RERA Badge */
 .rera-badge {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 10px;
+  right: 10px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #fff;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 11px;
+  padding: 5px 9px;
+  border-radius: 5px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.6px;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  letter-spacing: 0.4px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .rera-badge svg {
-  font-size: 12px;
+  font-size: 10px;
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.1); }
+  50% { opacity: 0.8; transform: scale(1.08); }
 }
 
-/* Featured Badge - Enhanced */
-/* .featured-badge {
-  position: absolute;
-  top: 56px;
-  left: 16px;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: #78350f;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
-  z-index: 2;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  animation: shimmer 3s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.85; }
-} */
-
-/* Image Action Buttons - Enhanced */
+/* Image Action Buttons */
 .image-actions {
   position: absolute;
-  bottom: 12px;
-  right: 12px;
+  bottom: 10px;
+  right: 10px;
   display: flex;
-  flex-direction: row;
-  gap: 8px;
+  gap: 6px;
   z-index: 3;
   opacity: 0;
-  transform: translateY(8px);
+  transform: translateY(6px);
   transition: all 0.3s ease;
 }
 
@@ -156,8 +114,8 @@
 }
 
 .image-action-btn {
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
@@ -171,11 +129,10 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-
 .image-action-btn:hover,
 .image-action-btn:focus {
   background: #fff;
-  transform: scale(1.12);
+  transform: scale(1.1);
   color: #d92228;
   outline: none;
 }
@@ -183,170 +140,138 @@
 .image-action-btn.liked {
   color: #d92228;
   background: #fff;
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
 /* ===========================
-   CONTENT SECTION
+   CONTENT SECTION - OPTIMIZED LAYOUT
    =========================== */
 .property-contentt {
   flex: 1;
-  padding: 28px 36px;
+  padding: 14px 18px;
   display: flex;
   flex-direction: column;
-  gap: 0;
   background: #ffffff;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Header Section */
 .submain-headerr {
+  flex-shrink: 0;
   padding-bottom: 0;
-  border-bottom: none;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .property-headerr {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 24px;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-bottom: 5px;
 }
+
 .property-titlee {
-  font-size: 1.5rem;
+  font-size: 1.0625rem;
   font-weight: 600;
   color: #1a1a1a;
   margin: 0;
   line-height: 1.3;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   flex: 1;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  max-height: 2.6em;
 }
 
 .property-pricee {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  gap: 1px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .price-amount {
-  font-size: 1.25rem;
+  font-size: 1.0625rem;
   font-weight: 700;
   color: #1a1a1a;
   letter-spacing: -0.01em;
 }
 
 .price-per-sqft {
-  font-size: 0.875rem;
+  font-size: 0.6875rem;
   font-weight: 500;
   color: #ff6b35;
   background: transparent;
-  border: none;
   padding: 0;
   text-align: right;
 }
-
 
 /* Location & Developer */
 .more-details {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: 2px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .property-locationn {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #666;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin: 0;
   font-weight: 400;
 }
 
 .property-locationn svg {
   color: #d92228;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   flex-shrink: 0;
 }
 
 .property-agentt {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #888;
   font-weight: 400;
-  padding-left: 0;
   margin: 0;
 }
 
-/* Details Section - Enhanced */
-.property-details-row {
-  display: flex;
-  gap: 48px;
-  margin-bottom: 18px;
-  padding: 16px 20px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.detail-label {
-  font-size: 0.8125rem;
-  color: #94a3b8;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.detail-value {
-  font-size: 1rem;
-  color: #1e293b;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
 /* ===========================
-   FEATURES SECTION - Enhanced
+   FEATURES SECTION - INLINE & COMPACT
    =========================== */
 .property-featuress {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 10px;
   padding: 0;
-  margin: 0 0 16px 0;
+  margin: 0 0 8px 0;
   list-style: none;
+  flex-shrink: 0;
 }
 
 .feature {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.9375rem;
+  gap: 4px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #555;
   padding: 0;
   background: transparent;
-  border-radius: 0;
-  border: none;
 }
 
 .feature svg {
   color: #888;
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
 }
 
@@ -355,50 +280,100 @@
 }
 
 /* ===========================
-   INFO PILLS - Enhanced
+   DETAILS ROW - HORIZONTAL LAYOUT
+   =========================== */
+.property-details-row {
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.property-card-detail-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  row-gap: 6px;
+}
+
+.property-card-detail-label {
+  font-size: 0.6875rem;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.property-card-detail-value {
+  font-size: 0.8125rem;
+  color: #1e293b;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-right: 12px;
+}
+
+.property-card-detail-value:last-child {
+  margin-right: 0;
+}
+
+/* ===========================
+   INFO PILLS - SINGLE LINE
    =========================== */
 .property-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: 5px;
+  margin-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .info-pill {
   display: inline-flex;
   align-items: center;
-  padding: 7px 14px;
+  padding: 3px 8px;
   background: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.8125rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  font-size: 0.625rem;
   font-weight: 600;
   color: #64748b;
   white-space: nowrap;
-  transition: all 0.25s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .info-pill:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 /* ===========================
-   DESCRIPTION SECTION
+   DESCRIPTION - COMPACT ON DESKTOP
    =========================== */
-.property-descriptionn {
-  font-size: 0.9375rem;
+.property-description {
+  font-size: 0.8125rem;
   color: #666;
-  line-height: 1.6;
+  line-height: 1.5;
   padding: 0;
-  margin-bottom: 20px;
+  margin: 0 0 8px 0;
+  flex-shrink: 0;
 }
 
-.property-descriptionn p {
+.property-description p {
   margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.property-description.expanded p {
+  display: block;
+  -webkit-line-clamp: unset;
 }
 
 .toggle-descriptionn {
@@ -407,57 +382,56 @@
   color: #d92228;
   cursor: pointer;
   font-weight: 600;
-  margin-top: 6px;
-  font-size: 0.875rem;
-  padding: 4px 0;
+  margin-top: 3px;
+  font-size: 0.75rem;
+  padding: 2px 0;
   transition: all 0.2s ease;
+  display: inline-block;
 }
 
 .toggle-descriptionn:hover,
 .toggle-descriptionn:focus {
   color: #b91d22;
+  text-decoration: underline;
   outline: none;
 }
 
-
 /* ===========================
-   FOOTER ACTIONS - Enhanced
+   FOOTER ACTIONS - ALWAYS VISIBLE
    =========================== */
 .property-footerr {
   display: flex;
   justify-content: flex-end;
   margin-top: auto;
   padding-top: 0;
-  border-top: none;
+  flex-shrink: 0;
 }
 
 .property-actionss {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .compare-action-button,
 .contact-action-button {
-  padding: 13px 28px;
-  font-size: 0.9375rem;
+  padding: 8px 16px;
+  font-size: 0.75rem;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   border: none;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   justify-content: center;
-  min-width: 120px;
-  letter-spacing: 0;
+  min-width: 90px;
 }
 
 .compare-action-button {
   background-color: transparent;
   color: #7b68ee;
-  border: 2px solid #e8e5ff;
+  border: 1.5px solid #e8e5ff;
 }
 
 .compare-action-button:hover,
@@ -482,100 +456,102 @@
 .contact-action-button:hover,
 .contact-action-button:focus {
   background: #fb8c00;
-  box-shadow: 0 4px 10px rgba(255, 167, 38, 0.35);
+  box-shadow: 0 3px 8px rgba(255, 167, 38, 0.35);
+  transform: translateY(-1px);
   outline: none;
 }
-
-.contact-custom-btn-icon {
-  font-size: 1rem;
-}
-
-/* ===========================
-   CLOSE BUTTON - Enhanced
-   =========================== */
-/* .close-button {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 4;
-  font-size: 22px;
-  font-weight: 600;
-  color: #64748b;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.close-button:hover,
-.close-button:focus {
-  background: #fff;
-  color: #d92228;
-  transform: scale(1.15) rotate(90deg);
-  box-shadow: 0 6px 20px rgba(217, 34, 40, 0.25);
-  outline: none;
-} */
 
 /* ===========================
    RESPONSIVE DESIGN
    =========================== */
-@media (max-width: 1200px) {
+
+/* Large Desktop */
+@media (max-width: 1400px) {
   .card-image-container {
-    min-width: 280px;
-    width: 280px;
-  }
-
-  .property-contentt {
-    padding: 24px 28px;
-  }
-
-  .property-headerr {
-    gap: 20px;
-  }
-
-  .property-details-row {
-    gap: 32px;
+    width: 270px;
+    min-width: 270px;
   }
 }
 
-@media (max-width: 1024px) {
+/* Desktop */
+@media (max-width: 1200px) {
+  .propertyy-card {
+    height: 240px;
+  }
+
   .card-image-container {
-    min-width: 260px;
     width: 260px;
+    min-width: 260px;
   }
 
   .property-contentt {
-    padding: 20px 24px;
+    padding: 12px 16px;
+  }
+
+  .property-card-detail-item {
+    gap: 10px;
+  }
+}
+
+/* Tablet Landscape */
+@media (max-width: 1024px) {
+  .propertyy-card {
+    height: 230px;
+  }
+
+  .card-image-container {
+    width: 250px;
+    min-width: 250px;
+  }
+
+  .property-contentt {
+    padding: 12px 14px;
+  }
+
+  .property-titlee {
+    font-size: 0.9375rem;
+  }
+
+  .price-amount {
+    font-size: 0.9375rem;
   }
 
   .property-featuress {
-    gap: 20px;
+    gap: 8px;
   }
 
   .property-details-row {
-    gap: 24px;
-    padding: 14px 16px;
+    padding: 7px 10px;
+  }
+
+  .property-card-detail-item {
+    gap: 8px;
+  }
+
+  .property-card-detail-value {
+    margin-right: 8px;
+  }
+
+  .compare-action-button,
+  .contact-action-button {
+    padding: 7px 14px;
+    font-size: 0.6875rem;
+    min-width: 80px;
   }
 }
 
+/* Tablet Portrait */
 @media (max-width: 768px) {
   .propertyy-card {
     flex-direction: column;
-    margin-bottom: 24px;
+    height: auto;
+    margin-bottom: 16px;
   }
 
   .card-image-container {
     width: 100%;
     min-width: auto;
-    height: 260px;
+    height: 200px;
   }
 
   .image-actions {
@@ -584,13 +560,12 @@
   }
 
   .property-contentt {
-    padding: 24px;
+    padding: 16px;
   }
 
   .property-headerr {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    gap: 6px;
   }
 
   .property-pricee {
@@ -601,83 +576,141 @@
     text-align: left;
   }
 
+  .property-details-row {
+    padding: 10px 12px;
+  }
+
+  .property-card-detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .property-card-detail-label {
+    display: inline;
+  }
+
+  .property-card-detail-value {
+    display: inline;
+    margin-right: 0;
+    margin-left: 4px;
+  }
+
+  /* Show description on mobile */
+  .property-description {
+    display: block;
+    font-size: 0.8125rem;
+    color: #666;
+    line-height: 1.5;
+    padding: 0;
+    margin: 0 0 10px 0;
+  }
+
+  .property-description p {
+    margin: 0;
+  }
+
+  .toggle-descriptionn {
+    background: none;
+    border: none;
+    color: #d92228;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 3px;
+    font-size: 0.75rem;
+    padding: 2px 0;
+    transition: all 0.2s ease;
+  }
+
+  .toggle-descriptionn:hover,
+  .toggle-descriptionn:focus {
+    color: #b91d22;
+    text-decoration: underline;
+    outline: none;
+  }
+
+  .property-actionss {
+    width: 100%;
+  }
+
+  .compare-action-button,
+  .contact-action-button {
+    flex: 1;
+    font-size: 0.75rem;
+    padding: 9px 16px;
+  }
+}
+
+/* Mobile Large */
+@media (max-width: 480px) {
+  .propertyy-card {
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+
+  .card-image-container {
+    height: 180px;
+  }
+
+  .property-contentt {
+    padding: 14px;
+  }
+
+  .property-titlee {
+    font-size: 0.875rem;
+  }
+
+  .price-amount {
+    font-size: 0.875rem;
+  }
+
   .property-featuress {
-    gap: 18px;
+    gap: 8px;
+  }
+
+  .feature {
+    font-size: 0.6875rem;
+  }
+
+  .feature svg {
+    width: 13px;
+    height: 13px;
   }
 
   .property-details-row {
-    gap: 20px;
+    padding: 8px 10px;
+  }
+
+  .property-type-label,
+  .rera-badge {
+    font-size: 8px;
+    padding: 4px 8px;
+  }
+
+  .info-pill {
+    font-size: 0.5625rem;
+    padding: 2px 7px;
+  }
+}
+
+/* Mobile Small */
+@media (max-width: 375px) {
+  .card-image-container {
+    height: 160px;
+  }
+
+  .property-contentt {
+    padding: 12px;
   }
 
   .property-actionss {
     flex-direction: column;
-    width: 100%;
+    gap: 6px;
   }
 
   .compare-action-button,
   .contact-action-button {
     width: 100%;
-    min-width: auto;
-  }
-}
-
-@media (max-width: 480px) {
-  .propertyy-card {
-    border-radius: 10px;
-    margin-bottom: 20px;
-  }
-
-  .card-image-container {
-    height: 220px;
-  }
-
-  .property-contentt {
-    padding: 20px;
-  }
-
-  .property-titlee {
-    font-size: 1.25rem;
-  }
-
-  .price-amount {
-    font-size: 1.125rem;
-  }
-
-  .property-details-row {
-    flex-direction: column;
-    gap: 12px;
-    padding: 12px 14px;
-  }
-
-  .property-featuress {
-    gap: 14px;
-  }
-
-  .feature {
-    font-size: 0.875rem;
-  }
-
-  .feature svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .compare-action-button,
-  .contact-action-button {
-    padding: 13px 24px;
-    font-size: 0.875rem;
-  }
-
-  .property-type-label,
-  .rera-badge,
-  .featured-badge {
-    font-size: 10px;
-    padding: 6px 12px;
-  }
-
-  .info-pill {
-    font-size: 0.75rem;
-    padding: 6px 12px;
   }
 }
 
@@ -700,23 +733,18 @@
   .card-image {
     transform: none !important;
   }
-
-  .image-action-btn.liked {
-    animation: none !important;
-  }
 }
 
-/* Focus visible for keyboard navigation */
+/* Focus Styles */
 .propertyy-card:focus-visible {
   outline: 3px solid #7b68ee;
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
 .image-action-btn:focus-visible,
 .compare-action-button:focus-visible,
 .contact-action-button:focus-visible,
-.toggle-descriptionn:focus-visible,
-.close-button:focus-visible {
+.toggle-descriptionn:focus-visible {
   outline: 2px solid #7b68ee;
   outline-offset: 2px;
 }

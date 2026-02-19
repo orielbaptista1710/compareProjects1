@@ -14,6 +14,7 @@ module.exports = {
     "Industrial Building"
   ]
 };
+
   ////////PROPERTY TYPE CHANGE- Made change
 
 

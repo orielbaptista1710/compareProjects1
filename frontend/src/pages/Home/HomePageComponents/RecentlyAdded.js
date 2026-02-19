@@ -22,7 +22,6 @@ const RecentlyAdded = () => {
       const params = new URLSearchParams();
       params.append("limit", 3);
 
-      // ✅ only send city if selected
       if (city) {
         params.append("city", city);
       }
@@ -57,8 +56,8 @@ const RecentlyAdded = () => {
           <div className="project-card" key={property._id}>
             <img
               src={
-                property.coverImage ||
-                "https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+                property.coverImage.thumbnail ||
+                "https://placehold.co/600x400/EBEBEB/555/png?text=No+image"  //FALLBACK- CHECK THIS 
               }
               alt={property.title}
               className="project-image"

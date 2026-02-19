@@ -1,5 +1,4 @@
 .contact-fm-home-form-section {
-    font-family: 'Inter', sans-serif;
     display: flex;
     justify-content: center;
     padding: 100px 20px;
@@ -155,17 +154,13 @@
   grid-column: 1 / -1;
 }
 
-input, select, textarea {
+/* input, select, textarea {
   padding: 10px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
   transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-input:focus, select:focus, textarea:focus {
-  outline: none;
-}
+} */
 
 .error {
   border-color: #ff4d6d;

@@ -1,12 +1,11 @@
 /* CustomerLoginPage.css */
 
-.login-container {
+.customer-login-container {
   display: flex;
   min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* .login-container.compact {
+/* .customer-login-container.compact {
   font-size: 0.9rem;
 } */
 
@@ -254,7 +253,7 @@
 
 /* Responsive Design */
 @media (max-width: 900px) {
-  .login-container {
+  .customer-login-container {
     flex-direction: column;
   }
   

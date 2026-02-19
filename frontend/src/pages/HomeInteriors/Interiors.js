@@ -13,7 +13,7 @@ import FullWidthSection from "../../layouts/FullWidthSection";
 import HeroSection from "./InteriorsPageComponents/InteriorsHeroSection";
 import ServicesSection from "./InteriorsPageComponents/ServicesSection";
 import PortfolioSection from "./InteriorsPageComponents/PortfolioSection";
-import TestimonialsSection from "./InteriorsPageComponents/TestimonialsSection";
+import TestimonialSection from "../Home/HomePageComponents/TestimonialSection";
 import ContactSection from "./InteriorsPageComponents/ContactSection";
 
 export default function Interiors() {
@@ -39,7 +39,7 @@ export default function Interiors() {
 
 
       <FullWidthSection>
-      <TestimonialsSection />
+      <TestimonialSection />
 
       <ContactSection />
       </FullWidthSection>

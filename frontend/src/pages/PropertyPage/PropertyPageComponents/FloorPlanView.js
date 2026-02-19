@@ -266,12 +266,12 @@ const FloorPlanView = ({ floorPlans = [], property = {} }) => {
 
       {/* Lightbox Modal */}
       {lightboxOpen && (
-        <div className="lightbox-overlay" onClick={() => setLightboxOpen(false)}>
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <button className="lightbox-close" onClick={() => setLightboxOpen(false)}>
+        <div className="floor-lightbox-overlay" onClick={() => setLightboxOpen(false)}>
+          <div className="floor-lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <button className="floor-lightbox-close" onClick={() => setLightboxOpen(false)}>
               <X size={20} />
             </button>
-            <img src={lightboxImage} alt="Expanded view" className="lightbox-image" />
+            <img src={lightboxImage} alt="Expanded view" className="floor-lightbox-image" />
           </div>
         </div>
       )}

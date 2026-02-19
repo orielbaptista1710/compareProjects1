@@ -21,7 +21,7 @@ const BudgetFilter = ({ minBudget, maxBudget, onChange, priceRange }) => {
     }
 
     const options = [];
-    const minLakhs = Math.floor(priceRange.min / 100000);
+    // const minLakhs = Math.floor(priceRange.min / 100000);
     const maxLakhs = Math.ceil(priceRange.max / 100000);
     
     // Generate options in 5 lakh increments up to 50L

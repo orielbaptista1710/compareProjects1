@@ -8,6 +8,8 @@ const fallbackImg = "https://placehold.co/100x70/000000/FFFFFF/png";
 export default function CompareBar({ compareList, removeFromCompare }) {
   const navigate = useNavigate();
 
+  
+
   const goToComparePage = () => {
     navigate("/compare");
   };

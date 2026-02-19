@@ -3,7 +3,7 @@ import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthContext";
 import { toast } from "react-toastify"; // still using Toastify here for now
-import { Phone, Mail, Download, Heart } from "lucide-react"; // 
+import { Phone, Mail, Download, Heart, X } from "lucide-react"; // 
 import "./QuickLinks.css";
 
 function QuickLinks({ property }) {
@@ -116,22 +116,23 @@ function QuickLinks({ property }) {
 
       {showModal && (
         <div
-          className="modal-overlay"
+          className="quick-modal-overlay"
           role="dialog"
           aria-modal="true"
           aria-labelledby="enquiry-modal-title"
           onClick={() => setShowModal(false)}
         >
           <div
-            className="modal-content"
+            className="quick-modal-content"
             ref={modalRef}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="enquiry-modal-title">Enquiry Form</h3>
-            <form onSubmit={handleFormSubmit}>
+            <h3 id="quick-enquiry-modal-title">Enquiry Form</h3>
+            <form className="quick-enquiry-modal-form" onSubmit={handleFormSubmit}>
               <input
                 type="text"
                 name="name"
+                className="quick-enquiry-modal-form-name"
                 placeholder="Your Name"
                 value={formData.name}
                 onChange={handleFormChange}
@@ -140,6 +141,7 @@ function QuickLinks({ property }) {
               <input
                 type="email"
                 name="email"
+                className="quick-enquiry-modal-form-name"
                 placeholder="Your Email"
                 value={formData.email}
                 onChange={handleFormChange}
@@ -147,20 +149,28 @@ function QuickLinks({ property }) {
               />
               <textarea
                 name="message"
+                className="quick-enquiry-modal-form-message"
                 placeholder="Your Message"
                 value={formData.message}
                 onChange={handleFormChange}
                 required
               />
-              <button type="submit">Submit</button>
+              <button className="quick-enquiry-modal-form-submit-btn" type="submit">Submit</button>
             </form>
             <button
-              className="modal-close-btn"
+              className="quick-modal-close-btn"
               onClick={() => setShowModal(false)}
             >
-              Close
+              <X
+            size={18}
+            strokeWidth={1.5}
+            color={saved ? "#D90429" : "#333"}
+            fill={saved ? "#D90429" : "none"}
+          />
+
             </button>
           </div>
+
         </div>
       )}
     </>

@@ -32,7 +32,7 @@ const CustomerLoginPage = () => {
   };
 
   return (
-    <div className="login-container">
+    <div className="customer-login-container">
       {/* Left Section - Marketing Content */}
       <div className="signup-left">
         <div className="signup-content">

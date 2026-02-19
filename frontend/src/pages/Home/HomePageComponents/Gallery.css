@@ -1,25 +1,26 @@
-/* Compact Gallery Styles */
+/* Compact Gallery Styles - Smaller Version */
 .compact-gallery {
-  padding: 60px 0;
-background-color: #ffffff;}
+  padding: 30px 0; /* reduced */
+  background-color: #ffffff;
+}
 
 .gallery-container {
-  max-width: 1200px;
+  max-width: 1050px; /* slightly smaller */
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px; /* tighter spacing */
 }
 
 /* Featured Card */
 .featured-card {
   position: relative;
-  height: 400px;
-  border-radius: 12px;
+  height: 280px; /* reduced from 320 */
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease;
 }
 
@@ -38,16 +39,16 @@ background-color: #ffffff;}
 .secondary-cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 12px; /* reduced */
 }
 
 .secondary-card {
   position: relative;
-  height: 280px;
-  border-radius: 12px;
+  height: 190px; /* reduced from 220 */
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease;
 }
 
@@ -65,14 +66,16 @@ background-color: #ffffff;}
 /* Common Card Styles */
 .card-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.1) 100%);
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
   display: flex;
   align-items: flex-end;
-  padding: 30px;
+  padding: 18px; /* reduced */
 }
 
 .card-content {
@@ -81,31 +84,32 @@ background-color: #ffffff;}
 }
 
 .card-content h2 {
-  font-size: 2rem;
+  font-size: 1.55rem; /* slightly smaller */
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.4rem;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .secondary-card .card-content h2 {
-  font-size: 1.5rem;
+  font-size: 1.1rem;
 }
 
 .card-content p {
-  font-size: 1rem;
-  line-height: 1.5;
-  margin-bottom: 1.5rem;
+  font-size: 0.85rem; /* reduced */
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Button Styles */
 .Gallery-explore-btn {
+  display: inline-flex;
   align-items: center;
   background-color: transparent;
   color: white;
-  padding: 10px 20px;
+  padding: 6px 14px; /* tighter */
   border-radius: 50px;
-  font-size: 1rem;
+  font-size: 0.85rem; /* slightly smaller */
   font-weight: 600;
   border: none;
   cursor: pointer;
@@ -117,10 +121,10 @@ background-color: #ffffff;}
 }
 
 .btn-arrow {
-  width: 12px;
-  height: 9px;
+  width: 11px;
+  height: 8px;
   transition: transform 0.3s ease;
-  margin-left: 5px;
+  margin-left: 4px;
 }
 
 .Gallery-explore-btn:hover .btn-arrow {
@@ -130,60 +134,88 @@ background-color: #ffffff;}
 /* Responsive Design */
 @media (max-width: 992px) {
   .featured-card {
-    height: 350px;
-  }
-  
-  .secondary-card {
     height: 240px;
   }
-  
+
+  .secondary-card {
+    height: 170px;
+  }
+
   .card-overlay {
-    padding: 25px;
+    padding: 16px;
+  }
+
+  .card-content h2 {
+    font-size: 1.4rem;
+  }
+
+  .secondary-card .card-content h2 {
+    font-size: 1rem;
   }
 }
 
 @media (max-width: 768px) {
   .compact-gallery {
-    padding: 40px 0;
+    padding: 26px 0;
   }
-  
+
+  .gallery-container {
+    gap: 10px;
+  }
+
   .secondary-cards {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
-  
+
   .featured-card {
-    height: 320px;
-  }
-  
-  .secondary-card {
     height: 220px;
   }
-  
+
+  .secondary-card {
+    height: 160px;
+  }
+
   .card-content h2 {
-    font-size: 1.75rem;
+    font-size: 1.3rem;
+  }
+
+  .secondary-card .card-content h2 {
+    font-size: 0.95rem;
+  }
+
+  .card-content p {
+    font-size: 0.8rem;
   }
 }
 
 @media (max-width: 576px) {
+  .compact-gallery {
+    padding: 20px 0;
+  }
+
   .featured-card {
-    height: 280px;
+    height: 200px;
   }
-  
+
+  .secondary-card {
+    height: 150px;
+  }
+
   .card-overlay {
-    padding: 20px;
+    padding: 14px;
   }
-  
+
   .card-content h2 {
-    font-size: 1.5rem;
+    font-size: 1.15rem;
   }
-  
-  .card-content p {
+
+  .secondary-card .card-content h2 {
     font-size: 0.9rem;
-    margin-bottom: 1rem;
   }
-  
+
   .Gallery-explore-btn {
-    padding: 8px 16px;
-    font-size: 0.9rem;
+    padding: 5px 12px;
+    font-size: 0.8rem;
   }
 }

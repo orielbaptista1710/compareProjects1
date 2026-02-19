@@ -55,54 +55,97 @@ const projects = [
 export default function RankedProjects() {
   const [activeCity, setActiveCity] = useState("Mumbai");
 
-  const filteredProjects = projects.filter(
-    (p) => p.city === activeCity
-  );
+  const filteredProjects = projects.filter((p) => p.city === activeCity);
+
+  const handleCardClick = (projectId) => {
+    // Navigate to project details
+    window.location.href = `/property/${projectId}`;
+  };
+
+  const handleKeyDown = (e, callback) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      callback();
+    }
+  };
 
   return (
-    <section className="ranked-projects">
+    <section 
+      className="ranked-projects"
+      aria-labelledby="ranked-heading"
+    >
       <div className="hp-header">
-        <h2 className="hp-header-h2" style={{ paddingBottom: "50px" }}>
-        <span className="highlight">Most Searched</span> Projects This Month
+        <h2 id="ranked-heading" className="hp-header-h2" style={{ paddingBottom: "20px" }}>
+          <span className="highlight">Most Searched</span> Projects This Month
         </h2>
 
         <p>
-          A handpicked collection of the country’s most in-demand residential
+          A handpicked collection of the country's most in-demand residential
           developments. These properties offer unmatched value in top cities
           with ideal locations, smart amenities, and trusted builders.
         </p>
       </div>
 
-      {/* <div className="hp-tabs">
+      {/* City Tabs (commented out but keeping for future use) */}
+      {/* <nav 
+        className="hp-tabs"
+        role="tablist"
+        aria-label="Filter projects by city"
+      >
         {cities.map((city) => (
           <button
             key={city}
+            role="tab"
+            aria-selected={activeCity === city}
+            aria-controls="project-cards"
             className={`hp-tab ${activeCity === city ? "active" : ""}`}
             onClick={() => setActiveCity(city)}
+            onKeyDown={(e) => handleKeyDown(e, () => setActiveCity(city))}
           >
             {city}
           </button>
         ))}
-      </div> */}
+      </nav> */}
 
-      <div className="hp-cards">
+      <div 
+        id="project-cards"
+        className="hp-cards"
+        role="list"
+        aria-label="Featured property projects"
+      >
         {filteredProjects.map((project, index) => (
-  <div className="hp-card" key={project.id}>
-    <div className="hp-image">
-      {/* Rank number */}
-      <div className="hp-rank">{index + 1}</div>
+          <article
+            className="hp-card"
+            key={project.id}
+            role="listitem"
+            tabIndex={0}
+            onClick={() => handleCardClick(project.id)}
+            onKeyDown={(e) => handleKeyDown(e, () => handleCardClick(project.id))}
+            aria-label={`Rank ${index + 1}: ${project.title} in ${project.location}, ${project.price}`}
+          >
+            <div className="hp-image">
+              {/* Rank Badge */}
+              <div 
+                className="hp-rank" 
+                aria-hidden="true"
+              >
+                {index + 1}
+              </div>
 
-      <img src={project.image} alt={project.title} />
-    </div>
+              <img
+                src={project.image}
+                alt={`${project.title} property view`}
+                loading="lazy"
+              />
+            </div>
 
-    <div className="hp-content">
-      <h3>{project.title}</h3>
-      <p className="hp-location">{project.location}</p>
-      <p className="hp-price">{project.price}</p>
-    </div>
-  </div>
-))}
-
+            <div className="hp-content">
+              <h3>{project.title}</h3>
+              <p className="hp-location">{project.location}</p>
+              <p className="hp-price">{project.price}</p>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   );

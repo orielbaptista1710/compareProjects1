@@ -5,14 +5,12 @@ import {FILTER_LABELS} from "../assests/constants/propertyTypeConfig"
 export const DEFAULT_FILTERS = {
   city: "",
   locality: [], 
-  
-  search: "",
 
-  // minBudget: "",    
-  // maxBudget: "", 
+  search: "",
   
   bhk: [], 
   propertyType: [],
+  
   furnishing: [],
   facing: [],
   parkings: [],

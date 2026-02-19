@@ -1,108 +1,117 @@
 /* =========================
-   LAYOUT
+   DISCOVER FEATURED PROJECTS
+   Standardized Dimensions
 ========================= */
-
+ 
 .discover-projects {
   display: grid;
-  grid-template-columns: 0.55fr 2fr;
+  grid-template-columns: 0.5fr 2fr;
   gap: 24px;
-  padding: 40px 56px;
+  padding: 50px 60px;
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
-
-/* =========================
-   INFO CARD
-========================= */
-
+/* Info Card */
 .discover-info {
   background: #111827;
-  color: #fff;
-  border-radius: 20px;
+  color: #ffffff;
+  border-radius: 16px;
   padding: 28px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-height: 240px;
 }
 
 .discover-info h2 {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  margin-bottom: 10px;
+  line-height: 1.3;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.02em;
+}
+
+.city-pill {
+  color: #fbbf24;
+  font-weight: 700;
 }
 
 .discover-info p {
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.6;
-  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  flex-grow: 1;
 }
 
 .discover-btn {
   margin-top: 20px;
-  background: #fff;
+  background: #ffffff;
   color: #111827;
-  padding: 9px 16px;
-  border-radius: 10px;
-  font-size: 12px;
+  padding: 11px 20px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
   border: none;
   cursor: pointer;
-  width: fit-content;
-  transition: transform 0.2s ease;
+  min-height: 42px;
+  transition: all 0.2s ease;
 }
 
 .discover-btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+.discover-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
 
-/* =========================
-   CARDS GRID
-========================= */
-
+/* Cards Grid */
 .discover-cards {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
-  gap: 18px;
+  gap: 20px;
 }
 
-
-/* =========================
-   CARD
-========================= */
-
+/* Project Card */
 .project-card-discover-feature {
   position: relative;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
-  min-height: 240px;
+  min-height: 210px;
   cursor: pointer;
+  transition: box-shadow 0.3s ease;
 }
 
 .project-card-discover-feature.large {
-  min-height: 270px;
+  min-height: 230px;
 }
 
+.project-card-discover-feature:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
 
-/* =========================
-   IMAGE
-========================= */
+.project-card-discover-feature:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
 
+/* Image */
 .project-card-discover-feature img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s ease;
+  transition: transform 0.5s ease;
 }
 
 .project-card-discover-feature:hover img {
   transform: scale(1.04);
 }
 
-
-/* =========================
-   OVERLAY
-========================= */
-
+/* Overlay */
 .project-overlay {
   position: absolute;
   inset: 0;
@@ -110,18 +119,15 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  background: linear-gradient(
-    to top,
-    rgba(0,0,0,0.55),
-    rgba(0,0,0,0.1)
-  );
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.1));
 }
 
 .project-tag {
-  background: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.95);
   color: #111827;
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 600;
+  text-transform: uppercase;
   padding: 5px 10px;
   border-radius: 999px;
   width: fit-content;
@@ -129,73 +135,148 @@
 }
 
 .project-overlay h3 {
-  font-size: 16.5px;
+  font-size: 15px;
   font-weight: 700;
-  color: #fff;
+  color: #ffffff;
+  margin: 4px 0;
+  line-height: 1.3;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .project-overlay p {
-  font-size: 12.5px;
-  color: rgba(255,255,255,0.85);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-
-/* =========================
-   RIGHT → LEFT HOVER GLANCE
-========================= */
-
+/* Hover Glance Panel */
 .property-glance {
   position: absolute;
   top: 0;
   right: 0;
   height: 100%;
   width: 55%;
-  background: rgba(0,0,0,0.85);
+  background: rgba(0, 0, 0, 0.85);
   padding: 18px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
-
+  align-content: center;
   transform: translateX(100%);
-  transition: transform 0.35s ease;
+  transition: transform 0.3s ease;
+  backdrop-filter: blur(8px);
 }
 
 .project-card-discover-feature:hover .property-glance {
   transform: translateX(0);
 }
 
+.glance-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glance-item:last-child {
+  border-bottom: none;
+}
+
 .glance-label {
-  font-size: 11px;
+  font-size: 10px;
   color: #cbd5e1;
+  text-transform: uppercase;
+  font-weight: 500;
 }
 
 .glance-value {
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #fff;
+  color: #ffffff;
+  line-height: 1.3;
 }
 
-
-/* =========================
-   RESPONSIVE
-========================= */
-
+/* Responsive */
 @media (max-width: 1024px) {
   .discover-projects {
     grid-template-columns: 1fr;
-    padding: 32px;
+    padding: 40px;
+  }
+
+  .discover-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .property-glance {
+    width: 100%;
+    height: auto;
+    max-height: 70%;
+    top: auto;
+    bottom: 0;
+    transform: translateY(100%);
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+
+  .project-card-discover-feature:hover .property-glance {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .discover-projects {
+    padding: 40px 28px;
   }
 
   .discover-cards {
     grid-template-columns: 1fr;
   }
 
-  .property-glance {
-    width: 100%;
-    transform: translateY(100%);
+  .discover-info h2 {
+    font-size: 18px;
   }
 
-  .project-card-discover-feature:hover .property-glance {
-    transform: translateY(0);
+  .discover-info p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .discover-projects {
+    padding: 32px 16px;
+    gap: 20px;
+  }
+
+  .discover-info {
+    padding: 22px;
+    min-height: 200px;
+  }
+
+  .discover-info h2 {
+    font-size: 16px;
+  }
+
+  .discover-info p {
+    font-size: 12px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+@media print {
+  .discover-projects {
+    grid-template-columns: 1fr;
+  }
+
+  .property-glance,
+  .discover-btn {
+    display: none;
   }
 }
