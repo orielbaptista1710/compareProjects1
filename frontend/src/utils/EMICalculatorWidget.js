@@ -13,7 +13,7 @@ const EMICalculatorWidget = ({
   totalAmount,
   totalInterest
 }) => {
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount) => {   //CHECK THIS is it linked to mongodb dunamically
     return '₹' + amount.toLocaleString('en-IN');
   };
 

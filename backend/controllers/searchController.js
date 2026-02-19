@@ -1,6 +1,7 @@
-// controllers/searchController.js
+// controllers/searchController.js -- used in the ExpandableSeachBar.js -- CHECK THIS N TEST THIS 
 // Once you upgrade to M10, you can replace MongoDB regex + Fuse.js with Atlas Search easily.
 
+//when Upgrade to Mongo ATLAS REPLACE rEGEX, tEXT SEARCH , fUSE with Atlas Search -- autocomplete, Typo Tolerance, Ranking , Faster performance , scales propertly
 //where is seachController used ? -it is 
 const asyncHandler = require('express-async-handler');
 const Fuse = require('fuse.js');  //can be used only for small databases
@@ -25,7 +26,7 @@ const searchProperties = asyncHandler(async (req, res) => {
   if (foundType) filters.propertyType = new RegExp(foundType, 'i');
 
   // --- Furnishing Detection ---
-  const furnishingKeywords = ['Furnished', 'Semi Furnished', 'Unfurnished', 'Fully Furnished'];
+  const furnishingKeywords = ['Furnished', 'Semi-Furnished', 'Unfurnished', 'Fully Furnished'];
   const foundFurnishing = furnishingKeywords.find(f => q.includes(f.toLowerCase()));
   if (foundFurnishing) filters.furnishing = { $in: [new RegExp(foundFurnishing, 'i')] };
 
@@ -59,7 +60,8 @@ const searchProperties = asyncHandler(async (req, res) => {
 
   // --- Location Detection ---
   let locationSet = false;
-  const locationMatch = q.match(/in ([a-zA-Z\s]+)/); // "in Andheri"
+  const locationMatch = q.match(/in ([a-zA-Z\s]+?)(?: under| above| between|$)/);
+
   if (locationMatch) {
     const loc = escapeRegex(locationMatch[1].trim());
     filters.$or = [
@@ -105,7 +107,8 @@ const searchProperties = asyncHandler(async (req, res) => {
   // --- Fallback 2: Fuse.js (Typo-tolerant) ---
   if (properties.length === 0) {
     const allApproved = await Property.find({ status: 'approved' })
-      .select('title locality city state price images propertyType bhk furnishing reraApproved')
+      .select('title locality city state price coverImage propertyType bhk furnishing reraApproved description long_description')
+      .limit(2000)
       .lean();
 
     const fuse = new Fuse(allApproved, {

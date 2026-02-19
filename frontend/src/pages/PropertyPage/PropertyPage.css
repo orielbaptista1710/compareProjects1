@@ -4,9 +4,8 @@
   flex-direction: row;
   gap: 2rem;
   margin: 2rem auto;
-  max-width: 1500px;
+  max-width: 1400px;
   padding: 9rem 1rem;
-  font-family: 'Segoe UI', system-ui, sans-serif;
 }
 .property-page-content {
   flex: 1;
@@ -111,18 +110,18 @@
   gap: 15px;
 }
 
-.detail-item {
+.property-page-detail-item {
   display: flex;
   flex-direction: column;
 }
 
-.detail-label {
+.property-page-detail-label {
   font-size: 14px;
   color: #666;
   margin-bottom: 5px;
 }
 
-.detail-value {
+.property-page-detail-value {
   font-size: 16px;
   font-weight: 500;
   color: #333;
@@ -260,6 +259,33 @@
   border: 1px solid #ccc;
 }
 
+/* ///Download bth////////// */
+.download-brochure-propertypage {
+  margin-top: 2rem;
+}
+
+.download-brochure-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #d92228 0%, #b91d22 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(217, 34, 40, 0.25);
+}
+
+.download-brochure-btn:hover {
+  background: linear-gradient(135deg, #b91d22 0%, #a01a1e 100%);
+  box-shadow: 0 6px 16px rgba(217, 34, 40, 0.35);
+}
 
 
 /* Responsive Media Queries */

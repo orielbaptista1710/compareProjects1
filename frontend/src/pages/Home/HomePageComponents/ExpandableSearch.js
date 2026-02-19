@@ -3,16 +3,11 @@ import React, {
   useRef,
   useEffect,
   useCallback,
-  useMemo
+  useMemo,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import "./ExpandableSearch.css";
-import {
-  Search,
-  X,
-  Send,
-  Sparkles,
-  Home
-} from "lucide-react";
+import { Search, X, Send, Sparkles, Home } from "lucide-react";
 import PropertyCardSmall from "../HomePageComponents/PropertyCardSmall";
 import API from "../../../api";
 
@@ -31,6 +26,8 @@ function useDebounce(value, delay = 350) {
 }
 
 const ExpandableSearch = () => {
+  const navigate = useNavigate();
+
   const [isExpanded, setIsExpanded] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -50,7 +47,7 @@ const ExpandableSearch = () => {
       "Best neighborhoods",
       "Price trends",
       "Compare cities",
-      "Investment tips"
+      "Investment tips",
     ],
     []
   );
@@ -76,11 +73,17 @@ const ExpandableSearch = () => {
     }
   }, [isExpanded]);
 
+  /* ---------------- Reset highlight on new query ---------------- */
+  useEffect(() => {
+    setHighlightIndex(-1);
+  }, [debouncedQuery]);
+
   /* ---------------- Fetch Results ---------------- */
   useEffect(() => {
     if (!isExpanded) return;
 
     const trimmed = debouncedQuery.trim();
+
     if (trimmed.length < 2) {
       setResults([]);
       setIsFuzzy(false);
@@ -96,7 +99,9 @@ const ExpandableSearch = () => {
         setError("");
 
         const { data } = await API.get(
-          `/api/properties/search?query=${encodeURIComponent(trimmed)}&limit=3`,
+          `/api/properties/search?query=${encodeURIComponent(
+            trimmed
+          )}&limit=3`,
           { signal: controller.signal }
         );
 
@@ -108,8 +113,8 @@ const ExpandableSearch = () => {
           setIsFuzzy(Boolean(data.fuzzy));
         }
       } catch (err) {
-        if (err.name !== "AbortError") {
-          console.error(err);
+        if (err.name !== "CanceledError" && err.name !== "AbortError") {
+          console.error("Search error:", err);
           setError("Unable to fetch results");
         }
       } finally {
@@ -120,23 +125,45 @@ const ExpandableSearch = () => {
     return () => controller.abort();
   }, [debouncedQuery, isExpanded]);
 
+  /* ---------------- Navigation Helper ---------------- */
+  const navigateToProperty = useCallback(
+    (propertyId) => {
+      navigate(`/property/${propertyId}`);
+      setIsExpanded(false);
+    },
+    [navigate]
+  );
+
+  /* ---------------- Form Submit ---------------- */
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (results.length > 0) {
+      navigateToProperty(results[0]._id);
+    }
+  };
+
   /* ---------------- Keyboard Navigation ---------------- */
   const handleKeyDown = (e) => {
     if (!results.length) return;
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setHighlightIndex((i) => Math.min(i + 1, results.length - 1));
+      setHighlightIndex((i) =>
+        Math.min(i + 1, results.length - 1)
+      );
     }
 
     if (e.key === "ArrowUp") {
       e.preventDefault();
-      setHighlightIndex((i) => Math.max(i - 1, 0));
+      setHighlightIndex((i) =>
+        Math.max(i - 1, 0)
+      );
     }
 
     if (e.key === "Enter" && highlightIndex >= 0) {
       e.preventDefault();
-      window.location.href = `/property/${results[highlightIndex]._id}`;
+      navigateToProperty(results[highlightIndex]._id);
     }
 
     if (e.key === "Escape") {
@@ -176,7 +203,7 @@ const ExpandableSearch = () => {
         <button
           className="ai-search-toggle"
           onClick={toggleSearch}
-          aria-label="Toggle AI search"
+          aria-label="Toggle property search"
         >
           {!isExpanded ? (
             <div className="ask-rubi-minimal">
@@ -189,7 +216,11 @@ const ExpandableSearch = () => {
         </button>
 
         {isExpanded && (
-          <form className="ai-search-form">
+          <form
+            className="ai-search-form"
+            onSubmit={handleSubmit}
+            role="search"
+          >
             <div className="ai-input-wrapper">
               <input
                 ref={inputRef}
@@ -198,17 +229,25 @@ const ExpandableSearch = () => {
                 onKeyDown={handleKeyDown}
                 className="ai-search-input"
                 placeholder="Ask about properties, prices, trends..."
+                aria-autocomplete="list"
+                aria-expanded={shouldShowDropdown}
               />
             </div>
 
             <div className="ai-action-buttons">
-              <button className="ai-search-submit" type="submit">
+              <button
+                className="ai-search-submit"
+                type="submit"
+                aria-label="Search"
+              >
                 <Send size={16} />
               </button>
+
               <button
                 type="button"
                 className="ai-search-close"
                 onClick={toggleSearch}
+                aria-label="Close search"
               >
                 <X size={16} />
               </button>
@@ -240,8 +279,14 @@ const ExpandableSearch = () => {
         >
           {isLoading && (
             <div className="search-loading">
-              <span className="spinner" />
+              <span className="loading-spinner" />
               Searching…
+            </div>
+          )}
+
+          {error && !isLoading && (
+            <div className="search-error">
+              {error}
             </div>
           )}
 
@@ -249,6 +294,12 @@ const ExpandableSearch = () => {
             <div className="no-results">
               <Home size={28} />
               <p>No properties found</p>
+            </div>
+          )}
+
+          {isFuzzy && !isLoading && results.length > 0 && (
+            <div className="fuzzy-indicator">
+              Showing best matches
             </div>
           )}
 
@@ -260,6 +311,9 @@ const ExpandableSearch = () => {
               }`}
               role="option"
               aria-selected={i === highlightIndex}
+              onClick={() =>
+                navigateToProperty(property._id)
+              }
             >
               <MemoizedPropertyCard property={property} />
             </div>

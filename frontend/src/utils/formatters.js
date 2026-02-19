@@ -1,81 +1,54 @@
-// // ----------------------
-// // PRICE FORMATTER and also convert price to word FORMATTER TO BE DONE 
-// // ----------------------
-// export const formatPrice = (price) => {
-//   if (price === null || price === undefined || isNaN(price)) return "—";
-  
-//   try {
-//     return `₹${Number(price).toLocaleString("en-IN")}`;
-//   } catch (e) {
-//     console.error("formatPrice error:", e);
-//     return "₹" + price;
-//   }
-// };
+// src/utils/formatter.js
 
-// // ----------------------
-// // AREA FORMATTER
-// // ----------------------
-// export const formatArea = (area) => {
-//   if (!area || !area.value || isNaN(area.value)) return "—";
-  
-//   const unit = area.unit || "sqft";
-//   return `${area.value} ${unit}`;
-// };
+/** 
+ * Format number in Indian currency format with commas
+ * Example: 12500000 -> ₹1,25,00,000
+ */
+export const formatCurrency = (value, options = {}) => {
+  const {
+    showSymbol = true,
+    fallback = "Price on Request",
+  } = options;
 
-// // ----------------------
-// // PRICE PER SQFT FORMATTER  
-// // ----------------------
-// export const formatPricePerSqft = (pps) => {
-//   if (!pps || isNaN(pps)) return "—";
+  const num = Number(value);
+  if (!num || Number.isNaN(num) || num <= 0) return fallback;
 
-//   try {
-//     return `₹${Number(pps).toLocaleString("en-IN")}`;
-//   } catch (e) {
-//     console.error("formatPricePerSqft error:", e);
-//     return "₹" + pps;
-//   }
-// };
+  const formatted = new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+  }).format(num);
 
-// // ----------------------
-// // DATE FORMATTER
-// // ----------------------
-// export const formatDate = (date) => {
-//   if (!date) return "—";
+  return showSymbol ? `₹${formatted}` : formatted;
+};
 
-//   try {
-//     const d = new Date(date);
-//     if (isNaN(d.getTime())) return "—"; // invalid date
+/**
+ * Format to short readable format
+ * Example: 12500000 -> ₹1.25 Cr
+ *          750000  -> ₹7.5 L
+ */
+export const formatCurrencyShort = (value, options = {}) => {
+  const {
+    showSymbol = true,
+    fallback = "Price on Request",
+    decimals = 2,
+  } = options;
 
-//     return d.toLocaleDateString("en-IN", {
-//       year: "numeric",
-//       month: "short",
-//       day: "numeric"
-//     });
-//   } catch (e) {
-//     console.error("formatDate error:", e);
-//     return "—";
-//   }
-// };
+  const num = Number(value);
+  if (!num || Number.isNaN(num) || num <= 0) return fallback;
 
-// // ----------------------
-// // IMAGE FORMATTER
-// // ----------------------
-// export const getImage = (property) => {
-//   if (!property || typeof property !== "object") {
-//     return "https://placehold.co/600x400/000000/FFFFFF/png";
-//   }
+  let formatted;
 
-//   return (
-//     property?.coverImage?.url ||
-//     property?.coverImage?.thumbnail ||
-//     property?.galleryImages?.[0]?.url ||
-//     property?.galleryImages?.[0]?.thumbnail ||
-//     property?.mediaFiles?.find((m) => m.type === "image")?.src ||
-//     property?.virtualTours?.[0]?.thumbnail || 
-//     "https://placehold.co/600x400/000000/FFFFFF/png"
-//   );
-// }; 
+  if (num >= 10000000) {
+    formatted = `${(num / 10000000).toFixed(decimals).replace(/\.00$/, "")} Cr`;
+  } else if (num >= 100000) {
+    formatted = `${(num / 100000).toFixed(decimals).replace(/\.00$/, "")} L`;
+  } else if (num >= 1000) {
+    formatted = `${(num / 1000).toFixed(decimals).replace(/\.00$/, "")} K`;
+  } else {
+    formatted = num.toString();
+  }
+
+  return showSymbol ? `₹${formatted}` : formatted;
+};
 
 
-
-
+//????Add automatic possession status calculation based on reraDate and fallback??? CHECK THIS 

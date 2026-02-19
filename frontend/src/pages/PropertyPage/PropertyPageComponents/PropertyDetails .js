@@ -27,8 +27,8 @@ const PropertyDetails = ({ property = {} }) => {
             <Home size={18} strokeWidth={1.5} />
           </div>
           <div className="detail-content">
-            <span className="detail-label">PropertyYYY</span>
-            <span className="detail-value">
+            <span className="property-details-detail-label">PropertyYYY</span>
+            <span className="property-detail-detail-value">
               {property.propertyGroup ?? "N/A"}
             </span>
           </div>
@@ -40,8 +40,8 @@ const PropertyDetails = ({ property = {} }) => {
             <Bed size={18} strokeWidth={1.5} />
           </div>
           <div className="detail-content">
-            <span className="detail-label">Bedrooms</span>
-            <span className="detail-value">{property.bhk ?? "N/A"}</span>
+            <span className="property-details-detail-label">Bedrooms</span>
+            <span className="property-detail-detail-value">{property.bhk ?? "N/A"}</span>
           </div>
         </div>
 
@@ -51,8 +51,8 @@ const PropertyDetails = ({ property = {} }) => {
             <Ruler size={18} strokeWidth={1.5} />
           </div>
           <div className="detail-content">
-            <span className="detail-label">Area</span>
-            <span className="detail-value">
+            <span className="property-details-detail-label">Area</span>
+            <span className="property-detail-detail-value">
               {property.area?.value
                 ? `${formatArea(property.area.value)} ${
                     property.area.unit ?? ""
@@ -68,8 +68,8 @@ const PropertyDetails = ({ property = {} }) => {
             <CheckCircle size={18} strokeWidth={1.5} />
           </div>
           <div className="detail-content">
-            <span className="detail-label">Possession</span>
-            <span className="detail-value">
+            <span className="property-details-detail-label">Possession</span>
+            <span className="property-detail-detail-value">
               {property.possessionStatus ?? "N/A"}
             </span>
           </div>

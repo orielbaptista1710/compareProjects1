@@ -1,6 +1,8 @@
+//controllers/adminController.js 
 const asyncHandler = require('express-async-handler');
 const propertyService = require('../services/propertyAdminService');
 
+//PROPERTIES SHOW THAT ARE APPROVE, REJECTED N PENDING 
 // GET /api/admin/properties - here are all the properties that are not approved/approved/pending for the admin to review
 exports.getProperties = asyncHandler(async (req, res) => {
   const { page, limit, status, propertyType, q, city, locality , sortBy, imageFilter } = req.query;
@@ -34,7 +36,7 @@ exports.getLocalities = asyncHandler(async (req, res) => {
 });
 
 
-// GET /api/admin/properties/:id
+// GET /api/admin/property/:id
 exports.getDeveloperDetails = asyncHandler(async (req, res) => {
   const property = await propertyService.fetchPropertyById(req.params.id);
 

@@ -68,7 +68,7 @@ export default function AdminDashboard() {
   const [imageFilter, setImageFilter] = useState("");
 
 
-const handleRowClick = async (property) => {
+const handleRowClick = async (property) => { 
   try {
     const res = await API.get(`/api/admin/property/${property._id}`);
     setSelectedProperty(res.data.data);   // ⭐ FIX HERE

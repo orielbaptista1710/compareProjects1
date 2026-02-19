@@ -2,10 +2,13 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Search,MapPin, House } from "lucide-react";
 import API from "../../../api";
 
-import ExpandableSearch from "./ExpandableSearch";
+import LocationSearchBar from "./LocationSearchBar";
 import PropertyTypePills from "../../Home/HomePageComponents/MainSeachBarComponets/PropertyTypePills";
+import ExpandableSearch from "./ExpandableSearch";
+
 import { DEFAULT_FILTERS } from "../../../utils/filters.schema";
 import "./MainSearchBar.css";
 
@@ -13,77 +16,78 @@ const MainSearchBar = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dropdownRef = useRef(null);
+  const budgetRef = useRef(null);
 
   const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
-
-
-
   const [isPropertyOpen, setIsPropertyOpen] = useState(false);
+  const [isBudgetOpen, setIsBudgetOpen] = useState(false);
 
   /* -------------------- FETCH FILTER OPTIONS -------------------- */
-  const {
-    data: filterOptions,
-    isLoading,
-    // isError,
-  } = useQuery({
+  useQuery({
     queryKey: ["property-filter-options"],
-    // queryFn: () =>
-    //   API.get("/api/properties/filters").then((res) => res.data),
-    // staleTime: 1000 * 60 * 10,
-    queryFn: async () => {
-  const res = await API.get("/api/properties/filters");
-  console.log("FILTER API RAW RESPONSE:", res);
-  return res.data;
-},
-
+    queryFn: () =>
+    API.get("/api/properties/filters").then((res) => res.data),
+    staleTime: 1000 * 60 * 10,
   });
 
   /* -------------------- URL → FILTER STATE -------------------- */
   const filters = useMemo(
-    () => ({
-      // ...DEFAULT_FILTERS,
-      propertyType: searchParams.get("propertyType") || "",
-      bhk: searchParams.get("bhk") || "",
-    }),
-    [searchParams]
-  );
-
-  
+  () => ({
+    ...DEFAULT_FILTERS,
+    city: searchParams.get("city"),
+    locality: searchParams.get("locality"),
+    propertyType: searchParams.get("propertyType"),
+    bhk: searchParams.get("bhk"),
+  }),
+  [searchParams]
+);
 
   useEffect(() => {
   setDraftFilters(filters);
 }, [filters]);
-
-
 
   /* -------------------- UPDATE URL -------------------- */
   const handleSearch = () => {
   const params = new URLSearchParams();
 
   Object.entries(draftFilters).forEach(([key, value]) => {
-    if (value) params.set(key, value);
+    if (Array.isArray(value)) {
+      value.forEach((v) => {
+        if (v !== "" && v != null) {
+          params.append(key, String(v));
+        }
+      });
+    } else if (value !== "" && value != null) {
+      params.set(key, String(value));
+    }
   });
 
   navigate(`/properties?${params.toString()}`);
 };
 
-
   /* -------------------- PROPERTY LABEL -------------------- */
   const getPropertyTypeLabel = () => {
   const source = isPropertyOpen ? draftFilters : filters;
 
-  if (!source.propertyType && !source.bhk) {
+  const types = Array.isArray(source.propertyType) 
+    ? source.propertyType 
+    : [];
+  
+  const bhks = Array.isArray(source.bhk) 
+    ? source.bhk 
+    : [];
+
+  if (types.length === 0 && bhks.length === 0) {
     return "Property Type";
   }
 
-  return [
-    source.propertyType,
-    source.bhk && `${source.bhk} BHK`,
-  ]
-    .filter(Boolean)
-    .join(" + ");
-};
+  const parts = [
+    types.length === 1 ? types[0] : types.length > 1 ? `${types.length} Types` : null,
+    bhks.length === 1 ? `${bhks[0]} BHK` : bhks.length > 1 ? `${bhks.length} BHKs` : null,
+  ].filter(Boolean);
 
+  return parts.join(" + ") || "Property Type";
+};
 
   /* -------------------- OUTSIDE CLICK + ESC -------------------- */
   useEffect(() => {
@@ -111,16 +115,46 @@ const MainSearchBar = () => {
     };
   }, [isPropertyOpen]);
 
+  useEffect(() => {
+    if (!isBudgetOpen) return;
 
+    const handlePointer = (e) => {
+      if (budgetRef.current && !budgetRef.current.contains(e.target)) {
+        setIsBudgetOpen(false);
+      }
+    };
 
-console.log("filterOptions", filterOptions);
+    const handleKey = (e) => {
+      if (e.key === "Escape") setIsBudgetOpen(false);
+    };
 
+    document.addEventListener("pointerdown", handlePointer);
+    document.addEventListener("keydown", handleKey);
 
+    return () => {
+      document.removeEventListener("pointerdown", handlePointer);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [isBudgetOpen]);
 
   return (
     <div className="mainsearch-bar">
       <div className="main-search-container-section">
         <div className="main-search-container">
+
+          {/* LOCATION SEARCH */}
+          <LocationSearchBar
+            onSelect={(location) => {
+              setDraftFilters((prev) => ({
+                ...prev,
+                city: location.city,
+                locality: location.locality ? [location.locality] : [],
+              }));
+            }}
+          />
+
+          {/* VERTICAL DIVIDER */}
+          <div className="search-divider" />
 
           {/* PROPERTY TYPE + BHK */}
           <div className="search-field-type" ref={dropdownRef}>
@@ -132,6 +166,9 @@ console.log("filterOptions", filterOptions);
               aria-expanded={isPropertyOpen}
               onClick={() => setIsPropertyOpen((p) => !p)}
             >
+              <span className="property-icon">
+                <House width={16} />
+              </span>
               <span>{getPropertyTypeLabel()}</span>
               <span className="chevron">▾</span>
             </button>
@@ -139,26 +176,54 @@ console.log("filterOptions", filterOptions);
             {isPropertyOpen && (
               <div className="property-type-dropdown">
                 <PropertyTypePills
-  valueMap={draftFilters}
-  onChange={(key, value) =>
-    setDraftFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }))
-  }
-/>
-
+                  valueMap={draftFilters}
+                  onChange={(key, value) =>
+                    setDraftFilters((prev) => ({
+                      ...prev,
+                      [key]: value,
+                    }))
+                  }
+                />
               </div>
             )}
           </div>
 
+          {/* VERTICAL DIVIDER */}
+          <div className="search-divider" />
+
+          {/* BUDGET DROPDOWN */}
+          <div className="search-field-budget" ref={budgetRef}>
+            <button
+              type="button"
+              className={`budget-trigger ${isBudgetOpen ? "active" : ""}`}
+              aria-expanded={isBudgetOpen}
+              onClick={() => setIsBudgetOpen((p) => !p)}
+            >
+              <span className="budget-icon">
+              <MapPin width={16}/>
+              </span>
+              <span>Budget</span>
+              <span className="chevron">▾</span>
+            </button>
+
+            {isBudgetOpen && (
+              <div className="budget-dropdown">
+                <div className="budget-dropdown-content">
+                  <p className="budget-placeholder">Budget options coming soon</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* SEARCH BUTTON */}
           <button
-  className="mainsearch-btn"
-  type="button"
-  onClick={handleSearch}
->
-  Search
-</button>
+            className="mainsearch-btn"
+            type="button"
+            onClick={handleSearch}
+          >
+            <Search size={18} />
+            Search
+          </button>
 
         </div>
       </div>

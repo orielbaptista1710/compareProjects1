@@ -3,7 +3,7 @@ import React from "react";
 import {
   Filter,
   Search,
-  DollarSign,
+  // DollarSign,
   Home,
   Building2,
   Layers,
@@ -16,7 +16,7 @@ import {
 
 import FilterSection from "./FilterSection";
 import CheckboxGroup from "./CheckboxGroup";
-import BudgetFilter from "./BudgetFilter";
+// import BudgetFilter from "./BudgetFilter";
 import LocalityFilter from "./LocalityFilter";
 import { useCity } from "../../../../contexts/CityContext";
 
@@ -54,7 +54,7 @@ const FilterPanel = ({
             className="filter-search"
             type="text"
             placeholder="Search properties..."
-            value={searchQuery}
+            value={searchQuery ?? ""}
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
@@ -67,7 +67,7 @@ const FilterPanel = ({
       <FilterSection title="Property Type" icon={Building2}>
         <CheckboxGroup
           options={filterOptions.propertyTypeOptions || []}
-          value={filters.propertyType}
+          value={filters.propertyType  ?? ""}
           onChange={(value) => onFilterChange("propertyType", value)}
         />
       </FilterSection>
@@ -76,7 +76,7 @@ const FilterPanel = ({
       {city && (
       <FilterSection title="Localities" icon={MapPin}>
         <LocalityFilter
-          value={filters.locality}
+          value={filters.locality ?? ""}
           onChange={(value) => onFilterChange("locality", value)}
         />
       </FilterSection>
@@ -87,7 +87,7 @@ const FilterPanel = ({
       <FilterSection title="BHK Type" icon={Home}>
         <CheckboxGroup
           options={["1", "2", "3", "4", "5+"]}
-          value={filters.bhk}
+          value={filters.bhk ?? []}
           renderLabel={(v) => `${v} BHK`}
           onChange={(value) => onFilterChange("bhk", value)}
         />

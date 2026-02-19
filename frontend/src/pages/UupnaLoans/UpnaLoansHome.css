@@ -1,594 +1,697 @@
-
-/* ===== VARIABLES & RESET ===== */
+/* ==================== VARIABLES ==================== */
 :root {
-  /* Primary Colors */
-  --primary: #9417E2;
-  --primary-dark: #7a12bd;
-  --primary-light: #b45aee;
-  --primary-bg: #f8f5ff;
+  /* Purple Shades */
+  --purple-900: #4c1d95;
+  --purple-700: #6b21a8;
+  --purple-600: #7c3aed;
+  --purple-500: #8b5cf6;
+  --purple-400: #a78bfa;
+  --purple-100: #ede9fe;
+  --purple-50: #faf5ff;
   
   /* Accent Colors */
-  --accent: #d90429;
-  --accent-dark: #b00321;
-  --accent-yellow: #fcbf49;
+  --red: #ef4444;
+  --red-light: #fecaca;
+  --yellow: #fbbf24;
+  --yellow-light: #fef3c7;
   
   /* Neutral Colors */
-  --text-dark: #1a202c;
-  --text-medium: #4a5568;
-  --text-light: #718096;
   --white: #ffffff;
-  --border: #e2e8f0;
-  --bg-light: #f7fafc;
-  
-  /* Typography */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  
-  /* Spacing */
-  --section-padding: 4rem 0;
-  --container-max: 1200px;
-  --border-radius: 8px;
-  --border-radius-lg: 12px;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-900: #111827;
   
   /* Shadows */
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  /* Other */
+  --radius: 12px;
+  --radius-lg: 16px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ==================== RESET ==================== */
 
-
-.apna-loans-page {
+.upna-loans-page {
+  color: var(--gray-900);
+  background: var(--gray-50);
   overflow-x: hidden;
-  padding: 6rem 0rem 0rem;
 }
 
-/* ===== CONTAINER ===== */
-.loans-container {
-  max-width: var(--container-max);
+/* ==================== CONTAINER ==================== */
+.upna-container {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 24px;
 }
 
-/* ===== HERO SECTION ===== */
-.loans-hero {
-  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
-  padding: 5rem 0;
+/* ==================== HERO SECTION ==================== */
+.upna-hero-section {
+  background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%);
+  padding: 80px 0 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.upna-hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 0%, rgba(0, 0, 0, 0.1) 100%);
+  border-radius: 0 0 0 200px;
+}
+
+.upna-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.upna-hero-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--white);
+  margin-bottom: 24px;
+}
+
+.upna-hero-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.2;
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+}
+
+.upna-highlight {
+  color: var(--yellow);
   position: relative;
 }
 
-.loans-hero .loans-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  align-items: center;
-}
-
-.hero-badge {
-  display: inline-block;
-  background: var(--accent-yellow);
-  color: var(--text-dark);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: var(--font-weight-semibold);
-  margin-bottom: 1rem;
-}
-
-.loans-hero-content h1 {
-  font-size: 3rem;
-  font-weight: var(--font-weight-bold);
-  line-height: 1.2;
-  margin-bottom: 1rem;
-  color: white;
-}
-
-.highlight {
-  color: var(--primary);
-}
-
-.loans-hero-content p {
-  font-size: 1.125rem;
-  color: white;
-  margin-bottom: 2rem;
+.upna-hero-subtitle {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
+  margin-bottom: 32px;
 }
 
-.hero-features {
+.upna-hero-features {
   display: flex;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
 }
 
-.feature-item {
+.upna-feature-tag {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--white);
+  font-weight: 500;
+}
+
+.upna-hero-actions {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: var(--font-weight-medium);
-  color: white;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.hero-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-/* ===== BUTTONS ===== */
-.loans-cta-button {
+.upna-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  border-radius: var(--border-radius);
-  font-weight: var(--font-weight-semibold);
+  justify-content: center;
+  padding: 14px 28px;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
   text-decoration: none;
-  transition: all 0.2s ease;
-  border: 2px solid transparent;
-  font-size: 1rem;
+  transition: var(--transition);
+  cursor: pointer;
+  border: none;
 }
 
-.loans-cta-button.primary {
-  background: var(--primary);
-  color: white;
+.upna-btn-primary {
+  background: var(--yellow);
+  color: var(--gray-900);
+  box-shadow: var(--shadow-md);
 }
 
-.loans-cta-button.secondary {
+.upna-btn-primary:hover {
+  background: #f59e0b;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.upna-btn-outline {
   background: transparent;
-  color: white;
-  border-color: white;
-}
-
-.loans-cta-button.secondary:hover {
-  background: var(--primary);
   color: var(--white);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-/* ===== STATS SECTION ===== */
-.stats-section {
+.upna-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--white);
+}
+
+.upna-btn-large {
+  padding: 16px 32px;
+  font-size: 16px;
+}
+
+.upna-hero-calculator {
   background: var(--white);
-  padding: 3rem 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
 }
 
-.stats-grid {
+/* ==================== STATS SECTION ==================== */
+.upna-stats-section {
+  background: var(--white);
+  padding: 60px 0;
+  margin-top: -40px;
+  position: relative;
+  z-index: 2;
+}
+
+.upna-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+  gap: 32px;
 }
 
-.stat-item {
+.upna-stat-card {
   text-align: center;
-  padding: 1rem;
+  padding: 24px;
 }
 
-.stat-value {
-  font-size: 2rem;
-  font-weight: var(--font-weight-bold);
-  color: var(--primary);
-  margin-bottom: 0.5rem;
+.upna-stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--purple-600);
+  margin-bottom: 8px;
 }
 
-.stat-label {
-  color: var(--text-medium);
-  font-size: 0.875rem;
+.upna-stat-label {
+  font-size: 14px;
+  color: var(--gray-600);
+  font-weight: 500;
 }
 
-/* ===== SECTION HEADERS ===== */
-.loans-section-header {
+/* ==================== SECTION HEADER ==================== */
+.upna-section-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 48px;
 }
 
-.loans-section-title {
-  font-size: 2.25rem;
-  font-weight: var(--font-weight-bold);
-  color: var(--text-dark);
-  margin-bottom: 1rem;
+.upna-section-badge {
+  display: inline-block;
+  background: var(--purple-100);
+  color: var(--purple-700);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
 }
 
-.loans-section-subtitle {
-  font-size: 1.125rem;
-  color: var(--text-medium);
+.upna-section-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.upna-section-subtitle {
+  font-size: 18px;
+  color: var(--gray-600);
   max-width: 600px;
   margin: 0 auto;
 }
 
-/* ===== CALCULATOR SECTION ===== */
-.loans-calculator {
-  background: var(--bg-light);
-  padding: var(--section-padding);
+/* ==================== PROCESS SECTION ==================== */
+.upna-process-section {
+  padding: 80px 0;
+  background: var(--gray-50);
 }
 
-.calculator-container {
+.upna-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.upna-step-card {
+  background: var(--white);
+  padding: 32px 24px;
+  border-radius: var(--radius);
+  text-align: center;
+  transition: var(--transition);
+  border: 2px solid transparent;
+}
+
+.upna-step-card:hover {
+  border-color: var(--purple-400);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.upna-step-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.upna-step-number {
+  display: inline-block;
+  background: var(--purple-100);
+  color: var(--purple-700);
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.upna-step-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 8px;
+}
+
+.upna-step-description {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.6;
+}
+
+/* ==================== CALCULATOR SECTION ==================== */
+.upna-calculator-section {
+  padding: 80px 0;
+  background: var(--white);
+}
+
+.upna-calculator-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  background: var(--white);
-  padding: 2rem;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow);
+  gap: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
-.calculator-form {
+.upna-calculator-controls {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 32px;
 }
 
-.form-group {
+.upna-form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 12px;
 }
 
-.input-header {
+.upna-input-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
 }
 
-.input-header label {
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-dark);
+.upna-input-header label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-700);
 }
 
-.input-value {
-  color: var(--primary);
-  font-weight: var(--font-weight-medium);
+.upna-input-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--purple-600);
 }
 
-.range-slider {
+.upna-range-slider {
   width: 100%;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--border);
+  height: 8px;
+  border-radius: 4px;
+  background: var(--gray-200);
   outline: none;
   -webkit-appearance: none;
 }
 
-.range-slider::-webkit-slider-thumb {
+.upna-range-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
+  appearance: none;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: var(--primary);
+  background: var(--purple-600);
   cursor: pointer;
-  border: 2px solid var(--white);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
 }
 
-.range-labels {
+.upna-range-slider::-webkit-slider-thumb:hover {
+  background: var(--purple-700);
+  transform: scale(1.1);
+}
+
+.upna-range-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--purple-600);
+  cursor: pointer;
+  border: none;
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+}
+
+.upna-range-labels {
   display: flex;
   justify-content: space-between;
-  color: var(--text-light);
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
+  font-size: 12px;
+  color: var(--gray-500);
 }
 
-/* ===== CALCULATOR RESULTS ===== */
-.result-card {
-  background: var(--primary);
+.upna-calculator-result {
+  background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%);
+  border-radius: var(--radius-lg);
+  padding: 32px;
   color: var(--white);
-  padding: 2rem;
-  border-radius: var(--border-radius-lg);
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: var(--shadow-xl);
 }
 
-.result-card h3 {
-  font-size: 1.125rem;
-  margin-bottom: 1rem;
+.upna-result-label {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.upna-result-amount {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.upna-result-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.upna-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.upna-breakdown-row span:first-child {
   opacity: 0.9;
 }
 
-.result-amount {
-  font-size: 2.5rem;
-  font-weight: var(--font-weight-bold);
-  margin-bottom: 1.5rem;
+.upna-breakdown-value {
+  font-weight: 600;
 }
 
-.result-breakdown {
+.upna-breakdown-total {
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.upna-result-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--yellow);
+  color: var(--gray-900);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.upna-result-btn:hover {
+  background: #f59e0b;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ==================== LOANS SECTION ==================== */
+.upna-loans-section {
+  padding: 80px 0;
+  background: var(--gray-50);
+}
+
+.upna-loans-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.upna-loan-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 28px;
+  transition: var(--transition);
+  cursor: pointer;
+  border: 2px solid transparent;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
 }
 
-.breakdown-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+.upna-loan-card:hover {
+  border-color: var(--purple-400);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
 }
 
-.breakdown-item:last-child {
-  border-bottom: none;
+.upna-card-active {
+  border-color: var(--purple-600);
+  background: var(--purple-50);
 }
 
-.breakdown-item .label {
-  opacity: 0.8;
+.upna-card-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
 }
 
-.result-actions {
-  display: flex;
-  gap: 0.75rem;
+.upna-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 8px;
 }
 
-.action-btn {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: var(--border-radius);
-  font-weight: var(--font-weight-semibold);
-  cursor: pointer;
-  transition: all 0.2s ease;
+.upna-card-description {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin-bottom: 20px;
 }
 
-.action-btn.primary {
-  background: var(--white);
-  color: var(--primary);
-}
-
-.action-btn.primary:hover {
-  transform: translateY(-1px);
-}
-
-.action-btn.secondary {
-  background: transparent;
-  color: var(--white);
-  border: 1px solid var(--white);
-}
-
-.action-btn.secondary:hover {
-  background: var(--white);
-  color: var(--primary);
-}
-
-/* ===== LOAN TYPES SECTION ===== */
-.loans-types {
-  padding: var(--section-padding);
-  background: var(--white);
-}
-
-.loans-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-
-.tab-button {
-  padding: 0.75rem 1.25rem;
-  border: 1px solid var(--border);
-  background: transparent;
-  border-radius: var(--border-radius);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-medium);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tab-button.active,
-.tab-button:hover {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: var(--white);
-}
-
-.loans-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-
-.loans-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.loans-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-}
-
-.loans-card-header {
-  background: var(--primary);
-  color: var(--white);
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.loans-card-header h3 {
-  font-size: 1.25rem;
-  font-weight: var(--font-weight-semibold);
-}
-
-.loans-card-body {
-  padding: 1.5rem;
-}
-
-.loans-card-description {
-  color: var(--text-medium);
-  margin-bottom: 1rem;
-  line-height: 1.5;
-}
-
-.loans-features {
+.upna-card-features {
   list-style: none;
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-grow: 1;
 }
 
-.loans-features li {
+.upna-card-features li {
+  font-size: 13px;
+  color: var(--gray-700);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0;
-  color: var(--text-dark);
+  gap: 8px;
 }
 
-.loans-features li::before {
-  content: "✓";
-  color: var(--primary);
-  font-weight: var(--font-weight-bold);
-}
-
-.card-actions {
+.upna-feature-check {
+  width: 18px;
+  height: 18px;
+  background: var(--purple-100);
+  color: var(--purple-700);
+  border-radius: 50%;
   display: flex;
-  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
 }
 
-.link-button {
-  color: var(--primary);
+.upna-card-link {
+  color: var(--purple-600);
+  font-weight: 600;
+  font-size: 14px;
   text-decoration: none;
-  font-weight: var(--font-weight-medium);
-  font-size: 0.875rem;
+  transition: var(--transition);
 }
 
-.link-button:hover {
-  text-decoration: underline;
+.upna-card-link:hover {
+  color: var(--purple-700);
+  gap: 8px;
 }
 
-/* ===== CTA SECTION ===== */
-.loans-cta-section {
-  background: var(--primary);
-  color: var(--white);
-  padding: var(--section-padding);
+/* ==================== CTA SECTION ==================== */
+.upna-cta-section {
+  background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-700) 100%);
+  padding: 80px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.upna-cta-section::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.upna-cta-content {
   text-align: center;
+  position: relative;
+  z-index: 1;
 }
 
-.cta-content {
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.loans-cta-section .loans-section-title {
+.upna-cta-title {
+  font-size: 40px;
+  font-weight: 700;
   color: var(--white);
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
 
-.loans-cta-section .loans-section-subtitle {
+.upna-cta-subtitle {
+  font-size: 18px;
   color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 2rem;
+  margin-bottom: 32px;
 }
 
-.loans-cta-buttons {
+.upna-cta-actions {
   display: flex;
-  gap: 1rem;
+  gap: 16px;
   justify-content: center;
-  margin-bottom: 2rem;
-}
-
-.cta-features {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
   flex-wrap: wrap;
 }
 
-.feature {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.875rem;
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 968px) {
-  .loans-hero .loans-container {
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+  .upna-hero-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
-    text-align: center;
+    gap: 40px;
   }
   
-  .loans-hero-content h1 {
-    font-size: 2.5rem;
-  }
-  
-  .stats-grid {
+  .upna-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .calculator-container {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .loans-container {
-    padding: 0 1rem;
+  .upna-steps-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
   
-  .loans-hero {
-    padding: 3rem 0;
-  }
-  
-  .loans-hero-content h1 {
-    font-size: 2rem;
-  }
-  
-  .hero-features {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .hero-actions {
-    flex-direction: column;
-  }
-  
-  .stats-grid {
+  .upna-calculator-grid {
     grid-template-columns: 1fr;
   }
   
-  .loans-cards {
+  .upna-loans-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .upna-hero-section {
+    padding: 60px 0 80px;
+  }
+  
+  .upna-hero-title {
+    font-size: 36px;
+  }
+  
+  .upna-hero-subtitle {
+    font-size: 16px;
+  }
+  
+  .upna-section-title {
+    font-size: 28px;
+  }
+  
+  .upna-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .upna-steps-grid {
     grid-template-columns: 1fr;
   }
   
-  .loans-cta-buttons {
-    flex-direction: column;
-    align-items: center;
+  .upna-loans-grid {
+    grid-template-columns: 1fr;
   }
   
-  .result-actions {
+  .upna-cta-title {
+    font-size: 32px;
+  }
+  
+  .upna-cta-actions {
     flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .upna-btn {
+    width: 100%;
   }
 }
 
-/* ===== SIMPLE ANIMATIONS ===== */
-.loans-card,
-.calculator-container,
-.stat-item {
-  animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+@media (max-width: 480px) {
+  .upna-hero-title {
+    font-size: 28px;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .upna-section-title {
+    font-size: 24px;
   }
-}
-
-/* ===== ACCESSIBILITY ===== */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
+  
+  .upna-stat-value {
+    font-size: 28px;
   }
-}
-
-button:focus,
-input:focus,
-a:focus {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  
+  .upna-result-amount {
+    font-size: 32px;
+  }
 }

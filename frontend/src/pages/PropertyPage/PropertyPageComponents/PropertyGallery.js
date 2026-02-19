@@ -102,8 +102,9 @@ const allMedia = [
             onClick={closeLightbox}
             aria-label="Close gallery"
           >
-            <X size={22} color="#fff" />
+            <X size={24} strokeWidth={2} />
           </button>
+
 
           <div className="lightbox-slider-container">
             <Slider

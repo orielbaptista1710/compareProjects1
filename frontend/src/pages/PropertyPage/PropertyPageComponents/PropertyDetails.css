@@ -50,7 +50,7 @@
   flex-direction: column;
 }
 
-.detail-label {
+.property-details-detail-label {
   font-size: 0.75rem;
   color: #555;
   font-weight: 500;
@@ -59,7 +59,7 @@
   margin-bottom: 0.25rem;
 }
 
-.detail-value {
+.property-detail-detail-value {
   font-size: 1rem;
   font-weight: 600;
   color: #222;
@@ -87,11 +87,11 @@
     margin-right: 0.5rem;
   }
 
-  .detail-label {
+  .property-details-detail-label {
     font-size: 0.7rem;
   }
 
-  .detail-value {
+  .property-detail-detail-value {
     font-size: 0.9rem;
   }
 }

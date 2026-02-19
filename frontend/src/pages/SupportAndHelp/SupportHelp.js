@@ -196,8 +196,8 @@ export default function SupportHelp() {
           {/* LEFT SIDE */}
           <div className="left-column">
 
-            {/* ABOUT SECTION */}
-            <div className="card about-card">
+            {/* ABOUT SECTION */} 
+            <div className="support-card about-card">
               <h2>About Our Support</h2>
               <p className="desc">
                 CompareProjects ensures both developers and customers receive quick,
@@ -234,7 +234,7 @@ export default function SupportHelp() {
             </div>
 
             {/* FAQ CARD */}
-            <div className="card faq-card">
+            <div className="support-card faq-card">
               <h2>{categories.find((x) => x.id === activeCategory)?.title}</h2>
               <p className="small-sub">
                 {faqData[activeCategory].length} frequently asked questions
@@ -260,7 +260,7 @@ export default function SupportHelp() {
             </div>
 
             {/* EXTRA DOCUMENTATION SECTION */}
-            <div className="card">
+            <div className="support-card">
               <h3>Developer Documentation</h3>
               <p className="desc">
                 Learn how to make the most out of the CompareProjects platform. Our detailed
@@ -281,7 +281,7 @@ export default function SupportHelp() {
           <div className="right-column">
 
             {/* QUICK HELP */}
-            <div className="card sidebar-card">
+            <div className="support-card sidebar-card">
               <img
                 src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600"
                 className="sidebar-img"
@@ -295,7 +295,7 @@ export default function SupportHelp() {
             </div>
 
             {/* PLATFORM FEATURES */}
-            <div className="card gradient-card">
+            <div className="support-card gradient-card">
               <h3>Platform Highlights</h3>
               <ul className="feature-list">
                 <li><CheckCircle size={15} /> Unlimited Listings</li>
@@ -307,7 +307,7 @@ export default function SupportHelp() {
             </div>
 
             {/* CONTACT */}
-            <div className="card contact-card">
+            <div className="support-card contact-card">
               <h3>Get In Touch</h3>
 
               <div className="contact-row">

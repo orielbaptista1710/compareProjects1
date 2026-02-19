@@ -306,10 +306,3 @@
   }
 }
 
-/* Accessibility: respect user reduced-motion settings */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
-}

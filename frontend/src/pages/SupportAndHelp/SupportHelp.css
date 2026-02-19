@@ -1,10 +1,11 @@
 /* PAGE WRAPPER */
 .support-wrapper {
-  background: #f8f9fc;
-  min-height: 100vh;
+    background: #f8f9fc;
+    min-height: 100vh;
+    padding-top: 110px;
 }
 
-/* HERO SECTION */
+/* HERO SECTION */ 
 .support-hero {
   background: linear-gradient(to right, #eef2ff, #ffffff, #f5e8ff);
   padding: 50px 0;
@@ -50,7 +51,7 @@
 }
 
 /* CARD */
-.card {
+.support-card {
   background: white;
   border-radius: 12px;
   padding: 28px;
@@ -58,8 +59,8 @@
   margin-bottom: 35px;
 }
 
-.card h2,
-.card h3 {
+.support-card h2,
+.support-card h3 {
   margin-bottom: 14px;
   font-weight: 700;
   color: #1a1a1a;

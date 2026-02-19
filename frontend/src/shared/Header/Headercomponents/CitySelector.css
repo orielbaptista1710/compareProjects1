@@ -1,38 +1,96 @@
+/* =========================================
+   CITY SELECTOR — SIMPLE & ELEGANT
+========================================= */
+
 .city-wrapper {
   position: relative;
-}
-
-.city-trigger {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 16px;
-  background: transparent;
-  border: none;
-  color: white;
-  cursor: pointer;
 }
 
-/* Dropdown container */
+/* -----------------------------------------
+   TRIGGER BUTTON
+------------------------------------------ */
+.city-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  height: 38px;
+  padding: 0 14px;
+
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+
+  cursor: pointer;
+  white-space: nowrap;
+
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+/* .city-trigger:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(251, 191, 36, 0.6);
+}
+
+.city-trigger:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+} */
+
+/* -----------------------------------------
+   DROPDOWN CONTAINER
+------------------------------------------ */
 .city-dropdown {
   position: absolute;
-  top: 38px;
+  top: calc(100% + 8px);
   left: 0;
-  width: 360px;
-  background: #fff;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-  padding: 14px;
+  width: 400px;
+  max-width: 90vw;
+  
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  
+  padding: 16px;
   z-index: 9999;
 }
 
-/* Search */
+/* -----------------------------------------
+   SEARCH INPUT
+------------------------------------------ */
 .city-search {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #f2f2f2;
-  padding: 10px;
+  gap: 10px;
+  
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
+  padding: 10px 12px;
+  
+  transition: all 0.2s ease;
+}
+
+.city-search:focus-within {
+  background: #ffffff;
+  border-color: #7c3aed;
+}
+
+.city-search svg {
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.city-search:focus-within svg {
+  color: #7c3aed;
 }
 
 .city-search input {
@@ -40,80 +98,197 @@
   outline: none;
   background: transparent;
   width: 100%;
+  
   font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
 }
 
-/* Actions */
+.city-search input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+/* -----------------------------------------
+   ACTION BUTTONS
+------------------------------------------ */
 .city-actions {
   display: flex;
   justify-content: space-between;
-  margin: 12px 0;
+  align-items: center;
+  margin: 12px 0 10px;
+  gap: 12px;
 }
 
 .detect-btn,
 .reset-btn {
   background: none;
   border: none;
+  
   font-size: 13px;
+  font-weight: 500;
+  
   cursor: pointer;
-  color: #333;
+  padding: 4px 6px;
+  border-radius: 4px;
+  
   display: flex;
   align-items: center;
   gap: 6px;
+  
+  transition: all 0.2s ease;
+}
+
+.detect-btn, .detect-btn svg {
+  color: #7c3aed;
+}
+
+.detect-btn:hover {
+  color: #6830c9;
 }
 
 .reset-btn {
-  color: #d90429;
+  color: #dc2626;
 }
 
-/* Title */
+.detect-btn:focus-visible,
+.reset-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* -----------------------------------------
+   SECTION TITLE
+------------------------------------------ */
 .city-title {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280;
+  margin-bottom: 10px;
 }
 
-/* City grid */
+/* -----------------------------------------
+   CITY GRID
+------------------------------------------ */
 .city-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   max-height: 260px;
   overflow-y: auto;
+  
+  /* Scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f9fafb;
 }
 
+.city-grid::-webkit-scrollbar {
+  width: 5px;
+}
+
+.city-grid::-webkit-scrollbar-track {
+  background: #f9fafb;
+  border-radius: 10px;
+}
+
+.city-grid::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.city-grid::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* -----------------------------------------
+   CITY ITEM
+------------------------------------------ */
 .city-item {
-  border: 1px solid #eee;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 10px 6px;
-  background: #fff;
+  padding: 12px 8px;
+  
+  background: #ffffff;
   cursor: pointer;
   text-align: center;
-  font-size: 12px;
+  
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  
+  transition: all 0.2s ease;
+  
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 .city-item:hover {
-  background: #f8f8f8;
+  background: #f9fafb;
+  border-color: #7c3aed;
+  color: #7c3aed;
 }
 
+.city-item:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.city-item[aria-selected="true"] {
+  background: #7c3aed;
+  border-color: #7c3aed;
+  color: #ffffff;
+}
+
+.city-item[aria-selected="true"] .city-icon {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* -----------------------------------------
+   CITY ICON
+------------------------------------------ */
 .city-icon {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: #f2f2f2;
+  background: #f9fafb;
+  
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 6px;
-  color: #444;
+  
+  color: #7c3aed;
+  
+  transition: all 0.2s ease;
 }
 
+.city-item:hover .city-icon {
+  background: #f5f3ff;
+}
 
-/* Placeholder icon */
-.city-icon-placeholder {
-  width: 28px;
-  height: 28px;
-  background: #eaeaea;
-  border-radius: 50%;
-  margin: 0 auto 6px;
+/* -----------------------------------------
+   NO CITIES MESSAGE
+------------------------------------------ */
+.no-cities {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 30px 20px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* -----------------------------------------
+   ACCESSIBILITY
+------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .city-item,
+  .city-trigger,
+  .detect-btn,
+  .reset-btn {
+    transition: none;
+  }
 }

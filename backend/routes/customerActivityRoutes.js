@@ -1,3 +1,4 @@
+//routes/customerActivityRoutes.js
 const express = require('express');
 const protectCustomer = require('../middleware/protectCustomer');
 const Customer = require('../models/Customer');

@@ -14,6 +14,8 @@ import {
   Skeleton,
 } from "@mui/material";
 
+import { formatCurrency } from "../../../utils/formatters";
+
 import PropertyMediaSection from "../../Admin/AdminDasboardComponents/PropertyMediaSection";
 
 
@@ -60,14 +62,6 @@ function safeUrl(url) {
   return null;
 }
 
-function formatPrice(amount) {
-  if (amount === null || amount === undefined || Number.isNaN(Number(amount))) return "N/A";
-  try {
-    return `₹${Number(amount).toLocaleString("en-IN")}`;
-  } catch {
-    return `₹${amount}`;
-  }
-}
 
 function formatArea(area) {
   if (!area || (area.value == null && !area.unit)) return "N/A";
@@ -178,7 +172,7 @@ function DeveloperDetailsModal({
                 <strong>Furnishing:</strong> {property?.furnishing || "N/A"}
               </Typography>
               <Typography>
-                <strong>Price:</strong> {formatPrice(property?.price)}
+                <strong>Price:</strong> {formatCurrency(property?.price)}
               </Typography>
               <Typography>
                 <strong>Area:</strong> {formatArea(property?.area)}

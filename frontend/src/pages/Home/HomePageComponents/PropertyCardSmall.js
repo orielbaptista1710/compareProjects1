@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Home,
   BedDouble,
-  Ruler,
+  Ruler, 
   IndianRupee,
   BedIcon,
   HourglassIcon,

@@ -1,125 +1,133 @@
-import React, { useState, useRef, useEffect } from "react";
-import Select from "react-select";
-import { FaMapMarkerAlt } from "react-icons/fa";
+// src/components/MainSearchBar/LocationSearchBar.js
+import React, { useState, useEffect, useRef,useCallback, useMemo } from "react";
+import { MapPin } from "lucide-react";
+import debounce from "lodash.debounce";
+import API from "../../../api";
+import { useCity } from "../../../contexts/CityContext";
 import "./LocationSearchBar.css";
 
-const LocationSearchBar = ({
-  filters,
-  setFilters,
-  states = [],
-  cities = [],
-  localities = []
-}) => {
-  const [open, setOpen] = useState(false);
-  const wrapperRef = useRef(null);
+const LocationSearchBar = ({ onSelect }) => {
+  const { city } = useCity();
 
-  // Close on outside click
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState("suggest"); 
+
+  const ref = useRef(null);
+  const hasSuggested = useRef(false);
+
+
+  /* ---------------- Fetch Suggestions / Search ---------------- */
+
+  const fetchLocations = useCallback(async ({ q, mode }) => {
+  try {
+    const res = await API.get("/api/properties/location-options", {
+      params: { q: mode === "search" ? q : undefined, city, mode },
+    });
+    setResults(res.data || []);
+  } catch (err) {
+    setResults([]);
+  }
+}, [city]);
+
+  const debouncedSearch = useMemo(
+  () =>
+    debounce((value) => {
+      fetchLocations({ q: value, mode: "search" });
+    }, 300),
+  [fetchLocations]  
+);
+
+  // Cleanup both on unmount AND city change
+useEffect(() => {
+  return () => {
+    debouncedSearch.cancel();
+  };
+}, [debouncedSearch, city]); 
+
+  useEffect(() => {
+  setQuery("");
+  setResults([]);
+}, [city]);
+
+
+  /* ---------------- Handlers ---------------- */
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    if (value.length >= 2) {
+      setMode("search");
+      debouncedSearch(value);
+    } else {
+      setMode("suggest");
+      fetchLocations({ mode: "suggest" });
+    }
+
+    setOpen(true);
+  };
+
+  const handleFocus = () => {
+  setOpen(true);
+  setMode("suggest");
+
+  if (!hasSuggested.current) {
+    fetchLocations({ mode: "suggest" });
+    hasSuggested.current = true;
+  }
+};
+
+  const handleSelect = (item) => {
+    setQuery(item.label);
+    setOpen(false);
+    onSelect(item);
+  };
+
+  /* ---------------- Outside Click ---------------- */
+
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+      if (ref.current && !ref.current.contains(e.target)) {
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => document.removeEventListener("pointerdown", handleClickOutside);
   }, []);
 
-  const displayValue =
-    filters.locality ||
-    filters.city ||
-    filters.state ||
-    "";
+  /* ---------------- Render ---------------- */
 
   return (
-    <div className="location-search-wrapper" ref={wrapperRef}>
+    <div className="location-search" ref={ref}>
+      <MapPin size={16} />
 
-      {/* COLLAPSED INPUT */}
-      <div
-        className={`location-input ${open ? "active" : ""}`}
-        onClick={() => setOpen(true)}
-      >
-        <FaMapMarkerAlt className="location-icon" />
-        <span className={displayValue ? "filled" : ""}>
-          {displayValue || "Enter City, Locality"}
-        </span>
-      </div>
+      <input
+        placeholder={
+          city ? `Search in ${city}` : "Enter location to search"
+        }
+        value={query}
+        onChange={handleChange}
+        onFocus={handleFocus}
+      />
 
-      {/* DROPDOWN */}
-      {open && (
+      {open && results.length > 0 && (
         <div className="location-dropdown">
-
-          {/* STATE */}
-          <Select
-            placeholder="Select State"
-            value={filters.state ? { value: filters.state, label: filters.state } : null}
-            onChange={(opt) =>
-              setFilters((prev) => ({
-                ...prev,
-                state: opt?.value || "",
-                city: "",
-                locality: ""
-              }))
-            }
-            options={states.map(s => ({ value: s, label: s }))}
-          />
-
-          {/* CITY */}
-          <Select
-            placeholder="Select City"
-            isDisabled={!filters.state}
-            value={filters.city ? { value: filters.city, label: filters.city } : null}
-            onChange={(opt) =>
-              setFilters((prev) => ({
-                ...prev,
-                city: opt?.value || "",
-                locality: ""
-              }))
-            }
-            options={cities.map(c => ({ value: c, label: c }))}
-          />
-
-          {/* LOCALITY */}
-          <Select
-            placeholder="Select Locality"
-            isDisabled={!filters.city}
-            value={filters.locality ? { value: filters.locality, label: filters.locality } : null}
-            onChange={(opt) =>
-              setFilters((prev) => ({
-                ...prev,
-                locality: opt?.value || ""
-              }))
-            }
-            options={localities.map(l => ({ value: l, label: l }))}
-          />
-
-          {/* ADDRESS */}
-          <input
-            type="text"
-            placeholder="Street / Area / Landmark"
-            value={filters.address}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, address: e.target.value }))
-            }
-          />
-
-          {/* PINCODE */}
-          <input
-            type="text"
-            placeholder="Pincode"
-            maxLength={6}
-            value={filters.pincode}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, pincode: e.target.value }))
-            }
-          />
-
-          <button
-            className="apply-location-btn"
-            onClick={() => setOpen(false)}
-          >
-            Apply Location
-          </button>
-
+          {results.map((item, i) => (
+            <button
+              key={i}
+              type="button"
+              className="location-item"
+              onClick={() => handleSelect(item)}
+            >
+              <strong>{item.label.split(",")[0]}</strong>
+              {item.label.includes(",") && (
+                <span>{item.label.split(",")[1]}</span>
+              )}
+            </button>
+          ))}
         </div>
       )}
     </div>

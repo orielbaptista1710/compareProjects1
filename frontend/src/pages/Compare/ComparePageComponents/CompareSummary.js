@@ -1,11 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { scorePropertiesAI } from "../../../utils/compareAI";
+import { formatCurrencyShort } from "../../../utils/formatters";
 import "./CompareSummary.css";
 
-const formatPrice = (price) =>
-  typeof price === "number"
-    ? `₹${price.toLocaleString("en-IN")}`
-    : "Price on Request";
 
 const CompareSummary = ({ properties = [] }) => {
   const [expanded, setExpanded] = useState(false);
@@ -52,8 +49,8 @@ const CompareSummary = ({ properties = [] }) => {
             {summaryData.minPrice && summaryData.maxPrice && (
               <>
                 {" "}Prices range from{" "}
-                <strong>{formatPrice(summaryData.minPrice)}</strong> to{" "}
-                <strong>{formatPrice(summaryData.maxPrice)}</strong>.
+                <strong>{formatCurrencyShort(summaryData.minPrice)}</strong> to{" "}
+                <strong>{formatCurrencyShort(summaryData.maxPrice)}</strong>.
               </>
             )}
           </>

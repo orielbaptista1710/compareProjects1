@@ -1,35 +1,75 @@
-import React from "react";
-import { Star } from "lucide-react";
-import { testimonials } from "../../../database/interiorsData";
-import "./TestimonialsSection.css";
-export default function TestimonialsSection() {
-  return (
-    <section className="interiors-testimonials-section">
-      <div className="interiors-testimonials-bg"></div>
+// import React from "react";
+// import { Star } from "lucide-react";
+// import { testimonials } from "../../../database/interiorsData";
+// import "./TestimonialsSection.css";
 
-      <div className="interiors-testimonials-content">
-        <p className="interiors-section-label light">Testimonials</p>
-        <h2 className="interiors-section-heading light">What Our Clients Say</h2>
+// const TestimonialsSection = () => {
+//   return (
+//     <section 
+//       className="interiors-testimonials-section"
+//       aria-labelledby="testimonials-heading"
+//     >
+//       {/* Background Overlay */}
+//       <div 
+//         className="interiors-testimonials-bg" 
+//         role="presentation"
+//         aria-hidden="true"
+//       />
 
-        <div className="interiors-testimonials-grid">
-          {testimonials.map((t) => (
-            <div key={t.id} className="interiors-testimonial-card">
-              <div className="interiors-testimonial-stars">
-                {[...Array(t.rating)].map((_, i) => (
-                  <Star key={i} size={18} />
-                ))}
-              </div>
+//       <div className="interiors-testimonials-content">
+//         {/* Header */}
+//         <p className="interiors-section-label light">Testimonials</p>
+//         <h2 
+//           id="testimonials-heading" 
+//           className="interiors-section-heading light"
+//         >
+//           What Our Clients Say
+//         </h2>
 
-              <p className="interiors-testimonial-content">"{t.content}"</p>
+//         {/* Testimonials Grid */}
+//         <div 
+//           className="interiors-testimonials-grid"
+//           role="list"
+//           aria-label="Customer testimonials"
+//         >
+//           {testimonials.map((testimonial) => (
+//             <article 
+//               key={testimonial.id} 
+//               className="interiors-testimonial-card"
+//               role="listitem"
+//             >
+//               {/* Star Rating */}
+//               <div 
+//                 className="interiors-testimonial-stars"
+//                 role="img"
+//                 aria-label={`${testimonial.rating} out of 5 stars`}
+//               >
+//                 {[...Array(testimonial.rating)].map((_, index) => (
+//                   <Star 
+//                     key={index} 
+//                     size={18} 
+//                     fill="currentColor"
+//                     aria-hidden="true"
+//                   />
+//                 ))}
+//               </div>
 
-              <div className="interiors-testimonial-author">
-                <h4>{t.name}</h4>
-                <span>{t.role}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+//               {/* Testimonial Content */}
+//               <blockquote className="interiors-testimonial-content">
+//                 "{testimonial.content}"
+//               </blockquote>
+
+//               {/* Author Info */}
+//               <div className="interiors-testimonial-author">
+//                 <h4>{testimonial.name}</h4>
+//                 {testimonial.role && <span>{testimonial.role}</span>}
+//               </div>
+//             </article>
+//           ))}
+//         </div>
+//       </div>
+//     </section>
+//   );
+// };
+
+// export default React.memo(TestimonialsSection);

@@ -93,7 +93,6 @@
   align-items: center;
   justify-content: center;
   padding: clamp(16px, 3vw, 32px);
-  overflow: hidden;
 }
 
 /* SAFARI SAFE HEIGHT */

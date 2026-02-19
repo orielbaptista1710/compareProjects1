@@ -14,7 +14,11 @@ import IconTabContent from "./PropertyPageComponents/IconTabContent";
 import BrochurePreview from "./PropertyPageComponents/BrochurePreview";
 import NewsReview from "../../components/NewsReview";
 import Seo from '../../database/Seo';
+
 import { toast } from "react-toastify"; // keep this until we switch to react-hot-toast
+
+import { formatCurrencyShort } from "../../utils/formatters";
+
 import API from "../../api";
 
 function PropertyPage() {
@@ -79,21 +83,7 @@ function PropertyPage() {
 
     fetchProperty();
   }, [id]);
-
-  //CHECK THIS USED FORMATTER.JS HERE FOR PRICE AND PRICE PER SQFT
-  const formatPrice = (value) => {
-    if (!value || isNaN(value)) return "";
-    return new Intl.NumberFormat("en-IN").format(value);
-  };
- //FORMATTER.JS FOR THIS TOO PLEASE -- OR CAN WE DO SOMETHING ELSE FOR THIS 
-  const formatPriceToWords = (price) => {
-    if (!price || isNaN(price)) return "";
-    if (price >= 10000000) return (price / 10000000).toFixed(2).replace(/\.00$/, "") + " Crore";
-    if (price >= 100000) return (price / 100000).toFixed(2).replace(/\.00$/, "") + " Lakh";
-    if (price >= 1000) return (price / 1000).toFixed(2).replace(/\.00$/, "") + " Thousand";
-    return price.toString();
-  };
-
+  
   if (loading) return <div className="loading-spinner">Loading...</div>;
   if (error) return <div className="error-message">Error: {error}</div>;
   if (!property) return <div className="not-found">Property not found</div>;
@@ -120,7 +110,7 @@ function PropertyPage() {
               {property.locality}, {property.city}, {property.state} - {property.pincode}
             </p>
             <p className="property-page-price">
-              ₹{formatPriceToWords(property.price)} 
+              {formatCurrencyShort(property.price)} 
             </p>
           </div>
 
@@ -209,9 +199,9 @@ function PropertyPage() {
       { label: "Balconies", value: property.balconies || "NA" },
       { label: "Wing", value: property.wing || "NA" },
     ].map((item, idx) => (
-      <div className="detail-item" key={idx}>
-        <span className="detail-label">{item.label}</span>
-        <span className="detail-value">{item.value}</span>
+      <div className="property-page-detail-item" key={idx}>
+        <span className="property-page-detail-label">{item.label}</span>
+        <span className="property-page-detail-value">{item.value}</span>
       </div>
     ))}
   </div>
@@ -332,10 +322,12 @@ function PropertyPage() {
       <div className="contact-form-container">
         <ContactFormm property={property} />
         <div className="download-brochure-propertypage">
+
           <button className="download-brochure-btn">
             <Download size={20} strokeWidth={1.6} />
             <span>Download Brochure</span>
           </button>
+
         </div>
       </div>
 

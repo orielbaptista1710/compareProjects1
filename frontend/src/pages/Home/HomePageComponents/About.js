@@ -34,23 +34,23 @@ const About = () => {
       id="about"
     >
       <div className="about-wrapper">
-        {/* 🖼️ Illustration */}
+        {/* Illustration */}
         <div className="about-illustration">
           <img
             src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80"
-            alt="Real estate visualization showcasing CompareProjects benefits"
+            alt="Modern residential property visualization"
             loading="lazy"
             width={600}
             height={400}
           />
-          <div className="illustration-overlay">
+          <div className="illustration-overlay" aria-hidden="true">
             <div className="decoration-circle circle-1"></div>
             <div className="decoration-circle circle-2"></div>
             <div className="decoration-circle circle-3"></div>
           </div>
         </div>
 
-        {/* 📄 Content */}
+        {/* Content */}
         <div className="about-content">
           <h2 id="about-heading">
             About <span className="highlight">CompareProjects</span>
@@ -59,37 +59,47 @@ const About = () => {
           <p className="about-intro">
             CompareProjects is a next-generation real estate comparison
             platform designed to make property discovery transparent,
-            data-driven, and reliable. We connect buyers, investors, and
-            developers directly — simplifying every step of the real estate
-            journey.
+            data-driven, and reliable.
           </p>
 
           {/* Tabs */}
-          <div className="benefit-tabs" role="tablist">
+          <div
+            className="benefit-tabs"
+            role="tablist"
+            aria-label="Benefits categories"
+          >
             <button
               role="tab"
+              type="button"
               aria-selected={activeTab === "buyers"}
-              className={`tab-button ${activeTab === "buyers" ? "active" : ""}`}
-              onClick={() => handleTabChange("buyers")}
               aria-controls="buyers-panel"
               id="buyers-tab"
+              tabIndex={activeTab === "buyers" ? 0 : -1}
+              className={`tab-button ${
+                activeTab === "buyers" ? "active" : ""
+              }`}
+              onClick={() => handleTabChange("buyers")}
             >
               Benefits for Buyers
             </button>
 
             <button
               role="tab"
+              type="button"
               aria-selected={activeTab === "investors"}
-              className={`tab-button ${activeTab === "investors" ? "active" : ""}`}
-              onClick={() => handleTabChange("investors")}
               aria-controls="investors-panel"
               id="investors-tab"
+              tabIndex={activeTab === "investors" ? 0 : -1}
+              className={`tab-button ${
+                activeTab === "investors" ? "active" : ""
+              }`}
+              onClick={() => handleTabChange("investors")}
             >
               Benefits for Investors
             </button>
           </div>
 
-          {/* Benefits List */}
+          {/* Panel */}
           <div
             role="tabpanel"
             id={`${activeTab}-panel`}
@@ -101,7 +111,7 @@ const About = () => {
                 <li
                   key={index}
                   className="benefit-item"
-                  style={{ animationDelay: `${index * 0.1}s` }}
+                  style={{ animationDelay: `${index * 0.08}s` }}
                 >
                   <span className="benefit-text">{item}</span>
                 </li>

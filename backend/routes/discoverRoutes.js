@@ -1,3 +1,4 @@
+// routes/discoverRoutes.js -- CHECK THIS
 const express = require("express");
 const router = express.Router();
 const { getDiscover } = require("../controllers/discoverController");

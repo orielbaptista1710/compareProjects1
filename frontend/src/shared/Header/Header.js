@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useCallback, useRef } from "rea
 import { lazy, Suspense } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Header.css";
-import { Menu, X, Users, Plus } from "lucide-react";
+import { Menu, X, Users, Plus, ChevronRight } from "lucide-react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { menuItems } from "../../database/menuData";
 import {HeaderAuthSection} from "../Header/Headercomponents/HeaderAuthSection"
@@ -47,13 +47,31 @@ function Header() {
       }
     }
     setIsMenuOpen(false);
-  }, [location.pathname, navigate]);
+  }, [location.pathname, navigate, setIsMenuOpen]);
 
+  // Handle navigation for menu items
+  const handleNavigation = useCallback((path) => {
+    if (path.includes('#')) {
+      const [route, anchor] = path.split('#');
+
+      if (location.pathname === route) {
+        const element = document.getElementById(anchor);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      } else {
+        navigate(route, { state: { scrollTo: anchor } });
+      }
+    } else {
+      navigate(path);
+    }
+    setIsMenuOpen(false);
+  }, [location.pathname, navigate, setIsMenuOpen]);
 
   // Close menu on route change
   useEffect(() => {
     setIsMenuOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, setIsMenuOpen]);
 
 
   // Handle logout
@@ -61,7 +79,7 @@ function Header() {
     logout();
     setIsMenuOpen(false);
     navigate("/");
-  }, [logout, navigate]);
+  }, [logout, navigate, setIsMenuOpen]);
 
   return (
     <>
@@ -125,6 +143,7 @@ function Header() {
   id="main-navigation"
   className={`header-nav-items ${isMenuOpen ? "show-menu" : ""}`}
 >
+  {/* Main Navigation Links - Desktop & Mobile */}
   <li className="header-nav-center">
     <ul className="nav-group">
       <li>
@@ -133,7 +152,7 @@ function Header() {
         </button>
       </li>
       <li>
-        <Link to="/properties" className="header-nav-link">
+        <Link to="/properties" className="header-nav-link" onClick={closeMenu}>
           Properties
         </Link>
       </li>
@@ -145,6 +164,27 @@ function Header() {
     </ul>
   </li>
 
+  {/* Mobile-only Menu Items Section */}
+  <li className="mobile-navbar-items">
+    <div className="mobile-section-divider">
+      <span>Quick Links</span>
+    </div>
+    <ul className="nav-group">
+      {menuItems.map((item) => (
+        <li key={item.name} className="mobile-nav-item">
+          <button 
+            className="header-nav-link mobile-nav-link"
+            onClick={() => handleNavigation(item.path)}
+          >
+            <span>{item.name}</span>
+            <ChevronRight size={16} className="mobile-nav-arrow" />
+          </button>
+        </li>
+      ))}
+    </ul>
+  </li>
+
+  {/* Right Nav - Actions */}
   <li className="nav-right">
     <ul className="nav-group">
       <li>
@@ -164,7 +204,7 @@ function Header() {
       </li>
 
       <li className="nav-dev-item">
-        <Link to="/login" className="nav-link-developers">
+        <Link to="/login" className="nav-link-developers" onClick={closeMenu}>
           <Users size={18} />
           Developers
         </Link>

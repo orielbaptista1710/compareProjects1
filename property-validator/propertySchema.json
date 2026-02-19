@@ -99,7 +99,7 @@
 
     "furnishing": {
       "type": ["string", "null"],
-      "enum": ["Furnished", "Semi Furnished", "Unfurnished", "Fully Furnished"]
+      "enum": ["Furnished", "Semi-Furnished", "Unfurnished", "Fully Furnished"]
     },
 
     "possessionStatus": { "type": ["string", "null"] },
