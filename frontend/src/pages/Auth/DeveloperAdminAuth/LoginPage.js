@@ -134,7 +134,7 @@ const LoginPage = () => {
                 const username = formData.username;
                 if (!username) return alert('Please enter your username first');
                 try {
-                  const { data } = await API.post('/api/devlog/developer-forgot-password', { username });
+                  const { data } = await API.post('/api/devlog/developer-forgot-password', { username });  // routes/devResetPwdRoutes.js
                   alert(data.message);
                 } catch (err) {
                   alert(err.response?.data?.message || 'Error sending temporary password');

@@ -1,3 +1,4 @@
+//pages/Auth/CustomerAuth/CustomerLoginPage.js
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Check } from "lucide-react"; 

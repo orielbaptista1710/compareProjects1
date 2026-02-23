@@ -1,0 +1,90 @@
+/* ============================================================
+   CompareEmptyState.css
+   ============================================================ */
+
+.empty-compare {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 1.5rem;
+  font-family: 'DM Sans', sans-serif;
+
+
+    margin: 0 auto;
+    max-width: 1400px;
+    min-height: 80vh;
+    width: 100%;
+
+}
+
+/* ── Illustration ── */
+.empty-compare__illustration {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.empty-compare__house {
+  opacity: 1;
+  transition: transform 0.2s ease;
+}
+
+.empty-compare__house:hover {
+  transform: translateY(-3px);
+}
+
+.empty-compare__house--ghost {
+  opacity: 0.6;
+}
+
+.empty-compare__plus {
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: #d1d5db;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+/* ── Text ── */
+.empty-compare__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.6rem;
+}
+
+.empty-compare__desc {
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.65;
+  margin: 0 0 2rem;
+}
+
+/* ── Button ── */
+.empty-compare__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1.4rem;
+  background: #9417E2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.empty-compare__btn:hover {
+  background: #7c10c0;
+  transform: translateY(-1px);
+}
+
+.empty-compare__btn:active {
+  transform: translateY(0);
+}

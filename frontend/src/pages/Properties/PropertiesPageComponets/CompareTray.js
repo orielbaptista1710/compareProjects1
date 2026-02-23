@@ -5,8 +5,8 @@ import { X, Eye, ArrowRight } from "lucide-react";
 import ComparePanel from "./ComparePanel";
 import { useNavigate } from "react-router-dom";
 
-const PLACEHOLDER =
-  "https://placehold.co/600x400/000000/FFFFFF/png";
+import { formatCurrencyShort } from "../../../utils/formatters";
+import { getPropertyImage } from "../../../utils/propertyHelpers";
 
 const CompareTray = ({ compareList = [], removeFromCompare }) => {
   const [openPreview, setOpenPreview] = useState(false);
@@ -22,21 +22,18 @@ const CompareTray = ({ compareList = [], removeFromCompare }) => {
           {compareList.map((property, index) => {
             if (!property) return null;
 
-            const imageSrc =
-            property?.coverImage?.thumbnail ??
-            property?.coverImage?.url ??
-            property?.galleryImages?.[0] ??
-            PLACEHOLDER;
-
+            const imageSrc = getPropertyImage(property);
 
             const title = property?.title || "Untitled";
             const developer =
               property?.developerName || "Unknown Developer";
             const price = property?.price || 0;
+
             const city =
               property?.city ||
               property?.locality ||
               "—";
+
             const locality =
               property?.location?.locality ||
               property?.locality ||
@@ -52,9 +49,6 @@ const CompareTray = ({ compareList = [], removeFromCompare }) => {
                     src={imageSrc}
                     alt={title}
                     className="compare-image"
-                    onError={(e) =>
-                      (e.currentTarget.src = PLACEHOLDER)
-                    }
                   />
 
                   <button
@@ -79,8 +73,8 @@ const CompareTray = ({ compareList = [], removeFromCompare }) => {
                   </p>
 
                   <p className="compare-price">
-                    ₹{Number(price).toLocaleString("en-IN")}
-                    <small> onwards</small>
+                    {formatCurrencyShort(price)}{" "}
+                    <small>onwards</small>
                   </p>
                 </div>
               </div>

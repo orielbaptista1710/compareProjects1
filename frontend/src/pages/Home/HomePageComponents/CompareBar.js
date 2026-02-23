@@ -3,12 +3,11 @@ import { X, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./CompareBar.css";
 
-const fallbackImg = "https://placehold.co/100x70/000000/FFFFFF/png";
+import { formatCurrencyShort } from "../../../utils/formatters";
+import { getPropertyImage } from "../../../utils/propertyHelpers";
 
-export default function CompareBar({ compareList, removeFromCompare }) {
+const CompareBar = ({ compareList, removeFromCompare }) =>{
   const navigate = useNavigate();
-
-  
 
   const goToComparePage = () => {
     navigate("/compare");
@@ -21,21 +20,15 @@ export default function CompareBar({ compareList, removeFromCompare }) {
           {compareList.map((property) => (
             <div key={property._id} className="compare-item">
               <img
-                src={
-                  property?.images?.[0] ||
-                  property?.coverImage ||
-                  property?.galleryImages?.[0] ||
-                  fallbackImg
-                }
+                src={getPropertyImage(property)}
                 alt={property?.title}
                 className="compare-item-image"
-                onError={(e) => (e.target.src = fallbackImg)}
               />
 
               <div className="compare-item-info">
                 <p className="compare-item-title">{property.title}</p>
                 <p className="compare-item-price">
-                  ₹{Number(property.price).toLocaleString("en-IN")}
+                  {formatCurrencyShort(property.price)}
                 </p>
               </div>
 
@@ -54,12 +47,18 @@ export default function CompareBar({ compareList, removeFromCompare }) {
             {compareList.length} selected
           </span>
 
-          <button className="compare-clear-btn" onClick={() => navigate("/compare")}>
+          <button
+            className="compare-clear-btn"
+            onClick={() => navigate("/compare")}
+          >
             <Trash2 size={16} />
             Clear All
           </button>
 
-          <button className="compare-now-btn" onClick={goToComparePage}>
+          <button
+            className="compare-now-btn"
+            onClick={goToComparePage}
+          >
             Compare Now
           </button>
         </div>
@@ -67,3 +66,5 @@ export default function CompareBar({ compareList, removeFromCompare }) {
     </div>
   );
 }
+
+export default React.memo(CompareBar);

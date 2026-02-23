@@ -11,3 +11,4 @@ const devpasswordResetLogSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('DevPasswordResetLog', devpasswordResetLogSchema);
+ 

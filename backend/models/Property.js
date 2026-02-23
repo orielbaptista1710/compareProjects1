@@ -38,6 +38,7 @@ const propertySchema = new mongoose.Schema({
   state: { type: String, required: true, trim: true },
   city: { type: String, required: true, trim: true},
   locality: { type: String, required: true, trim: true },
+  sub_locality: { type: String, trim: true },
   address: { type: String, required: true, trim: true},
   pincode: {
     type: String,

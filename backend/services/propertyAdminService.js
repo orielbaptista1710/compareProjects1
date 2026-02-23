@@ -140,7 +140,7 @@ exports.fetchProperties = async ({
     reviewedAt: 1,
     reviewedBy: 1,
     "coverImage.url": 1,
-    "coverImage.thumbnail": 1,
+    "coverImage.thumbnail": 1, //add galleryImages??
     userId: 1,
     views: 1,
     createdAt: 1,

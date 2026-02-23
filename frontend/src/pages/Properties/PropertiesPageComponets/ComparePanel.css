@@ -1,0 +1,325 @@
+/* ============================================================
+   ComparePanel.css
+   ============================================================ */
+
+/* ── Backdrop ── */
+.cp-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 88px 20px 20px;
+  z-index: 9999;
+  animation: cp-fade 0.2s ease;
+}
+
+@keyframes cp-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Panel ── */
+.cp-panel {
+  width: 100%;
+  max-width: 1100px;
+  max-height: calc(100vh - 108px);
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
+  display: flex;
+  flex-direction: column;
+  animation: cp-up 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes cp-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header ── */
+.cp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.cp-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.cp-title span {
+  color: #9417E2;
+}
+
+.cp-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 8px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.cp-close:hover {
+  background: #ebebeb;
+  color: #111827;
+}
+
+/* ── Scrollable body ── */
+.cp-body {
+  overflow: auto;
+  flex: 1;
+}
+
+.cp-body::-webkit-scrollbar { width: 4px; height: 4px; }
+.cp-body::-webkit-scrollbar-track { background: #fafafa; }
+.cp-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+/* ── Table ── */
+.cp-table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* ── Column widths ── */
+.cp-label-col {
+  width: 110px;
+}
+
+.cp-prop-col {
+  padding: 0.85rem 0.75rem;
+  vertical-align: top;
+  border-left: 1px solid #f0f0f0;
+}
+
+/* ── Property header cell (thumbnail + remove) ── */
+.cp-prop-header {
+  position: relative;
+  display: block;
+}
+
+.cp-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f3f4f6;
+  display: block;
+}
+
+.cp-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.cp-remove:hover {
+  background: #dc2626;
+}
+
+/* ── Body rows ── */
+.cp-row {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.cp-row:last-child {
+  border-bottom: none;
+}
+
+.cp-row-label {
+  padding: 0.8rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #9ca3af;
+  vertical-align: top;
+  text-align: left;
+  background: #fafafa;
+  border-right: 1px solid #f0f0f0;
+  white-space: nowrap;
+}
+
+/* ── Data cells ── */
+.cp-cell {
+  padding: 0.8rem 0.75rem;
+  font-size: 0.85rem;
+  color: #374151;
+  vertical-align: top;
+  border-left: 1px solid #f3f4f6;
+}
+
+.cp-cell--price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #9417E2;
+}
+
+/* ── Property name + type ── */
+.cp-prop-title {
+  display: block;
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.cp-prop-type {
+  display: block;
+  font-size: 0.72rem;
+  color: #9ca3af;
+  margin-top: 3px;
+}
+
+/* ── Location ── */
+.cp-location {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.cp-location svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #9417E2;
+}
+
+/* ── Badges ── */
+.cp-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.cp-badge--yes {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #059669;
+}
+
+.cp-badge--no {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+}
+
+.cp-badge--pending {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #d97706;
+}
+
+/* ── Footer ── */
+.cp-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding: 0.9rem 1.25rem;
+  border-top: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+/* ── Buttons ── */
+.cp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  text-decoration: none;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+
+
+.cp-btn--primary {
+  background: #9417E2;
+  border-color: #9417E2;
+  color: #ffffff;
+}
+
+.cp-btn--primary:hover {
+  background: #7c10c0;
+  border-color: #7c10c0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .cp-backdrop {
+    padding: 70px 10px 10px;
+    align-items: flex-end;
+  }
+
+  .cp-panel {
+    max-height: calc(100vh - 80px);
+    border-radius: 14px 14px 0 0;
+  }
+
+  .cp-label-col {
+    width: 80px;
+  }
+
+  .cp-row-label {
+    font-size: 0.68rem;
+    padding: 0.7rem 0.6rem;
+  }
+
+  .cp-cell {
+    font-size: 0.8rem;
+    padding: 0.7rem 0.6rem;
+  }
+
+  .cp-footer {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
+
+  .cp-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
