@@ -1,3 +1,4 @@
+//components/ProtectedCustomerRoute.js is used to protect routes for customers
 import { useContext } from "react";
 import { Navigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";

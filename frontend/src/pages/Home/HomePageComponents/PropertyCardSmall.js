@@ -11,18 +11,17 @@ import {
 import "./PropertyCardSmall.css";
 import { useCompare } from "../../../contexts/CompareContext";
 
-const fallbackImg = "https://placehold.co/600x400/000000/FFFFFF/png";
+import { formatCurrencyShort } from "../../../utils/formatters";
+import { getPropertyImage, fallbackImg } from "../../../utils/propertyHelpers";
+
 
 const PropertyCardSmall = ({ property }) => {
   const { addToCompare } = useCompare();
   const navigate = useNavigate();
 
-  const imageUrl =
-    property?.coverImage?.thumbnail ||
-    property?.galleryImages?.[0]?.thumbnail ||
-    property?.image ||
-    property?.images?.[0] ||
-    fallbackImg;
+  const imageUrl = getPropertyImage(property);
+
+
 
   const handleCardClick = () => {
     navigate(`/property/${property?._id}`);
@@ -46,7 +45,9 @@ const PropertyCardSmall = ({ property }) => {
           src={imageUrl}
           alt={property?.title || "Property"}
           loading="lazy"
-          onError={(e) => (e.target.src = fallbackImg)}
+          onError={(e) => {
+            e.currentTarget.src = fallbackImg;
+          }}
         />
       </div>
 
@@ -110,15 +111,9 @@ const PropertyCardSmall = ({ property }) => {
       <div className="modern-property-side">
         {/* Price */}
         <div className="modern-property-price">
-          {property?.price ? (
-            <>
-              <IndianRupee size={16} strokeWidth={1.8} />
-              {Number(property.price).toLocaleString("en-IN")}
-            </>
-          ) : (
-            "Price on Request"
-          )}
+          {formatCurrencyShort(property?.price)}
         </div>
+
 
         {/* Compare Button */}
         <button
@@ -129,7 +124,7 @@ const PropertyCardSmall = ({ property }) => {
           }}
         >
           Compare
-        </button>
+        </button> 
       </div>
     </div>
   );

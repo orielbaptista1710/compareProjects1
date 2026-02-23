@@ -15,7 +15,7 @@ export const formatCurrency = (value, options = {}) => {
 
   const formatted = new Intl.NumberFormat("en-IN", {
     maximumFractionDigits: 0,
-  }).format(num);
+  }).format(num); 
 
   return showSymbol ? `₹${formatted}` : formatted;
 };

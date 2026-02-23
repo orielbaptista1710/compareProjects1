@@ -102,6 +102,57 @@
   pointer-events: none;
 }
 
+
+
+
+
+
+
+.results-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.results-location {
+  color: #9417E2;
+}
+
+.results-subtitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.results-range {
+  font-weight: 500;
+  color: #374151;
+}
+
+.results-divider {
+  color: #d1d5db;
+}
+
+.results-context {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.results-fetching-spinner {
+  display: inline-block;
+  margin-left: 0.5rem;
+  color: #9417E2;
+  animation: spin 1s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* ========================
    Active Filters
 ======================== */
@@ -154,6 +205,9 @@
   flex-direction: column;
   gap: 1.25rem;
 }
+
+
+
 /* ========================
    Compare Toast
 ======================== */

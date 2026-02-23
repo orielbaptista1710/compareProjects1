@@ -85,7 +85,7 @@ const searchProperties = asyncHandler(async (req, res) => {
 
   // --- Primary MongoDB Regex Search ---
   let properties = await Property.find(filters)
-    .select('title locality city state price images propertyType bhk furnishing reraApproved')
+    .select('title locality city state price coverImage galleryImages propertyType bhk furnishing reraApproved ')
     .limit(Number(limit))
     .lean();
 
@@ -98,7 +98,7 @@ const searchProperties = asyncHandler(async (req, res) => {
       { score: { $meta: 'textScore' } }
     )
       .sort({ score: { $meta: 'textScore' } })
-      .select('title locality city state price images propertyType bhk furnishing reraApproved')
+      .select('title locality city state price coverImage galleryImages propertyType bhk furnishing reraApproved')
       .limit(Number(limit))
       .lean();
     if (properties.length > 0) fuzzy = true;

@@ -108,6 +108,8 @@ const getFeaturedProperties = asyncHandler(async (req, res) => {
       slug
       developerName
       propertyType
+      coverImage
+      galleryImages
     `)
     .sort({ createdAt: -1 })   // or popularityScore later
     .limit(Number(limit));
@@ -147,7 +149,7 @@ const getRecentProperties = asyncHandler(async (req, res) => {
     const skip = (page - 1) * limit;
 
     const sortMap = {
-      relevance: { featured: -1 },
+      relevance: { featured: -1, createdAt: -1 },
       "price-low-high": { price: 1 },
       "price-high-low": { price: -1 },
       newest: { createdAt: -1 },

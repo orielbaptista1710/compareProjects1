@@ -13,13 +13,14 @@ import {
   Compass,
 } from 'lucide-react';
 
-const placeholderImage = 'https://placehold.co/600x400/000000/FFFFFF/png';
+import { getPropertyImage } from "../../../utils/propertyHelpers";
+import { formatCurrencyShort } from "../../../utils/formatters";
+import { getPropertyLocation } from"../../../utils/propertyHelpers";
 
 function PropertyCard({
   property,
   addToCompare,
   goToComparePage,
-  // onRemove,
   cardType,
   isInCompare,
 }) {
@@ -80,62 +81,13 @@ function PropertyCard({
    *  COMPUTED VALUES
    * ====================== */
   const imageUrl = useMemo(() => {
-    if (imageError) return placeholderImage;
-    if (property.coverImage?.url) return property.coverImage.url;
-    if (property.coverImage?.thumbnail) return property.coverImage.thumbnail;
-    if (typeof property.coverImage === 'string' && property.coverImage) {
-      return `${process.env.REACT_APP_API_URL}/uploads/${property.coverImage}`;
-    }
-    return placeholderImage;
-  }, [imageError, property.coverImage]);
+  if (imageError) return getPropertyImage(null);
+  return getPropertyImage(property);
+}, [imageError, property]);
 
-  const location = useMemo(() => {
-  const parts = [property.locality, property.city].filter(Boolean);
-  return parts.join(', ');
-}, [property.locality, property.city]);
+  const location = getPropertyLocation(property);
 
-
-  const formattedPrice = useMemo(() => {
-    const price = property.price;
-    if (typeof price !== 'number' || isNaN(price)) return 'Price on Request';
-
-    if (price >= 10000000) {
-      const crores = price / 10000000;
-      const maxCrores = crores * 1.2; // 20% higher for range
-      return `₹ ${crores.toFixed(2)} Cr - ${maxCrores.toFixed(2)} Cr`;
-    }
-    if (price >= 100000) {
-      const lakhs = price / 100000;
-      const maxLakhs = lakhs * 1.2;
-      return `₹ ${lakhs.toFixed(2)} L - ${maxLakhs.toFixed(2)} L`;
-    }
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(price);
-  }, [property.price]);
-
-  const formattedEMI = useMemo(() => {
-    if (!property.emiStarts) return null;
-    if (property.emiStarts >= 100000) {
-      return `${(property.emiStarts / 100000).toFixed(2)} L`;
-    }
-    if (property.emiStarts >= 1000) {
-      return `${(property.emiStarts / 1000).toFixed(1)} K`;
-    }
-    return property.emiStarts.toLocaleString('en-IN');
-  }, [property.emiStarts]);
-
-  const formattedPricePerSqft = useMemo(() => {
-    if (!property.pricePerSqft) return null;
-    if (property.pricePerSqft >= 1000) {
-      return `${(property.pricePerSqft / 1000).toFixed(2)}k`;
-    }
-    return property.pricePerSqft.toLocaleString('en-IN');
-  }, [property.pricePerSqft]);
-
-  
+  const formattedPrice = formatCurrencyShort(property.price);
 
   if (!property) return <p role="alert">Invalid property data</p>;
 
@@ -210,9 +162,12 @@ function PropertyCard({
 
             <div className="property-pricee">
               <span className="price-amount">{formattedPrice}</span>
-              {formattedEMI && (
-                <span className="price-per-sqft">EMI starts at ₹ {formattedEMI}</span>
-              )}
+              {property.emiStarts && (
+  <span className="price-per-sqft">
+    EMI starts at ₹ {property.emiStarts}
+  </span>
+)}
+
             </div>
           </div>
           <div className="more-details">
@@ -276,14 +231,15 @@ function PropertyCard({
         <div className="property-details-row">
   <div className="property-card-detail-item">
 
-    {formattedPricePerSqft && (
-      <>
-        <span className="property-card-detail-label">Price/Sqft:</span>
-        <span className="property-card-detail-value">
-          ₹{formattedPricePerSqft}/sq.ft
-        </span>
-      </>
-    )}
+    {property.pricePerSqft && (
+  <>
+    <span className="property-card-detail-label">Price/Sqft:</span>
+    <span className="property-card-detail-value">
+      ₹{property.pricePerSqft}/sq.ft
+    </span>
+  </>
+)}
+
 
     {property.possessionStatus && (
       <>

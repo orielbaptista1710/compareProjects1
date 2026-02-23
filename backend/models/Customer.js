@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const validator = require('validator'); // npm install validator
 
-const customerSchema = new mongoose.Schema({
+ const customerSchema = new mongoose.Schema({
   customerName: { 
     type: String, 
     required: [true, 'Name is required'], 

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Home,
   User,
-  Star,
+  Heart,
   Scale,
   Search,
   Gift,
@@ -33,12 +33,6 @@ const CustomerProfilePage = () => {
     navigate("/");
   };
 
-  if (loading) {
-    return <p className="loading-screen">Loading your profile...</p>;
-  }
-
-  if (!currentUser) return null;
-
   const renderContent = () => {
     switch (activeTab) {
       case "profile":
@@ -47,23 +41,41 @@ const CustomerProfilePage = () => {
             <h2>My Profile</h2>
             <div className="profile-details">
               <p>
-                <strong>Name:</strong> {currentUser.customerName}
+                <strong>Name:</strong> 
+                <span>{currentUser.customerName || "Not provided"}</span>
               </p>
               <p>
-                <strong>Email:</strong> {currentUser.customerEmail}
+                <strong>Email:</strong> 
+                <span>{currentUser.customerEmail || "Not provided"}</span>
               </p>
               <p>
-                <strong>Phone:</strong> {currentUser.customerPhone}
+                <strong>Phone:</strong> 
+                <span>{currentUser.customerPhone || "Not provided"}</span>
               </p>
             </div>
           </div>
         );
       case "shortlist":
-        return <div className="profile-content">Your Shortlisted Projects</div>;
+        return (
+          <div className="profile-content">
+            <h2>Shortlisted Properties</h2>
+            <p>Your shortlisted properties will appear here.</p>
+          </div>
+        );
       case "compare":
-        return <div className="profile-content">Your Compared Projects</div>;
+        return (
+          <div className="profile-content">
+            <h2>Compared Properties</h2>
+            <p>Properties you've compared will appear here.</p>
+          </div>
+        );
       case "saved":
-        return <div className="profile-content">Your Saved Searches</div>;
+        return (
+          <div className="profile-content">
+            <h2>Saved Searches</h2>
+            <p>Your saved searches will appear here.</p>
+          </div>
+        );
       case "offers":
         return (
           <div className="profile-content">
@@ -85,7 +97,12 @@ const CustomerProfilePage = () => {
   };
 
   const menuItems = [
-    { key: "home", label: "Home", icon: Home, action: () => navigate("/") },
+    { 
+      key: "home", 
+      label: "Home", 
+      icon: Home, 
+      action: () => navigate("/") 
+    },
     {
       key: "profile",
       label: "Profile",
@@ -95,7 +112,7 @@ const CustomerProfilePage = () => {
     {
       key: "shortlist",
       label: "Shortlist",
-      icon: Star,
+      icon: Heart,
       action: () => setActiveTab("shortlist"),
     },
     {
@@ -118,32 +135,53 @@ const CustomerProfilePage = () => {
     },
   ];
 
+  if (loading) {
+    return <p className="loading-screen">Loading your profile...</p>;
+  }
+
+  if (!currentUser) return null;
+
   return (
     <div className="customer-profile-page">
       {/* Sidebar */}
       <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
         {/* Toggle Button */}
-        <div className="sidebar-toggle" onClick={() => setCollapsed(!collapsed)}>
+        <button 
+          className="sidebar-toggle" 
+          onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
+        >
           {collapsed ? (
-            <ChevronRight size={20} />
+            <ChevronRight size={16} strokeWidth={2.5} />
           ) : (
-            <ChevronLeft size={20} />
+            <ChevronLeft size={16} strokeWidth={2.5} />
           )}
-        </div>
+        </button>
 
         <div className="sidebar-top">
           {menuItems.map((item) => {
             const Icon = item.icon;
+            const isActive = activeTab === item.key || (item.key === "home" && activeTab === "home");
+            
             return (
               <div
                 key={item.key}
-                className={`sidebar-item ${
-                  activeTab === item.key ? "active" : ""
-                }`}
+                className={`sidebar-item ${isActive ? "active" : ""}`}
                 onClick={item.action}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    item.action();
+                  }
+                }}
+                aria-label={item.label}
+                aria-current={isActive ? "page" : undefined}
               >
                 <span className="sidebar-icon">
-                  <Icon size={18} strokeWidth={1.75} />
+                  <Icon size={20} strokeWidth={1.75} />
                 </span>
                 {!collapsed && (
                   <span className="sidebar-label">{item.label}</span>
@@ -154,12 +192,39 @@ const CustomerProfilePage = () => {
         </div>
 
         <div className="sidebar-bottom">
-          <div className="sidebar-item">
-            <Settings size={18} strokeWidth={1.75} className="sidebar-icon" />
+          <div 
+            className="sidebar-item"
+            onClick={() => setActiveTab("settings")}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setActiveTab("settings");
+              }
+            }}
+          >
+            <span className="sidebar-icon">
+              <Settings size={20} strokeWidth={1.75} />
+            </span>
             {!collapsed && <span className="sidebar-label">Settings</span>}
           </div>
-          <div className="sidebar-item" onClick={handleLogout}>
-            <LogOut size={18} strokeWidth={1.75} className="sidebar-icon" />
+          
+          <div 
+            className="sidebar-item" 
+            onClick={handleLogout}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleLogout();
+              }
+            }}
+          >
+            <span className="sidebar-icon">
+              <LogOut size={20} strokeWidth={1.75} />
+            </span>
             {!collapsed && <span className="sidebar-label">Logout</span>}
           </div>
 

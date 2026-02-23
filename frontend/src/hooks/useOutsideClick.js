@@ -3,13 +3,16 @@ import { useEffect } from "react";
 
 export function useOutsideClick(isActive, refs, onClose) {
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive || !refs?.length) return;
 
     const handler = (e) => {
-      const clickedInside = refs.some(ref =>
-        ref.current?.contains(e.target)
+      const clickedInside = refs.some(
+        (ref) => ref.current && ref.current.contains(e.target)
       );
-      if (!clickedInside) onClose();
+
+      if (!clickedInside) {
+        onClose?.();
+      }
     };
 
     document.addEventListener("mousedown", handler);

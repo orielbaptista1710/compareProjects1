@@ -11,6 +11,7 @@ import FilterPanel from "./PropertiesPageComponets/FilterComponents/FilterPanel"
 import ProjectViewSideBar from "../../components/ProjectViewSideBar";
 import CompareTray from "./PropertiesPageComponets/CompareTray";
 import ResultsHeader from "./PropertiesPageComponets/FilterComponents/ResultsHeader";
+import Pagination from "./PropertiesPageComponets/Pagination";
 
 // Icons
 import { X } from "lucide-react";
@@ -156,8 +157,10 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Update your data destructuring 
   const properties = data?.properties || [];
   const totalMatched = data?.totalMatched || 0;
+  const totalPages = data?.totalPages || 1;       // ← add this
 
   /* ---------- Effects ---------- */
 
@@ -168,6 +171,11 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
   useEffect(() => {
     setPage(1);
   }, [filters, sortBy]);
+
+  // Scroll to top on page change — add this effect
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
 
   /* ---------- Filter helpers ---------- */
 
@@ -269,6 +277,10 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
             filters={filters}
             sortBy={sortBy}
             setSortBy={setSortBy}
+            page={page}
+            limit={12}
+            isLoading={isLoading}
+            isFetching={isFetching}
           />
 
           {/* Active Filters */}
@@ -301,34 +313,51 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
           </div>
 
           {/* Property List */}
-          <div className="property-list list">
-            {isLoading ? (
-              <PropertySkeletons />
-            ) : properties.length === 0 ? (
-              <EmptyState onReset={clearFilters} />
-            ) : (
-              <>
-                {properties.map((property, index) => (
-                  <React.Fragment key={property._id}>
-                    <PropertyCard
-                      property={property}
-                      viewMode="list"
-                      addToCompare={addToCompare}
-                      isInCompare={isInCompareList(property._id)}
-                    />
-                    {index === 1 && compareList.length > 0 && (
-                      <CompareTray
-                        compareList={compareList}
-                        removeFromCompare={removeFromCompare}
-                        goToComparePage={() => navigate("/compare")}
-                      />
-                    )}
-                  </React.Fragment>
-                ))}
-                {isFetching && <PropertySkeletons count={3} />}
-              </>
-            )}
-          </div>
+          {/* Property List */}
+<div className="property-list list">
+  {isLoading ? (
+    <PropertySkeletons />
+  ) : properties.length === 0 ? (
+    <EmptyState onReset={clearFilters} />
+  ) : (
+    <>
+      {properties.map((property, index) => {
+        const showAfterTwo = index === 1;
+        const showAfterSixMultiple = (index + 1) % 6 === 0 && index !== 1;
+
+        return (
+          <React.Fragment key={property._id}>
+            <PropertyCard
+              property={property}
+              viewMode="list"
+              addToCompare={addToCompare}
+              isInCompare={isInCompareList(property._id)}
+            />
+
+            {compareList.length > 0 &&
+              (showAfterTwo || showAfterSixMultiple) && (
+                <CompareTray
+                  compareList={compareList}
+                  removeFromCompare={removeFromCompare}
+                />
+              )}
+          </React.Fragment>
+        );
+      })}
+
+      {isFetching && <PropertySkeletons count={3} />}   {/* ← only once */}
+    </>
+  )}
+</div>
+
+{/* Pagination */}
+<Pagination
+  page={page}
+  totalPages={totalPages}
+  onPageChange={setPage}
+  isFetching={isFetching}
+/>
+
         </div>
 
         <div className="contact-and-sideview">

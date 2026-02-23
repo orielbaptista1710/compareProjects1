@@ -1,3 +1,5 @@
+//this is used for the developer to reset their password
+
 // routes/devResetPwdRoutes.js ---- CHECK THIS 
 const express = require('express');
 const router = express.Router();

@@ -1,3 +1,4 @@
+//pages/Auth/CustomerAuth/CustomerSignupPage.js
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../../api";
