@@ -1,6 +1,14 @@
+
+
+
+
+
+//Home/HomePageComponents/ContactForm.js 
 import React, { useState } from "react";
 import { MapPin, Mail, Phone } from "lucide-react";
 import "./ContactForm.css";
+
+//have to add /api/leads/customer
 
 const CITIES = ["Mumbai"];
 const LOCALITIES = {
@@ -10,7 +18,13 @@ const LOCALITIES = {
   ],
 };
 const PROPERTY_TYPES = [
-  "Apartment/Flat", "Villa", "Bungalow", "Plot", "Office Spaces", "Warehouse", "Shops/Showrooms",
+  "Flats/Apartments", 
+    "Villa", 
+    "Plot","Shop/Showroom",
+    "Industrial Warehouse/Godown",
+    "Office Space",
+    "Commercial Land",
+    "Industrial Building",
 ];
 const BUDGET_RANGES = [
   "Under ₹20L", "₹20L - ₹40L", "₹40L - ₹60L",
@@ -20,10 +34,17 @@ const BUDGET_RANGES = [
 const ContactForm = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: "", email: "", phone: "", userType: "",
-    city: "Mumbai", locality: "", budget: "",
-    propertyType: "", requirements: "",
-  });
+  customerName: "",
+  customerEmail: "",
+  customerPhone: "",
+  customerContactConsent: true,
+  userType: "",
+  city: "Mumbai",
+  locality: "",
+  budget: "",
+  propertyType: "",
+  requirements: "",
+});
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,17 +55,34 @@ const ContactForm = () => {
   };
 
   const validateStep1 = () => {
-    const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
-    if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
-    else if (!/^(\+?\d{1,3}[- ]?)?\d{10}$/.test(formData.phone))
-      newErrors.phone = "Phone number must be 10 digits";
-    if (!formData.userType) newErrors.userType = "Please select your type";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const newErrors = {};
+
+  const name = formData.customerName.trim();
+  const email = formData.customerEmail.trim();
+  const phone = formData.customerPhone.trim();
+
+  if (!name || name.length < 2)
+    newErrors.customerName = "Enter valid full name";
+
+  if (!email)
+    newErrors.customerEmail = "Email is required";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    newErrors.customerEmail = "Invalid email format";
+
+  if (!phone)
+    newErrors.customerPhone = "Phone number is required";
+  else if (!/^[6-9]\d{9}$/.test(phone))
+    newErrors.customerPhone = "Enter valid 10-digit mobile number";
+
+  if (!formData.userType)
+    newErrors.userType = "Please select your type";
+
+  if (!formData.customerContactConsent)
+    newErrors.customerContactConsent = "You must agree to be contacted";
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
   const validateStep2 = () => {
     const newErrors = {};
@@ -60,22 +98,51 @@ const ContactForm = () => {
   const handleBack = () => setStep(1);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateStep2()) return;
-    setIsSubmitting(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log("Submitted:", formData);
-      setFormData({
-        name: "", email: "", phone: "", userType: "",
-        city: "Mumbai", locality: "", budget: "",
-        propertyType: "", requirements: "",
-      });
-      setStep(1);
-    } finally {
-      setIsSubmitting(false);
+  e.preventDefault();
+  if (!validateStep2()) return;
+
+  setIsSubmitting(true);
+
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/leads/customer`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          source: "home_page_contact",
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Submission failed");
     }
-  };
+
+    // reset
+    setFormData({
+      customerName: "",
+      customerEmail: "",
+      customerPhone: "",
+      customerContactConsent: true,
+      userType: "",
+      city: "Mumbai",
+      locality: "",
+      budget: "",
+      propertyType: "",
+      requirements: "",
+    });
+
+    setStep(1);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <section className="contact-fm-home-form-section">
@@ -138,49 +205,81 @@ const ContactForm = () => {
 
                   <div className="contact-fm-home-form-grid">
                     <div className="contact-fm-home-form-group">
-                      <label htmlFor="name">Full Name *</label>
-                      <input id="name" name="name" value={formData.name}
-                        onChange={handleChange} placeholder="Enter your full name"
-                        className={errors.name ? "error" : ""} />
-                      {errors.name && <span className="contact-fm-home-error-text">{errors.name}</span>}
+                      <label htmlFor="customerName">Full Name *</label>
+                      <input
+                        id="customerName"
+                        name="customerName"
+                        value={formData.customerName}
+                        onChange={handleChange}
+                        placeholder="Enter your full name"
+                        className={errors.customerName ? "error" : ""}
+                      />
+                      {errors.customerName && (
+                        <span className="contact-fm-home-error-text">
+                          {errors.customerName}
+                        </span>
+                      )}
                     </div>
 
                     <div className="contact-fm-home-form-group">
-                      <label htmlFor="email">Email Address *</label>
-                      <input id="email" name="email" type="email"
-                        value={formData.email} onChange={handleChange}
-                        placeholder="Enter your email" className={errors.email ? "error" : ""} />
-                      {errors.email && <span className="contact-fm-home-error-text">{errors.email}</span>}
+                      <label htmlFor="customerEmail">Email Address *</label>
+                      <input
+                        id="customerEmail"
+                        name="customerEmail"
+                        type="email"
+                        value={formData.customerEmail}
+                        onChange={handleChange}
+                        placeholder="Enter your email"
+                        className={errors.customerEmail ? "error" : ""}
+                      />
+                      {errors.customerEmail && (
+                        <span className="contact-fm-home-error-text">
+                          {errors.customerEmail}
+                        </span>
+                      )}
                     </div>
 
                     <div className="contact-fm-home-form-group">
-                      <label htmlFor="phone">Phone Number *</label>
-                      <input id="phone" name="phone" type="tel"
-                        value={formData.phone} onChange={handleChange}
-                        placeholder="10-digit number" className={errors.phone ? "error" : ""} />
-                      {errors.phone && <span className="contact-fm-home-error-text">{errors.phone}</span>}
+                      <label htmlFor="customerPhone">Mobile Number *</label>
+                      <input
+                        id="customerPhone"
+                        name="customerPhone"
+                        type="tel"
+                        value={formData.customerPhone}
+                        onChange={handleChange}
+                        placeholder="10-digit number"
+                        className={errors.customerPhone ? "error" : ""}
+                      />
+                      {errors.customerPhone && (
+                        <span className="contact-fm-home-error-text">
+                          {errors.customerPhone}
+                        </span>
+                      )}
                     </div>
 
                     <div className="contact-fm-home-form-group full-width">
-                      <label>I am a *</label>
-                      <div className="contact-fm-home-radio-group">
-                        {["buyer", "investor"].map((type) => (
-                          <label key={type} className={`contact-fm-home-radio-option ${formData.userType === type ? "selected" : ""}`}>
-                            <input type="radio" name="userType" value={type}
-                              checked={formData.userType === type} onChange={handleChange} />
-                            <div>
-                              <div className="contact-fm-home-radio-label">{type === "buyer" ? "Buyer" : "Investor"}</div>
-                              <div className="contact-fm-home-radio-description">
-                                {type === "buyer"
-                                  ? "Looking to purchase a property"
-                                  : "Interested in investment opportunities"}
-                              </div>
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                      {errors.userType && <span className="contact-fm-home-error-text">{errors.userType}</span>}
-                    </div>
+  <label className="contact-fm-home-checkbox">
+    <input
+      type="checkbox"
+      name="customerContactConsent"
+      checked={formData.customerContactConsent}
+      onChange={(e) =>
+        setFormData((prev) => ({
+          ...prev,
+          customerContactConsent: e.target.checked,
+        }))
+      }
+    />
+    I agree to be contacted via phone, WhatsApp, SMS or email.
+  </label>
+
+  {errors.customerContactConsent && (
+    <span className="contact-fm-home-error-text">
+      {errors.customerContactConsent}
+    </span>
+  )}
+</div>  
+
                   </div>
 
                   <button type="button" className="contact-fm-home-btn contact-fm-home-btn-primary" onClick={handleNext}>
@@ -257,3 +356,5 @@ const ContactForm = () => {
 };
 
 export default ContactForm;
+
+

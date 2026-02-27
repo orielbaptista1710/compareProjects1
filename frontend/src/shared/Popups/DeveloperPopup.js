@@ -1,4 +1,6 @@
+
 // DeveloperPopup.js
+//frontend/src/shared/Popups/DeveloperPopup.js
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { X, Check } from "lucide-react";
 import { lazy, Suspense } from "react";
@@ -15,10 +17,10 @@ const BENEFITS = [
 ];
 
 const INITIAL_FORM = {
-  devfullName: "",
-  devEmail: "",
-  devPhone: "",
-  contactConsent: false,
+  developerFullName: "",
+  developerEmail: "",
+  developerPhone: "",
+  developerContactConsent: false,
 };
 
 const DeveloperPopup = ({ isOpen, onClose }) => {
@@ -30,12 +32,12 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
   useOutsideClick(isOpen, [panelRef], onClose);
 
   // Close on Escape
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [isOpen, onClose]);
+  // useEffect(() => {
+  //   if (!isOpen) return;
+  //   const handler = (e) => { if (e.key === "Escape") onClose(); };
+  //   document.addEventListener("keydown", handler);
+  //   return () => document.removeEventListener("keydown", handler);
+  // }, [isOpen, onClose]);
 
   // Lock body scroll
   useEffect(() => {
@@ -60,21 +62,28 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.devfullName.trim() || !formData.devEmail.trim() || !formData.devPhone.trim()) {
+    if (!formData.developerFullName.trim() || !formData.developerEmail.trim() || !formData.developerPhone.trim()) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
-    if (!formData.contactConsent) {
+    if (!formData.developerContactConsent) {
       toast.error("Please consent to being contacted.");
       return;
     }
 
     setSubmitting(true);
     try {
-      // TODO: replace with real API call
-      // await API.post("/api/developer-enquiry", formData);
-      await new Promise((r) => setTimeout(r, 800)); // simulate latency
+      await fetch(`${process.env.REACT_APP_API_URL}/api/leads/developer`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          source: "developer_popup",
+        }),
+      });
 
       toast.success("Thanks! We'll reach out to you shortly.");
       setTimeout(onClose, 1500);
@@ -128,13 +137,13 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
           <form onSubmit={handleSubmit} noValidate>
             <div className="dp-fields">
               <div className="dp-field">
-                <label htmlFor="devfullName">Full Name</label>
+                <label htmlFor="developerFullName">Full Name</label>
                 <input
-                  id="devfullName"
+                  id="developerFullName"
                   type="text"
-                  name="devfullName"
+                  name="developerFullName"
                   placeholder="Your name"
-                  value={formData.devfullName}
+                  value={formData.developerFullName}
                   onChange={handleChange}
                   autoComplete="name"
                   required
@@ -142,13 +151,13 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
               </div>
 
               <div className="dp-field">
-                <label htmlFor="devEmail">Email</label>
+                <label htmlFor="developerEmail">Email</label>
                 <input
-                  id="devEmail"
+                  id="developerEmail"
                   type="email"
-                  name="devEmail"
+                  name="developerEmail"
                   placeholder="you@example.com"
-                  value={formData.devEmail}
+                  value={formData.developerEmail}
                   onChange={handleChange}
                   autoComplete="email"
                   required
@@ -156,13 +165,13 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
               </div>
 
               <div className="dp-field">
-                <label htmlFor="devPhone">Phone</label>
+                <label htmlFor="developerPhone">Phone</label>
                 <input
-                  id="devPhone"
+                  id="developerPhone"
                   type="tel"
-                  name="devPhone"
+                  name="developerPhone"
                   placeholder="+91 98765 43210"
-                  value={formData.devPhone}
+                  value={formData.developerPhone}
                   onChange={handleChange}
                   autoComplete="tel"
                   required
@@ -173,8 +182,8 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
             <label className="dp-consent">
               <input
                 type="checkbox"
-                name="contactConsent"
-                checked={formData.contactConsent}
+                name="developerContactConsent"
+                checked={formData.developerContactConsent}
                 onChange={handleChange}
               />
               <span className="dp-consent-box" aria-hidden="true" />
@@ -197,3 +206,10 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
 };
 
 export default DeveloperPopup;
+
+
+
+
+
+
+

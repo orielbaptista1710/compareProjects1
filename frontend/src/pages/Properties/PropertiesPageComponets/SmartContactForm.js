@@ -36,21 +36,21 @@ const steps = [
     placeholder: "e.g., Bandra West" 
   },
   { 
-    key: "name", 
+    key: "customerName", 
     question: "Your name?", 
     input: true, 
     type: "text",
     placeholder: "Full name" 
   },
   { 
-    key: "email", 
+    key: "customerEmail", 
     question: "Your email?", 
     input: true, 
     type: "email",
     placeholder: "name@example.com" 
   },
   { 
-    key: "phone", 
+    key: "customerPhone", 
     question: "Phone number?", 
     input: true, 
     type: "tel",
@@ -278,12 +278,12 @@ const SmartContactForm = () => {
   
   const submitToAPI = useCallback(async (data) => {
     try {
-      const res = await fetch("/api/leads", {
+      const res = await fetch("/api/leads/customer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           ...data, 
-          source: "smart_form",
+          source: "smart_properies_page_form",
           timestamp: new Date().toISOString(),
         }),
       });
@@ -329,9 +329,7 @@ const SmartContactForm = () => {
       }
 
       // Sanitize input
-      const sanitizedValue = typeof value === 'string' 
-        ? value.trim().replace(/<script[^>]*>.*?<\/script>/gi, '')
-        : value;
+      const sanitizedValue = typeof value === "string" ? value.trim() : value; 
 
       const updated = { ...formData, [currentStep.key]: sanitizedValue };
       setFormData(updated);
@@ -450,7 +448,7 @@ const SmartContactForm = () => {
                   }} 
                 />
                 <Typography fontWeight={700} fontSize="16px" mt={1.5} color="#1f2937">
-                  Thank You, {formData.name}!
+                  Thank You, {formData.customerName}!
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mt={1} fontSize="13px">
                   Our property expert will contact you within 24 hours.
