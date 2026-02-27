@@ -1,16 +1,28 @@
+
+
+
+
+
 // src/components/QuickLinks.js
 import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthContext";
-import { toast } from "react-toastify"; // still using Toastify here for now
-import { Phone, Mail, Download, Heart, X } from "lucide-react"; // 
+import { toast } from "react-toastify";
+import { Phone, Mail, Download, Heart, X } from "lucide-react";
 import "./QuickLinks.css";
 
 function QuickLinks({ property }) {
   const { currentUser } = useContext(AuthContext);
   const [saved, setSaved] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    customerName: "",
+    customerPhone: "",
+    customerEmail: "",
+  }); 
+
   const navigate = useNavigate();
   const modalRef = useRef(null);
 
@@ -21,17 +33,20 @@ function QuickLinks({ property }) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
 
-  // Trap focus inside modal
+  // Focus trap
   useEffect(() => {
     if (!showModal || !modalRef.current) return;
+
     const focusableElements = modalRef.current.querySelectorAll(
       'a[href], button, textarea, input, select'
     );
+
     const firstEl = focusableElements[0];
     const lastEl = focusableElements[focusableElements.length - 1];
 
     const handleTab = (e) => {
       if (e.key !== "Tab") return;
+
       if (e.shiftKey && document.activeElement === firstEl) {
         e.preventDefault();
         lastEl.focus();
@@ -42,7 +57,8 @@ function QuickLinks({ property }) {
     };
 
     window.addEventListener("keydown", handleTab);
-    firstEl.focus();
+    firstEl?.focus();
+
     return () => window.removeEventListener("keydown", handleTab);
   }, [showModal]);
 
@@ -57,8 +73,8 @@ function QuickLinks({ property }) {
       toast.warning("Brochure not available.");
       return;
     }
-    toast.success("Brochure downloaded");
     window.open(property.brochure, "_blank", "noopener,noreferrer");
+    toast.success("Brochure downloaded");
   };
 
   const handleSave = () => {
@@ -69,7 +85,7 @@ function QuickLinks({ property }) {
     }
 
     setSaved((prev) => !prev);
-    toast.success(saved ? "❌ Removed from saved." : "❤️ Property saved!");
+    toast.success(saved ? "Removed from saved." : "Property saved!");
   };
 
   const handleFormChange = (e) => {
@@ -77,12 +93,72 @@ function QuickLinks({ property }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFormSubmit = (e) => {
+  const validateForm = () => {
+  const name = formData.customerName.trim();
+  const email = formData.customerEmail.trim();
+  const phone = formData.customerPhone.trim();
+
+  if (name.length < 2) {
+    toast.error("Enter valid full name");
+    return false;
+  }
+
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    toast.error("Enter valid 10-digit mobile number");
+    return false;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    toast.error("Enter valid email address");
+    return false;
+  }
+
+  return true;
+};
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    console.log("Enquiry submitted:", formData);
-    toast.success("Enquiry submitted successfully!");
-    setFormData({ name: "", email: "", message: "" });
-    setShowModal(false);
+
+    if (!validateForm()) return;
+
+    try {
+      setLoading(true);
+
+
+      //CHECK THIS -- CUSTOMER FORM API N BACKEND ZOD , RATE LIMITS NEEDS TO BE DONE
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/leads/customer`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...formData,
+            propertyId: property?._id,
+            source: "quick_links_property_page_form",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit enquiry");
+      }
+
+      toast.success("Enquiry submitted successfully!");
+
+      setFormData({
+        customerName: "",
+        customerPhone: "",
+        customerEmail: "",
+      });
+
+      setShowModal(false);
+    } catch (error) {
+      toast.error("Something went wrong. Try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -119,7 +195,7 @@ function QuickLinks({ property }) {
           className="quick-modal-overlay"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="enquiry-modal-title"
+          aria-labelledby="quick-enquiry-modal-title"
           onClick={() => setShowModal(false)}
         >
           <div
@@ -128,49 +204,54 @@ function QuickLinks({ property }) {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 id="quick-enquiry-modal-title">Enquiry Form</h3>
-            <form className="quick-enquiry-modal-form" onSubmit={handleFormSubmit}>
+
+            <form
+              className="quick-enquiry-modal-form"
+              onSubmit={handleFormSubmit}
+            >
               <input
                 type="text"
-                name="name"
-                className="quick-enquiry-modal-form-name"
+                name="customerName"
                 placeholder="Your Name"
-                value={formData.name}
+                value={formData.customerName}
                 onChange={handleFormChange}
                 required
               />
+
+              <input
+                type="tel"
+                name="customerPhone"
+                placeholder="Your Phone"
+                value={formData.customerPhone}
+                onChange={handleFormChange}
+                required
+              />
+
               <input
                 type="email"
-                name="email"
-                className="quick-enquiry-modal-form-name"
+                name="customerEmail"
                 placeholder="Your Email"
-                value={formData.email}
+                value={formData.customerEmail}
                 onChange={handleFormChange}
                 required
               />
-              <textarea
-                name="message"
-                className="quick-enquiry-modal-form-message"
-                placeholder="Your Message"
-                value={formData.message}
-                onChange={handleFormChange}
-                required
-              />
-              <button className="quick-enquiry-modal-form-submit-btn" type="submit">Submit</button>
+
+              <button
+                className="quick-enquiry-modal-form-submit-btn"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? "Submitting..." : "Submit"}
+              </button>
             </form>
+
             <button
               className="quick-modal-close-btn"
               onClick={() => setShowModal(false)}
             >
-              <X
-            size={18}
-            strokeWidth={1.5}
-            color={saved ? "#D90429" : "#333"}
-            fill={saved ? "#D90429" : "none"}
-          />
-
+              <X size={18} strokeWidth={1.5} />
             </button>
           </div>
-
         </div>
       )}
     </>
@@ -178,3 +259,4 @@ function QuickLinks({ property }) {
 }
 
 export default QuickLinks;
+

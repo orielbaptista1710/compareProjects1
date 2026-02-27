@@ -1,3 +1,6 @@
+
+
+//PropertyPage/PropertyPageComponents/ContactFormm.js -- to take leads/contact info from the customer for the sales team to get in touch
 import React from "react";
 import { Link } from "react-router-dom";
 import {
@@ -9,7 +12,7 @@ import {
   Button,
   Avatar,
   FormControlLabel,
-  Checkbox,
+  Checkbox, 
   FormGroup,
 } from "@mui/material";
 import useAppSnackbar from "../../../hooks/useAppSnackbar";
@@ -20,15 +23,17 @@ import API from "../../../api";
 
 // Zod Schema
 export const contactSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  phone: z
+  customerName: z.string().min(1, "Name is required"),
+  customerPhone: z
     .string()
-    .regex(/^\d{10}$/, "Enter a valid 10-digit phone number"), 
-  email: z.string().email("Enter a valid email address"),
+    .regex(/^\d{10}$/, "Enter a valid 10-digit phone number"),
+  customerEmail: z.string().email("Enter a valid email address"),
+  customerContactConsent: z.literal(true, {
+    errorMap: () => ({ message: "You must agree to be contacted" }),
+  }),
   message: z.string().optional(),
-  contactConsent: z.boolean(),
   loanInterest: z.boolean(),
-  countryCode: z.string(),
+  countryCode: z.string(), //Indian only Bro
 });
 
 const ContactFormm = ({ property }) => {
@@ -43,26 +48,24 @@ const ContactFormm = ({ property }) => {
   } = useForm({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      name: "",
-      phone: "",
-      email: "",
-      message: "",
-      contactConsent: true,
-      loanInterest: false,
-      countryCode: "+91",
-    },
+    customerName: "",
+    customerPhone: "",
+    customerEmail: "",
+    message: "",
+    customerContactConsent: true,
+    loanInterest: false,
+    countryCode: "+91", //i dont event thing this is needed
+  },
   });
 
   const onSubmit = async (data) => {
   try {
-    await API.post("/api/leads", {
-      ...data,
-      formType: "property_contact",
-      source: window.location.pathname,
-      propertyId: property?._id || null,
-      //utm: getUtmFromUrl(), // optional helper
-    });
-    snackbar.success("Thank you! We'll pass this to the sales team.");
+    await API.post("/api/leads/customer", {
+  ...data,
+  source: "property_page_contact",
+  propertyId: property?._id || null,
+  });
+    snackbar.success("Thank you! We'll pass this to the sales team.");  //CHECK THIS -- HAVE TO MAKE SNACKBAR CONTEXT
     reset();
   } catch (err) {
   snackbar.error(
@@ -118,7 +121,7 @@ const ContactFormm = ({ property }) => {
         <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
           {/* NAME */}
           <Controller
-            name="name"
+            name="customerName"
             control={control}
             render={({ field }) => (
               <TextField
@@ -136,7 +139,7 @@ const ContactFormm = ({ property }) => {
 
           {/* PHONE */}
           <Controller
-            name="phone"
+            name="customerPhone"
             control={control}
             render={({ field }) => (
               <TextField
@@ -154,7 +157,7 @@ const ContactFormm = ({ property }) => {
 
           {/* EMAIL */}
           <Controller
-            name="email"
+            name="customerEmail"
             control={control}
             render={({ field }) => (
               <TextField
@@ -195,7 +198,7 @@ const ContactFormm = ({ property }) => {
           <FormGroup sx={{ mb: 2 }}>
             {/* contactConsent */}
             <Controller
-              name="contactConsent"
+              name="customerContactConsent"
               control={control}
               render={({ field }) => (
                 <FormControlLabel

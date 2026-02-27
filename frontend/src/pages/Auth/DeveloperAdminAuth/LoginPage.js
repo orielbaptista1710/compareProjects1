@@ -1,4 +1,5 @@
 // LoginPage for Developers and Admin Staff
+//frontend/src/pages/Auth/DeveloperAdminAuth/LoginPage.js
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -127,7 +128,7 @@ const LoginPage = () => {
               Remember me
             </label> */}
             
-            <button
+            {/* <button
               type="button"
               className="forgot-password"
               onClick={async () => {
@@ -142,7 +143,7 @@ const LoginPage = () => {
               }}
             >
               Forgot password?
-            </button>
+            </button> */}
           </div>
 
           <button
@@ -172,3 +173,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
