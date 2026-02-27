@@ -1,14 +1,15 @@
 
+
+
+
 .home-hero {
   position: relative;
   width: 100%;
-  height: 75vh;
-  
-
+  height: 80vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 20px;
+  padding: 0 30px;
 }
 
 /* .hero-overlay {
@@ -18,6 +19,7 @@
 
 
 .hero-content {
+  padding-top: 70px;
   position: relative;
   text-align: center;
   max-width: 1360px;
@@ -147,3 +149,12 @@
     margin-bottom: 28px;
   }
 }
+
+
+
+
+
+
+
+
+
