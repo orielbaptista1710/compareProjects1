@@ -1,9 +1,9 @@
 // routes/propertyRoutes.js
-const express = require('express');
+import express from 'express'; 
 const router = express.Router();
-const protect = require('../middleware/protect');
-const {searchProperties} = require('../controllers/searchController')
-const {
+import protect from '../middleware/protect.js';
+import {searchProperties} from '../controllers/searchController.js';
+import {
   getFilterOptions,
   getPropertiesByType,
   getFeaturedProperties,
@@ -16,7 +16,7 @@ const {
   getPropertyById,
   getLocalitiesByCity,
   getLocationOptions
-} = require('../controllers/propertyController');
+} from '../controllers/propertyController.js';
 
 // routes
 router.get('/search', searchProperties); //used in ExpandableSeachBar - check if can be usd in AdminDashboard CHECK THIS 
@@ -36,4 +36,4 @@ router.put('/update/:id', protect, updateProperty);
 router.delete('/delete/:id', protect, deleteProperty);
 router.get('/:id', getPropertyById);
 
-module.exports = router;
+export default router;

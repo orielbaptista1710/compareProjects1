@@ -208,7 +208,7 @@ const ExpandableSearch = () => {
           {!isExpanded ? (
             <div className="ask-rubi-minimal">
               <Sparkles size={14} />
-              <span>Ask Rubi</span>
+              <span>Ask CP</span>
             </div>
           ) : (
             <Search size={18} />

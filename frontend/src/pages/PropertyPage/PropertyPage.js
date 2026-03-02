@@ -61,7 +61,7 @@ function PropertyPage() {
       setLoading(false);
       return;
     }
-
+ 
     const fetchProperty = async () => {
       try {
         const response = await fetch(

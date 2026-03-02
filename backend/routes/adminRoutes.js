@@ -1,10 +1,10 @@
 //routes/adminRoutes.js
-const express = require('express');
+import express from 'express';
 const router = express.Router();
 
-const protect = require('../middleware/protect');
-const isAdmin = require('../middleware/isAdmin');
-const adminController = require('../controllers/adminController');
+import protect from '../middleware/protect.js';
+import isAdmin from '../middleware/isAdmin.js';
+import * as adminController from '../controllers/adminController.js';
 
 
 // GET /api/admin/properties
@@ -22,4 +22,4 @@ router.put('/approve/:id', protect, isAdmin, adminController.approveProperty);  
 // PUT /api/admin/reject/:id
 router.put('/reject/:id', protect, isAdmin, adminController.rejectProperty);   //used in AdminDasboard.js   
 
-module.exports = router;
+export default router;

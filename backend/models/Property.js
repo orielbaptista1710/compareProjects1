@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
-const { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } = require("../models/propertyType");
-const slugify = require("slugify");
+import mongoose from 'mongoose';
+import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from '../models/propertyType.js';
+import slugify from 'slugify';
 
 const propertySchema = new mongoose.Schema({
 
@@ -458,4 +458,5 @@ propertySchema.index(
 );
 
 
-module.exports = mongoose.model('Property', propertySchema);
+const Property = mongoose.model('Property', propertySchema);
+export default Property;

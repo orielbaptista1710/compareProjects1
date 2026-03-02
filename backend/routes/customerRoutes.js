@@ -1,11 +1,12 @@
 // routes/customerRoutes.js
 //login and signup api for customers 
-const express = require('express');
-const jwt = require('jsonwebtoken');
-const Customer = require('../models/Customer');
-const protectCustomer = require('../middleware/protectCustomer');
-
+import express from'express';
 const router = express.Router();
+
+import jwt from'jsonwebtoken';
+import Customer from'../models/Customer.js';
+import protectCustomer from'../middleware/protectCustomer.js';
+
 
 console.log("✅ customerRoutes.js loaded");
 
@@ -102,4 +103,4 @@ router.get('/me', protectCustomer, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

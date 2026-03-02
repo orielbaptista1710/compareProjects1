@@ -9,7 +9,7 @@
 //   }
 // });
 
-// exports.sendNewSubmissionEmail = async (adminEmails, propertyDetails) => {
+// export const sendNewSubmissionEmail = async (adminEmails, propertyDetails) => {
 //   const mailOptions = {
 //     from: process.env.EMAIL_USER,
 //     to: adminEmails.join(', '),

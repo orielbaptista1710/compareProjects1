@@ -1,5 +1,5 @@
 // controllers/discoverController.js
-const Property = require("../models/Property");
+import Property from '../models/Property.js';
 
 const normalize = (str="") =>
   str.toLowerCase().replace(/[-_/]/g, " ");
@@ -26,7 +26,7 @@ const mapCategory = (type = "") => {
 };
 
 
-exports.getDiscover = async (req, res) => {
+export const getDiscover = async (req, res) => {
   try {
     // Fetch propertyType + locality
     const pipeline = [

@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const Customer = require('../models/Customer');
+import jwt from 'jsonwebtoken'; 
+import Customer from '../models/Customer.js';
  
 const protectCustomer = async (req, res, next) => {
   let token;
@@ -20,4 +20,4 @@ const protectCustomer = async (req, res, next) => {
   }
 };
 
-module.exports = protectCustomer;
+export default protectCustomer;
