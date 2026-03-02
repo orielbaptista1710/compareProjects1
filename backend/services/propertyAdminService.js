@@ -1,6 +1,6 @@
 //services/propertyAdminService.js
 
-const Property = require("../models/Property");
+import Property from '../models/Property.js';
 
 
 /**
@@ -10,7 +10,7 @@ const Property = require("../models/Property");
  * - Predictable sorting
  * - Lean projection for performance
  */
-exports.fetchProperties = async ({
+export const fetchProperties = async ({
   page = 1,
   limit = 20,
   status,
@@ -167,7 +167,7 @@ exports.fetchProperties = async ({
 /* --------------------------------------------------
  * Fetch full property details (Admin view)
  * -------------------------------------------------- */
-exports.fetchPropertyById = async (id) => {
+export const fetchPropertyById = async (id) => {
   const property = await Property.findById(id)
     .populate("userId", "displayName")  ////
     .populate("reviewedBy", "displayName")
@@ -183,7 +183,7 @@ exports.fetchPropertyById = async (id) => {
 /* --------------------------------------------------
  * Update property status (approve / reject)
  * -------------------------------------------------- */
-exports.updatePropertyStatus = async (
+export const updatePropertyStatus = async (
   id,
   status,  
   adminId,
@@ -218,7 +218,7 @@ exports.updatePropertyStatus = async (
   /* --------------------------------------------------
  * Fetch distinct cities (Admin)
  * -------------------------------------------------- */
-exports.fetchCities = async () => {
+export const fetchCities = async () => {
   return await Property.distinct("city", {
     city: { $ne: null, $ne: "" }
   });
@@ -227,7 +227,7 @@ exports.fetchCities = async () => {
 /* --------------------------------------------------
  * Fetch distinct localities by city (Admin)
  * -------------------------------------------------- */
-exports.fetchLocalities = async ({ city, q = "" }) => {
+export const fetchLocalities = async ({ city, q = "" }) => {
   if (!city) return [];
 
   return await Property.distinct("locality", {

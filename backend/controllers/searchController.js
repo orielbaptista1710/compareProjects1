@@ -3,9 +3,9 @@
 
 //when Upgrade to Mongo ATLAS REPLACE rEGEX, tEXT SEARCH , fUSE with Atlas Search -- autocomplete, Typo Tolerance, Ranking , Faster performance , scales propertly
 //where is seachController used ? -it is 
-const asyncHandler = require('express-async-handler');
-const Fuse = require('fuse.js');  //can be used only for small databases
-const Property = require('../models/Property');
+import asyncHandler from 'express-async-handler';
+import Fuse from 'fuse.js';
+import Property from '../models/Property.js';
 
 // Utility: escape user input for regex
 function escapeRegex(str) {
@@ -125,7 +125,7 @@ const searchProperties = asyncHandler(async (req, res) => {
   res.json({ properties, fuzzy });
 });
 
-module.exports = { searchProperties };
+export { searchProperties };
 
 
 

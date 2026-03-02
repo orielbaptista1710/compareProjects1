@@ -1,8 +1,8 @@
 
 //middleware/protect.js 
-const jwt = require('jsonwebtoken'); 
-const User = require('../models/User');
-const asyncHandler = require('express-async-handler'); 
+import jwt from 'jsonwebtoken'; 
+import User from '../models/User.js';
+import asyncHandler from 'express-async-handler';
 
 const protect = asyncHandler(async (req, res, next) => {
   const token = req.cookies.token;
@@ -37,4 +37,4 @@ const protect = asyncHandler(async (req, res, next) => {
 
 });
 
-module.exports = protect;
+export default protect;

@@ -1,6 +1,6 @@
 //models/User.js
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
   displayName: { type: String, required: true },
@@ -19,6 +19,6 @@ userSchema.pre('save', async function () {
 userSchema.index({ username: 1 });
 userSchema.index({ role: 1 });
 
-
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+export default User;
  

@@ -1,12 +1,11 @@
 //controllers/propertyController.js
-const asyncHandler = require('express-async-handler');
-const Fuse = require('fuse.js');
-// import slugify from "slugify"; 
-const Property = require('../models/Property');
-const {
+import asyncHandler from 'express-async-handler';
+import Fuse from 'fuse.js';
+import Property from '../models/Property.js';
+import {
   RESIDENTIAL_TYPES,
   COMMERCIAL_TYPES,
-} = require("../models/propertyType");
+} from '../models/propertyType.js';
 
 const escapeRegex = (str) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -59,9 +58,7 @@ const getFilterOptions = asyncHandler(async (req, res) => {
 
 
 
-    const getPropertiesByType = asyncHandler(async (req, res) => {
-
-
+  const getPropertiesByType = asyncHandler(async (req, res) => {
   const statusFilter = { status: "approved" };
 
   const [residentialLocalities, commercialLocalities] = await Promise.all([
@@ -82,9 +79,7 @@ const getFilterOptions = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = {
-  getPropertiesByType,
-};
+
  
       // Get Featured Properties (GLOBAL – not city based)
 const getFeaturedProperties = asyncHandler(async (req, res) => {
@@ -141,8 +136,8 @@ const getRecentProperties = asyncHandler(async (req, res) => {
 
 
 
-      // Get PropertiesSW by approved developer/user- these properties are shown on the website
-      const getAllApprovedProperties = asyncHandler(async (req, res) =>  {
+    // Get PropertiesSW by approved developer/user- these properties are shown on the website
+    const getAllApprovedProperties = asyncHandler(async (req, res) =>  {
   try {
     const page = Math.max(1, Math.min(1000, Number(req.query.page) || 1));
     const limit = Math.max(1, Math.min(100, Number(req.query.limit) || 12));
@@ -377,10 +372,7 @@ const getLocationOptions = asyncHandler(async (req, res) => {
 });
 
 
-
-
-
-      module.exports = {
+      export {
         getFilterOptions,
         getPropertiesByType,
         getFeaturedProperties,
@@ -393,6 +385,6 @@ const getLocationOptions = asyncHandler(async (req, res) => {
         getPropertyById,
         getLocalitiesByCity ,
         getLocationOptions,
-      }
+      };
 
     

@@ -1,8 +1,8 @@
 // routes/discoverRoutes.js -- CHECK THIS
-const express = require("express");
+import express from 'express'; 
 const router = express.Router();
-const { getDiscover } = require("../controllers/discoverController");
+import { getDiscover } from '../controllers/discoverController.js';
 
 router.get("/", getDiscover);
 
-module.exports = router;
+export default router;

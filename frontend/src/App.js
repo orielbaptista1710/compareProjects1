@@ -97,7 +97,7 @@ const showNavigationBar = !hideNavRoutes.some((path) =>
             compareList={compareList}
           />
         } />
-        <Route path="/compare" element={
+        <Route path="/compare" element={ 
           <Compare
             compareList={compareList}
             setCompareList={setCompareList}   // ✅ now works

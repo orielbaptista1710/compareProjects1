@@ -1,10 +1,10 @@
 //routes/customerActivityRoutes.js
-const express = require('express');
-const protectCustomer = require('../middleware/protectCustomer');
-const Customer = require('../models/Customer');
-const Property = require('../models/Property'); 
-
+import express from 'express';
 const router = express.Router();
+
+import protectCustomer from '../middleware/protectCustomer.js';
+import Customer from '../models/Customer.js';
+import Property from '../models/Property.js'; 
 
 // Toggle save property
 router.post('/toggle-save/:propertyId', protectCustomer, async (req, res) => {
@@ -45,4 +45,4 @@ router.get('/my-properties', protectCustomer, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

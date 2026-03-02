@@ -1,11 +1,20 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const errorHandler = require('../backend/middleware/errorMiddleware');
-const dotenv = require('dotenv');
-
+import dotenv from 'dotenv';
 dotenv.config();
+
+import mongoose from "mongoose";
+import express from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+
+import errorHandler from '../backend/middleware/errorMiddleware.js';
+
+
+import customerRoutes from './routes/customerRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import propertyRoutes from './routes/propertyRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import customerActivityRoutes from './routes/customerActivityRoutes.js';
+import discoverRoutes from './routes/discoverRoutes.js';
 
 const app = express();
 app.use(cors({ 
@@ -23,27 +32,15 @@ app.use((req, res, next) => {
 });
 
 // Routes
-console.log('Loading customerRoutes');
-app.use('/api/customers', require('./routes/customerRoutes'));
-
-console.log('Loading customerActivityRoutes- saved, compared properties for customer profile');
-app.use('/api/customerActivity', require('./routes/customerActivityRoutes'));
-
-console.log('Loading authRoutes');
-app.use('/api/auth', require('./routes/authRoutes'));   /////////////////////
-
-console.log('Loading adminRoutes');
-app.use('/api/admin', require('./routes/adminRoutes'));     
-
-console.log('Loading propertyRoutes');
-app.use('/api/properties', require('./routes/propertyRoutes'));
-
-//have to still working on this funtion
-console.log('Loading dev log Routes');
-app.use('/api/devlog', require('./routes/devResetPwdRoutes'));
-
-console.log('Loading discover Footer Routes');
-app.use('/api/discover', require('./routes/discoverRoutes'));
+// Routes
+app.use('/api/customers', customerRoutes); /////////// replace with Clerk???
+app.use('/api/auth', authRoutes);          /////////// replace with Clerk???
+// app.use('/api/devlog', devResetPwdRoutes); /////////// replace with Clerk???
+app.use('/api/properties', propertyRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/customerActivity', customerActivityRoutes);
+// app.use('/api/leads', leacustomerdRoutes);
+app.use('/api/discover', discoverRoutes);  //have to fix this 
 
 app.get('/', (req, res) => {
   res.json({ message: "API is running 🚀" });
@@ -68,7 +65,7 @@ const connectDB = async () => {
 };
 
 connectDB();
-
+ 
 app.use(errorHandler);
 
 app.listen(process.env.PORT, () => {

@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const validator = require('validator'); // npm install validator
+//models/Customer.js
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import validator from 'validator';
 
  const customerSchema = new mongoose.Schema({
   customerName: { 
@@ -62,4 +63,5 @@ customerSchema.index({ customerEmail: 1 });
 customerSchema.index({ customerPhone: 1 });
 
 
-module.exports = mongoose.model('Customer', customerSchema);
+const Customer = mongoose.model('Customer', customerSchema);
+export default Customer;

@@ -6,7 +6,6 @@ const User = require('../models/User');
 
 async function createAdmin() {
   try {
-    // Validate env variables
     if (!process.env.MONGO_URI) {
       throw new Error('❌ MONGO_URI is not set in .env');
     }
@@ -14,14 +13,12 @@ async function createAdmin() {
       throw new Error('❌ ADMIN_USERNAME and ADMIN_PASSWORD must be set in .env');
     }
 
-    // Connect to DB
     await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     console.log('✅ Connected to database:', mongoose.connection.name);
 
-    // Check for existing admin user
     let admin = await User.findOne({ username: process.env.ADMIN_USERNAME, role: 'admin' });
 
     if (admin) {
@@ -58,5 +55,4 @@ async function createAdmin() {
   }
 }
 
-// Run script
 createAdmin();
