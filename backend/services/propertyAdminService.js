@@ -63,7 +63,7 @@ export const fetchProperties = async ({
     andConditions.push({
       $or: [
         { "coverImage.url": { $exists: true, $ne: "" } },
-        { galleryImages: { $exists: true, $not: { $size: 0 } } },
+        { galleryImages: { $exists: true, $ne: [] } },
       ],
     });
   }
@@ -72,7 +72,7 @@ export const fetchProperties = async ({
     // No cover image AND no gallery images
     andConditions.push({
       $and: [
-        { "coverImage.url": { $in: [null, "", undefined] } },
+        { "coverImage.url": { $in: [null, ""] } },
         {
           $or: [
             { galleryImages: { $exists: false } },
@@ -100,8 +100,8 @@ export const fetchProperties = async ({
   if (imageFilter === "galleryOnly") {
     andConditions.push({
       $and: [
-        { galleryImages: { $exists: true, $not: { $size: 0 } } },
-        { "coverImage.url": { $in: [null, "", undefined] } },
+        { galleryImages: { $exists: true, $ne: [] }},
+        { "coverImage.url": { $in: [null, ""] } },
       ],
     });
   }
@@ -220,7 +220,7 @@ export const updatePropertyStatus = async (
  * -------------------------------------------------- */
 export const fetchCities = async () => {
   return await Property.distinct("city", {
-    city: { $ne: null, $ne: "" }
+    city: { $nin: [null, ""] }
   });
 };
 

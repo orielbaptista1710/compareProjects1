@@ -5,6 +5,7 @@ import { List  } from 'react-window';
 import { Collapse } from 'react-collapse';
 // import API from '../api';
 // import './PropertyList.css';
+//I FDONT THINK THIS IS USED ANYWHERE 
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -189,22 +190,6 @@ const PropertyCardDashboard = ({ property, index, style, onEdit, onDelete, forma
           <span className="detail-label">Price is negotiable:</span>
           <span>{property.priceNegotiable ? '✅' : '❌'}</span>
         </div>
-
-        {/* <div className="detail-row">
-  <span className="detail-label">Amenities:</span>
-  <span>{(property.amenities || []).join(', ')}</span>
-</div>
-
-<div className="detail-row">
-  <span className="detail-label">Facilities:</span>
-  <span>{(property.facilities || []).join(', ')}</span>
-</div>
-
-<div className="detail-row">
-  <span className="detail-label">Security:</span>
-  <span>{(property.security || []).join(', ')}</span>
-</div> */}
-
 
       </div>
 

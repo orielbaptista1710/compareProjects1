@@ -29,7 +29,6 @@
 .widget-header h3 {
   color: var(--text-dark);
   font-weight: var(--font-weight-semibold);
-  font-size: 1.5rem;
 }
 
 .widget-badge {

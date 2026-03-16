@@ -12,70 +12,16 @@ import DashboardNav from './DeveloperDashboardComponents/DashboardNav';
 // import SkeletonPropertyCard from '../components/SkeletonComponents/SkeletonPropertyCard';
 import API from '../../api'; // Axios instance
 import DevPropertyList from './DeveloperDashboardComponents/DevPropertyList';
+
+import {
+  initialFormData,
+  normalizePropertyData,
+  REQUIRED_FIELDS,
+}  from "../DeveloperDashboard/utils/developerDashPropertyHelpers"
+import { formatCurrency } from "../../utils/formatters"
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-const REQUIRED_FIELDS = [
-  "title", "description", "city", "locality", "address", "pincode",
-  "propertyType", "furnishing", "possessionStatus", "price", "unitsAvailable"
-];
 
-const initialFormData = {
-  developerName: "",
-  // email: "",
-  // phone: "",
-  title: "",
-  description: "",
-  long_description: "",
-  state: "",
-  city: "",
-  locality: "",
-  address: "",
-  pincode: "",
-  mapLink: "",
-  area: { value: 0, unit: "sqft" },
-  reraApproved: false,
-  reraNumber: "",
-  priceNegotiable: false,
-  price: "",
-  emiStarts: "",
-  propertyType: "",
-  furnishing: "",
-  possessionStatus: "",
-  bhk: "",
-  bathrooms: "",
-  balconies: "",
-  facing: "",
-  parkings: [],
-  ageOfProperty: "",
-  totalFloors: "",
-  floor: "",
-  wing: "",
-  unitsAvailable: "",
-  reraDate: null,
-  amenities: [],
-  facilities: [],
-  security: [],
-  coverImage: "",
-  galleryImages: [],
-  floorplanImages: [],
-  mediaFiles: [],
-};
-
-const normalizePropertyData = (property = {}) => ({
-  ...initialFormData,
-  ...property,
-  area: property.area || { value: 0, unit: "sqft" },
-  parkings: Array.isArray(property.parkings) ? property.parkings : [],
-  galleryImages: property.galleryImages || [],
-  floorplanImages: property.floorplanImages || [],
-  mediaFiles: property.mediaFiles || [],
-  amenities: property.amenities || [],
-  facilities: property.facilities || [],
-  security: property.security || [],
-  reraApproved: !!property.reraApproved,
-  priceNegotiable: !!property.priceNegotiable,
-  reraDate: property.reraDate || null,
-});
 
 
 const Dashboard = () => {
@@ -89,12 +35,15 @@ const Dashboard = () => {
   // -------------------------
   // Helper: Format Price
   // -------------------------
-  const formatIndianPrice = (price) => {
-    if (!price) return 'Price on Request';
-    if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
-    if (price >= 100000) return `₹${(price / 100000).toFixed(2)} Lakh`;
-    return `₹${price.toLocaleString('en-IN')}`;
-  };
+
+  const  formatIndianPrice = formatCurrency;
+
+  // const formatIndianPrice = (price) => {
+  //   if (!price) return 'Price on Request';
+  //   if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
+  //   if (price >= 100000) return `₹${(price / 100000).toFixed(2)} Lakh`;
+  //   return `₹${price.toLocaleString('en-IN')}`;
+  // };
 
   // -------------------------
   // Logout

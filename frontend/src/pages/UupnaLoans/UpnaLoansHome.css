@@ -109,7 +109,7 @@
 }
 
 .upna-hero-subtitle {
-  font-size: 18px;
+  font-size: 20px;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
   margin-bottom: 32px;
@@ -246,7 +246,7 @@
 }
 
 .upna-section-subtitle {
-  font-size: 18px;
+  font-size: 20px;
   color: var(--gray-600);
   max-width: 600px;
   margin: 0 auto;
@@ -296,7 +296,7 @@
 }
 
 .upna-step-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--gray-900);
   margin-bottom: 8px;
@@ -347,7 +347,7 @@
 }
 
 .upna-input-value {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--purple-600);
 }
@@ -509,7 +509,7 @@
 }
 
 .upna-card-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--gray-900);
   margin-bottom: 8px;
@@ -598,7 +598,7 @@
 }
 
 .upna-cta-subtitle {
-  font-size: 18px;
+  font-size: 20px;
   color: rgba(255, 255, 255, 0.9);
   margin-bottom: 32px;
 }

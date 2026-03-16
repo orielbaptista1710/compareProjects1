@@ -6,6 +6,8 @@ import "./Compare.css";
 
 import CompareSummary from "../Compare/ComparePageComponents/CompareSummary";
 import CompareEmptyState from "../Compare/ComparePageComponents/CompareEmptyState";
+import MascotGuide from "../../components/DevDashboardPageComponents/Mascot/MascotGuide";
+
 import { getPropertyImage, getPropertyLocation } from "../../utils/propertyHelpers";
 import { formatCurrencyShort } from "../../utils/formatters";
 
@@ -34,10 +36,10 @@ const AddSlot = ({ onClick }) => (
   </button>
 );
 
-const HeaderCard = ({ property, onRemove }) => {
+const HeaderCard = ({ property, onRemove, onView  }) => {
   const location = getPropertyLocation(property);
   return (
-    <div className="header-card">
+    <div className="header-card" onClick={() => onView(property._id)} style={{ cursor: "pointer" }}>
       <div className="header-card__img-wrap">
         <img
           src={getPropertyImage(property)}
@@ -69,7 +71,11 @@ const HeaderCard = ({ property, onRemove }) => {
 
       <button
         className="header-card__remove"
-        onClick={() => onRemove(property._id)}
+        // onClick={() => onRemove(property._id)}
+        onClick={(e) => {
+    e.stopPropagation();
+    onRemove(property._id);
+  }}
         aria-label="Remove from comparison"
       >
         <Trash2 size={14} strokeWidth={1.5} />
@@ -249,7 +255,7 @@ function Compare({ compareList, setCompareList, removeFromCompare }) {
           {/* ── Header row ── */}
           <div className="compare-grid" style={{ "--cols": MAX_SLOTS }}>
             {properties.map((p) => (
-              <HeaderCard key={p._id} property={p} onRemove={removeFromCompare} />
+              <HeaderCard key={p._id} property={p} onRemove={removeFromCompare} onView={(id) => navigate(`/property/${id}`)} />
             ))}
             {Array.from({ length: emptySlots }).map((_, i) => (
               <AddSlot key={`add-${i}`} onClick={goToProperties} />
@@ -296,6 +302,15 @@ function Compare({ compareList, setCompareList, removeFromCompare }) {
           </div>
         </div>
       )}
+
+      <MascotGuide
+        steps={[
+          "Welcome! Use filters to narrow properties.",
+          "Click on Overview, Details, Amenities, or Location to compare properties Details.",
+          "You can contact sellers directly."
+        ]}
+      />  
+
     </div>
   );
 }

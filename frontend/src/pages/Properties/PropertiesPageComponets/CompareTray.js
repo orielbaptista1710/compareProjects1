@@ -8,11 +8,15 @@ import { useNavigate } from "react-router-dom";
 import { formatCurrencyShort } from "../../../utils/formatters";
 import { getPropertyImage } from "../../../utils/propertyHelpers";
 
-const CompareTray = ({ compareList = [], removeFromCompare }) => {
+const CompareTray = ({ compareList = [], removeFromCompare}) => {
   const [openPreview, setOpenPreview] = useState(false);
   const navigate = useNavigate();
 
   if (!compareList.length) return null;
+
+  // const handleCardClick = () => {
+  //   navigate(`/property/${property?._id}`);
+  // };  
 
   return (
     <>
@@ -27,15 +31,13 @@ const CompareTray = ({ compareList = [], removeFromCompare }) => {
             const title = property?.title || "Untitled";
             const developer =
               property?.developerName || "Unknown Developer";
-            const price = property?.price || 0;
+            const price = property?.price || "NA";
 
             const city =
               property?.city ||
-              property?.locality ||
               "—";
 
             const locality =
-              property?.location?.locality ||
               property?.locality ||
               "—";
 
@@ -43,6 +45,7 @@ const CompareTray = ({ compareList = [], removeFromCompare }) => {
               <div
                 key={property._id || index}
                 className="compare-card"
+                onClick={() => navigate("/compare")}
               >
                 <div className="compare-image-wrapper">
                   <img

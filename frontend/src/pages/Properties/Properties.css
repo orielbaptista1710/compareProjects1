@@ -46,7 +46,6 @@
 }
 
 .results-info h2 {
-  font-size: 1.5rem;
   font-weight: 600;
   color: #111827;
   margin: 0 0 0.25rem 0;
@@ -442,7 +441,6 @@
 }
 
 .empty-state h3 {
-  font-size: 1.25rem;
   color: #374151;
   margin: 0 0 0.5rem 0;
 }

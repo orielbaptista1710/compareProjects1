@@ -76,18 +76,18 @@
 }
 
 /* Description Section */
-.property-description {
+.dev-property-li-property-description {
   padding: 15px 20px;
   background-color: #fafafa;
   border-top: 1px solid #eee;
 }
 
-.property-description h5 {
+.dev-property-li-property-description h5 {
   color: #D90429;
   margin-bottom: 5px;
 }
 
-.property-description p {
+.dev-property-li-property-description p {
   color: #555;
   line-height: 1.5;
 }

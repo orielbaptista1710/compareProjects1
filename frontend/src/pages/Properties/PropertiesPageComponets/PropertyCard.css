@@ -354,8 +354,7 @@
 /* ===========================
    DESCRIPTION - COMPACT ON DESKTOP
    =========================== */
-.property-description {
-  font-size: 0.8125rem;
+.property-card-property-description {
   color: #666;
   line-height: 1.5;
   padding: 0;
@@ -363,7 +362,7 @@
   flex-shrink: 0;
 }
 
-.property-description p {
+.property-card-property-description p {
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -371,7 +370,7 @@
   overflow: hidden;
 }
 
-.property-description.expanded p {
+.property-card-property-description.expanded p {
   display: block;
   -webkit-line-clamp: unset;
 }
@@ -597,16 +596,15 @@
   }
 
   /* Show description on mobile */
-  .property-description {
+  .property-card-property-description {
     display: block;
-    font-size: 0.8125rem;
     color: #666;
     line-height: 1.5;
     padding: 0;
     margin: 0 0 10px 0;
   }
 
-  .property-description p {
+  .property-card-property-description p {
     margin: 0;
   }
 

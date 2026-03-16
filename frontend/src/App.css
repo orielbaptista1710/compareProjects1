@@ -1,4 +1,4 @@
-@import "~slick-carousel/slick/slick.css";
+/* @import "~slick-carousel/slick/slick.css";
 @import "~slick-carousel/slick/slick-theme.css";
 
 
@@ -11,22 +11,13 @@
 
 html {
   scroll-behavior: smooth;
-  font-size: 16px; 
-  -webkit-text-size-adjust: 100%; /* Safari/iOS */
-  -ms-text-size-adjust: 100%;     /* IE/Edge */
-  text-size-adjust: 100%;         /* Modern browsers */
+  -webkit-text-size-adjust: 100%; 
+  -ms-text-size-adjust: 100%;     
+  text-size-adjust: 100%;         
   box-sizing: border-box;
 }
 
 body {
-  font-family: Arial, sans-serif;
   background-color: #f7f7f7;
-  font-size: 1rem;   
   line-height: 1.5;
-}
-
-@media screen and (min-resolution: 1.5dppx) {
-  html {
-    font-size: 14px; 
-  }
-}
+} */
