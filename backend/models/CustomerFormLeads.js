@@ -1,5 +1,6 @@
 // // models/CustomerLead.js
 import mongoose from "mongoose";
+import { getLeadsConnection } from '../config/leadsDb.js'
 
 const customerLeadSchema = new mongoose.Schema(
   {
@@ -53,7 +54,6 @@ const customerLeadSchema = new mongoose.Schema(
     propertyType: String,
     locality: String,
     city: String,
-    userType: String,
     message: String,
 
     loanInterest: {
@@ -93,8 +93,10 @@ customerLeadSchema.index({ customerPhone: 1 });
 customerLeadSchema.index({ createdAt: -1 });
 customerLeadSchema.index({ source: 1 });
 
-export default mongoose.model("CustomerLead", customerLeadSchema);
-
+export const CustomerLead = () => {
+  const conn = getLeadsConnection();
+  return conn.model("CustomerLead", customerLeadSchema);
+};
 
 //---------------------------------------
 

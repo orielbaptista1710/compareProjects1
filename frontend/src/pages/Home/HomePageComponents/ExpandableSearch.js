@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ExpandableSearch.css";
-import { Search, X, Send, Sparkles, Home } from "lucide-react";
+import { Send, Sparkles, Home } from "lucide-react";
 import PropertyCardSmall from "../HomePageComponents/PropertyCardSmall";
 import API from "../../../api";
 
@@ -28,7 +28,6 @@ function useDebounce(value, delay = 350) {
 const ExpandableSearch = () => {
   const navigate = useNavigate();
 
-  const [isExpanded, setIsExpanded] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [isFuzzy, setIsFuzzy] = useState(false);
@@ -52,36 +51,13 @@ const ExpandableSearch = () => {
     []
   );
 
-  /* ---------------- Toggle ---------------- */
-  const toggleSearch = useCallback(() => {
-    setIsExpanded((prev) => {
-      if (prev) {
-        setQuery("");
-        setResults([]);
-        setError("");
-        setIsFuzzy(false);
-        setHighlightIndex(-1);
-      }
-      return !prev;
-    });
-  }, []);
-
-  /* ---------------- Autofocus ---------------- */
-  useEffect(() => {
-    if (isExpanded) {
-      requestAnimationFrame(() => inputRef.current?.focus());
-    }
-  }, [isExpanded]);
-
-  /* ---------------- Reset highlight on new query ---------------- */
+  /* ---------------- Reset highlight ---------------- */
   useEffect(() => {
     setHighlightIndex(-1);
   }, [debouncedQuery]);
 
   /* ---------------- Fetch Results ---------------- */
   useEffect(() => {
-    if (!isExpanded) return;
-
     const trimmed = debouncedQuery.trim();
 
     if (trimmed.length < 2) {
@@ -123,18 +99,19 @@ const ExpandableSearch = () => {
     })();
 
     return () => controller.abort();
-  }, [debouncedQuery, isExpanded]);
+  }, [debouncedQuery]);
 
-  /* ---------------- Navigation Helper ---------------- */
+  /* ---------------- Navigation ---------------- */
   const navigateToProperty = useCallback(
     (propertyId) => {
       navigate(`/property/${propertyId}`);
-      setIsExpanded(false);
+      setQuery("");
+      setResults([]);
     },
     [navigate]
   );
 
-  /* ---------------- Form Submit ---------------- */
+  /* ---------------- Submit ---------------- */
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -143,7 +120,7 @@ const ExpandableSearch = () => {
     }
   };
 
-  /* ---------------- Keyboard Navigation ---------------- */
+  /* ---------------- Keyboard ---------------- */
   const handleKeyDown = (e) => {
     if (!results.length) return;
 
@@ -165,98 +142,44 @@ const ExpandableSearch = () => {
       e.preventDefault();
       navigateToProperty(results[highlightIndex]._id);
     }
-
-    if (e.key === "Escape") {
-      setIsExpanded(false);
-    }
   };
 
-  /* ---------------- Outside Click ---------------- */
-  const handleClickOutside = useCallback((e) => {
-    if (
-      dropdownRef.current &&
-      !dropdownRef.current.contains(e.target) &&
-      !e.target.closest(".ai-search-container")
-    ) {
-      setIsExpanded(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
-  }, [handleClickOutside]);
-
-  /* ---------------- Derived ---------------- */
   const shouldShowDropdown =
-    isExpanded &&
     debouncedQuery.trim().length >= 2 &&
     (isLoading || error || results.length > 0);
 
-  /* ---------------- Render ---------------- */
   return (
     <div className="search-wrapper">
-      <div
-        className={`ai-search-container ${isExpanded ? "expanded" : ""}`}
-      >
-        <button
-          className="ai-search-toggle"
-          onClick={toggleSearch}
-          aria-label="Toggle property search"
+      <div className="ai-search-container">
+        <form
+          className="ai-search-form"
+          onSubmit={handleSubmit}
+          role="search"
         >
-          {!isExpanded ? (
-            <div className="ask-rubi-minimal">
-              <Sparkles size={14} />
-              <span>Ask CP</span>
-            </div>
-          ) : (
-            <Search size={18} />
-          )}
-        </button>
+          <div className="ai-input-wrapper">
+            <input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="ai-search-input"
+              placeholder="Search properties, prices, trends..."
+              aria-autocomplete="list"
+              aria-expanded={shouldShowDropdown}
+            />
+          </div>
 
-        {isExpanded && (
-          <form
-            className="ai-search-form"
-            onSubmit={handleSubmit}
-            role="search"
+          <button
+            className="ai-search-submit"
+            type="submit"
+            aria-label="Search"
           >
-            <div className="ai-input-wrapper">
-              <input
-                ref={inputRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="ai-search-input"
-                placeholder="Ask about properties, prices, trends..."
-                aria-autocomplete="list"
-                aria-expanded={shouldShowDropdown}
-              />
-            </div>
-
-            <div className="ai-action-buttons">
-              <button
-                className="ai-search-submit"
-                type="submit"
-                aria-label="Search"
-              >
-                <Send size={16} />
-              </button>
-
-              <button
-                type="button"
-                className="ai-search-close"
-                onClick={toggleSearch}
-                aria-label="Close search"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          </form>
-        )}
+            <Send size={16} />
+          </button>
+        </form>
       </div>
 
-      {isExpanded && query.length < 2 && (
+      {query.length < 2 && (
         <div className="quick-suggestions-container">
           {quickSuggestions.map((s) => (
             <button

@@ -2,6 +2,7 @@ import React from "react";
 import "./HomeHero.css";
 import MainSearchBar from "../HomePageComponents/MainSearchBar";
 import { useCity } from "../../../contexts/CityContext";
+import MascotGuide from "../../../components/DevDashboardPageComponents/Mascot/MascotGuide";
 
 const HomeHero = () => {
   const { city } = useCity();
@@ -23,6 +24,14 @@ const HomeHero = () => {
         {/* Pass city down so search is city-aware */}
         <MainSearchBar city={city} />
       </div>
+
+      <MascotGuide
+  steps={[
+    "Welcome! Use filters to narrow properties.",
+    "Click a property to see full details.",
+    "You can contact sellers directly."
+  ]}
+/>
     </header>
   );
 };

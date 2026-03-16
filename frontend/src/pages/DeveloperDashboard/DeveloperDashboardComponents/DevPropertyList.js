@@ -24,7 +24,7 @@ const DevPropertyList = ({
         ))}
       </div>
     );
-  }
+  } 
 
   if (isError) {
     return <div className="error">Error loading properties</div>;
@@ -199,7 +199,7 @@ const DevPropertyList = ({
           </div>
 
           {/* Description */}
-          <div className="property-description">
+          <div className="dev-property-li-property-description">
             <h5>Description:</h5>
             <p>{p.description}</p>
             {p.long_description && (

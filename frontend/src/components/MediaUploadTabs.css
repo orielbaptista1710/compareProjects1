@@ -29,7 +29,6 @@
   border: 1px solid #dee2e6;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.92rem;
   color: #495057;
   transition: all 0.25s ease-in-out;
 }
@@ -47,7 +46,6 @@
 }
 
 .guidelines {
-  font-size: 0.87rem;
   margin-bottom: 1.5rem;
   line-height: 1.4;
   color: #495057;
@@ -86,14 +84,12 @@
 
 .tick {
   color: #28a745;
-  font-size: 1.3rem;
   margin-top: 0.2rem;
   font-weight: bold;
 }
 
 .cross {
   color: #dc3545;
-  font-size: 1.3rem;
   margin-top: 0.2rem;
   font-weight: bold;
 }

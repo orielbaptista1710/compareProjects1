@@ -160,6 +160,10 @@ function Header() {
         <button className="header-nav-link" onClick={() => handleScrollToSection("contact")}>
           Contact
         </button>
+
+        <button className="header-nav-link" onClick={() => handleScrollToSection("contact")}>
+          Compare Rentals
+        </button>
       </li>
     </ul>
   </li>

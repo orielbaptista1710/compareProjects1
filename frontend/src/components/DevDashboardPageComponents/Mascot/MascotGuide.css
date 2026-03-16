@@ -1,0 +1,112 @@
+/* MascotGuide.css */
+
+.mascot-container {
+  position: fixed;
+  bottom: 190px;
+  left: 30px;
+  display: flex;
+  align-items: flex-end;
+  z-index: 999;
+  gap: 10px;
+}
+
+.mascot-img {
+  width: 120px;
+  flex-shrink: 0;
+  /* subtle bob animation */
+  animation: mascot-bob 3s ease-in-out infinite;
+}
+
+@keyframes mascot-bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+/* ── Speech Bubble ─────────────────────────────── */
+.speech-bubble {
+  position: relative;
+  background: #ffffff;
+  padding: 14px 36px 14px 16px; /* right padding makes room for close btn */
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  max-width: 240px;
+  min-width: 160px;
+}
+
+/* tail pointing left toward the mascot */
+.speech-bubble::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  bottom: 20px;
+  border-width: 8px 12px 8px 0;
+  border-style: solid;
+  border-color: transparent #ffffff transparent transparent;
+  filter: drop-shadow(-3px 1px 2px rgba(0, 0, 0, 0.08));
+}
+
+/* ── Text ──────────────────────────────────────── */
+.speech-bubble p {
+  margin: 0 0 10px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* ── Step counter ──────────────────────────────── */
+.speech-bubble .step-counter {
+  font-size: 0.7rem;
+  color: #aaa;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Footer row (Next button) ──────────────────── */
+.bubble-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.next-btn {
+  background: #4f7ef8;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.next-btn:hover  { background: #3a66e0; }
+.next-btn:active { transform: scale(0.96); }
+.next-btn:disabled {
+  background: #ccc;
+  cursor: default;
+}
+
+/* ── Close button ──────────────────────────────── */
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #bbb;
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+}
+
+.close-btn:hover {
+  color: #666;
+  background: #f0f0f0;
+}

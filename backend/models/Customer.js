@@ -59,9 +59,6 @@ customerSchema.methods.comparePassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.customerPassword);
 };
 
-customerSchema.index({ customerEmail: 1 });
-customerSchema.index({ customerPhone: 1 });
-
 
 const Customer = mongoose.model('Customer', customerSchema);
 export default Customer;

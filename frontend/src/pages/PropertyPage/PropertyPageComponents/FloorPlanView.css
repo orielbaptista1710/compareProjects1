@@ -23,7 +23,6 @@
 .floor-plan-header h2 {
   margin: 0;
   color: #1a1a1a;
-  font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.2px;
 }
@@ -111,7 +110,6 @@
 .room-areas-section h3 {
   margin: 0 0 16px;
   color: #1a1a1a;
-  font-size: 16px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -218,7 +216,7 @@
 .room-details h3 {
   margin: 0 0 16px;
   color: #1a1a1a;
-  font-size: 16px;
+
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;

@@ -430,10 +430,8 @@ propertySchema.index({
 
 // SEO slug
 propertySchema.index(
-  { slug: 1 },
   { unique: true }
 );
-
 
  // For full-text search- 
 propertySchema.index(
@@ -456,7 +454,6 @@ propertySchema.index(
     name: 'PropertyTextIndex'
   }
 );
-
 
 const Property = mongoose.model('Property', propertySchema);
 export default Property;

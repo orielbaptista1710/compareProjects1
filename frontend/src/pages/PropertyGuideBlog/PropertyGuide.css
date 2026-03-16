@@ -115,7 +115,6 @@
 }
 
 .side-article-content h3 {
-  font-size: 15px;
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 10px 0;
@@ -168,8 +167,9 @@
 
 .read-more:hover {
   gap: 12px;
-  color: #2563eb;
+  color: #7c3aed;
 }
+
 
 .read-more:hover svg {
   transform: translateX(3px);
@@ -199,7 +199,6 @@
 }
 
 .guide-section-header h2 {
-  font-size: 36px;
   font-weight: 700;
   color: #1a1a1a;
   margin: 0 0 14px 0;
@@ -208,7 +207,7 @@
 
 .underline-text {
   text-decoration: underline;
-  text-decoration-color: #3b82f6;
+  text-decoration-color: #6e2fd5;
   text-decoration-thickness: 4px;
   text-underline-offset: 6px;
 }
@@ -267,7 +266,6 @@
 }
 
 .article-content h3 {
-  font-size: 18px;
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 16px 0;
@@ -276,9 +274,6 @@
   transition: color 0.3s ease;
 }
 
-.article-card:hover .article-content h3 {
-  color: #2563eb;
-}
 
 .article-content .article-date {
   margin-bottom: 18px;
@@ -355,7 +350,6 @@
 }
 
 .guide-step-card h3 {
-  font-size: 18px;
   font-weight: 600;
   margin: 0 0 12px;
   color: #1a1a1a;
@@ -371,26 +365,12 @@
 .guide-step-card .read-more {
   font-size: 14px;
   font-weight: 600;
-  color: #2563eb;
+  color: #f59e0b;
 }
 
 .guide-step-card .read-more:hover {
-  color: #1d4ed8;
+  color: #d88d0a;
 }
-
-/* Responsive */
-@media (max-width: 1024px) {
-  .guide-steps-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .guide-steps-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 
 /* Checklist css */
 /* Tools & Checklists Section */
@@ -420,7 +400,6 @@
 }
 
 .tool-card h3 {
-  font-size: 18px;
   font-weight: 600;
   margin-bottom: 12px;
   color: #1a1a1a;
@@ -446,7 +425,7 @@
 }
 
 .download-btn:hover {
-  background: #1d4ed8;
+  background: #6b2ed4;
   transform: translateY(-2px);
 }
 

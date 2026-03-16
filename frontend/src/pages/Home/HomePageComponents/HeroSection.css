@@ -54,11 +54,6 @@
   align-items: center;
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-}
-
 .card:focus-within {
   outline: 2px solid #fcbf49;
   outline-offset: 2px;

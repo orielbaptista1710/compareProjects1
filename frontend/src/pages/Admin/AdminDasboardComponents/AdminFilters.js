@@ -1,84 +1,117 @@
-import React from "react";
+// src/components/Admin/AdminFilters.js
+
+import React, { useMemo } from "react";
 import {
   Stack,
   TextField,
   Select,
-  MenuItem
+  MenuItem,
+  Button
 } from "@mui/material";
 import { Autocomplete } from "@mui/material";
 
+const PROPERTY_TYPES = [
+  "Flats/Apartments",
+  "Villa",
+  "Plot",
+  "Shop/Showroom",
+  "Industrial Warehouse",
+  "Retail",
+  "Office Space"
+];
+
+const STATUS_OPTIONS = ["pending", "approved", "rejected"];
+
 export default function AdminFilters({
-  search,
-  setSearch,
-
-  propertyTypeFilter,
-  setPropertyTypeFilter,
-
-  statusFilter,
-  setStatusFilter,
-
-  cityFilter,
-  setCityFilter,
+  filters,
+  setFilters,
   cityList,
-
-  localityFilter,
-  setLocalityFilter,
-  localitySearch,
-  setLocalitySearch,
   localities,
-  loadingLocalities,
-
-  imageFilter,
-  setImageFilter,
-
-  sortBy,
-  setSortBy
+  loadingLocalities
 }) {
+
+  const handleChange = (field, value) => {
+    setFilters((prev) => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      search: "",
+      propertyType: "",
+      status: "",
+      city: "",
+      locality: "",
+      imageFilter: "",
+      sortBy: "latest"
+    });
+  };
+
+  const sortOptions = useMemo(() => ([
+    { value: "latest", label: "Latest First" },
+    { value: "oldest", label: "Oldest First" },
+    { value: "priceHigh", label: "Price: High → Low" },
+    { value: "priceLow", label: "Price: Low → High" },
+    { value: "mostViewed", label: "Most Viewed" }
+  ]), []);
+
   return (
-    <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={2}>
+    <Stack
+      direction={{ xs: "column", md: "row" }}
+      spacing={2}
+      mb={3}
+      flexWrap="wrap"
+      alignItems="center"
+    >
 
       {/* Search */}
       <TextField
-        label="Search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
+        label="Search property"
+        size="small"
+        value={filters.search}
+        onChange={(e) => handleChange("search", e.target.value)}
+        sx={{ minWidth: 220 }}
       />
 
       {/* Property Type */}
       <Select
-        value={propertyTypeFilter}
-        onChange={(e) => setPropertyTypeFilter(e.target.value)}
+        size="small"
+        value={filters.propertyType}
         displayEmpty
+        onChange={(e) => handleChange("propertyType", e.target.value)}
+        sx={{ minWidth: 180 }}
       >
         <MenuItem value="">All Types</MenuItem>
-        <MenuItem value="Flats/Apartments">Flats/Apartments</MenuItem>
-        <MenuItem value="Villa">Villa</MenuItem>
-        <MenuItem value="Plot">Plot</MenuItem>
-        <MenuItem value="Shop/Showroom">Shop/Showroom</MenuItem>
-        <MenuItem value="Industrial Warehouse">Industrial Warehouse</MenuItem>
-        <MenuItem value="Retail">Retail</MenuItem>
-        <MenuItem value="Office Space">Office Space</MenuItem>
-          {/* ////////PROPERTY TYPE CHANGE */}
-        
+        {PROPERTY_TYPES.map((type) => (
+          <MenuItem key={type} value={type}>{type}</MenuItem>
+        ))}
       </Select>
 
       {/* Status */}
       <Select
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value)}
+        size="small"
+        value={filters.status}
         displayEmpty
+        onChange={(e) => handleChange("status", e.target.value)}
+        sx={{ minWidth: 160 }}
       >
         <MenuItem value="">All Status</MenuItem>
-        <MenuItem value="pending">Pending</MenuItem>
-        <MenuItem value="approved">Approved</MenuItem>
-        <MenuItem value="rejected">Rejected</MenuItem>
+        {STATUS_OPTIONS.map((status) => (
+          <MenuItem key={status} value={status}>
+            {status.toUpperCase()}
+          </MenuItem>
+        ))}
       </Select>
 
       {/* City */}
       <Select
-        value={cityFilter}
-        onChange={(e) => setCityFilter(e.target.value)}
+        size="small"
+        value={filters.city}
         displayEmpty
+        onChange={(e) => handleChange("city", e.target.value)}
+        sx={{ minWidth: 160 }}
       >
         <MenuItem value="">All Cities</MenuItem>
         {cityList.map((city) => (
@@ -88,17 +121,17 @@ export default function AdminFilters({
 
       {/* Locality */}
       <Autocomplete
-        value={localityFilter}
+        size="small"
+        value={filters.locality}
         options={localities}
         loading={loadingLocalities}
-        disabled={!cityFilter}
-        onChange={(_, val) => setLocalityFilter(val)}
-        onInputChange={(_, val) => setLocalitySearch(val)}
+        disabled={!filters.city}
+        onChange={(_, val) => handleChange("locality", val)}
         renderInput={(params) => (
           <TextField
             {...params}
             label="Locality"
-            placeholder={cityFilter ? "Search locality" : "Select city first"}
+            placeholder={filters.city ? "Search locality" : "Select city first"}
           />
         )}
         sx={{ minWidth: 220 }}
@@ -106,29 +139,41 @@ export default function AdminFilters({
 
       {/* Image Filter */}
       <Select
-        value={imageFilter}
-        onChange={(e) => setImageFilter(e.target.value)}
+        size="small"
+        value={filters.imageFilter}
         displayEmpty
+        onChange={(e) => handleChange("imageFilter", e.target.value)}
+        sx={{ minWidth: 200 }}
       >
         <MenuItem value="">All Properties</MenuItem>
         <MenuItem value="withImages">With Images</MenuItem>
         <MenuItem value="withoutImages">Without Images</MenuItem>
-        <MenuItem value="coverOnly">With Cover Image only</MenuItem>
-        <MenuItem value="galleryOnly">With Gallery Images only</MenuItem>
+        <MenuItem value="coverOnly">Cover Image Only</MenuItem>
+        <MenuItem value="galleryOnly">Gallery Only</MenuItem>
       </Select>
 
       {/* Sort */}
       <Select
-        value={sortBy}
-        onChange={(e) => setSortBy(e.target.value)}
-        displayEmpty
+        size="small"
+        value={filters.sortBy}
+        onChange={(e) => handleChange("sortBy", e.target.value)}
+        sx={{ minWidth: 200 }}
       >
-        <MenuItem value="latest">Latest First</MenuItem>
-        <MenuItem value="oldest">Oldest First</MenuItem>
-        <MenuItem value="priceHigh">Price: High → Low</MenuItem>
-        <MenuItem value="priceLow">Price: Low → High</MenuItem>
-        <MenuItem value="mostViewed">Most Viewed</MenuItem>
+        {sortOptions.map((s) => (
+          <MenuItem key={s.value} value={s.value}>
+            {s.label} 
+          </MenuItem>
+        ))}
       </Select>
+
+      {/* Reset */}
+      <Button
+        variant="outlined"
+        size="small"
+        onClick={resetFilters}
+      >
+        Reset
+      </Button>
 
     </Stack>
   );

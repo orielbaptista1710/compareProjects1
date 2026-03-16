@@ -283,7 +283,7 @@ function PropertyCard({
 
         {/* Description */}
         {property.description && (
-          <div className={`property-description ${expanded ? 'expanded' : ''}`}>
+          <div className={`property-card-property-description ${expanded ? 'expanded' : ''}`}>
             <p>
               {expanded
                 ? property.description

@@ -66,7 +66,6 @@
 
 /* ===== Content ===== */
 .about-content h2 {
-  font-size: 32px; /* reduced */
   font-weight: 800;
   margin-bottom: 14px;
   color: #1a202c;
@@ -78,7 +77,7 @@
 }
 
 .about-intro {
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.6;
   color: #4a5568;
   margin-bottom: 22px;
@@ -156,7 +155,7 @@
 }
 
 .benefit-text {
-  font-size: 13px;
+  font-size: 18px;
   color: #2d3748;
   line-height: 1.5;
   font-weight: 500;

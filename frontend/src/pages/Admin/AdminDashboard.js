@@ -19,10 +19,10 @@ const fetchProperties = async ({ queryKey }) => {
   const [, filters] = queryKey;
   const params = {
     page: filters.page,
-    limit: filters.limit,
+    limit: filters.limit, 
     status: filters.status,
     propertyType: filters.propertyType,
-    q: filters.search,
+    search: filters.search,
     city: filters.city || undefined,
     locality: filters.locality || undefined,
     sortBy: filters.sortBy,
@@ -50,22 +50,36 @@ export default function AdminDashboard() {
   // Pagination & Filters
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
-  const [statusFilter, setStatusFilter] = useState("");
-  const [search, setSearch] = useState("");
-  const [propertyTypeFilter, setPropertyTypeFilter] = useState("");
+
+  const [filters, setFilters] = useState({
+  search: "",
+  propertyType: "",
+  status: "",
+  city: "",
+  locality: null,
+  imageFilter: "",
+  sortBy: "latest"
+});
+
+//   const [statusFilter, setStatusFilter] = useState("");
+//   const [search, setSearch] = useState("");
+//   const [propertyTypeFilter, setPropertyTypeFilter] = useState("");
+// const [cityFilter, setCityFilter] = useState("");
+
+//   const [localityFilter, setLocalityFilter] = useState(null);
+//   const [localitySearch, setLocalitySearch] = useState("");
+//   const [sortBy, setSortBy] = useState("latest"); 
+
+//   const [imageFilter, setImageFilter] = useState("");
+
 
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
-  const [cityFilter, setCityFilter] = useState("");
-
-  const [localityFilter, setLocalityFilter] = useState(null);
-  const [localitySearch, setLocalitySearch] = useState("");
+  
 
 
-  const [sortBy, setSortBy] = useState("latest"); 
-
-  const [imageFilter, setImageFilter] = useState("");
+  
 
 
 const handleRowClick = async (property) => { 
@@ -79,18 +93,33 @@ const handleRowClick = async (property) => {
 };
 
   // Debounced search
-  const [debouncedSearch, setDebouncedSearch] = useState(search);
+//   const [debouncedSearch, setDebouncedSearch] = useState(search);
 
-  const debounceSearch = useMemo(
+//   const debounceSearch = useMemo(
+//   () => debounce((val) => setDebouncedSearch(val), 500),
+//   []
+// );
+
+// Debounced search
+const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+
+const debounceSearch = useMemo(
   () => debounce((val) => setDebouncedSearch(val), 500),
   []
 );
-  useEffect(() => { debounceSearch(search); }, [search, debounceSearch]);
+
+useEffect(() => {
+  debounceSearch(filters.search);
+}, [filters.search, debounceSearch]);
+
+
   // ✅ Reset locality when city changes
   useEffect(() => {
-    setLocalityFilter(null);
-    setLocalitySearch("");
-  }, [cityFilter]);
+  setFilters((prev) => ({
+    ...prev,
+    locality: null
+  }));
+}, [filters.city]);
 
 
   // Snackbar
@@ -105,13 +134,14 @@ const handleRowClick = async (property) => {
     queryKey: ["properties", {
       page: page + 1,
       limit: rowsPerPage,
-      status: statusFilter,
-      propertyType: propertyTypeFilter,
+
+      status: filters.status,
+      propertyType: filters.propertyType,
       search: debouncedSearch,
-      city: cityFilter,  
-      locality: localityFilter,
-      sortBy: sortBy,
-      imageFilter: imageFilter ,
+      city: filters.city,
+      locality: filters.locality,
+      sortBy: filters.sortBy,
+      imageFilter: filters.imageFilter
 
     }],
     queryFn: fetchProperties,
@@ -130,15 +160,15 @@ const handleRowClick = async (property) => {
 });
 
 const { data: localities = [], isFetching: loadingLocalities } = useQuery({
-  queryKey: ["localities", cityFilter, localitySearch],
+  queryKey: ["localities", filters.city],
   queryFn: async () => {
-    if (!cityFilter) return [];
+    if (!filters.city) return [];
     const { data } = await API.get("/api/admin/localities", {
-      params: { city: cityFilter, q: localitySearch }
+      params: { city: filters.city }
     });
     return data;
   },
-  enabled: !!cityFilter,
+  enabled: !!filters.city,
   staleTime: 5 * 60 * 1000
 });
 
@@ -174,7 +204,16 @@ const { data: localities = [], isFetching: loadingLocalities } = useQuery({
   const handleRejectConfirm = () => rejectMutation.mutate({ id: rejectModal.propertyId, reason: rejectModal.reason });
 
   // Reset page when filters/search change
-  useEffect(() => { setPage(0); }, [debouncedSearch, statusFilter, propertyTypeFilter, cityFilter,localityFilter, sortBy,imageFilter ]);
+  useEffect(() => { setPage(0); }, 
+[
+  debouncedSearch,
+  filters.status,
+  filters.propertyType,
+  filters.city,
+  filters.locality,
+  filters.sortBy,
+  filters.imageFilter
+]);
 
   if (isLoading) return <CircularProgress />;
   if (isError) return <Typography color="error">Failed to load properties. <Button onClick={refetch}>Retry</Button></Typography>;
@@ -187,31 +226,11 @@ const { data: localities = [], isFetching: loadingLocalities } = useQuery({
 
       {/* Filters */}
       <AdminFilters
-  search={search}
-  setSearch={setSearch}
-
-  propertyTypeFilter={propertyTypeFilter}
-  setPropertyTypeFilter={setPropertyTypeFilter}
-
-  statusFilter={statusFilter}
-  setStatusFilter={setStatusFilter}
-
-  cityFilter={cityFilter}
-  setCityFilter={setCityFilter}
+  filters={filters}
+  setFilters={setFilters}
   cityList={cityList}
-
-  localityFilter={localityFilter}
-  setLocalityFilter={setLocalityFilter}
-  localitySearch={localitySearch}
-  setLocalitySearch={setLocalitySearch}
   localities={localities}
   loadingLocalities={loadingLocalities}
-
-  imageFilter={imageFilter}
-  setImageFilter={setImageFilter}
-
-  sortBy={sortBy}
-  setSortBy={setSortBy}
 />
 
 

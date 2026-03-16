@@ -13,11 +13,12 @@ export const getProperties = asyncHandler(async (req, res) => {
     status,
     propertyType,
     city, 
-    locality,
+    locality, 
     search: q,
     sortBy,
     imageFilter,
   });
+  // console.error("ADMIN FETCH ERROR:", error);   ///////????????
 
   res.json(result);
 });

@@ -1,9 +1,16 @@
 import React from "react";
+import { useEffect, useState } from "react";
+import API from "../../api";
+
 import { CalendarDays, ArrowRight } from "lucide-react";
 import Seo from "../../database/Seo";
 import "./PropertyGuide.css";
 
 const PropertyGuide = () => {
+
+  const [articles, setArticles] = useState([]);
+
+
   const featuredArticle = {
     title: "Exploring Future Renewable Energy Innovations",
     date: "December 11, 2023",
@@ -34,44 +41,44 @@ const PropertyGuide = () => {
     },
   ];
 
-  const articles = [
-    {
-      title: "Empowering Entrepreneurs Success Unveiled",
-      date: "December 8, 2023",
-      image:
-        "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=80",
-    },
-    {
-      title: "Thriving in a Dynamic Startup Landscape",
-      date: "December 8, 2023",
-      image:
-        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80",
-    },
-    {
-      title: "Strategies Propelling Tech Startups to Success",
-      date: "December 8, 2023",
-      image:
-        "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80",
-    },
-    {
-      title: "Pioneering the Future in Our Startup Showcase",
-      date: "December 8, 2023",
-      image:
-        "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&q=80",
-    },
-    {
-      title: "Artificial Intelligence Impact on Modern Industries",
-      date: "December 17, 2023",
-      image:
-        "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&q=80",
-    },
-    {
-      title: "Healthy Eating Habits for a Busy Lifestyle",
-      date: "December 11, 2023",
-      image:
-        "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80",
-    },
-  ];
+  // const articles = [
+  //   {
+  //     title: "Empowering Entrepreneurs Success Unveiled",
+  //     date: "December 8, 2023",
+  //     image:
+  //       "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=80",
+  //   },
+  //   {
+  //     title: "Thriving in a Dynamic Startup Landscape",
+  //     date: "December 8, 2023",
+  //     image:
+  //       "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80",
+  //   },
+  //   {
+  //     title: "Strategies Propelling Tech Startups to Success",
+  //     date: "December 8, 2023",
+  //     image:
+  //       "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80",
+  //   },
+  //   {
+  //     title: "Pioneering the Future in Our Startup Showcase",
+  //     date: "December 8, 2023",
+  //     image:
+  //       "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&q=80",
+  //   },
+  //   {
+  //     title: "Artificial Intelligence Impact on Modern Industries",
+  //     date: "December 17, 2023",
+  //     image:
+  //       "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&q=80",
+  //   },
+  //   {
+  //     title: "Healthy Eating Habits for a Busy Lifestyle",
+  //     date: "December 11, 2023",
+  //     image:
+  //       "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80",
+  //   },
+  // ];
 
   const buyingGuideSteps = [
     {
@@ -132,6 +139,22 @@ const PropertyGuide = () => {
     },
   ];
 
+
+  useEffect(() => {
+  const fetchNews = async () => {
+    try {
+      const res = await API.get("/api/news/real-estate");
+      setArticles(res.data);
+    } catch (error) {
+      console.error("Failed to fetch news", error);
+    }
+  };
+
+  fetchNews();
+}, []);
+
+
+
   return (
     <div className="property-guide">
       <Seo
@@ -188,8 +211,8 @@ const PropertyGuide = () => {
           <div className="guide-section-header">
             <div>
               <h2>
-                Explore Our Latest{" "}
-                <span className="underline-text">Articles</span>
+                Explore the Latest{" "}
+                <span className="underline-text">News in Real-Estate</span>
               </h2>
               <p className="section-description">
                 Lorem ipsum dolor sit amet, consectetur turpis eget ipsum using
@@ -211,7 +234,12 @@ const PropertyGuide = () => {
                     <CalendarDays size={16} strokeWidth={1.5} />
                     <span>{article.date}</span>
                   </div>
-                  <a href="#" className="read-more">
+                  <a
+                    href={article.url}
+                    className="read-more"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Read More <ArrowRight size={16} strokeWidth={1.5} />
                   </a>
                 </div>

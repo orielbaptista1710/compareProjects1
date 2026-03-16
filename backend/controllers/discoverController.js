@@ -1,44 +1,50 @@
 // controllers/discoverController.js
-import Property from '../models/Property.js';
+import Property from "../models/Property.js";
 
-const normalize = (str="") =>
-  str.toLowerCase().replace(/[-_/]/g, " ");
+import {
+  RESIDENTIAL_TYPES,
+  COMMERCIAL_TYPES,
+} from "../models/propertyType.js";
+
+const normalize = (str = "") =>
+  str.toLowerCase().replace(/[-_/]/g, " ").trim();
+
+const isResidential = (type) =>
+  RESIDENTIAL_TYPES.some((t) =>
+    normalize(type).includes(normalize(t))
+  );
+
+const isCommercial = (type) =>
+  COMMERCIAL_TYPES.some((t) =>
+    normalize(type).includes(normalize(t))
+  );
 
 const mapCategory = (type = "") => {
   const t = normalize(type);
 
-  if (t.includes("flat") || t.includes("apartment") || t.includes("villa"))
+  if (isResidential(t)) {
+    if (t.includes("plot")) return "plot";
     return "residential";
+  }
 
-  if (t.includes("warehouse") || t.includes("industrial"))
-    return "industrial";
+  if (t.includes("industrial")) return "industrial";
 
-  if (t.includes("shop") || t.includes("showroom") || t.includes("retail"))
-    return "retail";
+  if (t.includes("shop") || t.includes("showroom")) return "retail";
 
-  if (t.includes("plot"))
-    return "plot";
-
-  if (t.includes("office"))
-    return "commercial";
+  if (isCommercial(t)) return "commercial";
 
   return "commercial";
 };
 
-
 export const getDiscover = async (req, res) => {
   try {
-    // Fetch propertyType + locality
-    const pipeline = [
-      {
-        $group: {
-          _id: "$propertyType",
-          localities: { $addToSet: "$locality" },
-        },
-      },
-    ];
 
-    const groups = await Property.aggregate(pipeline);
+    const properties = await Property.find(
+      {},
+      { propertyType: 1, locality: 1 }
+    ).lean();
+
+    console.log("Properties fetched:", properties.length);
 
     const data = {
       residential: [],
@@ -46,34 +52,37 @@ export const getDiscover = async (req, res) => {
       commercial: [],
       retail: [],
       plot: [],
-      popular: [], // static for now
+      popular: [],
     };
 
-    groups.forEach((g) => {
-      const key = mapCategory(g._id);
-      if (!data[key]) data[key] = [];
+    for (const prop of properties) {
+      if (!prop.locality || !prop.propertyType) continue;
 
-      const cleaned = g.localities.filter(Boolean);
+      const category = mapCategory(prop.propertyType);
 
-      data[key].push(...cleaned);
-    });
-
-    // Deduplicate + Sort + Limit
-    for (const key in data) {
-      if (Array.isArray(data[key])) {
-        data[key] = [...new Set(data[key])].sort().slice(0, 200);
-      }
+      data[category].push(prop.locality);
     }
 
-    return res.status(200).json({
+    for (const key in data) {
+      data[key] = [...new Set(data[key])]
+        .filter(Boolean)
+        .sort()
+        .slice(0, 100);
+    }
+
+    console.log("Footer discover data:", data);
+
+    res.status(200).json({
       success: true,
-      data,
+      data
     });
+
   } catch (err) {
     console.error("discover error:", err);
+
     res.status(500).json({
       success: false,
-      message: "Server error",
+      message: "Server error"
     });
   }
 };

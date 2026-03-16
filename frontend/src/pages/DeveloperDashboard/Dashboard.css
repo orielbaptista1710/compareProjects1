@@ -132,24 +132,6 @@
    Description / Rejection / Actions
    ============================== */
 
-.property-description {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid #eee;
-}
-
-.property-description h5 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 0.5rem;
-}
-
-.property-description p {
-  margin: 0;
-  color: #666;
-  line-height: 1.5;
-}
-
 .property-rejection {
   padding: 1rem 1.25rem;
   background-color: #ffe8e8;

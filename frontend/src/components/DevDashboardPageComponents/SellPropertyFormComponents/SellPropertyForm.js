@@ -8,7 +8,7 @@ import {
   Autocomplete,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import {
+import { 
   PROPERTY_TYPES,
   FURNISHED_OPTIONS,
   POSSESSION_STATUS_OPTIONS,

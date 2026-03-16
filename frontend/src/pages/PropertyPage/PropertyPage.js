@@ -211,7 +211,7 @@ function PropertyPage() {
         {/* ---------------- Description Section ---------------- */}
         <div className="description-section">
           <h2>Description</h2>
-          <p className="property-description">
+          <p className="property-pg-property-description">
             {showFullDescription ? property.long_description || property.description : property.description}
           </p>
           {property.long_description && property.long_description.length > 200 && (

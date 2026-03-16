@@ -1,6 +1,8 @@
 // ComparePanel.js
 import React, { useMemo, useRef, useEffect, useCallback } from "react";
 import { X, MapPin, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { formatCurrencyShort } from "../../../utils/formatters";
 import { getPropertyImage, getPropertyLocation } from "../../../utils/propertyHelpers";
@@ -11,8 +13,11 @@ const ComparePanel = ({
   onClose = () => {},
   removeFromCompare = () => {},
 }) => {
+  const navigate = useNavigate();
+
   const panelRef = useRef(null);
   const columns = useMemo(() => compareList.filter(Boolean), [compareList]);
+
 
   // Close on outside click
   useOutsideClick(true, [panelRef], onClose);
@@ -79,6 +84,9 @@ const ComparePanel = ({
                         alt={p.title || "Property"}
                         className="cp-thumb"
                         loading="lazy"
+                        onClick={() => navigate(`/property/${p._id}`)}
+                        aria-label={`View ${p.title || "property"}`}
+                        style={{ cursor: "pointer" }}
                       />
                       <button
                         className="cp-remove"

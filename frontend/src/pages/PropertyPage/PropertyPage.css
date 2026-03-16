@@ -46,7 +46,7 @@
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 18px;
+  font-size: 20px;
   color: #555;
 }
 
@@ -97,7 +97,6 @@
 .additional-info-section h2,
 .location-section h2,
 .brochure-section h2 {
-  font-size: 20px;
   margin-bottom: 20px;
   color: #333;
   border-bottom: 1px solid #eee;
@@ -127,7 +126,7 @@
   color: #333;
 }
 
-.property-description {
+.property-pg-property-description {
   line-height: 1.6;
   color: #444;
 }
@@ -324,7 +323,7 @@
     grid-template-columns: 1fr;
   }
 
-  .description-section .property-description {
+  .description-section .property-pg-property-description {
     font-size: 0.95rem;
   }
 
