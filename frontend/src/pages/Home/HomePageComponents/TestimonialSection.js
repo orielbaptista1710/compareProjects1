@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import './TestimonialSection.css';
 
-const TestimonialSection = () => {
+const TestimonialSection = () => { 
   const [currentIndex, setCurrentIndex] = useState(0);
   const testimonialsRef = useRef(null);
   
@@ -88,7 +88,16 @@ const TestimonialSection = () => {
         
         <div className="trustpilot-info">
           <span className="rating">4.2/5</span>
-          <span className="trustpilot">CompareProject</span>
+          <span className="trustpilot">
+            <img
+          className="logo-img-header"
+          src="/imageslcp/logo.webp"
+          alt="CompareProjects — Compare Real Estate Projects in India"
+          width="140"
+          height="20"
+          loading="lazy"
+        />
+          </span>
           <span className="reviews">Based on 5210 reviews</span>
         </div>
 

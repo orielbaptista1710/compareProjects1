@@ -70,5 +70,9 @@ export const FILTER_LABELS = {
   furnishing: "Furnishing",
   facing: "Facing",
   parkings: "Parkings",
+
+  possessionStatus: "Possession Status",
+  floorLabel: "Floor",
+  amenities: "Amenities",
 };
 

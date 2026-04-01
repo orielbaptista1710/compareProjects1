@@ -1,0 +1,104 @@
+/* Disclaimer.css */
+
+.disclaimer-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #faf5ff; /* very light purple-tinted cream — on-brand */
+  box-shadow: 0 -4px 20px rgba(110, 47, 213, 0.12);
+  /* Slide up animation */
+  animation: disclaimerSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Top accent bar — matches footer purple */
+.disclaimer-accent {
+  height: 3px;
+  background: linear-gradient(90deg, #6e2fd5, #9d4edd, #6e2fd5);
+  background-size: 200% 100%;
+  animation: disclaimerShimmer 3s linear infinite;
+}
+
+.disclaimer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.disclaimer-text {
+  flex: 1;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.disclaimer-text a {
+  color: #6e2fd5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 500;
+}
+
+.disclaimer-text a:hover {
+  color: #4c1d95;
+}
+
+.disclaimer-btn {
+  flex-shrink: 0;
+  padding: 10px 28px;
+  background: #6e2fd5;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.disclaimer-btn:hover {
+  background: #5b21b6;
+  transform: translateY(-1px);
+}
+
+.disclaimer-btn:active {
+  transform: translateY(0);
+}
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes disclaimerSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes disclaimerShimmer {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .disclaimer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px 20px;
+    gap: 14px;
+  }
+
+  .disclaimer-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

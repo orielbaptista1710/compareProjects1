@@ -14,6 +14,10 @@ export const DEFAULT_FILTERS = {
   furnishing: [],
   facing: [],
   parkings: [],
+
+  amenites: [],
+  floorLabel: [],
+  possessionaStatus: [],
 };
 
 export const formatFilterValue = (key, value) => {

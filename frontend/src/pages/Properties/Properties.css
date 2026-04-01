@@ -15,7 +15,7 @@
 .main-content-container {
   display: flex;
   height: calc(109vh - 73px); /* subtract header height */
-  padding: 73px 1rem 0 0;
+  padding: 0 1rem 0 0;
   gap: 1.5rem;
   box-sizing: border-box;
   overflow: hidden; /* important */

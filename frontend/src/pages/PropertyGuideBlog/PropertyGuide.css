@@ -1,19 +1,16 @@
 
 /* Header Spacer for Fixed Header */
-.header-spacer {
-  height: 100px;
-}
 
 /* Container */
 .container {
-  max-width: 1400px;
+  max-width: 1400px; 
   margin: 0 auto;
   padding: 0 24px;
 }
 
 /* Hero Section */
 .hero-section {
-  padding: 50px 0 70px;
+  padding: 0 0 70px;
 }
 
 .hero-grid {
@@ -312,64 +309,6 @@
 
 .view-all-btn:active {
   transform: translateY(0);
-}
-
-/* Buying Guide Section */
-.buying-guide-section {
-  padding: 40px 0 100px;
-  background: #f9fafb;
-}
-
-.guide-steps-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 26px;
-  margin-top: 40px;
-}
-
-.guide-step-card {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-  padding: 28px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.guide-step-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
-}
-
-.step-number {
-  font-size: 14px;
-  font-weight: 700;
-  color: #6e2fd5;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.guide-step-card h3 {
-  font-weight: 600;
-  margin: 0 0 12px;
-  color: #1a1a1a;
-}
-
-.guide-step-card p {
-  font-size: 14px;
-  color: #6b7280;
-  line-height: 1.6;
-  margin: 0 0 20px;
-}
-
-.guide-step-card .read-more {
-  font-size: 14px;
-  font-weight: 600;
-  color: #f59e0b;
-}
-
-.guide-step-card .read-more:hover {
-  color: #d88d0a;
 }
 
 /* Checklist css */

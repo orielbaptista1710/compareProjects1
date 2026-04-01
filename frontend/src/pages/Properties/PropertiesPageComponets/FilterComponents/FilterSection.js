@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 const FilterSection = ({ title, icon: Icon, children, initiallyOpen = true }) => {
   const [open, setOpen] = useState(initiallyOpen);
-
+ 
   return (
     <div className="filter-section">
       <header onClick={() => setOpen(!open)}>

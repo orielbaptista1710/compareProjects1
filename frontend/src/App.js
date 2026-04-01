@@ -2,11 +2,21 @@ import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
+import PrivacyPolicy from "./shared/Documents/Privacypolicy";
+import Terms from "./shared/Documents//Terms";
+import Disclaimer from "./shared/Documents/Disclaimer";
+
+// For Disclaimer — add <Disclaimer /> in your App.jsx layout (outside the Router
+// Switch but inside the Router) so it shows on every page:
+
 // import { ToastContainer } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
  
 import { HeadProvider  } from "react-head";
 import { CompareProvider, useCompare } from "./contexts/CompareContext";
+
+import Breadcrumbs from "./shared/Breadcrumbs/Breadcrumbs"
 
 import LoadingSpinner from './shared/LoadingSpinners/LoadingSpinner';
 
@@ -62,7 +72,7 @@ const AppContent = () => {   // ✅ fixed function syntax
 
   const hideNavRoutes = [
   "/properties",
-  "/compare",
+  // "/compare",
   "/login",
   "/dashboard",
   "/admin",
@@ -76,10 +86,24 @@ const showNavigationBar = !hideNavRoutes.some((path) =>
 );
 
 
+const hideBreadcrumbRoutes = [
+  "/login",
+  "/customer-login",
+  "/customer-signup",
+  // "/dashboard",
+  "/admin",
+];
+
+const showBreadcrumbs = !hideBreadcrumbRoutes.some((path) =>
+  location.pathname.startsWith(path)
+);
+
   return (
     <>
       <Header compareCount={compareList.length} />
       {showNavigationBar && <NavigationBar />}
+
+      {showBreadcrumbs && <Breadcrumbs hasNavbar={showNavigationBar} />}
 
         <Suspense fallback={
           <div className="spinner-container">
@@ -89,6 +113,7 @@ const showNavigationBar = !hideNavRoutes.some((path) =>
 
         
       <Routes>
+        {/*  Public  */}
         <Route path="/" element={<Home />} />
         <Route path="/properties" element={
           <Properties
@@ -110,11 +135,16 @@ const showNavigationBar = !hideNavRoutes.some((path) =>
         <Route path="/apnaloan" element={<UpnaLoan />} />
         <Route path="/property-guide" element={<PropertyGuide />} />
 
+        {/*  Legal  */}
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms"          element={<Terms />} />
+
+        {/*  Auth  */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/customer-signup" element={<CustomerSignupPage />} />
         <Route path="/customer-login" element={<CustomerLoginPage />} />
         
-        {/* 🔐 Protected Routes */}
+        {/*  Protected  */}
         <Route path="/dashboard" element={
           <ProtectedRoute roles={['user', 'admin']}>
             <Dashboard />
@@ -130,13 +160,16 @@ const showNavigationBar = !hideNavRoutes.some((path) =>
             <CustomerProfilePage />
           </ProtectedCustomerRoute>
         } />     
-
+        
+        {/*  404  */}
         <Route path="*" element={<ErrorPage />} />
       </Routes>
 
       </Suspense>
 
       <Footer />
+
+      <Disclaimer />
 
     </>
   );

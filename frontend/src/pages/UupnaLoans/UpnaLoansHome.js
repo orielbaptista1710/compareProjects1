@@ -133,7 +133,7 @@ const UpnaLoansHome = () => {
   return (
     <div className="upna-loans-page">
       <Seo 
-        title="Apna Loans & Finance | CompareProjects" 
+        title="Upna Loans & Finance | CompareProjects" 
         description="Explore property loan options and financial advice to buy your dream home. Compare interest rates, eligibility, and apply for home loans seamlessly with CompareProjects."  
       />
       

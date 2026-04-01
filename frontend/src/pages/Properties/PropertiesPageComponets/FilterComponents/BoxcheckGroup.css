@@ -1,0 +1,68 @@
+/* Container */
+.box-pill-group {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 8px;
+}
+
+/* Pill */
+.box-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 8px 10px;
+  border-radius: 14px;
+
+  border: 1px solid #e0e0e0;
+  /* background: #fafafa; */
+
+  font-size: 13px;
+  font-weight: 500;
+  color: #444;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  min-height: 40px; 
+}
+
+/* Hover */
+.box-pill:hover {
+  border-color: #ccc;
+  background: #f5f5f5;
+}
+
+/* Selected */
+.box-pill.selected {
+  border: 1.5px solid #7c3aed;
+  background: #fff5f6;
+  color: #222;
+}
+
+/* Circle icon */
+.box-pill-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+
+  border: 1.5px solid #cfcfcf;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+/* Selected icon */
+.box-pill.selected .box-pill-icon {
+  background: #7c3aedec;
+  border-color: #7c3aed;
+  color: white;
+}
+
+/* Label */
+.box-pill-label {
+  line-height: 1.2;
+}

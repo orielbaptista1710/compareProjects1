@@ -6,6 +6,7 @@ import {
   RESIDENTIAL_TYPES,
   COMMERCIAL_TYPES,
 } from '../models/propertyType.js';
+import { COMMON_AMENITIES, COMMON_SECURITY } from "../constants/amenities.js";
 
 const escapeRegex = (str) => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -22,7 +23,7 @@ const validateSearchQuery = (search) => {
 
 const getFilterOptions = asyncHandler(async (req, res) => {
   /**
-   * Principles:
+   * Principles: 
    * - Only approved properties
    * - Backend owns numeric truth
    * - Lightweight response
@@ -30,21 +31,31 @@ const getFilterOptions = asyncHandler(async (req, res) => {
 
   const matchStage = { status: "approved", bhk: { $ne: 0 }, };
 
-
-
   const [
     cities,
     propertyTypeOptions,
     furnishingOptions,
     facingOptions,
     parkingOptions,
+    possessionStatusOptions,
+    floorLabelOptions,
   ] = await Promise.all([
     Property.distinct("city", matchStage),
     Property.distinct("propertyType", matchStage),
     Property.distinct("furnishing", matchStage),
     Property.distinct("facing", matchStage),
     Property.distinct("parkings", matchStage),
+    Property.distinct("possessionStatus", matchStage),
+    Property.distinct("floorLabel", matchStage),
   ]);
+
+    /* ---------------- Amenities + Security (Curated) ---------------- */
+
+  const combinedAmenities = [...COMMON_AMENITIES, ...COMMON_SECURITY];
+
+  const amenitiesOptions = [
+    ...new Set(combinedAmenities.map((item) => item.trim()))
+  ].sort();
 
 
   res.status(200).json({
@@ -53,6 +64,9 @@ const getFilterOptions = asyncHandler(async (req, res) => {
     furnishingOptions: furnishingOptions.filter(Boolean).sort(),
     facingOptions: facingOptions.filter(Boolean).sort(),
     parkingOptions: parkingOptions.filter(Boolean).sort(),
+    possessionStatusOptions: possessionStatusOptions.filter(Boolean).sort(),
+    floorLabelOptions: floorLabelOptions.filter(Boolean).sort(),
+    amenitiesOptions,
   });
 });
 
@@ -83,12 +97,20 @@ const getFilterOptions = asyncHandler(async (req, res) => {
  
       // Get Featured Properties (GLOBAL – not city based)
 const getFeaturedProperties = asyncHandler(async (req, res) => {
-  const { limit = 3 } = req.query;
+  const { limit = 3, city } = req.query;
 
-  const featuredProperties = await Property.find({
+  // Build dynamic query
+  const query = {
     featured: true,
     status: "approved",
-  })
+  };
+
+  //  Add city filter if provided
+  if (city) {
+    query.city = city; // OR use regex (better, see below)
+  }
+
+  const featuredProperties = await Property.find(query)
     .select(`
       title
       city
@@ -103,10 +125,9 @@ const getFeaturedProperties = asyncHandler(async (req, res) => {
       slug
       developerName
       propertyType
-      coverImage
       galleryImages
     `)
-    .sort({ createdAt: -1 })   // or popularityScore later
+    .sort({ createdAt: -1 })
     .limit(Number(limit));
 
   res.json(featuredProperties);
@@ -158,25 +179,50 @@ const getRecentProperties = asyncHandler(async (req, res) => {
       bhk: { $ne: 0 },
     };
 
-    if (req.query.city) query.city = req.query.city;
-    if (req.query.locality) {
-        query.locality = { $in: [].concat(req.query.locality) };
-      }
+  if (req.query.city) query.city = req.query.city;
 
+  if (req.query.locality) {
+    query.locality = { $in: [].concat(req.query.locality) };
+  }
 
-    if (req.query.propertyType) {
-  query.propertyType = { $in: [].concat(req.query.propertyType) };
-}
-    if (req.query.furnishing) {
-  query.furnishing = { $in: [].concat(req.query.furnishing) };
-}
+  if (req.query.propertyType) {
+    query.propertyType = { $in: [].concat(req.query.propertyType) };
+  }
+  if (req.query.furnishing) {
+    query.furnishing = { $in: [].concat(req.query.furnishing) };
+  }
 
-if (req.query.facing) {
-  query.facing = { $in: [].concat(req.query.facing) };
-}
+  if (req.query.facing) {
+    query.facing = { $in: [].concat(req.query.facing) };
+  }
 
-if (req.query.parkings) {
-  query.parkings = { $in: [].concat(req.query.parkings) };
+  if (req.query.parkings) {
+    query.parkings = { $in: [].concat(req.query.parkings) };
+  }
+
+  if (req.query.possessionStatus) {
+    query.possessionStatus = { $in: [].concat(req.query.possessionStatus)
+      // $in: req.query.possessionStatus.split(","),
+    };
+  }
+
+  if (req.query.floorLabel) {
+    query.floorLabel = {
+      $in: req.query.floorLabel.split(","),
+    };
+  }
+
+  if (req.query.amenities) {
+  const values = [].concat(req.query.amenities);
+
+  query.$and = query.$and || [];
+
+  query.$and.push({
+    $or: [
+      { amenities: { $in: values } },
+      { security: { $in: values } },
+    ],
+  });
 }
 
 
@@ -247,6 +293,8 @@ if (req.query.parkings) {
       const addProperty = asyncHandler(async (req, res) => {
         delete req.body.geo;
         delete req.body.propertyGroup;
+
+        
 
           const property = new Property({ ...req.body,
              userId: req.user._id, status: 'pending' });

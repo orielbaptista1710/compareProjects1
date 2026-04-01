@@ -5239,7 +5239,7 @@
   "emiStarts": 45000,
   "propertyGroup": "Residential",
   "propertyType": "Apartment",
-  "furnishing": "Semi-Furnished",
+  "furnishing": "Semi Furnished",
   "possessionStatus": "Ready to move",
   "bhk": 3,
   "bathrooms": 3,
@@ -7106,7 +7106,7 @@
     "Tennis Court"
   ],
   "furnishing": [
-    "Semi-Furnished"
+    "Semi Furnished"
   ],
   "bathrooms": 3,
   "balconies": 2,
@@ -7240,7 +7240,7 @@
   "bhk": 2,
   "bathrooms": 3,
   "furnishing": [
-    "Semi-Furnished"
+    "Semi Furnished"
   ],
   "possessionStatus": "Ready to Move",
   "ageOfProperty": "New",
@@ -7881,7 +7881,7 @@
       "age": "New Launch",
       "total_floors": 15,
       "floor": "Various",
-      "furnishing": "Semi-Furnished",
+      "furnishing": "Semi Furnished",
       "facing": "East/West",
       "bathrooms": "2",
       "balconies": "2"
@@ -9098,7 +9098,7 @@
   "ageOfProperty": "New",
   "reraApproved": true,
   "reraNumber": "P12345678901",
-  "furnishing": "Semi-Furnished",
+  "furnishing": "Semi Furnished",
   "facing": "East",
   "price": 3800000,
   "currency": "INR",
@@ -9964,7 +9964,7 @@
   "age_of_property": "New",
   "rera_approved": true,
   "rera_number": "P99000050553",
-  "furnishing": "Semi-Furnished",
+  "furnishing": "Semi Furnished",
   "facing": "East",
   "carpet_area": 1062.5,
   "built_up_area": 1250,
@@ -17914,7 +17914,7 @@
     "Ready to Move"
   ],
   "reraDate": "Immediate",
-  "furnishing": "Semi-Furnished",
+  "furnishing": "Semi Furnished",
   "facing": "West",
   "waterSupply": "24x7 Available",
   "coverImage": {
@@ -23655,7 +23655,7 @@
   "propertyGroup": "Residential",
   "propertyType": "Flats/Apartments",
   "furnishing": [
-    "Semi-Furnished"
+    "Semi Furnished"
   ],
   "possessionStatus": "Ready to Move",
   "bhk": 1,

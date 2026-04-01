@@ -69,6 +69,9 @@ const parseFiltersFromURL = (search) => {
     furnishing: params.getAll("furnishing"),
     facing: params.getAll("facing"),
     parkings: params.getAll("parkings"),
+    possessionStatus: params.getAll("possessionStatus"),
+    floorLabel: params.getAll("floorLabel"),
+    amenities: params.getAll("amenities"),
   };
 };
 
@@ -312,7 +315,6 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
             )}
           </div>
 
-          {/* Property List */}
           {/* Property List */}
 <div className="property-list list">
   {isLoading ? (

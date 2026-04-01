@@ -20,7 +20,7 @@ root.render(
       }}
     >
     <App />
-    </SnackbarProvider>
+    </SnackbarProvider> //CHECK THIS 
   </React.StrictMode>
 );
 

@@ -26,7 +26,7 @@ const searchProperties = asyncHandler(async (req, res) => {
   if (foundType) filters.propertyType = new RegExp(foundType, 'i');
 
   // --- Furnishing Detection ---
-  const furnishingKeywords = ['Furnished', 'Semi-Furnished', 'Unfurnished', 'Fully Furnished'];
+  const furnishingKeywords = ['Furnished', 'Semi Furnished', 'Unfurnished', 'Fully Furnished'];
   const foundFurnishing = furnishingKeywords.find(f => q.includes(f.toLowerCase()));
   if (foundFurnishing) filters.furnishing = { $in: [new RegExp(foundFurnishing, 'i')] };
 
