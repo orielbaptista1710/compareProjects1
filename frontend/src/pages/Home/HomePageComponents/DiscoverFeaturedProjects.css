@@ -1,346 +1,588 @@
-/* =========================
-   DISCOVER FEATURED PROJECTS
-   Standardized Dimensions
-========================= */
+/* ================================================
+   DISCOVER FEATURED PROJECTS — Production Grade
+   Aesthetic: Luxury Real Estate / Editorial Dark
+   Font stack: Cormorant Garamond (headings) + DM Sans (body)
+================================================ */
 
-.discover-projects {
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ── CSS Custom Properties ── */
+.dfp-section {
+  --dfp-dark:       #0d1117;
+  --dfp-panel:      #13191f;
+  --dfp-border:     rgba(255, 255, 255, 0.07);
+  --dfp-gold:       #c9a84c;
+  --dfp-gold-light: #e8c97a;
+  --dfp-text:       #e8e4dc;
+  --dfp-muted:      rgba(232, 228, 220, 0.55);
+  --dfp-glass-bg:   rgba(8, 12, 18, 0.72);
+  --dfp-radius:     18px;
+  --dfp-transition: 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Layout */
   display: grid;
-  grid-template-columns: 0.5fr 2fr;
-  gap: 24px;
-  padding: 50px 60px;
+  grid-template-columns: 0.48fr 2fr;
+  gap: 28px;
+  padding: 64px 64px;
   max-width: 1500px;
   margin: 0 auto;
+  font-family: 'DM Sans', sans-serif;
 }
 
-/* Info Card */
-.discover-info {
-  background: #111827;
-  color: #ffffff;
-  border-radius: 16px;
-  padding: 28px;
+/* ════════════════════════════
+   INFO PANEL
+════════════════════════════ */
+.dfp-info {
+  background: var(--dfp-dark);
+  border-radius: var(--dfp-radius);
+  border: 1px solid var(--dfp-border);
+  overflow: hidden;
+  position: relative;
+  /* Subtle decorative corner accent */
+}
+
+.dfp-info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--dfp-gold) 0%, transparent 100%);
+}
+
+.dfp-info::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  right: -80px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(201, 168, 76, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.dfp-info-inner {
+  padding: 36px 32px 40px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: 240px;
+  height: 100%;
+  min-height: 360px;
+  position: relative;
+  z-index: 1;
 }
 
-.discover-info h2 {
-  font-weight: 700;
-  line-height: 1.3;
-  margin: 0 0 12px 0;
-  letter-spacing: -0.02em;
+/* Eyebrow */
+.dfp-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  color: var(--dfp-gold);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
-.city-pill {
-  color: #fbbf24;
-  font-weight: 700;
+.dfp-eyebrow-line {
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--dfp-gold);
+  opacity: 0.8;
 }
 
-.discover-info p {
-  font-size: 14px;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0;
+/* Heading */
+.dfp-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 2vw, 38px);
+  font-weight: 600;
+  line-height: 1.18;
+  color: var(--dfp-text);
+  letter-spacing: -0.01em;
+  margin: 0 0 20px;
+}
+
+.dfp-heading em {
+  font-style: italic;
+  color: var(--dfp-gold-light);
+}
+
+/* Sub-text */
+.dfp-subtext {
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--dfp-muted);
+  margin: 0 0 32px;
+  font-weight: 300;
   flex-grow: 1;
 }
 
-.discover-btn {
-  margin-top: 20px;
-  background: #ffffff;
-  color: #111827;
-  padding: 11px 20px;
+/* Stats row */
+.dfp-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 36px;
+  padding: 20px 0;
+  border-top: 1px solid var(--dfp-border);
+  border-bottom: 1px solid var(--dfp-border);
+}
+
+.dfp-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  text-align: center;
+}
+
+.dfp-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--dfp-gold-light);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.dfp-stat-label {
+  font-size: 10px;
+  color: var(--dfp-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 400;
+}
+
+.dfp-stat-divider {
+  width: 1px;
+  height: 32px;
+  background: var(--dfp-border);
+  flex-shrink: 0;
+}
+
+/* CTA Button */
+.dfp-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--dfp-text);
+  border: 1px solid rgba(201, 168, 76, 0.45);
+  padding: 13px 22px;
   border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
   font-size: 13px;
-  font-weight: 600;
-  border: none;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   cursor: pointer;
-  min-height: 42px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background var(--dfp-transition),
+              border-color var(--dfp-transition),
+              color var(--dfp-transition),
+              transform 0.2s ease;
+  align-self: flex-start;
 }
 
-.discover-btn:hover {
+.dfp-cta:hover {
+  background: var(--dfp-gold);
+  border-color: var(--dfp-gold);
+  color: #0d1117;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
-.discover-btn:active {
+.dfp-cta:active {
   transform: translateY(0);
-  box-shadow: none;
 }
 
-.discover-btn:focus-visible {
-  outline: 2px solid #ffffff;
-  outline-offset: 2px;
-}
-
-/* Cards Grid */
-.discover-cards {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 20px;
-}
-
-/* Project Card */
-.project-card-discover-feature {
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-  min-height: 210px;
-  cursor: pointer;
-  /* Isolate stacking context so blur doesn't bleed */
-  isolation: isolate;
-  transition: box-shadow 0.35s ease, transform 0.35s ease;
-}
-
-.project-card-discover-feature.large {
-  min-height: 230px;
-}
-
-.project-card-discover-feature:focus-visible {
-  outline: 2px solid #fbbf24;
+.dfp-cta:focus-visible {
+  outline: 2px solid var(--dfp-gold);
   outline-offset: 3px;
 }
 
-/* Image */
-.project-card-discover-feature img {
+/* ════════════════════════════
+   CARDS GRID
+════════════════════════════ */
+.dfp-cards {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 20px;
+}
+
+/* ── Single Card ── */
+.dfp-card {
+  position: relative;
+  border-radius: var(--dfp-radius);
+  overflow: hidden;
+  min-height: 340px;
+  cursor: pointer;
+  isolation: isolate;
+  border: 1px solid var(--dfp-border);
+  transition: transform var(--dfp-transition),
+              box-shadow var(--dfp-transition),
+              border-color var(--dfp-transition);
+}
+
+.dfp-card--large {
+  min-height: 380px;
+}
+
+.dfp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  border-color: rgba(201, 168, 76, 0.25);
+}
+
+.dfp-card:focus-visible {
+  outline: 2px solid var(--dfp-gold);
+  outline-offset: 3px;
+}
+
+/* ── Image ── */
+.dfp-card-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  /* Prevent image from covering the glance panel */
-  position: relative;
   z-index: 0;
+  transition: transform 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              filter 0.42s ease;
 }
 
-.project-card-discover-feature:hover img {
-  transform: scale(1.05);
+.dfp-card:hover .dfp-card-img {
+  transform: scale(1.06);
+  filter: brightness(0.75);
 }
 
-/* Overlay */
-.project-overlay {
+/* ── RERA Badge ── */
+.dfp-card-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 3;
+  background: rgba(10, 14, 20, 0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(201, 168, 76, 0.4);
+  color: var(--dfp-gold-light);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 999px;
+  transition: opacity var(--dfp-transition);
+}
+
+.dfp-card:hover .dfp-card-badge {
+  opacity: 0;
+}
+
+/* ── Overlay (always visible, fades on hover) ── */
+.dfp-card-overlay {
   position: absolute;
   inset: 0;
-  padding: 20px;
+  z-index: 1;
+  padding: 24px 22px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.08) 60%, transparent 100%);
-  z-index: 1;
-  /* Fade out overlay text when glance panel opens */
-  transition: opacity 0.35s ease;
+  background: linear-gradient(
+    to top,
+    rgba(5, 8, 14, 0.88) 0%,
+    rgba(5, 8, 14, 0.4) 45%,
+    transparent 100%
+  );
+  transition: opacity var(--dfp-transition);
 }
 
-.project-card-discover-feature:hover .project-overlay {
-  opacity: 0.35;
+.dfp-card:hover .dfp-card-overlay {
+  opacity: 0.15;
 }
 
-.project-tag {
-  background: rgba(255, 255, 255, 0.95);
-  color: #111827;
-  font-size: 10px;
-  font-weight: 600;
+.dfp-card-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--dfp-gold-light);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 5px 10px;
-  border-radius: 999px;
-  width: fit-content;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  opacity: 0.9;
 }
 
-.project-overlay h3 {
-  font-weight: 700;
+.dfp-card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(18px, 1.6vw, 24px);
+  font-weight: 600;
   color: #ffffff;
-  margin: 4px 0;
-  line-height: 1.3;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  margin: 0 0 6px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
 }
 
-.project-overlay p {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.9);
+.dfp-card-price {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
   margin: 0;
-  line-height: 1.5;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  font-weight: 400;
 }
 
-/* ─── Hover Glance Panel (frosted glass) ─── */
-.property-glance {
+/* ════════════════════════════
+   GLANCE PANEL (hover state)
+════════════════════════════ */
+.dfp-glance {
   position: absolute;
   top: 0;
   right: 0;
   height: 100%;
-  width: 55%;
+  width: 58%;
   z-index: 2;
 
-  /* Frosted glass look */
-  background: rgba(10, 15, 25, 0.55);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  background: var(--dfp-glass-bg);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-left: 1px solid rgba(201, 168, 76, 0.14);
 
-  /* Soft left edge */
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 22px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 
-  padding: 18px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  align-content: center;
-
-  /* Slide in from right */
+  /* Hidden by default — slide from right */
   transform: translateX(100%);
   opacity: 0;
-  transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.30s ease;
+  transition: transform var(--dfp-transition),
+              opacity 0.32s ease;
 }
 
-.project-card-discover-feature:hover .property-glance {
+.dfp-glance--active {
   transform: translateX(0);
   opacity: 1;
 }
 
-.glance-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+/* Glance header */
+.dfp-glance-header {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--dfp-border);
 }
 
-.glance-item:last-child {
-  border-bottom: none;
+.dfp-glance-title {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--dfp-text);
+  line-height: 1.25;
+  margin-bottom: 4px;
 }
 
-.glance-label {
-  font-size: 10px;
-  color: #94a3b8;
+.dfp-glance-sub {
+  font-size: 10.5px;
+  color: var(--dfp-gold);
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
   font-weight: 500;
 }
 
-.glance-value {
+/* Stats grid (2-column) */
+.dfp-glance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  flex: 1;
+}
+
+.dfp-glance-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--dfp-border);
+}
+
+.dfp-glance-item:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+
+.dfp-glance-label {
+  font-size: 9.5px;
+  color: var(--dfp-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.dfp-glance-value {
   font-size: 12.5px;
-  font-weight: 600;
-  color: #f1f5f9;
+  font-weight: 500;
+  color: var(--dfp-text);
   line-height: 1.3;
 }
 
-/* ─── Responsive ─── */
+/* Description excerpt */
+.dfp-glance-desc {
+  font-size: 12px;
+  color: var(--dfp-muted);
+  line-height: 1.6;
+  margin: 12px 0 14px;
+  font-weight: 300;
+  font-style: italic;
+  border-top: 1px solid var(--dfp-border);
+  padding-top: 12px;
+}
+
+/* Glance CTA */
+.dfp-glance-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--dfp-gold);
+  color: #0d1117;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+  margin-top: auto;
+}
+
+.dfp-glance-cta:hover {
+  background: var(--dfp-gold-light);
+  transform: translateY(-1px);
+}
+
+.dfp-glance-cta:active {
+  transform: translateY(0);
+}
+
+/* ════════════════════════════
+   RESPONSIVE
+════════════════════════════ */
 @media (max-width: 1200px) {
-  .discover-projects {
-    grid-template-columns: 0.65fr 2fr;
-    padding: 44px 48px;
+  .dfp-section {
+    grid-template-columns: 0.6fr 2fr;
+    padding: 56px 48px;
   }
 }
 
 @media (max-width: 1024px) {
-  .discover-projects {
+  .dfp-section {
     grid-template-columns: 1fr;
-    padding: 40px;
+    padding: 48px 40px;
   }
 
-  .discover-cards {
-    grid-template-columns: 1fr 1fr;
+  .dfp-info-inner {
+    min-height: unset;
   }
 
-  /* On tablet: glance slides up from bottom */
-  .property-glance {
+  .dfp-stats {
+    max-width: 360px;
+  }
+
+  /* Tablet: glance slides up */
+  .dfp-glance {
     width: 100%;
     height: auto;
-    max-height: 65%;
+    max-height: 60%;
     top: auto;
     bottom: 0;
     right: 0;
     border-left: none;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(201, 168, 76, 0.14);
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     transform: translateY(100%);
-    opacity: 0;
-    transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.30s ease;
   }
 
-  .project-card-discover-feature:hover .property-glance {
+  .dfp-glance--active {
     transform: translateY(0);
-    opacity: 1;
   }
 
-  /* Restore overlay opacity on tablet (glance is bottom, not side) */
-  .project-card-discover-feature:hover .project-overlay {
+  .dfp-glance-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .dfp-card:hover .dfp-card-overlay {
     opacity: 1;
   }
 }
 
 @media (max-width: 768px) {
-  .discover-projects {
-    padding: 36px 24px;
+  .dfp-section {
+    padding: 40px 24px;
     gap: 20px;
   }
 
-  .discover-cards {
+  .dfp-cards {
     grid-template-columns: 1fr;
   }
 
-  .project-card-discover-feature,
-  .project-card-discover-feature.large {
-    min-height: 240px;
+  .dfp-card,
+  .dfp-card--large {
+    min-height: 280px;
   }
 
-  .discover-info h2 {
-    font-size: 20px;
-  }
-
-  .discover-info p {
-    font-size: 13px;
+  .dfp-glance-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 480px) {
-  .discover-projects {
-    padding: 28px 16px;
+  .dfp-section {
+    padding: 32px 16px;
     gap: 16px;
   }
 
-  .discover-info {
-    padding: 22px;
-    min-height: 200px;
+  .dfp-info-inner {
+    padding: 28px 24px 32px;
   }
 
-  .discover-info h2 {
-    font-size: 16px;
+  .dfp-heading {
+    font-size: 28px;
   }
 
-  .discover-info p {
-    font-size: 12px;
+  .dfp-glance {
+    padding: 16px;
   }
 
-  .property-glance {
-    padding: 14px;
-    gap: 8px;
-  }
-
-  .glance-value {
-    font-size: 12px;
+  .dfp-glance-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
-/* ─── Accessibility ─── */
+/* ════════════════════════════
+   ACCESSIBILITY
+════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
-  .project-card-discover-feature,
-  .project-card-discover-feature img,
-  .property-glance,
-  .project-overlay,
-  .discover-btn {
+  .dfp-card,
+  .dfp-card-img,
+  .dfp-glance,
+  .dfp-card-overlay,
+  .dfp-cta,
+  .dfp-glance-cta {
     transition: none !important;
   }
 }
 
 @media print {
-  .discover-projects {
+  .dfp-section {
     grid-template-columns: 1fr;
   }
-
-  .property-glance,
-  .discover-btn {
+  .dfp-glance,
+  .dfp-cta,
+  .dfp-glance-cta {
     display: none;
   }
 }

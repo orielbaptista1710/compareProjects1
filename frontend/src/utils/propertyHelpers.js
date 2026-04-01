@@ -14,7 +14,7 @@ export const getPropertyImage = (property) => {
     property.galleryImages?.[0]?.url ||
     fallbackImg
   );
-};
+}; 
 
 // Location HELPER
 export const getPropertyLocation = (property) => {

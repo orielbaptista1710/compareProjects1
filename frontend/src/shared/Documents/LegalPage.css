@@ -1,0 +1,203 @@
+/* LegalPage.css — shared by PrivacyPolicy.js and Terms.js */
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+.legal-hero {
+  position: relative;
+  height: 340px;
+  padding-top: 90px;
+  background: linear-gradient(135deg, #2d0353 0%, #3b0f70 60%, #1a0230 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Subtle mesh texture overlay */
+.legal-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(157, 78, 221, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(110, 47, 213, 0.2) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.legal-hero-content {
+  position: relative;
+  text-align: center;
+  color: #fff;
+  padding: 0 30px;
+}
+
+.legal-hero-content h1 {
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+}
+
+.legal-hero-content p {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+}
+
+/* ── Body layout ─────────────────────────────────────────────────────────── */
+.legal-body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  align-items: start;
+}
+
+/* ── Sticky sidebar TOC ──────────────────────────────────────────────────── */
+.legal-toc {
+  position: sticky;
+  top: 160px;
+  padding-right: 32px;
+}
+
+.legal-toc h4 {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #6b7280;
+  margin: 0 0 14px;
+}
+
+.legal-toc nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toc-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: #6b7280;
+  padding: 7px 12px;
+  border-radius: 8px;
+  transition: background 0.18s ease, color 0.18s ease;
+  line-height: 1.4;
+}
+
+.toc-item:hover {
+  background: #f3f0fc;
+  color: #3b0f70;
+}
+
+.toc-item--active {
+  background: #6e2fd5;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ── Main content ────────────────────────────────────────────────────────── */
+.legal-content {
+  min-width: 0;
+}
+
+.legal-section {
+  margin-bottom: 52px;
+  /* 70px header + 16px gap so section headings aren't hidden under the header on scroll */
+  scroll-margin-top: 86px;
+}
+
+.legal-section h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0eafa;
+}
+
+.legal-section p {
+  font-size: 15px;
+  color: #4b5563;
+  line-height: 1.8;
+  margin: 0 0 14px;
+}
+
+.legal-section a {
+  color: #6e2fd5;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-section a:hover {
+  color: #4c1d95;
+}
+
+.legal-section ol,
+.legal-section ul {
+  margin: 10px 0 14px;
+  padding-left: 22px;
+}
+
+.legal-section ol li,
+.legal-section ul li {
+  font-size: 15px;
+  color: #4b5563;
+  line-height: 1.75;
+  margin-bottom: 8px;
+}
+
+.legal-section li > ul {
+  margin: 8px 0 4px;
+}
+
+.legal-section li > ul li {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.legal-section strong {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .legal-hero {
+    height: auto;
+    min-height: 200px;
+    /* Same 70px header offset on mobile */
+    padding-top: 70px;
+    padding-bottom: 32px;
+  }
+
+  .legal-hero-content h1 {
+    font-size: 28px;
+  }
+
+  .legal-body {
+    grid-template-columns: 1fr;
+    padding: 28px 16px 60px;
+  }
+
+  .legal-toc {
+    position: static;
+    padding-right: 0;
+    padding: 16px;
+    margin-bottom: 32px;
+    background: #f9f5ff;
+    border-radius: 12px;
+  }
+
+  /* Scroll margin still needed on mobile for anchor links */
+  .legal-section {
+    scroll-margin-top: 86px;
+  }
+}

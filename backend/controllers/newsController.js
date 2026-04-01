@@ -1,3 +1,4 @@
+//controllers/newsController.js
 import axios from "axios";
 import NodeCache from "node-cache";
 
@@ -21,7 +22,7 @@ export const getRealEstateNews = async (req, res) => {
         q: "real estate india OR housing india OR property market india",
         lang: "en",
         country: "in",
-        max: 15,
+        max: 10,
         apikey: process.env.NEWS_API_KEY,
       },
     });

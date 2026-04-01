@@ -1,0 +1,277 @@
+/* ─── Buying Guide Section ─────────────────────────────────────────────────── */
+.buying-guide-section {
+  padding: 40px 0 100px;
+  background: #f9fafb;
+}
+
+.guide-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+  margin-top: 40px;
+}
+
+/* ─── Step Card — matches the image exactly ────────────────────────────────── */
+.guide-step-card {
+  background: #ffffff;
+  border-radius: 14px;
+  /* Light grey border as seen in the image */
+  border: 1.5px solid #e8e8f0;
+  /* Reserve left accent space — avoids layout shift on open */
+  border-left: 3px solid transparent;
+  padding: 28px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  transition: border-left-color 0.2s ease,
+              box-shadow 0.25s ease,
+              transform 0.2s ease;
+}
+
+.guide-step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+
+
+/* ─── "STEP 1" — purple, bold, uppercase, tracked, matches image ───────────── */
+.step-number {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6e2fd5;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+/* ─── Title — large, bold, dark, matches image ─────────────────────────────── */
+.step-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 12px;
+  line-height: 1.3;
+}
+
+/* ─── Description — mid-gray, matches image ────────────────────────────────── */
+.step-card-desc {
+  font-size: 14.5px;
+  color: #6b7280;
+  line-height: 1.65;
+  margin: 0;
+  flex: 1;
+}
+
+/* ─── Expandable detail panel ──────────────────────────────────────────────── */
+.step-detail {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  margin-top: 0;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.28s ease,
+              margin-top 0.2s ease;
+}
+
+.step-detail--visible {
+  max-height: 380px;
+  opacity: 1;
+  margin-top: 16px;
+}
+
+.step-detail-inner {
+  border-top: 1px solid #f0eafa;
+  padding-top: 16px;
+}
+
+.step-detail-inner p {
+  font-size: 13.5px;
+  color: #4b5563;
+  line-height: 1.7;
+  margin: 0 0 10px;
+}
+
+.step-detail-inner ul {
+  margin: 4px 0 10px;
+  padding-left: 18px;
+}
+
+.step-detail-inner li {
+  font-size: 13.5px;
+  color: #4b5563;
+  line-height: 1.7;
+  margin-bottom: 4px;
+  list-style-type: disc;
+}
+
+/* ─── "Learn More →" — amber/gold, bold, matches image exactly ─────────────── */
+.step-learn-more {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #f59e0b;
+  transition: color 0.2s ease, letter-spacing 0.2s ease;
+}
+
+.guide-step-card:hover .step-learn-more {
+  color: #d97706;
+  letter-spacing: 0.2px;
+}
+
+.guide-step-card--open .step-learn-more {
+  color: #d97706;
+}
+
+/* ─── Download strip ───────────────────────────────────────────────────────── */
+.guide-download-strip {
+  margin-top: 36px;
+  background: white;
+  border: 1.5px solid #e8e8f0;
+  border-radius: 14px;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.guide-download-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  background: #ede9fb;
+  border: 1px solid #c4b5f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #7c3aed;
+}
+
+.guide-download-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.guide-download-text {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.guide-download-text strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.guide-download-text span {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.guide-download-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.dl-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f5f5f5;
+  border: 1px solid #e8e8f0;
+  border-radius: 20px;
+  padding: 3px 10px;
+  letter-spacing: 0.2px;
+}
+
+.guide-download-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+
+.dl-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.dl-btn-primary {
+  background: #6e2fd5;
+  color: #ffffff;
+}
+
+.dl-btn-primary:hover {
+  background: #5b21b6;
+  transform: translateY(-1px);
+}
+
+.dl-btn-primary:active {
+  transform: translateY(0);
+}
+
+.dl-btn-secondary {
+  background: white;
+  color: #374151;
+  border: 1.5px solid #e5e7eb;
+}
+
+.dl-btn-secondary:hover {
+  background: #f9fafb;
+  transform: translateY(-1px);
+}
+
+/* ─── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .guide-steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .guide-steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-download-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .guide-download-actions {
+    width: 100%;
+  }
+
+  .dl-btn {
+    flex: 1;
+    justify-content: center;
+  }
+}

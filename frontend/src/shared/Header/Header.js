@@ -11,17 +11,17 @@ import CitySelector from "./Headercomponents/CitySelector";
 
 import { useHeaderMenu } from "../Header/hooks/useHeaderMenu";
 import { useHeaderScroll } from "./hooks/useHeaderScroll";
-import { useHeaderResize } from "./hooks/useHeaderResize";
+// import { useHeaderResize } from "./hooks/useHeaderResize";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
 
 const DeveloperPopup = lazy(() =>import("../Popups/DeveloperPopup"));
 
 
-function Header() {
+function Header() { 
   const { isMenuOpen, toggleMenu, closeMenu, setIsMenuOpen } = useHeaderMenu();
   const { currentUser, loading, logout } = useContext(AuthContext);
   const [showDeveloperPopup, setShowDeveloperPopup] = useState(false);
-  const windowWidth = useHeaderResize(1199, closeMenu);
+  // const windowWidth = useHeaderResize(1199, closeMenu);
   const isScrolled = useHeaderScroll();
   const navigate = useNavigate();
   const location = useLocation();

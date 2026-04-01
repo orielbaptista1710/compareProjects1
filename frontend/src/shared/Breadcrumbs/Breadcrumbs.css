@@ -1,0 +1,63 @@
+:root {
+  --header-height: 70px;
+  --nav-height: 60px;
+
+  /* --primary-color: #D90429; */
+  --text-muted: #6b7280;
+  --text-dark: #111827;
+  --border-color: #e5e7eb;
+}
+
+/* Base */
+.breadcrumbs {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+
+  padding: 10px 24px;
+  font-size: 13.5px;
+
+  background: linear-gradient(to right, #ffffff, #fafafa);
+  border-bottom: 1px solid var(--border-color);
+
+  color: var(--text-muted);
+
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ✅ WHEN NAVBAR EXISTS */
+.breadcrumbs.with-nav {
+  margin-top: calc(var(--header-height) + var(--nav-height));
+}
+
+/* ✅ WHEN NAVBAR IS HIDDEN */
+.breadcrumbs.no-nav {
+  margin-top: var(--header-height);
+}
+
+/* Links */
+.breadcrumbs a {
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.breadcrumbs a:hover {
+  color: #a1031f;
+  text-decoration: underline;
+}
+
+/* Active */
+.breadcrumbs .active {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* Separator spacing */
+.breadcrumbs span {
+  margin: 0 4px;
+}
+

@@ -122,7 +122,11 @@ geo: {
   reraNumber: { type: String , required: false },
   reraDate: { type: Date }, //reraDate of Completion
   reraQR: {type: String },
-  possessionStatus: { type: String },//possessionStatus of the property depends on reraDate- classify into Immediate n UnderConstruction
+  possessionStatus: { 
+    type: String,
+    enum: ["Ready to Move", "Under Construction"],
+   },
+  //possessionStatus of the property depends on reraDate- classify into Immediate n UnderConstruction
   //ADD ENUM TO THIS ONCE RERA IS SETTLED
 
 
@@ -147,7 +151,7 @@ geo: {
 
   furnishing: { 
     type: String,
-    enum: ['Furnished', 'Semi-Furnished', 'Unfurnished', 'Fully Furnished'] 
+    enum: ['Furnished', 'Semi Furnished', 'Unfurnished', 'Fully Furnished'] 
   },
 
   bhk: { type: Number, min: 0 },
@@ -164,7 +168,11 @@ geo: {
   // what do i do about this 
   totalFloors: { type: Number }, //the total no of floors in the building
   floor: { type: Number  },//the floor on which the unit is located
-  floorLabel: { type: String },//new field added u can add eg:  High Rise / Mid Rise / Low Floor dependent on floor n totalFloors
+  floorLabel: { 
+    type: String,
+    enum: ["Low Floor", "Mid Floor", "High Floor"]
+   },
+  //new field added u can add eg:  High Rise / Mid Rise / Low Floor dependent on floor n totalFloors
 
 
   wing: { type: String  },// the wing of the building where the unit is located eg: G / B1 / 12

@@ -73,19 +73,19 @@ app.use('/api/news', newsRoutes);
 // });
 
 
-app.get("/test-log", (req, res) => {
+// app.get("/test-log", (req, res) => {
 
-  logger.info("Test log triggered", {
-    requestId: req.requestId
-  });
+//   logger.info("Test log triggered", {
+//     requestId: req.requestId
+//   });
 
-  res.json({ message: "log created" });
+//   res.json({ message: "log created" });
 
-});
+// });
 
-app.get('/', (req, res) => {
-  res.json({ message: "API is running 🚀" });
-});
+// app.get('/', (req, res) => {
+//   res.json({ message: "API is running 🚀" });
+// });
 
 
 app.use(errorHandler);

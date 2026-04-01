@@ -181,7 +181,7 @@ export default function SupportHelp() {
       {/* --------------------- HERO SECTION --------------------- */}
       <section className="support-hero">
         <div className="support-hero-content">
-          <p className="hero-path">Home <span>/</span> Support & Help</p>
+          {/* <p className="hero-path">Home <span>/</span> Support & Help</p> */}
           <h1>Support & Help Center</h1>
           <p className="hero-sub">
             Find answers, explore documentation, and get assistance anytime.

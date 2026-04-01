@@ -6,16 +6,17 @@ import {
   // DollarSign,
   Home,
   Building2,
+  BedDouble,
   Layers,
-  Compass,
+  Compass, 
   Car,
   MapPin,
-  // Clock,
-  // CheckCircle,
+  Clock,
 } from "lucide-react";
 
 import FilterSection from "./FilterSection";
 import CheckboxGroup from "./CheckboxGroup";
+import BoxcheckGroup from "./BoxcheckGroup";
 // import BudgetFilter from "./BudgetFilter";
 import LocalityFilter from "./LocalityFilter";
 import { useCity } from "../../../../contexts/CityContext";
@@ -94,7 +95,7 @@ const FilterPanel = ({
       </FilterSection>
 
       {/* Furnishing */}
-      <FilterSection title="Furnishing" icon={Layers} initiallyOpen={false}>
+      <FilterSection title="Furnishing" icon={BedDouble} initiallyOpen={false}>
         <CheckboxGroup
           options={filterOptions.furnishingOptions || []}
           value={filters.furnishing}
@@ -120,6 +121,38 @@ const FilterPanel = ({
           onChange={(value) => onFilterChange("parkings", value)}
         />
       </FilterSection>
+
+      {/* Possession Status */}
+      <FilterSection title="PossessionStatus" icon={Clock} initiallyOpen={false}>
+        <CheckboxGroup
+          options={filterOptions.possessionStatusOptions || []}
+          value={filters.possessionStatus}
+          onChange={(value) => onFilterChange("possessionStatus", value)}
+        />
+      </FilterSection>
+
+      {/* FloorLabel */}
+      <FilterSection title="FloorLabel" icon={Layers} initiallyOpen={false}>
+        <CheckboxGroup
+          options={filterOptions.floorLabelOptions || []}
+          value={filters.floorLabel ?? []}
+          onChange={(value) => onFilterChange("floorLabel", value)}
+        />
+      </FilterSection>
+
+      {/* Ameneites, Facity n Security Filter */}
+      <FilterSection title="Amenities & Security" icon={Layers} initiallyOpen={false}>
+        <BoxcheckGroup
+          options={filterOptions.amenitiesOptions || []}
+          value={filters.amenities ?? []}
+          onChange={(value) => onFilterChange("amenities", value)}
+        />
+        </FilterSection>
+
+      {/* Aera Filter */}
+
+      
+
        </div>
     </aside>
   );

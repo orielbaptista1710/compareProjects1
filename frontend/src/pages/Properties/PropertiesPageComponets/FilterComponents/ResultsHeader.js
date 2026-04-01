@@ -24,6 +24,10 @@ const ResultsHeader = ({
       parts.push(filters.propertyType.join(", "));
     if (filters.bhk?.length) parts.push(`${filters.bhk.join(", ")} BHK`);
     if (filters.furnishing?.length) parts.push(filters.furnishing.join(", "));
+    if (filters.facing?.length) parts.push(filters.facing.join(", "));
+    if (filters.parkings?.length) parts.push(filters.parkings.join(", "));
+    if (filters.possessionStatus?.length)parts.push(filters.possessionStatus.join(", "));
+    if (filters.floorLabel?.length) parts.push(filters.floorLabel.join(", "));
     return parts.length
       ? `Filtered by: ${parts.join(" · ")}`
       : "Explore our curated selection of premium properties";
