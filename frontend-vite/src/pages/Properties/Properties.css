@@ -1,0 +1,758 @@
+/* ========================
+   Global Page Layout
+======================== */
+.properties-page {
+  height: 100vh;
+  overflow: hidden;
+  background: #f8f9fa;
+  color: #2d3748;
+}
+
+/* ========================
+   Main Content
+======================== */
+.main-content-container {
+  display: flex;
+  height: calc(109vh - 73px);
+  gap: 1.5rem;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 1rem;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ========================
+   Filters column — desktop sticky sidebar
+======================== */
+.filters-column {
+  width: 300px;
+  min-width: 300px;
+  flex-shrink: 0;
+  max-height: calc(100vh - 90px);
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* These only activate inside responsive breakpoints — hidden on desktop */
+.filter-drawer-header { display: none; }
+.overlay-backdrop     { display: none; }
+.mobile-filter-bar    { display: none; }
+.contact-sheet        { display: none; }
+
+/* ========================
+   Property list container
+======================== */
+.property-list-container {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* ========================
+   Results Section
+======================== */
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.results-info h2 {
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.results-info p {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.results-controls {
+  display: flex;
+  align-items: center;
+}
+
+.sort-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-dropdown label {
+  font-size: 0.9rem;
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+.sort-dropdown select {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+  appearance: none;
+  background: #fff;
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.sort-dropdown select:focus {
+  outline: none;
+  border-color: #9417E2;
+  box-shadow: 0 0 0 3px rgba(148, 23, 226, 0.1);
+}
+
+.sort-dropdown .dropdown-arrow {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.results-count    { font-variant-numeric: tabular-nums; }
+.results-location { color: #9417E2; }
+
+.results-subtitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.results-range   { font-weight: 500; color: #374151; }
+.results-divider { color: #d1d5db; }
+.results-context { color: #6b7280; font-style: italic; }
+
+.results-fetching-spinner {
+  display: inline-block;
+  margin-left: 0.5rem;
+  color: #9417E2;
+  animation: spin 1s linear infinite;
+  vertical-align: middle;
+}
+
+/* ========================
+   Active Filters
+======================== */
+.active-filters-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.active-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  border-radius: 20px;
+  background: #f5e9ff;
+  border: 1px solid #e9d5ff;
+  color: #9417E2;
+}
+
+.active-filter button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: inherit;
+}
+
+.clear-all-filters {
+  background: none;
+  border: none;
+  color: #d90429;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.clear-all-filters:hover { background: #fff5f5; }
+
+/* ========================
+   Property List
+======================== */
+.property-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ========================
+   Compare Toast
+======================== */
+.compare-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.2rem;
+  background: #fff;
+  border-radius: 8px;
+  border-left: 4px solid #9417E2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideUp 0.3s ease;
+}
+
+.toast-progress {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 3px; width: 100%;
+  background: #e5e7eb;
+}
+.toast-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #9417E2;
+  animation: progressBar 3s linear forwards;
+}
+
+/* ========================
+   Contact Form & Side View Container
+======================== */
+.contact-and-sideview {
+  width: 380px;
+  min-width: 380px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+.contact-and-sideview::-webkit-scrollbar { width: 6px; }
+.contact-and-sideview::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+
+/* ========================
+   Project Side View
+======================== */
+.sideProjectsView {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: fit-content;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+/* ========================
+   Smart Contact Form Styles
+======================== */
+.smart-contact-form { padding: 0.5rem 0; }
+.form-group { margin-bottom: 1.25rem; }
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #9417E2;
+  box-shadow: 0 0 0 3px rgba(148, 23, 226, 0.1);
+  background: #fff;
+}
+.form-submit-btn {
+  background: #9417E2;
+  color: white;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.form-submit-btn:hover {
+  background: #7e14c0;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(148, 23, 226, 0.25);
+}
+.form-submit-btn:active { transform: translateY(0); }
+
+.contact-form-content ::-webkit-scrollbar { width: 6px; }
+.contact-form-content ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
+.contact-form-content ::-webkit-scrollbar-thumb { background: #d8b4fe; border-radius: 3px; }
+.contact-form-content ::-webkit-scrollbar-thumb:hover { background: #c084fc; }
+
+.form-success { text-align: center; padding: 2rem 1rem; color: #059669; }
+.form-success-icon { font-size: 3rem; margin-bottom: 1rem; color: #10b981; }
+
+/* ========================
+   States
+======================== */
+.loading { text-align: center; padding: 3rem; color: #9417E2; }
+.loading-spinner {
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #9417E2;
+  border-radius: 50%;
+  width: 32px; height: 32px;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 1rem;
+}
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+.empty-state h3 { color: #374151; margin: 0 0 0.5rem 0; }
+.empty-state p  { color: #6b7280; margin: 0 0 1.5rem 0; }
+.reset-filters-btn {
+  background: #9417E2;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
+.reset-filters-btn:hover { background: #7e14c0; }
+
+/* ========================
+   Animations
+======================== */
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes progressBar {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVENESS
+
+   1400px  slim sidebars slightly
+   1200px  slim more
+   1024px  right sidebar wraps below as a row
+   1023px  TABLET: filter drawer + mobile top bar (Filters | Sort | Enquire)
+            contact form moves into a bottom sheet
+    767px  MOBILE: drawer full-width, sheet taller, larger tap targets
+═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 1400px) {
+  .filters-column       { width: 270px; min-width: 270px; }
+  .contact-and-sideview { width: 340px; min-width: 340px; }
+}
+
+@media (max-width: 1200px) {
+  .main-content-container { gap: 1rem; }
+  .filters-column         { width: 240px; min-width: 240px; }
+  .contact-and-sideview   { width: 300px; min-width: 300px; }
+}
+
+@media (max-width: 1024px) {
+  .main-content-container { flex-wrap: wrap; }
+  .filters-column         { width: 260px; min-width: 260px; }
+  .property-list-container { flex: 1; min-width: 0; }
+
+  .contact-and-sideview {
+    width: 100%;
+    min-width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    height: auto;
+    overflow-y: visible;
+  }
+  .contact-and-sideview > * { flex: 1 1 320px; }
+
+  /* ProjectViewSideBar not needed below 1024px */
+  .side-projects-view { display: none; }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   TABLET  ≤ 1023px
+   • Page becomes naturally scrolling (no fixed height)
+   • FilterPanel: left slide-in drawer (300px on tablet, full-width on mobile)
+   • Mobile top bar replaces FilterPanel sidebar:
+       [ Filters pill ]  [ Sort select — flex:1 ]  [ Enquire button ]
+   • SmartContactForm: bottom sheet slides up from the bottom (~85vh)
+   • Right sidebar hidden entirely (.contact-and-sideview display:none)
+   • Desktop ResultsHeader sort control hidden (mobile bar has its own)
+   • Active filter chips scroll horizontally (no wrap)
+───────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+
+  /* ── Page layout ── */
+  .properties-page {
+    height: auto;
+    overflow: visible;
+  }
+
+  .main-content-container {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+    padding: 0.75rem;
+    gap: 0;
+  }
+
+  /* ── Shared dimming backdrop ──
+     Sits behind the filter drawer AND the contact sheet.
+     z-index: 399 keeps it below both overlays (400 / 500).
+  ── */
+  .overlay-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 399;
+    background: rgba(0, 0, 0, 0.48);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .overlay-backdrop--visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ── Filter drawer ──
+     Slides in from the left. 300px wide on tablet (partial).
+     Full-width override applied in the ≤767px block below.
+  ── */
+  .filters-column {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 400;
+    width: 300px;
+    min-width: 300px;
+    max-height: 100vh;
+    background: #fff;
+    border-radius: 0 16px 16px 0;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .filters-column.filters-open { transform: translateX(0); }
+
+  /* Drawer close bar */
+  .filter-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+    background: #fff;
+  }
+  .filter-drawer-back {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #9417E2;
+    padding: 0;
+    line-height: 1;
+  }
+  .filter-drawer-back:hover { color: #7e14c0; }
+
+  .filter-drawer-chip-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    background: #f5e9ff;
+    color: #9417E2;
+    border: 1px solid #e9d5ff;
+  }
+
+  /* FilterPanel inside the drawer */
+  .filters-column .filter-panel {
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Mobile top bar ──
+     Row: [ Filters pill ]  [ Sort — flex:1 ]  [ Enquire pill ]
+     Sticky at top, blurred glass background.
+  ── */
+  .mobile-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(248, 249, 250, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 0.7rem 0;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  /* Filters pill */
+  .mobile-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1.5px solid #9417E2;
+    background: #fff;
+    color: #9417E2;
+    border-radius: 999px;
+    padding: 0.58rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: background 0.15s, color 0.15s;
+  }
+  .mobile-filter-btn.has-filters {
+    background: #9417E2;
+    color: #fff;
+  }
+
+  /* Active filter count badge inside Filters button */
+  .mobile-filter-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 3px;
+    border-radius: 9px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    background: rgba(255, 255, 255, 0.35);
+    color: inherit;
+  }
+  .mobile-filter-btn:not(.has-filters) .mobile-filter-count {
+    background: #9417E2;
+    color: #fff;
+  }
+
+  /* Sort select — eats all remaining horizontal space */
+  .mobile-sort-select {
+    flex: 1;
+    min-width: 0;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    padding: 0.58rem 0.75rem;
+    font-size: 0.85rem;
+    color: #374151;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .mobile-sort-select:focus {
+    outline: none;
+    border-color: #9417E2;
+    box-shadow: 0 0 0 2px rgba(148, 23, 226, 0.1);
+  }
+
+  /* Enquire pill — mirrors Filters pill, purple filled */
+  .mobile-enquire-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #9417E2;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    padding: 0.58rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: background 0.15s;
+  }
+  .mobile-enquire-btn:hover { background: #7e14c0; }
+
+  /* ── Property list ── */
+  .property-list-container {
+    width: 100%;
+    height: auto;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+
+  /* Hide desktop sort dropdown (mobile bar has its own) */
+  .results-header .results-controls { display: none; }
+  .results-header { margin-top: 0; margin-bottom: 1rem; }
+
+  /* Active filter chips: single scrollable row, no wrap */
+  .active-filters-container {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .active-filters-container::-webkit-scrollbar { display: none; }
+  .active-filter { flex-shrink: 0; }
+
+  /* ── Right sidebar hidden — SmartContactForm lives in the sheet below ── */
+  .contact-and-sideview { display: none; }
+
+  /* ════════════════════════════════════════════════════
+     CONTACT BOTTOM SHEET
+     Slides up from the bottom to cover ~85vh.
+     SmartContactForm renders inside .contact-sheet__body.
+     z-index: 500 — above backdrop (399) and drawer (400).
+  ════════════════════════════════════════════════════ */
+  .contact-sheet {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 500;
+    height: 85vh;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.14);
+    /* Offscreen by default, slides up when open */
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  .contact-sheet--open { transform: translateY(0); }
+
+  /* Visual drag handle */
+  .contact-sheet__handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: #d1d5db;
+    margin: 10px auto 0;
+    flex-shrink: 0;
+  }
+
+  /* Sheet header: title + close button */
+  .contact-sheet__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+  }
+  .contact-sheet__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #111827;
+  }
+  .contact-sheet__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #6b7280;
+    transition: background 0.15s, color 0.15s;
+  }
+  .contact-sheet__close:hover { background: #e5e7eb; color: #374151; }
+
+  /* Scrollable form area inside the sheet */
+  .contact-sheet__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.25rem 2rem;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .contact-sheet__body::-webkit-scrollbar { width: 4px; }
+  .contact-sheet__body::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   MOBILE  ≤ 767px
+   Filter drawer goes full-width (feels more native on phones).
+   Sheet height increases. Slightly larger tap targets.
+───────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+
+  .main-content-container { padding: 0.5rem; }
+
+  /* Full-width drawer — no partial peek on phones */
+  .filters-column {
+    width: 100%;
+    min-width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* Taller sheet on phones so keyboard doesn't obscure fields */
+  .contact-sheet { height: 92vh; }
+
+  /* Larger tap targets for the top bar buttons */
+  .mobile-filter-btn,
+  .mobile-enquire-btn { padding: 0.65rem 1rem; }
+
+  .results-info h2  { font-size: 1.05rem; }
+  .results-subtitle { font-size: 0.78rem; }
+  .active-filter    { font-size: 0.72rem; padding: 0.35rem 0.6rem; }
+}

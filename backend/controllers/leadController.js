@@ -1,5 +1,3 @@
-
-
 //controllers/leadController.js -- this is for the CRM for customers and developers form leads 
 //Note models/DeveloperFormLeads.js  and valdators/developerFormLeadsValidator.js are NOT created yet
 
@@ -14,11 +12,7 @@ import { developerLeadValidator } from "../validators/developerFormLeadValidator
 import { sanitizeObject } from "../utils/sanitizeInput.js";
 
 
-
-
-
 //    CUSTOMER LEAD CONTROLLER
-
 export const createCustomerLead = async (req, res, next) => {
   try {
     const parsed = customerLeadValidator.safeParse(req.body);
@@ -31,13 +25,12 @@ export const createCustomerLead = async (req, res, next) => {
       });
     }
 
-    // ✅ SANITIZE AFTER VALIDATION
+    // SANITIZE AFTER VALIDATION
     const cleanData = sanitizeObject(parsed.data);
 
     const { customerEmail, propertyId } = cleanData;
 
     //    DUPLICATE CHECK (24H)
-
     const existingLead = await CustomerLead.findOne({
       customerEmail,
       propertyId,
@@ -77,8 +70,6 @@ export const createCustomerLead = async (req, res, next) => {
 
 
 //    DEVELOPER LEAD CONTROLLER -- Developer popup n form in the dev dashboard for queries??(needs to be added)
-
-
 export const createDeveloperLead = async (req, res, next) => {
   try {
     const parsed = developerLeadValidator.safeParse(req.body);

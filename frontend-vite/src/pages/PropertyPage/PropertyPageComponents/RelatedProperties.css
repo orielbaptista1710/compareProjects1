@@ -1,0 +1,88 @@
+.rp-wrapper {
+  margin-top: 40px;
+}
+
+.rp-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.rp-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.rp-card {
+  min-width: 280px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.rp-card:hover {
+  transform: translateY(-4px);
+}
+
+.rp-image {
+  position: relative;
+}
+
+.rp-image img {
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+}
+
+.rp-date {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+.rp-body {
+  padding: 12px;
+}
+
+.rp-price {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.rp-meta {
+  font-size: 13px;
+  color: #666;
+}
+
+.rp-desc {
+  font-size: 13px;
+  margin: 8px 0;
+}
+
+.rp-btn {
+  width: 100%;
+  background: #D90429;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 22px;
+  cursor: pointer;
+}
+
+.rp-footer {
+  margin-top: 12px;
+  color: #D90429;
+  font-weight: 500;
+  cursor: pointer;
+}

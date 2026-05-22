@@ -1,0 +1,567 @@
+/* Footer.css */
+
+/* ── Base ────────────────────────────────────────────────────────────────── */
+.footer {
+  color: #e5e5e5;
+  padding: 2.5rem 3rem 0;
+  background: linear-gradient(135deg, #2d0353 0%, #3b0f70 60%, #1a0230 100%);
+  /* FIX 1: prevent any child from causing horizontal scroll */
+  overflow-x: hidden;
+}
+
+/* ── Top row: logo + tabs ────────────────────────────────────────────────── */
+.footer-top-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.footer-logo {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+
+/* nav wraps the tab buttons */
+.footer-tabs {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  /* FIX 2: constrain tabs so they don't push logo off screen */
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Tabs are <button> — reset then style */
+.footer-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0.4rem 0.6rem 6px;
+  color: #c2baff;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  /* FIX 3: prevent tab text from wrapping mid-word */
+  white-space: nowrap;
+}
+
+.footer-tab:hover { color: #ffffff; }
+
+.footer-tab.active {
+  border-bottom-color: #d896ff;
+  color: #ffffff;
+}
+
+/* FIX 4: cross-browser focus ring (covers Safari) */
+.footer-tab:focus-visible,
+.footer-tab:focus {
+  outline: 2px solid #d896ff;
+  outline-offset: 2px;
+}
+/* Hide focus ring for mouse users in browsers that support :focus-visible */
+.footer-tab:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Tab content area ────────────────────────────────────────────────────── */
+.footer-searches {
+  margin-top: 1.5rem;
+  /* FIX 5: taller min-height so content never clips on mobile */
+  min-height: 160px;
+}
+
+.footer-searches--fade {
+  animation: footerFade 0.35s ease-in-out;
+}
+
+.footer-title {
+  color: #ffffff;
+  margin: 0 0 1rem;
+  font-size: clamp(15px, 2vw, 18px);
+  font-weight: 600;
+}
+
+/* Locality / popular search list */
+.property-type-list {
+  display: grid;
+  /* FIX 6: use auto-fill with a min so it gracefully reflows at any width */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.4rem 2rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.property-type-list li { font-size: 13px; }
+
+.property-type-list li a {
+  color: #c9c0f0;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.property-type-list li a:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.property-type-list li a:focus-visible {
+  outline: 2px solid #d896ff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Skeleton loader ─────────────────────────────────────────────────────── */
+.skeleton-line {
+  display: block;
+  height: 13px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.06) 25%,
+    rgba(255,255,255,0.12) 50%,
+    rgba(255,255,255,0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s infinite;
+  width: 80%;
+}
+
+.property-type-list--skeleton li:nth-child(even) .skeleton-line { width: 65%; }
+.property-type-list--skeleton li:nth-child(3n)   .skeleton-line { width: 72%; }
+
+@keyframes skeletonShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Bottom columns ──────────────────────────────────────────────────────── */
+.footer-bottom {
+  padding: 2rem 0;
+  border-top: 1px solid rgba(157, 78, 221, 0.25);
+  margin-top: 2rem;
+}
+
+/*
+  FIX 7: You have 5 columns (About, Company, Explore, Contact, Social).
+  Using named areas is far safer than implicit grid overflow.
+  Wide: About takes 2 units, rest share remaining 3 units.
+*/
+.footer-columns {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 2rem 2.5rem;
+  align-items: start;
+}
+
+/* FIX 8: constrain About Us paragraph to readable line length */
+.footer-column:first-child span {
+  display: block;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #c0b8e8;
+  max-width: 340px;
+}
+
+.footer-column h5 {
+  color: #ffffff;
+  margin: 0 0 1rem;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-column li { margin-bottom: 0.6rem; }
+
+.footer-column a,
+.footer-column span {
+  font-size: 13px;
+  color: #c0b8e8;
+  text-decoration: none;
+  transition: color 0.2s;
+  display: inline-flex;
+}
+
+.footer-column a:hover { color: #ffffff; }
+
+.footer-column a:focus-visible {
+  outline: 2px solid #d896ff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Contact */
+.footer-contact-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.footer-contact-list svg {
+  color: #9d4edd;
+  flex-shrink: 0;
+}
+
+/* Social */
+.footer-social { flex-direction: column; }
+
+.footer-icons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.footer-icons a {
+  color: #c7c7c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(157, 78, 221, 0.2);
+  border: 1px solid rgba(157, 78, 221, 0.3);
+  transition: color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.footer-icons a:hover {
+  color: #fff;
+  background: #9d4edd;
+  transform: translateY(-2px);
+}
+
+.footer-icons a:focus-visible {
+  outline: 2px solid #d896ff;
+  outline-offset: 2px;
+}
+
+/* ── Trust badges + legal + copyright ───────────────────────────────────── */
+.footer-copy {
+  padding: 1.5rem 0 2rem;
+  border-top: 1px solid rgba(157, 78, 221, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.footer-badges {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-badges span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #b8aee0;
+  background: rgba(157, 78, 221, 0.12);
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  border: 1px solid rgba(157, 78, 221, 0.25);
+}
+
+.footer-badges span svg { color: #9d4edd; flex-shrink: 0; }
+
+.footer-legal-links {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* FIX 9: ensure enough tap target spacing on mobile */
+  row-gap: 0.5rem;
+}
+
+.footer-legal-links a {
+  font-size: 12px;
+  color: #a89fd0;
+  text-decoration: none;
+  transition: color 0.2s;
+  /* FIX 10: ensure minimum tap target height on touch devices */
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.footer-legal-links a:hover { color: #fff; }
+
+.footer-legal-links a:focus-visible {
+  outline: 2px solid #d896ff;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.footer-legal-links span {
+  color: rgba(157, 78, 221, 0.5);
+  font-size: 12px;
+  user-select: none;
+  /* hide separators when links wrap to new line */
+  line-height: 1;
+}
+
+.footer-copy p {
+  font-size: 12px;
+  color: #a89fd0;
+  margin: 0;
+}
+
+/* ── Placeholder & Error ─────────────────────────────────────────────────── */
+.tab-placeholder {
+  font-size: 14px;
+  color: #dedede;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-message {
+  font-size: 14px;
+  font-style: italic;
+  text-align: center;
+  padding: 2rem;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.08);
+  border-radius: 8px;
+}
+
+/* ── Animation ───────────────────────────────────────────────────────────── */
+@keyframes footerFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+/* FIX 11: 1400px+ — cap max readable width of locality grid */
+@media (min-width: 1400px) {
+  .property-type-list {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* 1200px — About col narrows, 4 info cols stay in a row */
+@media (max-width: 1200px) {
+  .footer-columns {
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    /* Social col drops below, spanning full width of last row */
+  }
+
+  /* Social column goes full row at the bottom */
+  .footer-social {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(157, 78, 221, 0.15);
+  }
+
+  .footer-social h5 { margin: 0; }
+  .footer-icons { margin-top: 0; }
+}
+
+/* 1024px — 2×2 info grid, social below */
+@media (max-width: 1024px) {
+  .footer { padding: 2rem 2rem 0; }
+
+  .footer-columns {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 2rem;
+  }
+
+  /* About col goes full width on its own */
+  .footer-column:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .footer-column:first-child span {
+    max-width: 100%;
+  }
+
+  .footer-social {
+    grid-column: 1 / -1;
+  }
+
+  .property-type-list {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+/* 900px — tabs start to crowd; give logo its own row */
+@media (max-width: 900px) {
+  .footer-top-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .footer-tabs {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* 768px */
+@media (max-width: 768px) {
+  .footer { padding: 2rem 1.5rem 0; }
+
+  .footer-tab {
+    font-size: 11px;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .footer-columns {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem 2rem;
+  }
+}
+
+/* 480px — single column everything */
+@media (max-width: 480px) {
+  .footer { padding: 1.5rem 1rem 0; }
+
+  .footer-tabs {
+    gap: 0.15rem;
+    /* allow tabs to scroll horizontally rather than wrap chaotically */
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    /* hide scrollbar but keep functionality */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-bottom: 4px;
+  }
+  .footer-tabs::-webkit-scrollbar { display: none; }
+
+  .footer-tab {
+    font-size: 11px;
+    padding: 0.35rem 0.45rem;
+    /* ensure tabs don't shrink below readable size */
+    flex-shrink: 0;
+  }
+
+  .property-type-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem 1rem;
+  }
+
+  .footer-columns {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem 1.5rem;
+  }
+
+  /* Company and Explore go side by side, About/Contact/Social full width */
+  .footer-column:first-child,
+  .footer-contact-list,
+  .footer-social {
+    grid-column: 1 / -1;
+  }
+
+  .footer-badges { gap: 0.5rem; }
+
+  .footer-searches { min-height: 200px; }
+
+  /* Skip animation on low-end mobile */
+  .footer-searches--fade { animation: none; }
+
+  .footer-legal-links {
+    gap: 0.4rem;
+  }
+}
+
+/* 360px — absolute smallest supported viewport */
+@media (max-width: 360px) {
+  .footer { padding: 1.25rem 0.75rem 0; }
+
+  .property-type-list {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Touch target enforcement (WCAG 2.5.5) ──────────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+  .footer-tab {
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .footer-icons a {
+    width: 44px;
+    height: 44px;
+  }
+
+  .footer-legal-links a {
+    min-height: 44px;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .footer-searches--fade { animation: none; }
+  .skeleton-line         { animation: none; }
+  .footer-icons a        { transition: none; }
+  .footer-tab            { transition: none; }
+}
+
+/* ── High contrast mode ──────────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  .footer-tab.active {
+    border-bottom-color: Highlight;
+    color: Highlight;
+  }
+
+  .footer-tab:focus-visible {
+    outline: 2px solid Highlight;
+  }
+
+  .footer-icons a {
+    border-color: ButtonText;
+  }
+}
+
+/* ── Print ───────────────────────────────────────────────────────────────── */
+@media print {
+  .footer {
+    background: #fff;
+    color: #000;
+    padding: 1rem;
+  }
+
+  .footer-tabs,
+  .footer-icons,
+  .footer-searches { display: none; }
+
+  .footer-column a  { color: #000; }
+  .footer-copy      { color: #000; }
+}

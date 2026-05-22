@@ -1,35 +1,83 @@
-//controllers/propertyController.js
+// controllers/propertyController.js
 import asyncHandler from 'express-async-handler';
-import Fuse from 'fuse.js';
+import mongoose from 'mongoose';
 import Property from '../models/Property.js';
-import {
-  RESIDENTIAL_TYPES,
-  COMMERCIAL_TYPES,
-} from '../models/propertyType.js';
-import { COMMON_AMENITIES, COMMON_SECURITY } from "../constants/amenities.js";
+import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from '../models/propertyType.js';
+import { COMMON_AMENITIES, COMMON_SECURITY } from '../constants/amenities.js';
 
-const escapeRegex = (str) => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// ─────────────────────────────────────────────
+// Constants
+// ─────────────────────────────────────────────
+
+const AREA_BOUNDS = {
+  sqft:     { min: 0, max: 10_000 },
+  sqmts:    { min: 0, max: 1_000  },
+  guntas:   { min: 0, max: 100    },
+  hectares: { min: 0, max: 50     },
+  acres:    { min: 0, max: 50     },
 };
 
-const validateSearchQuery = (search) => {
-  if (!search || typeof search !== 'string') return null;
-  
-  const trimmed = search.trim();
+const SORT_MAP = {
+  relevance:        { featured: -1, createdAt: -1 },
+  'price-low-high': { price: 1 },
+  'price-high-low': { price: -1 },
+  newest:           { createdAt: -1 },
+  oldest:           { createdAt: 1  },
+};
+
+const DEFAULT_PAGE_LIMIT = 12;
+const MAX_PAGE_LIMIT      = 100;
+const MAX_PAGE_NUMBER     = 1_000;
+const MAX_LIMIT_FEATURED  = 20;
+const MAX_LIMIT_RECENT    = 20;
+const LOCATION_RESULT_CAP = 8;
+
+// ─────────────────────────────────────────────
+// Internal helpers
+// ─────────────────────────────────────────────
+
+/** Escape special regex characters from user input */
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Validate + sanitise a free-text search string.
+ * Returns the escaped string ready for $regex, or null if invalid.
+ */
+const sanitiseSearch = (value) => {
+  if (!value || typeof value !== 'string') return null;
+  const trimmed = value.trim();
   if (trimmed.length < 2 || trimmed.length > 100) return null;
-  
   return escapeRegex(trimmed);
 };
 
-const getFilterOptions = asyncHandler(async (req, res) => {
-  /**
-   * Principles: 
-   * - Only approved properties
-   * - Backend owns numeric truth
-   * - Lightweight response
-   */
+/**
+ * Parse a query parameter that may arrive as a single string or an array
+ * (Express repeats the key for multi-value params).
+ */
+const toArray = (value) => (value == null ? [] : [].concat(value));
 
-  const matchStage = { status: "approved", bhk: { $ne: 0 }, };
+/**
+ * Safely parse an integer from a query param with clamping.
+ */
+const clampInt = (value, fallback, min, max) => {
+  const n = parseInt(value, 10);
+  if (Number.isNaN(n)) return fallback;
+  return Math.max(min, Math.min(max, n));
+};
+
+/** Validate MongoDB ObjectId to avoid CastError in downstream queries */
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+// ─────────────────────────────────────────────
+// Public – Filter meta-data
+// ─────────────────────────────────────────────
+
+/**
+ * GET /api/properties/filters
+ * Returns all distinct filter option values for the UI dropdowns.
+ */
+const getFilterOptions = asyncHandler(async (_req, res) => {
+  const base = { status: 'approved', bhk: { $ne: 0 } };
 
   const [
     cities,
@@ -40,399 +88,486 @@ const getFilterOptions = asyncHandler(async (req, res) => {
     possessionStatusOptions,
     floorLabelOptions,
   ] = await Promise.all([
-    Property.distinct("city", matchStage),
-    Property.distinct("propertyType", matchStage),
-    Property.distinct("furnishing", matchStage),
-    Property.distinct("facing", matchStage),
-    Property.distinct("parkings", matchStage),
-    Property.distinct("possessionStatus", matchStage),
-    Property.distinct("floorLabel", matchStage),
+    Property.distinct('city',            base),
+    Property.distinct('propertyType',    base),
+    Property.distinct('furnishing',      base),
+    Property.distinct('facing',          base),
+    Property.distinct('parkings',        base),
+    Property.distinct('possessionStatus',base),
+    Property.distinct('floorLabel',      base),
   ]);
 
-    /* ---------------- Amenities + Security (Curated) ---------------- */
-
-  const combinedAmenities = [...COMMON_AMENITIES, ...COMMON_SECURITY];
-
   const amenitiesOptions = [
-    ...new Set(combinedAmenities.map((item) => item.trim()))
+    ...new Set([...COMMON_AMENITIES, ...COMMON_SECURITY].map((a) => a.trim())),
   ].sort();
 
-
   res.status(200).json({
-    cities: cities.filter(Boolean).sort(),
-    propertyTypeOptions: propertyTypeOptions.filter(Boolean).sort(),
-    furnishingOptions: furnishingOptions.filter(Boolean).sort(),
-    facingOptions: facingOptions.filter(Boolean).sort(),
-    parkingOptions: parkingOptions.filter(Boolean).sort(),
+    cities:                  cities.filter(Boolean).sort(),
+    propertyTypeOptions:     propertyTypeOptions.filter(Boolean).sort(),
+    furnishingOptions:       furnishingOptions.filter(Boolean).sort(),
+    facingOptions:           facingOptions.filter(Boolean).sort(),
+    parkingOptions:          parkingOptions.filter(Boolean).sort(),
     possessionStatusOptions: possessionStatusOptions.filter(Boolean).sort(),
-    floorLabelOptions: floorLabelOptions.filter(Boolean).sort(),
+    floorLabelOptions:       floorLabelOptions.filter(Boolean).sort(),
     amenitiesOptions,
+    areaBounds: AREA_BOUNDS,
   });
 });
 
+// ─────────────────────────────────────────────
+// Public – Locality helpers
+// ─────────────────────────────────────────────
 
-
-  const getPropertiesByType = asyncHandler(async (req, res) => {
-  const statusFilter = { status: "approved" };
+/**
+ * GET /api/properties/localities-by-type
+ * Distinct localities grouped by residential / commercial — used in footer links.
+ */
+const getPropertiesByType = asyncHandler(async (_req, res) => {
+  const base = { status: 'approved' };
 
   const [residentialLocalities, commercialLocalities] = await Promise.all([
-    Property.distinct("locality", {
-      ...statusFilter,
-      propertyType: { $in: RESIDENTIAL_TYPES },
-    }),
-
-    Property.distinct("locality", {
-      ...statusFilter,
-      propertyType: { $in: COMMERCIAL_TYPES },
-    }),
+    Property.distinct('locality', { ...base, propertyType: { $in: RESIDENTIAL_TYPES } }),
+    Property.distinct('locality', { ...base, propertyType: { $in: COMMERCIAL_TYPES  } }),
   ]);
 
   res.json({
-    residential: residentialLocalities,
-    commercial: commercialLocalities,
+    residential: residentialLocalities.filter(Boolean).sort(),
+    commercial:  commercialLocalities.filter(Boolean).sort(),
   });
 });
 
+/**
+ * GET /api/properties/localities/:city
+ * All distinct localities for a given city (used in filter dropdowns).
+ */
+const getLocalitiesByCity = asyncHandler(async (req, res) => {
+  const { city } = req.params;
 
- 
-      // Get Featured Properties (GLOBAL – not city based)
-const getFeaturedProperties = asyncHandler(async (req, res) => {
-  const { limit = 3, city } = req.query;
-
-  // Build dynamic query
-  const query = {
-    featured: true,
-    status: "approved",
-  };
-
-  //  Add city filter if provided
-  if (city) {
-    query.city = city; // OR use regex (better, see below)
+  if (!city || typeof city !== 'string' || city.trim().length < 2) {
+    res.status(400);
+    throw new Error('A valid city name is required.');
   }
 
-  const featuredProperties = await Property.find(query)
-    .select(`
-      title
-      city
-      locality
-      price
-      bhk
-      furnishing
-      area
-      reraDate
-      coverImage
-      pricePerSqft
-      slug
-      developerName
-      propertyType
-      galleryImages
-    `)
-    .sort({ createdAt: -1 })
-    .limit(Number(limit));
+  const safeCity = escapeRegex(city.trim());
 
-  res.json(featuredProperties);
-});
-
-
-
-
-      // Get Recent Properties (City-aware)
-const getRecentProperties = asyncHandler(async (req, res) => {
-  const { city, limit = 3 } = req.query;
-
-  const query = {status: "approved"};
-
-  // Apply city filter if provided
-  if (city) {
-    query.city = city;
-  }
- 
-   
-  const recentProperties = await Property.find(query)
-    .sort({ createdAt: -1 })
-    .limit(Number(limit));
-
-  res.json(recentProperties);
-});
-
-
-
-    // Get PropertiesSW by approved developer/user- these properties are shown on the website
-    const getAllApprovedProperties = asyncHandler(async (req, res) =>  {
-  try {
-    const page = Math.max(1, Math.min(1000, Number(req.query.page) || 1));
-    const limit = Math.max(1, Math.min(100, Number(req.query.limit) || 12));
-    const skip = (page - 1) * limit;
-
-    const sortMap = {
-      relevance: { featured: -1, createdAt: -1 },
-      "price-low-high": { price: 1 },
-      "price-high-low": { price: -1 },
-      newest: { createdAt: -1 },
-      oldest: { createdAt: 1 },
-    };
-
-    const sortBy = sortMap[req.query.sortBy] || sortMap.relevance;
-
-    const query = {
-      status: "approved",
-      bhk: { $ne: 0 },
-    };
-
-  if (req.query.city) query.city = req.query.city;
-
-  if (req.query.locality) {
-    query.locality = { $in: [].concat(req.query.locality) };
-  }
-
-  if (req.query.propertyType) {
-    query.propertyType = { $in: [].concat(req.query.propertyType) };
-  }
-  if (req.query.furnishing) {
-    query.furnishing = { $in: [].concat(req.query.furnishing) };
-  }
-
-  if (req.query.facing) {
-    query.facing = { $in: [].concat(req.query.facing) };
-  }
-
-  if (req.query.parkings) {
-    query.parkings = { $in: [].concat(req.query.parkings) };
-  }
-
-  if (req.query.possessionStatus) {
-    query.possessionStatus = { $in: [].concat(req.query.possessionStatus)
-      // $in: req.query.possessionStatus.split(","),
-    };
-  }
-
-  if (req.query.floorLabel) {
-    query.floorLabel = {
-      $in: req.query.floorLabel.split(","),
-    };
-  }
-
-  if (req.query.amenities) {
-  const values = [].concat(req.query.amenities);
-
-  query.$and = query.$and || [];
-
-  query.$and.push({
-    $or: [
-      { amenities: { $in: values } },
-      { security: { $in: values } },
-    ],
-  });
-}
-
-
-    /* ------- BHK (1,2,3,5+) ---------------- */
-    if (req.query.bhk) {
-  const bhkValues = [].concat(req.query.bhk);
-
-  const exact = [];
-  let minPlus = null;
-
-  bhkValues.forEach((v) => {
-    const plusMatch = v.match(/^(\d+)\+$/);
-    if (plusMatch) {
-      minPlus = Number(plusMatch[1]);
-    } else {
-      exact.push(Number(v));
-    }
-  });
-
-  if (minPlus !== null && exact.length) {
-    query.$or = [
-      { bhk: { $in: exact } },
-      { bhk: { $gte: minPlus } },
-    ];
-  } else if (minPlus !== null) {
-    query.bhk = { $gte: minPlus };
-  } else if (exact.length) {
-    query.bhk = { $in: exact };
-  }
-}
-
-    if (req.query.search) {
-  const safeSearch = validateSearchQuery(req.query.search);
-  
-  if (safeSearch) {
-    query.$or = [
-      { title: { $regex: safeSearch, $options: "i" } },
-      { description: { $regex: safeSearch, $options: "i" } },
-      { locality: { $regex: safeSearch, $options: "i" } },
-    ];
-  }
-}
-    const totalMatched = await Property.countDocuments(query);
-
-    const properties = await Property.find(query)
-      .sort(sortBy)
-      .skip(skip)
-      .limit(limit);
-
-    res.json({
-      properties,
-      totalMatched,
-      page,
-      totalPages: Math.ceil(totalMatched / limit),
-    });
-
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-
-
-
-
-
-      // ===== CRUD ===== THIS IS USED DEVELOPER DASHBOARD -- i think the issue y the form is not working is becoz the validation or possesstionStstus and furnishing is not working in SellPropertyForm.js?
-      const addProperty = asyncHandler(async (req, res) => {
-        delete req.body.geo;
-        delete req.body.propertyGroup;
-
-        
-
-          const property = new Property({ ...req.body,
-             userId: req.user._id, status: 'pending' });
-
-            await property.save();
-            res.status(201).json({ success: true, message: 'Property submitted for admin approval', property });
-      });
-
-      const getMyProperties = asyncHandler(async (req, res) => {
-           const properties = await Property.find({ userId: req.user._id });
-            res.json(properties);
-      });
-
-      const updateProperty = asyncHandler(async (req, res) => {
-        //Controller lvl sanitization- do i need to add for status,userId will that hamper with the scapering data 
-        delete req.body.geo;
-        delete req.body.propertyGroup;
-
-          const property = await Property.findOneAndUpdate(
-              { _id: req.params.id, userId: req.user._id },
-              req.body,
-              { 
-                new: true,
-                runValidators: true,
-               }
-            );
-          
-            if (!property) {
-              res.status(404);
-              throw new Error('Property not found');
-            }
-          
-            res.json(property);
-      });
-
-      const deleteProperty = asyncHandler(async (req, res) => {
-          const property = await Property.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
-          
-            if (!property) {
-              res.status(404);
-              throw new Error('Property not found');
-            }
-            res.json({ message: 'Property deleted successfully' });
-      });
-
-      // Get Property by Id 
-      const getPropertyById = asyncHandler(async (req, res) => {
-          const property = await Property.findById(req.params.id);
-            if (!property) {
-              res.status(404);
-              throw new Error('Property not found');
-            }
-            res.json(property);
-      });
-
-
-
-    const getLocalitiesByCity = asyncHandler(async (req, res) => {
-  const city = req.params.city;
-
-  if (!city) {
-    return res.status(400).json({ message: "City is required" });
-  }
-
-  const localities = await Property.distinct("locality", {
-    city: { $regex: new RegExp(`^${city}$`, "i") },
-    status: "approved",
+  const localities = await Property.distinct('locality', {
+    city:   { $regex: new RegExp(`^${safeCity}$`, 'i') },
+    status: 'approved',
   });
 
   res.json({ localities: localities.filter(Boolean).sort() });
 });
 
- 
+// ─────────────────────────────────────────────
+// Public – Featured & Recent
+// ─────────────────────────────────────────────
 
-//used for the Location seach for MainSeachBar -- needs to be updated still
-const getLocationOptions = asyncHandler(async (req, res) => {
-  const { q, city } = req.query;
+/**
+ * GET /api/properties/featured
+ * Returns featured + approved properties, optionally filtered by city.
+ */
+const getFeaturedProperties = asyncHandler(async (req, res) => {
+  const limit = clampInt(req.query.limit, 3, 1, MAX_LIMIT_FEATURED);
 
-  if (!q || q.length < 2) {
-    return res.json([]);
+  const query = { featured: true, status: 'approved' };
+
+  if (req.query.city) {
+    const safeCity = sanitiseSearch(req.query.city);
+    if (safeCity) query.city = { $regex: new RegExp(`^${safeCity}$`, 'i') };
   }
 
-  const regex = new RegExp(q, "i");
+  const properties = await Property.find(query)
+    .select(
+      'title city locality price bhk furnishing area reraDate coverImage ' +
+      'pricePerSqft slug developerName propertyType galleryImages reraNumber ' +
+      'possessionStatus description'
+    )
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .lean();
+
+  res.json(properties);
+});
+
+/**
+ * GET /api/properties/recent
+ * Returns the most recently created approved properties, optionally by city.
+ */
+const getRecentProperties = asyncHandler(async (req, res) => {
+  const limit = clampInt(req.query.limit, 6, 1, MAX_LIMIT_RECENT);
+
+  const query = { status: 'approved' };
+
+  if (req.query.city) {
+    const safeCity = sanitiseSearch(req.query.city);
+    if (safeCity) query.city = { $regex: new RegExp(`^${safeCity}$`, 'i') };
+  }
+
+  const properties = await Property.find(query)
+    .select(
+      'title city locality price bhk furnishing area coverImage ' +
+      'developerName propertyType slug bhkType createdAt'
+    )
+    .sort({ createdAt: -1 }) 
+    .limit(limit)
+    .lean();
+
+  res.json(properties);
+});
+
+// ─────────────────────────────────────────────
+// Public – Related Properties
+// ─────────────────────────────────────────────
+
+/**
+ * GET /api/properties/:id/related
+ * Returns properties from the same project or the same developer (fallback).
+ */
+const getRelatedProperties = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!isValidObjectId(id)) {
+    res.status(400);
+    throw new Error('Invalid property ID.');
+  }
+
+  const current = await Property.findById(id).lean();
+  if (!current) {
+    res.status(404);
+    throw new Error('Property not found.');
+  }
+
+  const related = await Property.find({
+    _id:    { $ne: id },
+    status: 'approved',
+    $or: [
+      { projectName: current.projectName },
+      { userId:      current.userId      },
+    ],
+  })
+    .sort({ createdAt: -1 })
+    .limit(10)
+    .select('title price bhk area coverImage createdAt developerName slug')
+    .lean();
+
+  res.json(related);
+});
+
+// ─────────────────────────────────────────────
+// Public – Listings (paginated + filtered)
+// ─────────────────────────────────────────────
+
+/**
+ * GET /api/properties
+ * Full-featured paginated listing with every supported filter.
+ */
+const getAllApprovedProperties = asyncHandler(async (req, res) => {
+  const page  = clampInt(req.query.page,  1,  1,  MAX_PAGE_NUMBER);
+  const limit = clampInt(req.query.limit, DEFAULT_PAGE_LIMIT, 1, MAX_PAGE_LIMIT);
+  const skip  = (page - 1) * limit;
+
+  const sortBy = SORT_MAP[req.query.sortBy] ?? SORT_MAP.relevance;
+
+  // ── Base query ──────────────────────────────
+  const query = { status: 'approved', bhk: { $ne: 0 } };
+
+  // ── Scalar string filters ────────────────────
+  if (req.query.city) {
+    const safeCity = sanitiseSearch(req.query.city);
+    if (safeCity) query.city = { $regex: new RegExp(`^${safeCity}$`, 'i') };
+  }
+
+  // ── Array filters ($in) ──────────────────────
+  const arrayFilters = [
+    'locality', 'propertyType', 'furnishing',
+    'facing', 'parkings', 'possessionStatus',
+  ];
+
+  arrayFilters.forEach((key) => {
+    const values = toArray(req.query[key]).filter(Boolean);
+    if (values.length) query[key] = { $in: values };
+  });
+
+  // floorLabel arrives comma-separated or repeated
+  if (req.query.floorLabel) {
+    const values = toArray(req.query.floorLabel)
+      .flatMap((v) => v.split(','))
+      .filter(Boolean);
+    if (values.length) query.floorLabel = { $in: values };
+  }
+
+  // ── Amenities (cross-field OR across amenities + security) ──
+  if (req.query.amenities) {
+    const values = toArray(req.query.amenities).filter(Boolean);
+    if (values.length) {
+      query.$and = query.$and ?? [];
+      query.$and.push({
+        $or: [
+          { amenities: { $in: values } },
+          { security:  { $in: values } },
+        ],
+      });
+    }
+  }
+
+  // ── BHK (supports exact values and "5+" syntax) ──────────────
+  if (req.query.bhk) {
+    const bhkValues = toArray(req.query.bhk);
+    const exact   = [];
+    let   minPlus = null;
+
+    bhkValues.forEach((v) => {
+      const match = String(v).match(/^(\d+)\+$/);
+      if (match) {
+        const n = Number(match[1]);
+        if (minPlus === null || n < minPlus) minPlus = n;
+      } else {
+        const n = Number(v);
+        if (!Number.isNaN(n)) exact.push(n);
+      }
+    });
+
+    if (minPlus !== null && exact.length) {
+      query.$or = [{ bhk: { $in: exact } }, { bhk: { $gte: minPlus } }];
+    } else if (minPlus !== null) {
+      query.bhk = { $gte: minPlus };
+    } else if (exact.length) {
+      query.bhk = { $in: exact };
+    }
+  }
+
+  // ── Area range ───────────────────────────────
+  if (req.query.areaMin != null || req.query.areaMax != null) {
+    const areaQuery = {};
+    const min = parseFloat(req.query.areaMin);
+    const max = parseFloat(req.query.areaMax);
+    if (!Number.isNaN(min) && min >= 0)  areaQuery.$gte = min;
+    if (!Number.isNaN(max) && max >= 0)  areaQuery.$lte = max;
+    if (Object.keys(areaQuery).length) {
+      query['area.value'] = areaQuery;
+    }
+    // Optionally filter by unit when both bounds + unit are supplied
+    if (req.query.areaUnit) {
+      query['area.unit'] = req.query.areaUnit;
+    }
+  }
+
+  // ── Price range ──────────────────────────────
+  if (req.query.priceMin != null || req.query.priceMax != null) {
+    const priceQuery = {};
+    const min = parseFloat(req.query.priceMin);
+    const max = parseFloat(req.query.priceMax);
+    if (!Number.isNaN(min) && min >= 0) priceQuery.$gte = min;
+    if (!Number.isNaN(max) && max >= 0) priceQuery.$lte = max;
+    if (Object.keys(priceQuery).length) query.price = priceQuery;
+  }
+
+  // ── Full-text search (title / description / locality) ─────────
+  if (req.query.search) {
+    const safe = sanitiseSearch(req.query.search);
+    if (safe) {
+      const regex = { $regex: safe, $options: 'i' };
+      const searchOr = [
+        { title:       regex },
+        { description: regex },
+        { locality:    regex },
+      ];
+      // Merge with any existing $or (e.g. from BHK filter)
+      if (query.$or) {
+        query.$and = query.$and ?? [];
+        query.$and.push({ $or: query.$or  });
+        query.$and.push({ $or: searchOr  });
+        delete query.$or;
+      } else {
+        query.$or = searchOr;
+      }
+    }
+  }
+
+  // ── Execute in parallel ──────────────────────
+  const [totalMatched, properties] = await Promise.all([
+    Property.countDocuments(query),
+    Property.find(query).sort(sortBy).skip(skip).limit(limit).lean(),
+  ]);
+
+  res.json({
+    properties,
+    totalMatched,
+    page,
+    totalPages: Math.ceil(totalMatched / limit),
+  });
+});
+
+// ─────────────────────────────────────────────
+// Public – Location autocomplete
+// ─────────────────────────────────────────────
+
+/**
+ * GET /api/properties/location-options?q=&city=
+ * Powers the main search-bar autocomplete.
+ */
+const getLocationOptions = asyncHandler(async (req, res) => {
+  const { q, city } = req.query;
+  const safe = sanitiseSearch(q);
+
+  if (!safe) return res.json([]);
+
+  const regex = new RegExp(safe, 'i');
 
   const match = {
-    status: "approved",
-    $or: [
-      { locality: regex },
-      { city: regex },
-      { pincode: regex },
-    ],
+    status: 'approved',
+    $or: [{ locality: regex }, { city: regex }, { pincode: regex }],
   };
 
   if (city) {
-    match.city = city;
+    const safeCity = sanitiseSearch(city);
+    if (safeCity) match.city = { $regex: new RegExp(`^${safeCity}$`, 'i') };
   }
 
   const results = await Property.aggregate([
     { $match: match },
-    {
-      $group: {
-        _id: {
-          city: "$city",
-          locality: "$locality",
-          pincode: "$pincode",
-        },
-      },
-    },
-    { $limit: 8 },
+    { $group: { _id: { city: '$city', locality: '$locality', pincode: '$pincode' } } },
+    { $limit: LOCATION_RESULT_CAP },
   ]);
 
   res.json(
     results.map(({ _id }) => ({
-      label: _id.locality
-        ? `${_id.locality}, ${_id.city}`
-        : _id.city,
-      city: _id.city,
-      locality: _id.locality,
-      pincode: _id.pincode,
-      type: _id.locality ? "locality" : "city",
+      label:    _id.locality ? `${_id.locality}, ${_id.city}` : _id.city,
+      city:     _id.city,
+      locality: _id.locality  ?? null,
+      pincode:  _id.pincode   ?? null,
+      type:     _id.locality  ? 'locality' : 'city',
     }))
   );
 });
 
+// ─────────────────────────────────────────────
+// Public – Single property
+// ─────────────────────────────────────────────
 
-      export {
-        getFilterOptions,
-        getPropertiesByType,
-        getFeaturedProperties,
-        getRecentProperties,
-        getAllApprovedProperties,
-        addProperty,
-        getMyProperties,
-        updateProperty,
-        deleteProperty,
-        getPropertyById,
-        getLocalitiesByCity ,
-        getLocationOptions,
-      };
+/**
+ * GET /api/properties/:id
+ */
+const getPropertyById = asyncHandler(async (req, res) => {
+  if (!isValidObjectId(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid property ID.');
+  }
 
-    
+  const property = await Property.findById(req.params.id).lean();
+
+  if (!property) {
+    res.status(404);
+    throw new Error('Property not found.');
+  }
+
+  res.json(property);
+});
+
+// ─────────────────────────────────────────────
+// Protected – Developer CRUD
+// ─────────────────────────────────────────────
+
+/**
+ * POST /api/properties/add  [protected]
+ */
+const addProperty = asyncHandler(async (req, res) => {
+  // Strip any fields that must not be set by the client
+  const { geo, propertyGroup, status, userId: _uid, ...safeBody } = req.body;
+
+  const property = await Property.create({
+    ...safeBody,
+    userId: req.user._id,
+    status: 'pending',
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Property submitted for admin approval.',
+    property,
+  });
+});
+
+/**
+ * GET /api/properties/my-properties  [protected]
+ */
+const getMyProperties = asyncHandler(async (req, res) => {
+  const properties = await Property.find({ userId: req.user._id })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.json(properties);
+});
+
+/**
+ * PUT /api/properties/update/:id  [protected]
+ */
+const updateProperty = asyncHandler(async (req, res) => {
+  if (!isValidObjectId(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid property ID.');
+  }
+
+  // Strip immutable / server-managed fields from the payload
+  const { geo, propertyGroup, status, userId: _uid, ...safeBody } = req.body;
+
+  const property = await Property.findOneAndUpdate(
+    { _id: req.params.id, userId: req.user._id },
+    safeBody,
+    { new: true, runValidators: true }
+  );
+
+  if (!property) {
+    res.status(404);
+    throw new Error('Property not found or you do not have permission to edit it.');
+  }
+
+  res.json(property);
+});
+
+/**
+ * DELETE /api/properties/delete/:id  [protected]
+ */
+const deleteProperty = asyncHandler(async (req, res) => {
+  if (!isValidObjectId(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid property ID.');
+  }
+
+  const property = await Property.findOneAndDelete({
+    _id:    req.params.id,
+    userId: req.user._id,
+  });
+
+  if (!property) {
+    res.status(404);
+    throw new Error('Property not found or you do not have permission to delete it.');
+  }
+
+  res.json({ message: 'Property deleted successfully.' });
+});
+
+// ─────────────────────────────────────────────
+// Exports
+// ─────────────────────────────────────────────
+
+export {
+  // Meta
+  getFilterOptions,
+  getPropertiesByType,
+  getLocalitiesByCity,
+  getLocationOptions,
+
+  // Public reads
+  getFeaturedProperties,
+  getRecentProperties,
+  getRelatedProperties,
+  getAllApprovedProperties,
+  getPropertyById,
+
+  // Auth-protected CRUD
+  addProperty,
+  getMyProperties,
+  updateProperty,
+  deleteProperty,
+};

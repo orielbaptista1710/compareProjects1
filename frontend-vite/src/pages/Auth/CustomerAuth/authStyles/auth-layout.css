@@ -1,0 +1,247 @@
+/* ==========================================================================
+   auth-layout.css
+   Root layout, left panel, right panel, mobile banner
+   ========================================================================== */
+
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+:root {
+  --brand-900: #3b1f72;
+  --brand-800: #4b2a84;
+  --brand-700: #5d3b9e;
+  --brand-600: #6f42c1;
+  --brand-400: #9b72d8;
+  --brand-100: #ede9fb;
+  --brand-50:  #f5f3ff;
+
+  --text-primary:   #0f0e17;
+  --text-secondary: #4b5563;
+  --text-muted:     #9ca3af;
+
+  --surface:        #ffffff;
+  --surface-tinted: #fafafa;
+  --border:         #e5e7eb;
+  --border-focus:   var(--brand-600);
+
+  --danger:         #dc2626;
+  --success:        #16a34a;
+
+  --radius-sm:  8px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+
+  --shadow-card:
+    0 1px 3px rgba(0,0,0,0.06),
+    0 8px 24px rgba(93,59,158,0.08);
+
+  --shadow-input-focus:
+    0 0 0 3px rgba(111,66,193,0.18);
+
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-med:  220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Page shell ──────────────────────────────────────────────────────────── */
+.auth-page {
+  display: flex;
+  min-height: 100dvh;
+  width: 100%;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+/* ── Left marketing panel ────────────────────────────────────────────────── */
+.auth-left {
+  flex: 0 0 46%;
+  max-width: 580px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2.5rem, 5vw, 5rem) clamp(2rem, 4vw, 4rem);
+  overflow: hidden;
+
+  /* Rich layered gradient */
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(155,114,216,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 85% 90%, rgba(75,42,132,0.45) 0%, transparent 55%),
+    linear-gradient(155deg, #3b1f72 0%, #5d3b9e 45%, #4b2a84 100%);
+  color: #ffffff;
+}
+
+/* Subtle noise texture overlay */
+.auth-left::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 0;
+}
+
+/* Decorative circle accents */
+.auth-left::after {
+  content: "";
+  position: absolute;
+  bottom: -80px;
+  right: -80px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.signup-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+}
+
+/* Logo / brand mark area */
+.auth-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 100px;
+  padding: 0.35rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 1.75rem;
+  backdrop-filter: blur(6px);
+}
+
+.auth-left h1 {
+  font-size: clamp(1.75rem, 3.2vw, 2.9rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin-bottom: 1.75rem;
+}
+
+.auth-left h1 span {
+  /* accent word */
+  color: rgba(255,255,255,0.65);
+}
+
+/* ── Benefits list ───────────────────────────────────────────────────────── */
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.benefits-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.97rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.4;
+}
+
+.check-icon {
+  flex-shrink: 0;
+  color: #a8edaf;
+  stroke-width: 2.5;
+}
+
+/* ── Trusted by ──────────────────────────────────────────────────────────── */
+.trusted-by {
+  margin-bottom: 1.75rem;
+}
+
+.trusted-by > p {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 0.75rem;
+}
+
+.brands {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+/* ── Testimonial ─────────────────────────────────────────────────────────── */
+.testimonial {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  backdrop-filter: blur(8px);
+}
+
+.testimonial .quote {
+  font-size: 0.92rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.testimonial .author {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.15rem;
+}
+
+.testimonial .position {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+}
+
+/* ── Right panel ─────────────────────────────────────────────────────────── */
+.auth-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 4vw, 4rem) clamp(1.5rem, 3vw, 3rem);
+  overflow-y: auto;
+  background: var(--surface);
+
+  /* Very subtle background texture */
+  background-image:
+    radial-gradient(circle at 90% 5%, rgba(111,66,193,0.04) 0%, transparent 40%),
+    radial-gradient(circle at 10% 95%, rgba(93,59,158,0.03) 0%, transparent 40%);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* ── Mobile top banner (hidden on desktop) ───────────────────────────────── */
+.mobile-auth-banner {
+  display: none;
+}

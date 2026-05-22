@@ -1,0 +1,272 @@
+/* ================================================================
+   ContactFormm.css — Clean white form, purple accent only on CTA
+   ================================================================ */
+
+.cf-root {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #EBEBEB;
+  overflow: hidden;
+  width: 100%;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.cf-header {
+  padding: 1.1rem 1.2rem .9rem;
+  border-bottom: 1px solid #EBEBEB;
+}
+
+.cf-header__label {
+  font-size: .7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #717171;
+  margin: 0 0 .6rem;
+}
+
+.cf-developer {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+}
+
+.cf-developer__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #7C3AED;
+  color: #fff;
+  font-size: .85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cf-developer__info {
+  display: flex;
+  flex-direction: column;
+  gap: .05rem;
+  min-width: 0;
+}
+
+.cf-developer__name {
+  font-size: .9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cf-developer__property {
+  font-size: .73rem;
+  color: #717171;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Divider ─────────────────────────────────────────────────── */
+.cf-divider { height: 1px; background: #EBEBEB; margin: 0; }
+
+/* ── Form ────────────────────────────────────────────────────── */
+.cf-form {
+  padding: 1.1rem 1.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+/* ── Fields ──────────────────────────────────────────────────── */
+.cf-field {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.cf-label {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .72rem;
+  font-weight: 600;
+  color: #717171;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.cf-label__icon { color: #9CA3AF; }
+
+.cf-input,
+.cf-textarea {
+  width: 100%;
+  padding: .6rem .8rem;
+  border: 1px solid #EBEBEB;
+  border-radius: 8px;
+  font-size: .875rem;
+  color: #1a1a1a;
+  background: #FAFAFA;
+  outline: none;
+  font-family: inherit;
+  transition: border-color .15s;
+}
+
+.cf-input::placeholder,
+.cf-textarea::placeholder { color: #aaa; }
+
+.cf-input:focus,
+.cf-textarea:focus {
+  border-color: #7C3AED;
+  background: #fff;
+}
+
+.cf-input--error { border-color: #EF4444 !important; background: #FFF5F5; }
+
+.cf-textarea { resize: vertical; min-height: 70px; }
+
+/* Phone row */
+.cf-phone-row {
+  display: flex;
+  border: 1px solid #EBEBEB;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #FAFAFA;
+  transition: border-color .15s;
+}
+
+.cf-phone-row:focus-within { border-color: #7C3AED; background: #fff; }
+
+.cf-phone-prefix {
+  padding: 0 .7rem;
+  font-size: .875rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  border-right: 1px solid #EBEBEB;
+  background: #F3F4F6;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.cf-input--phone {
+  flex: 1;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: transparent;
+}
+
+.cf-input--phone:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+/* Error */
+.cf-error {
+  font-size: .72rem;
+  color: #EF4444;
+  font-weight: 500;
+}
+
+/* ── Checkboxes ──────────────────────────────────────────────── */
+.cf-checks { display: flex; flex-direction: column; gap: .5rem; }
+
+.cf-check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: .55rem;
+  cursor: pointer;
+}
+
+.cf-check-label--error .cf-check-text { color: #EF4444; }
+
+.cf-checkbox {
+  width: 15px;
+  height: 15px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: #7C3AED;
+  cursor: pointer;
+}
+
+.cf-check-text {
+  font-size: .78rem;
+  color: #4B5563;
+  line-height: 1.5;
+}
+
+.cf-loan-link {
+  color: #7C3AED;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cf-loan-link:hover { text-decoration: underline; }
+
+/* ── Submit button ───────────────────────────────────────────── */
+.cf-submit {
+  width: 100%;
+  padding: .8rem 1rem;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  transition: opacity .18s;
+  margin-top: .1rem;
+}
+
+.cf-submit:hover:not(:disabled) { opacity: .85; }
+
+.cf-submit:disabled { opacity: .6; cursor: not-allowed; }
+
+.cf-submit__spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: cf-spin .7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes cf-spin { to { transform: rotate(360deg); } }
+
+/* Footer nudge */
+.cf-footer-nudge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  padding-top: .6rem;
+  border-top: 1px solid #F3F4F6;
+  font-size: .73rem;
+  color: #aaa;
+}
+
+.cf-footer-nudge svg { color: #aaa; }
+
+/* Disabled */
+.cf-input:disabled,
+.cf-textarea:disabled { opacity: .55; cursor: not-allowed; }
+
+/* Focus visible */
+.cf-submit:focus-visible {
+  outline: 2px solid #7C3AED;
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .cf-header { padding: .9rem 1rem .8rem; }
+  .cf-form   { padding: .9rem 1rem 1rem; }
+}

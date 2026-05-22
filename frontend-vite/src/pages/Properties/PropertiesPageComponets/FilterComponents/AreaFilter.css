@@ -1,0 +1,231 @@
+/* ================================
+   AreaFilter — dual-handle range slider
+================================ */
+
+.af-root {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Readout: "Min 500 sqft — Max 2k sqft" ── */
+.af-readout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.af-readout-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.af-readout-item--right {
+  align-items: flex-end;
+}
+
+.af-readout-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.af-readout-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.af-readout-sep {
+  font-size: 13px;
+  color: #d1d5db;
+  flex-shrink: 0;
+}
+
+/* ── Slider track + fill ── */
+.af-slider-wrap {
+  position: relative;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  margin: 0 2px; /* prevent thumb clipping at edges */
+}
+
+.af-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.af-fill {
+  position: absolute;
+  height: 4px;
+  background: #7c3aed;
+  border-radius: 2px;
+  pointer-events: none;
+  transition: left 0.05s, width 0.05s;
+}
+
+/* ── Range inputs (stacked, transparent) ── */
+.af-range {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  pointer-events: none;
+  outline: none;
+  margin: 0;
+}
+
+/* Webkit thumb */
+.af-range::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #7c3aed;
+  border: 2.5px solid #fff;
+  box-shadow: 0 0 0 1.5px #7c3aed;
+  cursor: pointer;
+  pointer-events: all;
+  transition: box-shadow 0.15s;
+}
+
+.af-range::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 5px rgba(124, 58, 237, 0.12);
+}
+
+.af-range:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 5px rgba(124, 58, 237, 0.25);
+}
+
+/* Firefox thumb */
+.af-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #7c3aed;
+  border: 2.5px solid #fff;
+  box-shadow: 0 0 0 1.5px #7c3aed;
+  cursor: pointer;
+  pointer-events: all;
+}
+
+/* Ensure min thumb stays on top when pushed to max end */
+.af-range--min { z-index: 3; }
+.af-range--max { z-index: 4; }
+
+.af-range--min::-webkit-slider-thumb { z-index: 3; }
+.af-range--max::-webkit-slider-thumb { z-index: 4; }
+
+/* ── Quick-select presets ── */
+.af-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.af-preset {
+  padding: 4px 9px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
+  background: #fff;
+  cursor: pointer;
+  line-height: 1;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.af-preset:hover {
+  border-color: #c4b5fd;
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+.af-preset.active {
+  border-color: #7c3aed;
+  background: #f5f3ff;
+  color: #6d28d9;
+  font-weight: 600;
+}
+
+/* ── Unit selector ── */
+.af-unit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.af-unit-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+
+.af-unit-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.af-unit-btn {
+  padding: 3px 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6b7280;
+  background: #fff;
+  cursor: pointer;
+  line-height: 1;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.af-unit-btn:hover {
+  border-color: #c4b5fd;
+  background: #f5f3ff;
+  color: #6d28d9;
+}
+
+.af-unit-btn.active {
+  border-color: #7c3aed;
+  background: #f5f3ff;
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+/* ── Clear link ── */
+.af-clear {
+  background: none;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: color 0.15s;
+  width: fit-content;
+}
+
+.af-clear:hover {
+  color: #b91c1c;
+  text-decoration: underline;
+}

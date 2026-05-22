@@ -1,0 +1,163 @@
+/* ============================================================
+   HeroSection — "Why Choose Us"
+   Prefix: why-choose- / .card
+   ============================================================ */
+
+/* ── Custom properties ────────────────────────────────────── */
+.why-choose-us {
+  --wc-accent:       #D90429;
+  --wc-accent-light: #fff1f2;
+  --wc-text:         #111827;
+  --wc-text-muted:   #6b7280;
+  --wc-surface:      #ffffff;
+  --wc-surface-2:    #f9fafb;
+  --wc-border:       #e5e7eb;
+  --wc-radius:       16px;
+  --wc-shadow-sm:    0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --wc-shadow-hover: 0 10px 30px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.05);
+  --wc-transition:   0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Section shell ────────────────────────────────────────── */
+.why-choose-us {
+  width: 100%;
+  padding: 118px 24px 150px;
+  background: var(--wc-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.why-choose-section-header {
+  text-align: center;
+  margin-bottom: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.why-choose-section-title {
+  font-size: clamp(26px, 3.5vw, 38px);
+  font-weight: 700;
+  color: var(--wc-text);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.why-choose-title-underline {
+  width: 48px;
+  height: 3px;
+  background: var(--wc-accent);
+  border-radius: 2px;
+}
+
+/* ── Card grid ────────────────────────────────────────────── */
+.why-choose-card-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── Individual card ──────────────────────────────────────── */
+.card {
+  background: var(--wc-surface);
+  border: 1px solid var(--wc-border);
+  border-radius: var(--wc-radius);
+  padding: 28px 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-shadow: var(--wc-shadow-sm);
+  transition: transform var(--wc-transition),
+              box-shadow var(--wc-transition),
+              border-color var(--wc-transition);
+  cursor: default;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--wc-shadow-hover);
+  border-color: #fecdd3;
+}
+
+/* ── Icon wrapper ─────────────────────────────────────────── */
+.icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--wc-accent-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+  transition: background var(--wc-transition);
+}
+
+.card:hover .icon-wrapper {
+  background: #ffe4e6;
+}
+
+/* ── Card content ─────────────────────────────────────────── */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--wc-text);
+  line-height: 1.3;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.why-choose-card-description {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--wc-text-muted);
+  margin: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .why-choose-card-container {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 720px;
+  }
+}
+
+@media (max-width: 600px) {
+  .why-choose-us {
+    padding: 56px 16px 48px;
+  }
+
+  .why-choose-section-header {
+    margin-bottom: 40px;
+  }
+
+  .why-choose-card-container {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+  }
+
+  .card {
+    padding: 22px 20px;
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .icon-wrapper {
+    transition: none;
+  }
+}

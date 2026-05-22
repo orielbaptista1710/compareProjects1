@@ -1,23 +1,31 @@
-import jwt from 'jsonwebtoken'; 
+//backend/middleware/protectCustomer.js
+// import jwt from 'jsonwebtoken'; 
 import Customer from '../models/Customer.js';
- 
+import customerAdminFire from '../config/firebaseAdmin.js';
+
 const protectCustomer = async (req, res, next) => {
-  let token;
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1];
-  }
-
-  if (!token) return res.status(401).json({ message: 'Not authorized, no token' });
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_CUSTOMER || process.env.JWT_SECRET);
-    req.customer = await Customer.findById(decoded.customerId).select('-customerPassword ');
-    if (!req.customer) return res.status(401).json({ message: 'Customer not found' });
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ message: "No token" });
+    }
+
+    const decoded = await customerAdminFire.auth().verifyIdToken(token);
+
+    const customer = await Customer.findOne({ firebaseUid: decoded.uid });
+
+    if (!customer) {
+      return res.status(401).json({ message: "Customer not found" });
+    }
+
+    req.customer = customer;
     next();
   } catch (err) {
-    console.error('Customer protect error', err);
-    res.status(401).json({ message: 'Not authorized, token failed' });
+    console.error("Auth error:", err);
+    res.status(401).json({ message: "Invalid token" });
   }
 };
+
 
 export default protectCustomer;

@@ -1,0 +1,99 @@
+/* ================================================================
+   PropertyDetails.css  —  Quick-stats highlight strip
+   ================================================================ */
+
+.pd-root {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #E5E7EB;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+  margin-bottom: 1.1rem;
+  overflow: hidden;
+}
+
+/* Horizontal scrollable grid on mobile */
+.pd-grid {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.pd-grid::-webkit-scrollbar { display: none; }
+
+/* ── Each stat ───────────────────────────────────────────────── */
+.pd-stat {
+  flex: 1;
+  min-width: 130px;
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  padding: 1rem 1.1rem;
+  border-right: 1px solid #F3F4F6;
+  transition: background .2s ease;
+}
+
+.pd-stat:last-child { border-right: none; }
+
+.pd-stat:hover { background: #F5F3FF; /* violet-50 */ }
+
+/* Circular icon container */
+.pd-stat__icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(124,58,237,.22);
+}
+
+.pd-stat__body {
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  min-width: 0;
+}
+
+.pd-stat__label {
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: #9CA3AF;
+  white-space: nowrap;
+}
+
+.pd-stat__value {
+  font-size: .92rem;
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Mobile ─────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .pd-stat {
+    min-width: 120px;
+    padding: .85rem .9rem;
+    gap: .55rem;
+  }
+
+  .pd-stat__icon {
+    width: 34px;
+    height: 34px;
+  }
+
+  .pd-stat__value { font-size: .85rem; }
+  .pd-stat__label { font-size: .63rem; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .pd-stat { transition: none; }
+}

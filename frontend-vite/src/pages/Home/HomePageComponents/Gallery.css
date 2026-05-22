@@ -1,0 +1,251 @@
+/* ============================================================
+   Gallery — "Find Your City"
+   Prefix: gal-
+   Same layout as original, refined for production
+   ============================================================ */
+
+/* ── Custom properties ────────────────────────────────────── */
+.gal-section {
+  --gal-accent:      #D90429;
+  --gal-text:        #111827;
+  --gal-text-muted:  #6b7280;
+  --gal-surface:     #ffffff;
+  --gal-radius:      14px;
+  --gal-shadow:      0 4px 12px rgba(0, 0, 0, 0.08);
+  --gal-shadow-hover:0 10px 28px rgba(0, 0, 0, 0.14);
+  --gal-transition:  0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Section ──────────────────────────────────────────────── */
+.gal-section {
+  padding: 72px 0 64px;
+  background: var(--gal-surface);
+  width: 100%;
+}
+
+/* ── Section header ───────────────────────────────────────── */
+.gal-header {
+  text-align: center;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.gal-heading {
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 700;
+  color: var(--gal-text);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.gal-underline {
+  width: 40px;
+  height: 3px;
+  background: var(--gal-accent);
+  border-radius: 2px;
+}
+
+/* ── Layout container ─────────────────────────────────────── */
+.gal-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Secondary grid ───────────────────────────────────────── */
+.gal-secondary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+/* ── Base card ────────────────────────────────────────────── */
+.gal-card {
+  position: relative;
+  border-radius: var(--gal-radius);
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--gal-shadow);
+  /* keyboard focus ring */
+  outline: none;
+}
+
+.gal-card:focus-visible {
+  box-shadow: 0 0 0 3px rgba(217, 4, 41, 0.35);
+}
+
+/* Featured card height */
+.gal-card--featured {
+  height: 300px;
+}
+
+/* Secondary card height */
+.gal-card--secondary {
+  height: 200px;
+}
+
+/* ── Image ────────────────────────────────────────────────── */
+.gal-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--gal-transition);
+  will-change: transform;
+}
+
+.gal-card:hover .gal-card__img {
+  transform: scale(1.04);
+}
+
+/* ── Gradient overlay ─────────────────────────────────────── */
+.gal-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.72) 0%,
+    rgba(0, 0, 0, 0.28) 55%,
+    rgba(0, 0, 0, 0.06) 100%
+  );
+  transition: opacity var(--gal-transition);
+}
+
+.gal-card:hover .gal-card__overlay {
+  opacity: 0.88;
+}
+
+/* ── Card content ─────────────────────────────────────────── */
+.gal-card__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 22px;
+  color: #fff;
+}
+
+/* Title */
+.gal-card__title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 5px;
+  line-height: 1.15;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  letter-spacing: -0.015em;
+}
+
+.gal-card--secondary .gal-card__title {
+  font-size: 1.15rem;
+}
+
+/* Description */
+.gal-card__desc {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  max-width: 420px;
+}
+
+.gal-card--secondary .gal-card__desc {
+  font-size: 0.78rem;
+  margin-bottom: 10px;
+}
+
+/* ── Explore button ───────────────────────────────────────── */
+.gal-explore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  width: fit-content;
+  backdrop-filter: blur(6px);
+  transition: background var(--gal-transition),
+              border-color var(--gal-transition),
+              transform var(--gal-transition);
+  letter-spacing: 0.01em;
+}
+
+
+.gal-btn__arrow {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  transition: transform var(--gal-transition);
+}
+
+.gal-explore-btn:hover .gal-btn__arrow {
+  transform: translateX(3px);
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 992px) {
+  .gal-card--featured  { height: 260px; }
+  .gal-card--secondary { height: 175px; }
+
+  .gal-card__title { font-size: 1.3rem; }
+  .gal-card--secondary .gal-card__title { font-size: 1.05rem; }
+}
+
+@media (max-width: 768px) {
+  .gal-section { padding: 52px 0 44px; }
+
+  .gal-container { gap: 10px; }
+  .gal-secondary-grid { gap: 10px; }
+
+  .gal-card--featured  { height: 230px; }
+  .gal-card--secondary { height: 160px; }
+
+  .gal-card__title { font-size: 1.2rem; }
+  .gal-card--secondary .gal-card__title { font-size: 0.95rem; }
+  .gal-card__desc { font-size: 0.78rem; }
+}
+
+@media (max-width: 576px) {
+  .gal-section { padding: 40px 0 36px; }
+
+  .gal-container { padding: 0 14px; }
+
+  .gal-secondary-grid { grid-template-columns: 1fr; }
+
+  .gal-card--featured  { height: 210px; }
+  .gal-card--secondary { height: 155px; }
+
+  .gal-card__content { padding: 16px 16px; }
+
+  .gal-card__title { font-size: 1.1rem; }
+  .gal-card--secondary .gal-card__title { font-size: 0.95rem; }
+
+  .gal-explore-btn {
+    padding: 5px 12px;
+    font-size: 0.78rem;
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .gal-card__img,
+  .gal-card__overlay,
+  .gal-explore-btn,
+  .gal-btn__arrow {
+    transition: none;
+  }
+}

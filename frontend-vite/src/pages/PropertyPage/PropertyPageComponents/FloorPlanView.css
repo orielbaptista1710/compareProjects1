@@ -1,0 +1,387 @@
+/* ================================================================
+   FloorPlanView.css
+   ================================================================ */
+
+.fp-root { width: 100%; }
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.fp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .65rem;
+  padding: 2.5rem 1rem;
+  color: #9CA3AF;
+  font-size: .875rem;
+}
+
+/* ── Floor selector ──────────────────────────────────────────── */
+.fp-floor-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: 1.15rem;
+}
+
+.fp-floor-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .4rem .9rem;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 999px;
+  background: #FAFAFA;
+  font-size: .8rem;
+  font-weight: 600;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+
+
+.fp-floor-btn--active {
+  background: #7C3AED;
+  border-color: #7C3AED;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(124,58,237,.25);
+}
+
+.fp-floor-btn__badge {
+  font-size: .65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: rgba(255,255,255,.25);
+  padding: .1rem .4rem;
+  border-radius: 999px;
+}
+
+/* ── Main 2-col layout ───────────────────────────────────────── */
+.fp-main {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+/* ── Floor image ─────────────────────────────────────────────── */
+.fp-visual { width: 100%; }
+
+.fp-img-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1.5px solid #E5E7EB;
+  cursor: pointer;
+  background: #F9FAFB;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+
+.fp-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 380px;
+  object-fit: contain;
+  transition: transform .35s ease;
+}
+
+.fp-img-wrap:hover .fp-img { transform: scale(1.02); }
+
+/* Zoom hint overlay */
+.fp-img-zoom {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  border-radius: 6px;
+  padding: .3rem .6rem;
+  font-size: .7rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  opacity: 0;
+  transition: opacity .15s;
+  pointer-events: none;
+}
+
+.fp-img-wrap:hover .fp-img-zoom { opacity: 1; }
+
+.fp-img-placeholder {
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  background: #F3F4F6;
+  border-radius: 10px;
+  color: #aaa;
+  font-size: .83rem;
+}
+
+/* ── Specs panel ─────────────────────────────────────────────── */
+.fp-specs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Unit toggle */
+.fp-unit-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+}
+
+.fp-unit-toggle__label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.fp-unit-toggle__btns {
+  display: flex;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.fp-unit-btn {
+  padding: .3rem .65rem;
+  border: none;
+  background: #FAFAFA;
+  font-size: .75rem;
+  font-weight: 700;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+.fp-unit-btn:first-child { border-right: 1.5px solid #E5E7EB; }
+
+.fp-unit-btn--active {
+  background: #7C3AED;
+  color: #fff;
+}
+
+/* Summary rows */
+.fp-summary {
+  background: #FAFAFA;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.fp-summary-row {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .7rem .9rem;
+  border-bottom: 1px solid #F3F4F6;
+  transition: background .15s;
+}
+
+.fp-summary-row:last-child { border-bottom: none; }
+.fp-summary-row:hover { background: #F5F3FF; }
+
+.fp-summary-row__ico { color: #7C3AED; flex-shrink: 0; }
+
+.fp-summary-row__lbl {
+  flex: 1;
+  font-size: .8rem;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.fp-summary-row__val {
+  font-size: .85rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Room details */
+.fp-rooms__heading {
+  font-size: .75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: #7C3AED;
+  margin: 0 0 .6rem;
+}
+
+.fp-rooms__grid {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.fp-room {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .45rem .65rem;
+  background: #FAFAFA;
+  border: 1px solid #F3F4F6;
+  border-radius: 7px;
+}
+
+.fp-room__name {
+  font-size: .8rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.fp-room__dim {
+  font-size: .75rem;
+  color: #9CA3AF;
+  font-weight: 500;
+}
+
+/* ── Gallery strip ───────────────────────────────────────────── */
+.fp-gallery {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #F3F4F6;
+}
+
+.fp-gallery__heading {
+  font-size: .78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: #7C3AED;
+  margin: 0 0 .75rem;
+}
+
+.fp-gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: .5rem;
+}
+
+.fp-gallery__thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border: none;
+  padding: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #F3F4F6;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.fp-gallery__thumb:hover {
+  transform: scale(1.04);
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+.fp-gallery__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fp-gallery__more {
+  position: absolute;
+  inset: 0;
+  background: rgba(124,58,237,.75);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .85rem;
+  font-weight: 800;
+}
+
+/* ── Lightbox ────────────────────────────────────────────────── */
+.fp-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.92);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fp-fade .2s ease;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes fp-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.fp-lightbox__inner {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  animation: fp-zoom .25s ease;
+}
+
+@keyframes fp-zoom {
+  from { transform: scale(.95); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.fp-lightbox__close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.3);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .2s;
+  z-index: 1;
+}
+
+.fp-lightbox__close:hover { background: rgba(255,255,255,.28); }
+
+.fp-lightbox__img {
+  max-width: 90vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 10px;
+  display: block;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .fp-main { grid-template-columns: 1fr; }
+  .fp-specs { flex-direction: row; flex-wrap: wrap; }
+  .fp-summary { flex: 1; min-width: 200px; }
+  .fp-unit-toggle { order: -1; width: 100%; }
+  .fp-gallery__grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .fp-img { max-height: 240px; }
+  .fp-gallery__grid { grid-template-columns: repeat(3, 1fr); }
+  .fp-floor-selector { gap: .35rem; }
+  .fp-floor-btn { font-size: .75rem; padding: .35rem .7rem; }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .fp-lightbox, .fp-lightbox__inner,
+  .fp-img, .fp-img-wrap,
+  .fp-gallery__thumb { transition: none !important; animation: none !important; }
+}
+
+/* ── Focus ───────────────────────────────────────────────────── */
+.fp-img-wrap:focus-visible,
+.fp-gallery__thumb:focus-visible {
+  outline: 3px solid #7C3AED;
+  outline-offset: 2px;
+}

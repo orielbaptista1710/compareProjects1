@@ -1,8 +1,6 @@
 //services/propertyAdminService.js
 
 import Property from '../models/Property.js';
-
-
 /**
  * Fetch paginated properties for Admin Dashboard
  * - Safe pagination

@@ -1,90 +1,110 @@
 // routes/customerRoutes.js
-//login and signup api for customers 
-import express from'express';
+import express from 'express';
 const router = express.Router();
 
-import jwt from'jsonwebtoken';
-import Customer from'../models/Customer.js';
-import protectCustomer from'../middleware/protectCustomer.js';
+import rateLimit from 'express-rate-limit';
+import Customer from '../models/Customer.js';
+import protectCustomer from '../middleware/protectCustomer.js';
+import customerAdminFire from '../config/firebaseAdmin.js';
 
-
-console.log("✅ customerRoutes.js loaded");
-
-// Test route
-router.get('/test', (req, res) => {
-  res.json({ message: 'Customer routes working ✅' });
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  message: { message: 'Too many requests, slow down' },
 });
 
-
-
-// helper to create token
-const createToken = (customerId) => {
-  const secret = process.env.JWT_SECRET_CUSTOMER || process.env.JWT_SECRET;
-  const expiresIn = process.env.JWT_EXPIRES_CUSTOMER || '7d';
-  return jwt.sign({ customerId }, secret, { expiresIn });
-};
-
-// Signup
-router.post('/customer-signup', async (req, res) => {
-  console.log("Signup body:", req.body); 
+// ─── SIGNUP ──────────────────────────────────────────────────
+router.post('/firebase-signup', authLimiter, async (req, res) => {
   try {
-    const { customerName, customerEmail, customerPhone, customerPassword  } = req.body;
-    if (!customerName || !customerEmail || !customerPhone || !customerPassword ) {
-      return res.status(400).json({ message: 'All fields are required' });
+    const { token, customerName, customerPhone } = req.body;
+
+    if (!token || !customerName) {
+      return res.status(400).json({ message: 'Token and name are required' });
     }
-    const customerEmailLower = customerEmail.toLowerCase();
-    const exists = await Customer.findOne({ $or: [{ customerEmail: customerEmailLower }, { customerPhone }] });
-    if (exists) return res.status(400).json({ message: 'Email or phone already registered' });
 
-    const customer = await Customer.create({ customerName, customerEmail, customerPhone, customerPassword  });
-    const token = createToken(customer._id);
+    // Verify Firebase token server-side — cannot be faked
+    const decoded = await customerAdminFire.auth().verifyIdToken(token);
 
-    res.status(201).json({
-      token,
-      customer: {
-        _id: customer._id,
-        customerName: customer.customerName,
-        customerEmail: customer.customerEmail,
-        customerPhone: customer.customerPhone,
-      },
-    });
+    // Phone priority: form input > Firebase token (form is more reliable for email signups)
+    const resolvedPhone = customerPhone?.trim() || decoded.phone_number || undefined;
+
+    const updateData = {
+      firebaseUid: decoded.uid,
+      customerName: customerName.trim(),
+      // only set these if they exist in the token
+      ...(decoded.email && { customerEmail: decoded.email }),
+      ...(resolvedPhone && { customerPhone: resolvedPhone })
+    };
+
+    // upsert = create if not exists, update if exists — no race condition
+    const customer = await Customer.findOneAndUpdate(
+      { firebaseUid: decoded.uid },
+      { $set: updateData },
+      { upsert: true, new: true, runValidators: true }
+    );
+
+    res.status(200).json({ customer });
+
   } catch (err) {
-    console.error('Customer signup error', err);
+    console.error('firebase-signup error:', err);
+
+    if (err.code === 'auth/argument-error' || err.code === 'auth/id-token-expired') {
+      return res.status(401).json({ message: 'Invalid or expired Firebase token' });
+    }
+    if (err.name === 'ValidationError') {
+      const messages = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ message: messages.join(', ') });
+    }
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyPattern)[0];
+      const friendlyField = field === 'customerEmail' ? 'Email'
+                          : field === 'customerPhone' ? 'Phone number'
+                          : field;
+      return res.status(400).json({ message: `${friendlyField} is already registered.` });
+    }
+
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Login
-router.post('/customer-login', async (req, res) => {
+
+
+
+// ─── LOGIN ───────────────────────────────────────────────────
+router.post('/firebase-login', authLimiter, async (req, res) => {
   try {
-    const { emailOrPhone, customerPassword  } = req.body;
-    if (!emailOrPhone || !customerPassword ) return res.status(400).json({ message: 'Missing credentials' });
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ message: 'Token is required' });
 
-    const customer = await Customer.findOne({
-      $or: [{ customerEmail: emailOrPhone.toLowerCase() }, { customerPhone: emailOrPhone }],
-    });
-    if (!customer) return res.status(400).json({ message: 'Invalid credentials' });
+    const decoded = await customerAdminFire.auth().verifyIdToken(token);
 
-    const isMatch = await customer.comparePassword(customerPassword );
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
-
-    const token = createToken(customer._id);
-    res.json({
-      token,
-      customer: {
-        _id: customer._id,
-        customerName: customer.customerName,
-        customerEmail: customer.customerEmail,
-        customerPhone: customer.customerPhone,
+    // ✅ Upsert — if customer doesn't exist, create a minimal record
+    // This handles: manual Firebase users, signup-cleanup edge cases
+    const customer = await Customer.findOneAndUpdate(
+      { firebaseUid: decoded.uid },
+      {
+        $setOnInsert: {                          // only set these on creation
+          firebaseUid: decoded.uid,
+          customerName: decoded.name || decoded.email?.split('@')[0] || 'Customer',
+          ...(decoded.email        && { customerEmail: decoded.email }),
+          ...(decoded.phone_number && { customerPhone: decoded.phone_number }),
+        }
       },
-    });
+      { upsert: true, new: true, runValidators: true }
+    );
+
+    res.json({ customer });
+
   } catch (err) {
-    console.error('Customer login error', err);
+    console.error('firebase-login error:', err);
+    if (err.code === 'auth/argument-error' || err.code === 'auth/id-token-expired') {
+      return res.status(401).json({ message: 'Invalid or expired Firebase token' });
+    }
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Get me (protected)
+// ─── ME (protected) ──────────────────────────────────────────
 router.get('/me', protectCustomer, async (req, res) => {
   try {
     const c = req.customer;

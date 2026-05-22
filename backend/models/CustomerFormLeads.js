@@ -30,7 +30,7 @@ const customerLeadSchema = new mongoose.Schema(
       enum: [
         "home_page_contact",
         "property_page_contact",
-        "smart_properies_page_form",
+        "smart_properties_page_form",
       ],
     },
 
@@ -74,7 +74,7 @@ const customerLeadSchema = new mongoose.Schema(
 
     //CRM STATUS
     
-    status: {  //leadStatus
+    leadStatus: {  //leadStatus
       type: String,
       enum: ["new", "contacted", 'interested', 'not_interested', "qualified", "closed"],
       default: "new",
@@ -85,13 +85,11 @@ const customerLeadSchema = new mongoose.Schema(
 
 //FORM LEADS MITIAGATION TO A CRM OR EXCEL SHEET(ATLEST FOR THE FIRST FEW MONTHS)
 
-//    INDEXES (Important)
-
-// Helps detect repeat leads
 customerLeadSchema.index({ customerEmail: 1 });
 customerLeadSchema.index({ customerPhone: 1 });
 customerLeadSchema.index({ createdAt: -1 });
 customerLeadSchema.index({ source: 1 });
+
 
 export const CustomerLead = () => {
   const conn = getLeadsConnection();

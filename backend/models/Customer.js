@@ -1,64 +1,43 @@
-//models/Customer.js
+// models/Customer.js
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
 import validator from 'validator';
 
- const customerSchema = new mongoose.Schema({
-  customerName: { 
-    type: String, 
-    required: [true, 'Name is required'], 
-    trim: true,
-    minlength: [2, 'Name must be at least 2 characters']
-  },
-  customerEmail: { 
-    type: String, 
-    required: [true, 'Email is required'], 
-    unique: true, 
-    lowercase: true,
-    validate: [validator.isEmail, 'Invalid email address']
-  },
-  customerPhone: { 
-    type: String, 
-    required: [true, 'Phone number is required'], 
+const customerSchema = new mongoose.Schema({
+  firebaseUid: {
+    type: String,
+    required: true,
     unique: true,
-    validate: {
-      validator: v => validator.isMobilePhone(v, 'any'),
-      message: 'Invalid phone number'
-    }
+    index: true,
   },
-  customerPassword: { 
-    type: String, 
-    required: [true, 'Password is required'], 
-    minlength: [8, 'Password must be at least 8 characters'],
-    validate: {
-      validator: function (value) {
-        // Require 1 uppercase, 1 number, 1 special character
-        return /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(value);
-      },
-      message:
-        'Password must be at least 8 characters and include one uppercase letter, one number, and one special character.'
-    }
+  customerName: {
+    type: String,
+    required: [true, 'Name is required'],
+    trim: true,
+    minlength: [2, 'Name must be at least 2 characters'],
   },
-
-  heartProperties: [{ type: mongoose.Schema.Types.ObjectId, ref: "Property" }],
-  // comparedProperties: [{ type: mongoose.Schema.Types.ObjectId, ref: "Property" }],
-  // shortlistedProperties: [{ type: mongoose.Schema.Types.ObjectId, ref: "Property" }],
-
+  customerEmail: {
+    type: String,
+    unique: true,
+    sparse: true,          // ← allows multiple null values
+    lowercase: true,
+    validate: {
+      validator: (v) => !v || validator.isEmail(v),
+      message: 'Invalid email address',
+    },
+  },
+  customerPhone: {
+    type: String,
+    unique: true,
+    sparse: true,          // ← allows multiple null values
+    validate: {
+      validator: (v) => !v || validator.isMobilePhone(v, 'any'),
+      message: 'Invalid phone number',
+    },
+  },
+  heartProperties: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Property' }],
+  compareProperties: [{ type: mongoose.Schema.Types.ObjectId, ref: "Property"}],
 
 }, { timestamps: true });
-
-// Hash password before saving
-customerSchema.pre('save', async function (next) {
-  if (!this.isModified('customerPassword')) return next();
-  this.customerPassword = await bcrypt.hash(this.customerPassword, 10);
-  next();
-});
-
-// Compare password method
-customerSchema.methods.comparePassword = async function (enteredPassword) {
-  return bcrypt.compare(enteredPassword, this.customerPassword);
-};
-
 
 const Customer = mongoose.model('Customer', customerSchema);
 export default Customer;

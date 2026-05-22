@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'; 
 dotenv.config();
 
 import mongoose from "mongoose";
@@ -23,7 +23,7 @@ import { connectLeadsDB } from "./config/leadsDb.js";
 
 const app = express();
 app.use(cors({ 
-  origin: process.env.REACT_APP_FRONTEND_URL,
+  origin: process.env.REACT_APP_FRONTEND_URL || 'http://localhost:5173',
   credentials: true
 }));
 
@@ -38,8 +38,8 @@ app.use(requestLogger);
 // });
 
 // Routes
-app.use('/api/customers', customerRoutes); /////////// replace with Clerk???
-app.use('/api/auth', authRoutes);          /////////// replace with Clerk???
+app.use('/api/customers', customerRoutes); 
+app.use('/api/auth', authRoutes);          
 app.use('/api/properties', propertyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/customerActivity', customerActivityRoutes);

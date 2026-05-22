@@ -1,0 +1,126 @@
+/* ================================================================
+   BrochurePreview.css
+   ================================================================ */
+
+.brochure-section { width: 100%; }
+.brochure-title   { display: none; }
+
+.brochure-card {
+  display: flex;
+  flex-direction: column;
+  gap: .65rem;
+}
+
+/* ── Preview box ─────────────────────────────────────────────── */
+.preview-box {
+  position: relative;
+  border: 1px solid #EBEBEB;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #F7F7F7;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  padding: .75rem;
+}
+
+.preview-box canvas {
+  display: block;
+  max-width: 100%;
+  height: auto !important;
+  border-radius: 5px;
+}
+
+/* ── PDF fade-in ─────────────────────────────────────────────── */
+.pdf-wrap          { opacity: 0; transition: opacity .2s ease; }
+.pdf-wrap.loaded   { opacity: 1; }
+
+/* ── Skeleton ────────────────────────────────────────────────── */
+.preview-skeleton {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+}
+
+.skeleton-icon { animation: pulse 1.5s ease-in-out infinite; }
+
+@keyframes pulse {
+  0%, 100% { opacity: .3; }
+  50%       { opacity: 1;  }
+}
+
+/* ── Error ───────────────────────────────────────────────────── */
+.preview-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  color: #aaa;
+  font-size: .8rem;
+}
+
+.preview-error__link {
+  font-size: .76rem;
+  color: #7C3AED;
+  text-decoration: underline;
+}
+
+/* ── View button ─────────────────────────────────────────────── */
+.view-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .3rem .65rem;
+  background: rgba(0,0,0,.62);
+  color: #fff;
+  font-size: .73rem;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.view-btn:hover { background: rgba(0,0,0,.85); }
+
+/* ── Download button ─────────────────────────────────────────── */
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  width: 100%;
+  padding: .65rem 1rem;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: .83rem;
+  font-weight: 700;
+  border-radius: 8px;
+  text-decoration: none;
+  white-space: nowrap;
+  box-sizing: border-box;
+  transition: opacity .15s;
+}
+.download-btn:hover { opacity: .8; }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .preview-box  { min-height: 170px; }
+}
+
+@media (max-width: 480px) {
+  .preview-box    { min-height: 150px; padding: .5rem; border-radius: 8px; }
+  .download-btn   { font-size: .8rem; padding: .6rem .9rem; }
+  .view-btn       { font-size: .7rem; padding: .28rem .55rem; }
+}
+
+@media (max-width: 360px) {
+  .preview-box  { min-height: 130px; }
+  .download-btn { font-size: .77rem; }
+}

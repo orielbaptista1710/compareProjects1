@@ -1,3 +1,4 @@
+//backend/models/Property.js
 import mongoose from 'mongoose';
 import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from '../models/propertyType.js';
 import slugify from 'slugify';
@@ -230,7 +231,10 @@ geo: {
   }],
   default: []
 },
-  brochure: { type: String },
+  brochure: {
+  url:        { type: String },   
+  public_id:  { type: String },   // e.g. "properties/brochure/my-doc"
+},
 
 
   // Review- metadata for auditing and revalidate scraped data
