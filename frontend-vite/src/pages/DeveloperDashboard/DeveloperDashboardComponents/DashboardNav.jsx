@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import {
   // Home as HomeIcon,
-  AddCircleOutline as AddCircleIcon,
+  AddCircleOutlined as AddCircleIcon,
   ListAlt as ListAltIcon,
   HeadsetMic as HeadsetIcon,
   Logout as LogoutIcon,
