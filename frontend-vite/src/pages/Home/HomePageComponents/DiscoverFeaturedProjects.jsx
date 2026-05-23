@@ -29,7 +29,7 @@ const DiscoverFeaturedProjects = () => {
             ? `/api/properties/featured?city=${encodeURIComponent(city)}`
             : `/api/properties/featured`
         );
-        if (!ignore) setProjects(data || []);
+        if (!ignore) setProjects(Array.isArray(data) ? data : data?.properties || data?.data || []);
       } catch (err) {
         console.error("Failed to fetch featured projects:", err);
         if (!ignore) setProjects([]);
