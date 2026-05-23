@@ -84,7 +84,7 @@ const PropertyMap = ({ properties = [], city }) => {
     
     {property.coverImage?.thumbnail && (
       <img
-        src={property.coverImage.thumbnail}
+        src={property.coverImage?.thumbnail || "https://placehold.co/600x400/EBEBEB/555/png?text=No+image"}
         alt={property.title || "Property"}
         className="popup-thumb"
         loading="lazy"

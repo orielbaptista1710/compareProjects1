@@ -10,7 +10,7 @@ import "./RecentlyAdded.css";
 const RecentlyAdded = () => {
   const navigate = useNavigate();
   const { city } = useCity();
-
+ 
   const {
     data: properties = [],
     isLoading,
@@ -33,7 +33,7 @@ const RecentlyAdded = () => {
       return res.data;
     },
 
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000, 
   });
 
   if (isLoading) {
@@ -41,7 +41,7 @@ const RecentlyAdded = () => {
   }
 
   if (isError || properties.length === 0) {
-    return null; // fail silently on homepage
+    return null; 
   }
 
   return (
@@ -56,8 +56,7 @@ const RecentlyAdded = () => {
           <div className="project-card" key={property._id}>
             <img
               src={
-                property.coverImage.thumbnail ||
-                "https://placehold.co/600x400/EBEBEB/555/png?text=No+image"  //FALLBACK- CHECK THIS 
+                property.coverImage?.thumbnail || "https://placehold.co/600x400/EBEBEB/555/png?text=No+image" 
               }
               alt={property.title}
               className="project-image"
