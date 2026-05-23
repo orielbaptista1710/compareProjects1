@@ -29,8 +29,8 @@ const RecentlyAdded = () => {
       const res = await API.get(
         `/api/properties/recent?${params.toString()}`
       );
-
-      return res.data;
+      const data = res.data;
+      return Array.isArray(data) ? data : [];
     },
 
     staleTime: 5 * 60 * 1000, 
