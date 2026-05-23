@@ -3,10 +3,10 @@ import React from 'react';
 //components import 
 import Gallery from './HomePageComponents/Gallery'; 
 import NavigationBar from '../../shared/NavigationBar/NavigationBar';
-import DiscoverFeaturedProjects from './HomePageComponents/DiscoverFeaturedProjects';
+// import DiscoverFeaturedProjects from './HomePageComponents/DiscoverFeaturedProjects';
 import RecentlyAdded from './HomePageComponents/RecentlyAdded';
 import PostPropertyBanner from './HomePageComponents/PostPropertyBanner';
-import ContactUsBanner from './PageComponents/ContactUsBanner';
+import ContactUsBanner from './HomePageComponents/ContactUsBanner';
 import HeroSection from './HomePageComponents/HeroSection';
 import About from './HomePageComponents/About';
 import ContactForm from './HomePageComponents/ContactForm';
@@ -18,7 +18,7 @@ import CompareBar from './HomePageComponents/CompareBar';
 // import BaseLayout from '../../layouts/BaseLayout';
 // import FullWidthSection from '../../layouts/FullWidthSection';
 import AnnouncementStrip from './HomePageComponents/AnnouncementStrip';
-// import RankedProjects from './HomePageComponents/RankedProjects'
+import RankedProjects from './HomePageComponents/RankedProjects'
 function Home() {
   // const navigate = useNavigate();
   const {compareList , removeFromCompare } = useCompare();
@@ -57,10 +57,10 @@ function Home() {
       )}
       </section>
 
-      {/* <RankedProjects /> */}
+      <RankedProjects />
 
       <section>
-      <DiscoverFeaturedProjects />
+      {/* <DiscoverFeaturedProjects /> */}
       </section>
       
 
