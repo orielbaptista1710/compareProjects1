@@ -17,17 +17,17 @@ async function createAdmin() {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log('✅ Connected to database:', mongoose.connection.name);
+    console.log(' Connected to database:', mongoose.connection.name);
 
     let admin = await User.findOne({ username: process.env.ADMIN_USERNAME, role: 'admin' });
 
     if (admin) {
-      console.log(`ℹ️ Admin "${process.env.ADMIN_USERNAME}" already exists. Updating password...`);
+      console.log(`ℹ Admin "${process.env.ADMIN_USERNAME}" already exists. Updating password...`);
       admin.password = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
       await admin.save();
       console.log('🔑 Admin password updated successfully.');
     } else {
-      console.log(`ℹ️ Creating new admin "${process.env.ADMIN_USERNAME}"...`);
+      console.log(`ℹ Creating new admin "${process.env.ADMIN_USERNAME}"...`);
       const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
       admin = new User({
         username: process.env.ADMIN_USERNAME,
@@ -36,7 +36,7 @@ async function createAdmin() {
         role: 'admin',
       });
       await admin.save();
-      console.log('✅ Admin user created successfully.');
+      console.log(' Admin user created successfully.');
     }
 
     console.log('👤 Admin details:', {

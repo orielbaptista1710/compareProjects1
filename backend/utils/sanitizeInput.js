@@ -1,4 +1,3 @@
-
 // backend/utils/sanitizeInput.js
 // it is used to sanitize the input data before it is saved to the database
 // backend/utils/sanitizeInput.js
