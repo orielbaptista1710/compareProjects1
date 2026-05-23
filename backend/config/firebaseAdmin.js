@@ -1,6 +1,7 @@
 // backend/config/firebaseAdmin.js
 import customerAdminFire from "firebase-admin";
-import serviceAccount from "./firebase-service-account.json" with { type: "json" };
+
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
 customerAdminFire.initializeApp({
   credential: customerAdminFire.credential.cert(serviceAccount)
