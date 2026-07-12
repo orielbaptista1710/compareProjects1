@@ -219,13 +219,6 @@
   border: 1px solid #dcdcdc;
 }
 
-.compare-preview-btn:hover {
-  background: #f1f1f1;
-  border-color: #cbd5e1;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
 /* Compare Button - Purple Gradient */
 .compare-page-btn {
   background: linear-gradient(135deg, #7B2FF7 0%, #A855F7 100%);

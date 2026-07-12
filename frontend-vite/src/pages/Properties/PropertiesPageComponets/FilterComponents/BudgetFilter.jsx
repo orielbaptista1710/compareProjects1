@@ -1,6 +1,7 @@
 // src/components/PropertiesPageComponents/FilterComponents/BudgetFilter 
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
+import { useOutsideClick } from "../../../hooks/useOutsideClick"
 import "./BudgetFilter.css";
 
 const BudgetFilter = ({ minBudget, maxBudget, onChange, priceRange }) => {
@@ -81,19 +82,14 @@ const BudgetFilter = ({ minBudget, maxBudget, onChange, priceRange }) => {
   };
 
   // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (minDropdownRef.current && !minDropdownRef.current.contains(event.target)) {
+  useOutsideClick(
+    showMinDropdown || showMaxDropdown,
+    [minDropdownRef, maxDropdownRef],
+    () => {
         setShowMinDropdown(false);
-      }
-      if (maxDropdownRef.current && !maxDropdownRef.current.contains(event.target)) {
         setShowMaxDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    }
+);
 
   return (
     <div className="budget-filter">

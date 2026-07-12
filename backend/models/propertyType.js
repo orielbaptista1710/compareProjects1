@@ -9,7 +9,7 @@ export const COMMERCIAL_TYPES = [
   "Shop/Showroom",
   "Industrial Warehouse/Godown",
   "Office Space",
-  "Commercial Land",
+  "Commercial Land", 
   "Industrial Building"
 ];
 

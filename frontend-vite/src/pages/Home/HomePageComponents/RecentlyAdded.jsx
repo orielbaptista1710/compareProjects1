@@ -36,6 +36,7 @@ const RecentlyAdded = () => {
     staleTime: 5 * 60 * 1000, 
   });
 
+  //add <LoadingSpinner />
   if (isLoading) {
     return <div className="loading">Loading properties...</div>;
   }

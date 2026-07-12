@@ -4,21 +4,38 @@
 // This file only handles: request parsing, response shaping, error handling.
 // When you migrate to Atlas Search, this file is UNCHANGED.
 
+
+//need to test this for production
 import asyncHandler from 'express-async-handler';
 import { runSearch, sanitiseQuery } from '../services/searchService.js';
-
+ 
 const searchProperties = asyncHandler(async (req, res) => {
-  const raw = req.query.query ?? '';
-  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 5, 1), 10); // clamp 1–10
+  // ── Input validation ──────────────────────────────────────────────────────
+  const raw = typeof req.query.query === 'string' ? req.query.query : '';
 
+  // Clamp limit: minimum 1, maximum 10, default 5.
+  // parseInt on a non-numeric string returns NaN, so we guard with || 5.
+  const rawLimit = parseInt(req.query.limit, 10);
+  const limit = Number.isFinite(rawLimit)
+    ? Math.min(Math.max(rawLimit, 1), 10)
+    : 5;
+
+  // ── Sanitise ──────────────────────────────────────────────────────────────
   const query = sanitiseQuery(raw);
 
   if (query.length < 2) {
-    return res.json({ properties: [], fuzzy: false });
+    return res.status(200).json({ properties: [], fuzzy: false });
   }
 
+  // ── Search ────────────────────────────────────────────────────────────────
   const result = await runSearch(query, limit);
-  return res.json(result);
+
+  // ── Response ──────────────────────────────────────────────────────────────
+  // Explicit shape keeps the contract stable even if searchService changes internals.
+  return res.status(200).json({
+    properties: result.properties,
+    fuzzy: result.fuzzy,
+  });
 });
 
 export { searchProperties };

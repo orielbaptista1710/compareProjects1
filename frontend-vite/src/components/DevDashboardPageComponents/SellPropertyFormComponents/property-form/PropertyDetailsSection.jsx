@@ -1,325 +1,212 @@
-import React from "react";
-import { useFormContext, Controller } from "react-hook-form";
-import { InputNumber, Select, DatePicker } from "antd";
-import dayjs from "dayjs"; //calender
+// SellPropertyFormComponents/property-form/PropertyDetailsSection.jsx
+// Property type cards, BHK/bathrooms/balconies/facing radio groups,
+// parking (multi-select), furnishing, possession status, age of property.
+
+import React, { useCallback } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 import {
-  AGE_OF_PROPERTY_OPTIONS,
-  // FLOOR_OPTIONS,
   PROPERTY_TYPES,
   FURNISHED_OPTIONS,
   POSSESSION_STATUS_OPTIONS,
-  BHK_OPTIONS,
+  AGE_OF_PROPERTY_OPTIONS,
+  BHK_OPTIONS, 
   BATHROOM_OPTIONS,
   BALCONY_OPTIONS,
   FACING_OPTIONS,
   PARKING_OPTIONS,
 } from "../../../../assests/constants/propertyFormConstants";
 
-const AREA_UNITS = [
-  { value: "sqft", label: "Square Feet" },
-  { value: "sqmts", label: "Square Meters" },
-  { value: "guntas", label: "Guntas" },
-  { value: "hectares", label: "Hectares" },
-  { value: "acres", label: "Acres" },
-];
+// ── Reusable RadioGroup ────────────────────────────────────────────────────────
+const RadioGroup = React.memo(({ name, options, withSuffix = "" }) => {
+  const { register, control } = useFormContext();
+  const value = useWatch({ control, name });
 
-const typeToGroupMap = {
-  "Flats/Apartments": "Residential",
-  Villa: "Residential",
-  Plot: "Residential",
-  "Shop/Showroom": "Commercial",
-  Retail: "Commercial",
-  "Industrial Warehouse": "Commercial",
-};
-  ////////PROPERTY TYPE CHANGE
-
-
-const PropertyDetailsSection = () => {
-  const { control, watch, setValue, getValues, register } = useFormContext();
-
-  const handleCheckboxChange = (name, value) => {
-    const current = getValues(name) || [];
-    const updated = current.includes(value)
-      ? current.filter((v) => v !== value)
-      : [...current, value];
-    setValue(name, updated);
-  };
-
-  const RadioGroup = ({ name, options, withSuffix }) => (
-    <div className="radio-container">
+  return (
+    <div className="radio-container" role="radiogroup">
       {options.map((opt) => {
-        const optionValue = typeof opt === "string" ? opt : opt.value;
-        const optionLabel = typeof opt === "string" ? opt : opt.label;
+        const optValue = typeof opt === "object" ? opt.value : String(opt);
+        const optLabel = typeof opt === "object" ? opt.label : String(opt);
         return (
           <label
-            key={optionValue}
-            className={`radio-label ${watch(name) === optionValue ? "selected" : ""}`}
+            key={optValue}
+            className={`radio-label ${value === optValue ? "radio-label--selected" : ""}`}
           >
-            <input type="radio" value={optionValue} {...register(name)} />
-            {optionLabel} {withSuffix || ""}
+            <input
+              type="radio"
+              value={optValue}
+              {...register(name)}
+            />
+            {optLabel}
+            {withSuffix && ` ${withSuffix}`}
           </label>
         );
       })}
     </div>
   );
+});
+
+// ── MultiCheckboxGroup ─────────────────────────────────────────────────────────
+const MultiCheckboxGroup = React.memo(({ name, options }) => {
+  const { setValue, getValues, control } = useFormContext();
+  const selected = useWatch({ control, name }) || [];
+
+  const toggle = useCallback(
+    (val) => {
+      const current = getValues(name) || [];
+      const updated = current.includes(val)
+        ? current.filter((v) => v !== val)
+        : [...current, val];
+      setValue(name, updated, { shouldValidate: true });
+    },
+    [name, setValue, getValues]
+  );
 
   return (
-    <section aria-labelledby="pricing-section">
-      <h3 id="pricing-section" className="section-title">
+    <div className="radio-container">
+      {options.map((opt) => {
+        const optValue = typeof opt === "object" ? opt.value : String(opt);
+        const optLabel = typeof opt === "object" ? opt.label : String(opt);
+        return (
+          <label
+            key={optValue}
+            className={`checkbox-label ${selected.includes(optValue) ? "checkbox-label--selected" : ""}`}
+          >
+            <input
+              type="checkbox"
+              checked={selected.includes(optValue)}
+              onChange={() => toggle(optValue)}
+            />
+            {optLabel}
+          </label>
+        );
+      })}
+    </div>
+  );
+});
+
+// ── Main Section ───────────────────────────────────────────────────────────────
+const RESIDENTIAL_TYPES = ["Flats/Apartments", "Villa", "Plot"];
+const COMMERCIAL_TYPES  = ["Shop/Showroom", "Industrial Warehouse/Godown", "Office Space","Commercial Land", "Industrial Building" ];
+
+const typeToGroupMap = Object.fromEntries([
+  ...RESIDENTIAL_TYPES.map((t) => [t, "Residential"]),
+  ...COMMERCIAL_TYPES.map((t) => [t, "Commercial"]),
+]);
+
+const PropertyDetailsSection = () => {
+  const {
+    register,
+    setValue,
+    control,
+    formState: { errors },
+  } = useFormContext();
+
+  const selectedType = useWatch({ control, name: "propertyType" });
+
+  const handleTypeSelect = (label) => {
+    setValue("propertyType", label, { shouldValidate: true });
+    // propertyGroup is derived server-side but we send it for convenience
+    if (typeToGroupMap[label]) {
+      setValue("propertyGroup", typeToGroupMap[label], { shouldValidate: false });
+    }
+  };
+
+  return (
+    <section aria-labelledby="details-section-title" className="form-section">
+      <h3 id="details-section-title" className="section-title">
         Property Details
       </h3>
 
-      {/* Total Price */}
-      <div className="form-row">
-        <div className="form-col">
-          <label>Total Price (₹)</label>
-          <Controller
-            name="price"
-            control={control}
-            render={({ field }) => (
-              <InputNumber
-                {...field}
-                style={{ width: "100%" }}
-                min={0}
-                formatter={(value) =>
-                  `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value) => value.replace(/₹\s?|(,*)/g, "")}
-              />
-            )}
-          />
-        </div>
-      </div>
-
-      {/* Negotiable & RERA */}
-      <div className="form-col">
-        <label>
-          <Controller
-            name="priceNegotiable"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="checkbox"
-                checked={field.value}
-                onChange={(e) => field.onChange(e.target.checked)}
-              />
-            )}
-          />
-          Price Negotiable
-        </label>
-      </div>
-
-      <div className="form-row">
-        <div className="form-col">
-          <label>
-            <Controller
-              name="reraApproved"
-              control={control}
-              render={({ field }) => (
-                <input
-                  type="checkbox"
-                  checked={field.value}
-                  onChange={(e) => field.onChange(e.target.checked)}
-                />
-              )}
-            />
-            RERA Approved
-          </label>
-        </div>
-
-        <div className="form-col">
-          <label htmlFor="reraNumber">RERA Number (Optional)</label>
-          <Controller
-            name="reraNumber"
-            control={control}
-            render={({ field }) => (
-              <input
-                {...field}
-                id="reraNumber"
-                className="form-control"
-                placeholder="Enter RERA Registration No."
-                disabled={!watch("reraApproved")}
-              />
-            )}
-          />
-        </div>
-      </div>
-
-      {/* Age of Property */}
-      <fieldset>
-        <legend>Age of Property</legend>
-        <RadioGroup name="ageOfProperty" options={AGE_OF_PROPERTY_OPTIONS} />
-      </fieldset>
-
-      {/* Total Floors */}
-      <div className="form-row">
-        <div className="form-col">
-          <label htmlFor="totalFloors">Total Floors</label>
-          <Controller
-            name="totalFloors"
-            control={control}
-            render={({ field }) => (
-              <input {...field} type="number" min="1" placeholder="Total floors" />
-            )}
-          />
-        </div>
-      </div>
-
-      {/* Floor and Wing */}
-<div className="form-row">
-  <div className="form-col">
-    <label htmlFor="floor">Floor</label>
-    <Controller
-      name="floor"
-      control={control}
-      render={({ field }) => (
-        <input {...field} type="text" id="floor" placeholder="e.g. 5th Floor" />
-      )}
-    />
-  </div>
-
-  <div className="form-col">
-    <label htmlFor="wing">Wing</label>
-    <Controller
-      name="wing"
-      control={control}
-      render={({ field }) => (
-        <input {...field} type="text" id="wing" placeholder="e.g. A / B / C" />
-      )}
-    />
-  </div>
-</div>
-
-
-      {/* Property Area */}
-      <div className="form-row">
-        <div className="form-col">
-          <label>Property Area</label>
-          <div style={{ display: "flex", gap: "8px" }}>
-            <Controller
-              name="area.value"
-              control={control}
-              render={({ field }) => (
-                <InputNumber {...field} min={0} style={{ flex: 2 }} placeholder="Enter area" />
-              )}
-            />
-            <Controller
-              name="area.unit"
-              control={control}
-              render={({ field }) => (
-                <Select {...field} options={AREA_UNITS} style={{ flex: 1 }} />
-              )}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Units Available & Available From */}
-      <div className="form-row">
-        <div className="form-col">
-          <label>Units Available</label>
-          <Controller
-            name="unitsAvailable"
-            control={control}
-            render={({ field }) => (
-              <InputNumber {...field} min={1} max={1000} style={{ width: "100%" }} />
-            )}
-          />
-        </div>
-
-        <div className="form-col">
-          <label>Available From</label>
-          <Controller
-            name="reraDate"
-            control={control}
-            render={({ field }) => (
-              <DatePicker
-                value={field.value ? dayjs(field.value) : null}
-                onChange={(date) => field.onChange(date?.toDate() || null)}
-                format="DD/MM/YYYY"
-                placeholder="Select date"
-              />
-            )}
-          />
-        </div>
-      </div>
-
       {/* Property Type */}
-      {/* CHECK THIS FOR SELLPROPERTYFORM CAUSE propertyGroup is derived from propertyType- not needed in form */}
-      <fieldset>
-        <legend>Property Type</legend>
-        <div className="property-type-container">
+      <fieldset className="fieldset">
+        <legend> 
+          Property Type <span className="required">*</span>
+        </legend>
+        {/* Hidden input so RHF tracks value through Zod */}
+        <input type="hidden" {...register("propertyType")} />
+        <div className="property-type-grid">
           {PROPERTY_TYPES.map((type) => (
-            <div
+            <button
               key={type.label}
+              type="button"
               className={`property-type-card ${
-                watch("propertyType") === type.label ? "selected" : ""
+                selectedType === type.label ? "property-type-card--selected" : ""
               }`}
-              onClick={() => {
-                setValue("propertyType", type.label);
-                setValue("propertyGroup", typeToGroupMap[type.label]);
-              }}
+              onClick={() => handleTypeSelect(type.label)}
+              aria-pressed={selectedType === type.label}
             >
-              {type.icon}
+              {type.icon && <span className="type-icon">{type.icon}</span>}
               <span>{type.label}</span>
-            </div>
+            </button>
           ))}
         </div>
+        {errors.propertyType && (
+          <span className="field-error" role="alert">{errors.propertyType.message}</span>
+        )}
       </fieldset>
 
-      {/* Furnishings, Possession, etc. */}
-      <fieldset>
-        <legend>Furnishings</legend>
-        <RadioGroup name="furnishing" options={FURNISHED_OPTIONS} />
-      </fieldset>
-
-      <fieldset>
-        <legend>Possession Status</legend>
-        <RadioGroup name="possessionStatus" options={POSSESSION_STATUS_OPTIONS} />
-      </fieldset>
-
-      <fieldset>
+      {/* BHK */}
+      <fieldset className="fieldset">
         <legend>BHK Configuration</legend>
         <RadioGroup name="bhk" options={BHK_OPTIONS} withSuffix="BHK" />
+        {errors.bhk && (
+          <span className="field-error" role="alert">{errors.bhk.message}</span>
+        )}
       </fieldset>
 
-      <fieldset>
+      {/* Bathrooms */}
+      <fieldset className="fieldset">
         <legend>Bathrooms</legend>
         <RadioGroup name="bathrooms" options={BATHROOM_OPTIONS} />
       </fieldset>
 
-      <fieldset>
+      {/* Balconies */}
+      <fieldset className="fieldset">
         <legend>Balconies</legend>
         <RadioGroup name="balconies" options={BALCONY_OPTIONS} />
       </fieldset>
 
-      <fieldset>
+      {/* Facing */}
+      <fieldset className="fieldset">
         <legend>Facing</legend>
         <RadioGroup name="facing" options={FACING_OPTIONS} />
       </fieldset>
 
-      <fieldset>
+      {/* Parking — multi-select maps to schema field "parkings" */}
+      <fieldset className="fieldset">
         <legend>Parking</legend>
-        <div className="radio-container">
-          {PARKING_OPTIONS.map((option) => (
-            <label
-              key={option}
-              className={`checkbox-label ${
-                (watch("parkings") || []).includes(option) ? "selected" : ""
-              }`}
-            >
-              <input
-                type="checkbox"
-                checked={(watch("parkings") || []).includes(option)}
-                onChange={() => handleCheckboxChange("parkings", option)}
-              />
-              {option}
-            </label>
-          ))}
-        </div>
+        <MultiCheckboxGroup name="parkings" options={PARKING_OPTIONS} />
+      </fieldset>
+
+      {/* Furnishing */}
+      <fieldset className="fieldset">
+        <legend>
+          Furnishing <span className="required">*</span>
+        </legend>
+        <RadioGroup name="furnishing" options={FURNISHED_OPTIONS} />
+        {errors.furnishing && (
+          <span className="field-error" role="alert">{errors.furnishing.message}</span>
+        )}
+      </fieldset>
+
+      {/* Possession Status */}
+      <fieldset className="fieldset">
+        <legend>
+          Possession Status <span className="required">*</span>
+        </legend>
+        <RadioGroup name="possessionStatus" options={POSSESSION_STATUS_OPTIONS} />
+        {errors.possessionStatus && (
+          <span className="field-error" role="alert">{errors.possessionStatus.message}</span>
+        )}
+      </fieldset>
+
+      {/* Age of Property */}
+      <fieldset className="fieldset">
+        <legend>Age of Property</legend>
+        <RadioGroup name="ageOfProperty" options={AGE_OF_PROPERTY_OPTIONS} />
       </fieldset>
     </section>
   );
 };
 
-export default PropertyDetailsSection;
+export default React.memo(PropertyDetailsSection);

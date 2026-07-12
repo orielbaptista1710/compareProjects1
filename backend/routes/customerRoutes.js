@@ -78,7 +78,7 @@ router.post('/firebase-login', authLimiter, async (req, res) => {
 
     const decoded = await customerAdminFire.auth().verifyIdToken(token);
 
-    // ✅ Upsert — if customer doesn't exist, create a minimal record
+    //  Upsert — if customer doesn't exist, create a minimal record
     // This handles: manual Firebase users, signup-cleanup edge cases
     const customer = await Customer.findOneAndUpdate(
       { firebaseUid: decoded.uid },

@@ -5,7 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "create-user": "node scripts/createUser.js",
+    "deactivate-user": "node scripts/deactivateUser.js"
   },
   "keywords": [],
   "author": "",

@@ -1,18 +1,60 @@
-/* Smooth spinner animation */
-.spinner-border, .spinner-grow {
-  animation-duration: 0.8s;
-}
+/* LoadingSpinner.css */
 
-/* Custom purple color for all spinners */
-.spinner-border.text-purple,
-.spinner-grow.text-purple {
-  color: #9417E2 !important;
-}
-
-/* Center spinner in parent container */
-.spinner-container {
+.spinner-page-center {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  height: 100vh; 
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  gap: 1.5rem;
+}
+
+.spinner-text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #9417E2;
+  letter-spacing: 0.04em;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.loader-spinner {
+  --color-1: #653fa2;
+  --color-2: #7c3aed;
+  --size: 4px;
+
+  width: calc(48 * var(--size));
+  height: calc(48 * var(--size));
+  border: calc(5 * var(--size)) solid var(--color-2);
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  position: relative;
+  animation: pulse 1s linear infinite;
+}
+
+.loader-spinner::after {
+  content: '';
+  position: absolute;
+  width: calc(48 * var(--size));
+  height: calc(48 * var(--size));
+  border: calc(5 * var(--size)) solid var(--color-1);
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  animation: scaleUp 1s linear infinite;
+}
+
+@keyframes scaleUp {
+  0%   { transform: translate(-50%, -50%) scale(0); }
+  60%, 100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes pulse {
+  0%, 60%, 100% { transform: scale(1); }
+  80%           { transform: scale(1.2); }
 }

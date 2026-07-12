@@ -2,7 +2,7 @@
 .mg-container {
   position: fixed;
   bottom: 28px;
-  left: 24px;
+  right: 24px;
   display: flex;
   align-items: flex-end;
   gap: 0;
@@ -191,24 +191,22 @@
 
 /* ── FAB (minimised state) ───────────────────────── */
 .mg-fab {
-  position: fixed;
-  bottom: 28px;
-  left: 24px;
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: #7B2FBE;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 4px 18px rgba(123, 47, 190, 0.4);
-  transition: transform 0.2s, box-shadow 0.2s;
-  z-index: 1000;
-  animation: mg-fab-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: fixed;
+    bottom: 28px;
+    right: 24px;
+    width: 100px;
+    height: 100px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 1000;
+    animation: mg-fab-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: transparent;
 }
 
 @keyframes mg-fab-in {
@@ -216,24 +214,19 @@
   to   { transform: scale(1);   opacity: 1; }
 }
 
-.mg-fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 24px rgba(123, 47, 190, 0.55);
-}
-
 .mg-fab-mascot {
-  width: 46px;
-  height: 46px;
+  width: 90px;
+  height: 90px;
   object-fit: contain;
   border-radius: 50%;
 }
 
 .mg-fab-badge {
   position: absolute;
-  top: 1px;
-  right: 1px;
-  width: 19px;
-  height: 19px;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
   background: #F5A623;
   color: #1a0a00;
   font-size: 10px;

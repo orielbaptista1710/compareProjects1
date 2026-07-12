@@ -9,7 +9,7 @@ import {
   Waves,
   Dumbbell,
   Trees,
-  Wifi,
+  Wifi, 
   Flame,
   Shield,
   BookOpen,
@@ -30,16 +30,17 @@ import {
 } from "lucide-react";
 
 // ---------------- Dropdown / Select Options ----------------
-
+// used in SellPropertyFORM
 export const PROPERTY_TYPES = [
   { label: "Flats/Apartments", icon: <Building size={16} /> },
   { label: "Villa", icon: <Building size={16} /> },
   { label: "Plot", icon: <Map size={16} /> },
+
   { label: "Shop/Showroom", icon: <Store size={16} /> },
   { label: "Industrial Warehouse/Godown", icon: <Warehouse size={16} /> },
-  { label: "Commercial Land", icon: <Store size={16} /> },
   { label: "Office Space", icon: <Building size={16} /> },
-  { label: "Industrial Buildings", icon: <Building size={16} /> },
+  { label: "Commercial Land", icon: <Store size={16} /> },
+  { label: "Industrial Building", icon: <Building size={16} /> },
 ];
 
 export const BHK_OPTIONS = ["1", "2", "3", "4", "5+"]; 

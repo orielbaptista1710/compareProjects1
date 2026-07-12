@@ -1,3 +1,4 @@
+//frontend-vite/src/database/locationData.js
 // this is used in the 
 const locationData = {
     Maharashtra: {

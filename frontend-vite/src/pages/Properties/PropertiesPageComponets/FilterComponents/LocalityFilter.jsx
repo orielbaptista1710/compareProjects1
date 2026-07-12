@@ -1,3 +1,4 @@
+//frontend-vite\src\pages\Properties\PropertiesPageComponets\FilterComponents\LocalityFilter.jsx
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { Search } from "lucide-react";
 import CheckboxGroup from "./CheckboxGroup";

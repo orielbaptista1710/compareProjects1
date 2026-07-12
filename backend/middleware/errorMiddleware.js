@@ -17,7 +17,7 @@ const errorHandler = (err, req, res, next) => {
     stack: err.stack,
     requestId: req.requestId
   });
-
+ 
   res.status(statusCode).json({
     success: false,
     message: err.message || "Server error",

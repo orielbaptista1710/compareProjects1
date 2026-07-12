@@ -71,7 +71,6 @@ const HeaderCard = ({ property, onRemove, onView  }) => {
 
       <button
         className="header-card__remove"
-        // onClick={() => onRemove(property._id)}
         onClick={(e) => {
     e.stopPropagation();
     onRemove(property._id);
@@ -218,7 +217,7 @@ const AmenityGroup = ({ title, items }) => (
 const TAB_MAP = {
   overview:  OverviewTab,
   details:   DetailsTab,
-  amenities: AmenitiesTab,
+  amenities: AmenitiesTab, 
   location:  LocationTab,
 };
 

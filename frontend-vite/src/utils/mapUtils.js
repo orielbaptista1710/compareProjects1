@@ -41,7 +41,7 @@ export function getMapEmbedUrl(property) {
     // Keyless fallback — basic map centred on coords
     return `https://www.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
   }
-
+ 
   // ── 2. Parse stored mapLink ───────────────────────────────────
   const link = property.mapLink;
   if (link) {

@@ -15,19 +15,19 @@ import "./PropertyPage.css";
 
 import {
   Heart, Share2, Download,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, 
   MapPin, BadgeCheck, Scale,
 } from "lucide-react";
 
 // ── Always-loaded (above fold, critical path) ────────────────
-import PropertyGallery  from "./PropertyPageComponents/PropertyGallery";
+import PropertyGallery  from "./PropertyPageComponents/PropertyGallery/PropertyGallery";
 import PropertyDetails  from "./PropertyPageComponents/PropertyDetails";
 import ContactFormm     from "./PropertyPageComponents/ContactFormm";
 import QuickLinks       from "./PropertyPageComponents/QuickLinks";
 import CompareBar       from "../Home/HomePageComponents/CompareBar";
 
 
-const LocationSection   = lazy(() => import("./PropertyPageComponents/LocationSection"));
+const PageLocationSection   = lazy(() => import("./PropertyPageComponents/PageLocationSection"));
 const FloorPlanView     = lazy(() => import("./PropertyPageComponents/FloorPlanView"));
 const FAQSection        = lazy(() => import("./PropertyPageComponents/FAQSection"));
 const IconTabContent    = lazy(() => import("./PropertyPageComponents/IconTabContent"));
@@ -95,7 +95,7 @@ const StickyTabBar = React.memo(({ activeTab, onTabClick, tabs }) => {
       <button className="pp-tab-chevron" onClick={() => scroll(1)} aria-label="Scroll tabs right">
         <ChevronRight size={14} />
       </button>
-    </div>
+    </div> 
   );
 });
 
@@ -314,7 +314,7 @@ function PropertyPage() {
 
           {/* hero */}
           <div className="pp-hero">
-            <div className="pp-hero__row">
+            <div className="pp-hero__row"> 
               <div className="pp-hero__meta">
                 {(property.bhk || property.propertyType) && (
                   <span className="pp-hero__chip">
@@ -362,10 +362,7 @@ function PropertyPage() {
                   <span className="pp-trust-badge"><BadgeCheck size={12} strokeWidth={2.5} /> RERA Approved</span>
                 )}
                 {property.reraNumber && (
-                  <span className="pp-trust-badge pp-trust-badge--pill">{property.reraNumber}</span>
-                )}
-                {property.possessionStatus && (
-                  <span className="pp-trust-badge">{property.possessionStatus}</span>
+                  <span className="pp-trust-badge pp-trust-badge--pill">RERA Number: {property.reraNumber}</span>
                 )}
               </div>
             )}
@@ -453,7 +450,7 @@ function PropertyPage() {
           {hasLocation && (
             <section id="pp-locality" ref={setRef("locality")} className="pp-section" aria-label="Location">
               <Suspense fallback={<SectionFallback />}>
-                <LocationSection property={property} />
+                <PageLocationSection property={property} />
               </Suspense>
             </section>
           )}
@@ -498,9 +495,12 @@ function PropertyPage() {
             </Card>
           </section>
 
-          <Suspense fallback={null}>
+            <Card title="Related Properties">
+              <Suspense fallback={null}>
             <RelatedProperties propertyId={property._id} />
           </Suspense>
+            </Card>
+          
 
         </main>
 
@@ -533,7 +533,7 @@ function PropertyPage() {
             ))}
           </div>
 
-          {/* ✅ Sidebar Download button — uses Cloudinary fl_attachment for real download */}
+          {/*  Sidebar Download button — uses Cloudinary fl_attachment for real download */}
           {property.brochure ? (
             <a
               href={getDownloadUrl(property.brochure)}

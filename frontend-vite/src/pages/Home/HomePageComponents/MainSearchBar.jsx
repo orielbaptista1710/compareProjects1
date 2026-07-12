@@ -1,20 +1,27 @@
-// src/components/MainSearchBar/MainSearchBar 
+// src/components/MainSearchBar/MainSearchBar
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Search,MapPin, House } from "lucide-react";
+import { Search, MapPin, House } from "lucide-react";
 import API from "../../../api";
 
 import LocationSearchBar from "./LocationSearchBar";
 import PropertyTypePills from "../../Home/HomePageComponents/MainSeachBarComponets/PropertyTypePills";
 import ExpandableSearch from "./ExpandableSearch";
 
-import { DEFAULT_FILTERS } from "../../../utils/filters.schema";
+import { DEFAULT_FILTERS, parseFiltersFromURL  } from "../../../utils/filters.schema";
+import { useCity } from "../../../contexts/CityContext"; 
+
+import { useOutsideClick } from "../../../hooks/useOutsideClick";
+import { useEscapeKey
+  
+ } from "../../../hooks/useEscapeKey";
 import "./MainSearchBar.css";
 
 const MainSearchBar = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { city } = useCity(); 
   const dropdownRef = useRef(null);
   const budgetRef = useRef(null);
 
@@ -25,90 +32,78 @@ const MainSearchBar = () => {
   /* -------------------- FETCH FILTER OPTIONS -------------------- */
   useQuery({
     queryKey: ["property-filter-options"],
-    queryFn: () =>
-    API.get("/api/properties/filters").then((res) => res.data),
+    queryFn: () => API.get("/api/properties/filters").then((res) => res.data),
     staleTime: 1000 * 60 * 10,
   });
 
   /* -------------------- URL → FILTER STATE -------------------- */
   const filters = useMemo(
-  () => ({
-    ...DEFAULT_FILTERS,
-    city: searchParams.get("city"),
-    locality: searchParams.get("locality"),
-    propertyType: searchParams.get("propertyType"),
-    bhk: searchParams.get("bhk"),
-  }),
-  [searchParams]
-);
+    () => ({ ...DEFAULT_FILTERS, ...parseFiltersFromURL(searchParams.toString()) }),
+    [searchParams]
+  );
 
   useEffect(() => {
-  setDraftFilters(filters);
-}, [filters]);
+    setDraftFilters(filters);
+  }, [filters]);
+
+  /* -------------------- SYNC CITY FROM CONTEXT → draftFilters -------------------- */
+  useEffect(() => {
+  if (!city) return;
+  setDraftFilters((prev) => {
+    // Don't clobber if draftFilters already has this city
+    // (e.g. user picked it via LocationSearchBar)
+    if (prev.city === city) return prev;
+    return {
+      ...prev,
+      city,
+      locality: [], // stale locality belongs to the old city
+    };
+  });
+}, [city]);
 
   /* -------------------- UPDATE URL -------------------- */
   const handleSearch = () => {
-  const params = new URLSearchParams();
+    const params = new URLSearchParams();
 
-  Object.entries(draftFilters).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      value.forEach((v) => {
-        if (v !== "" && v != null) {
-          params.append(key, String(v));
-        }
-      });
-    } else if (value !== "" && value != null) {
-      params.set(key, String(value));
-    }
-  });
+    Object.entries(draftFilters).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach((v) => {
+          if (v !== "" && v != null) params.append(key, String(v));
+        });
+      } else if (value !== "" && value != null) {
+        params.set(key, String(value));
+      }
+    });
 
-  navigate(`/properties?${params.toString()}`);
-};
+    navigate(`/properties?${params.toString()}`);
+  };
 
   /* -------------------- PROPERTY LABEL -------------------- */
   const getPropertyTypeLabel = () => {
-  const source = isPropertyOpen ? draftFilters : filters;
+    const source = isPropertyOpen ? draftFilters : filters;
+    const types = Array.isArray(source.propertyType) ? source.propertyType : [];
+    const bhks  = Array.isArray(source.bhk)          ? source.bhk          : [];
 
-  const types = Array.isArray(source.propertyType) 
-    ? source.propertyType 
-    : [];
-  
-  const bhks = Array.isArray(source.bhk) 
-    ? source.bhk 
-    : [];
+    if (types.length === 0 && bhks.length === 0) return "Property Type";
 
-  if (types.length === 0 && bhks.length === 0) {
-    return "Property Type";
-  }
+    const parts = [
+      types.length === 1 ? types[0] : types.length > 1 ? `${types.length} Types` : null,
+      bhks.length  === 1 ? `${bhks[0]} BHK` : bhks.length > 1 ? `${bhks.length} BHKs` : null,
+    ].filter(Boolean);
 
-  const parts = [
-    types.length === 1 ? types[0] : types.length > 1 ? `${types.length} Types` : null,
-    bhks.length === 1 ? `${bhks[0]} BHK` : bhks.length > 1 ? `${bhks.length} BHKs` : null,
-  ].filter(Boolean);
-
-  return parts.join(" + ") || "Property Type";
-};
+    return parts.join(" + ") || "Property Type";
+  };
 
   /* -------------------- OUTSIDE CLICK + ESC -------------------- */
   useEffect(() => {
     if (!isPropertyOpen) return;
-
     const handlePointer = (e) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target))
         setIsPropertyOpen(false);
-      }
     };
-
-    const handleKey = (e) => {
-      if (e.key === "Escape") setIsPropertyOpen(false);
-    };
-
+    const handleKey = (e) => { if (e.key === "Escape") setIsPropertyOpen(false); };
     document.addEventListener("pointerdown", handlePointer);
     document.addEventListener("keydown", handleKey);
-
     return () => {
       document.removeEventListener("pointerdown", handlePointer);
       document.removeEventListener("keydown", handleKey);
@@ -117,32 +112,25 @@ const MainSearchBar = () => {
 
   useEffect(() => {
     if (!isBudgetOpen) return;
-
     const handlePointer = (e) => {
-      if (budgetRef.current && !budgetRef.current.contains(e.target)) {
+      if (budgetRef.current && !budgetRef.current.contains(e.target))
         setIsBudgetOpen(false);
-      }
     };
-
-    const handleKey = (e) => {
-      if (e.key === "Escape") setIsBudgetOpen(false);
-    };
-
+    const handleKey = (e) => { if (e.key === "Escape") setIsBudgetOpen(false); };
     document.addEventListener("pointerdown", handlePointer);
     document.addEventListener("keydown", handleKey);
-
     return () => {
       document.removeEventListener("pointerdown", handlePointer);
       document.removeEventListener("keydown", handleKey);
     };
   }, [isBudgetOpen]);
 
+  // JSX unchanged — no edits below this line
   return (
     <div className="mainsearch-bar">
       <div className="main-search-container-section">
         <div className="main-search-container">
 
-          {/* LOCATION SEARCH */}
           <LocationSearchBar
             onSelect={(location) => {
               setDraftFilters((prev) => ({
@@ -153,22 +141,16 @@ const MainSearchBar = () => {
             }}
           />
 
-          {/* VERTICAL DIVIDER */}
           <div className="search-divider" />
 
-          {/* PROPERTY TYPE + BHK */}
           <div className="search-field-type" ref={dropdownRef}>
             <button
               type="button"
-              className={`property-type-trigger ${
-                isPropertyOpen ? "active" : ""
-              }`}
+              className={`property-type-trigger ${isPropertyOpen ? "active" : ""}`}
               aria-expanded={isPropertyOpen}
               onClick={() => setIsPropertyOpen((p) => !p)}
             >
-              <span className="property-icon">
-                <House width={16} />
-              </span>
+              <span className="property-icon"><House width={16} /></span>
               <span>{getPropertyTypeLabel()}</span>
               <span className="chevron">▾</span>
             </button>
@@ -178,20 +160,15 @@ const MainSearchBar = () => {
                 <PropertyTypePills
                   valueMap={draftFilters}
                   onChange={(key, value) =>
-                    setDraftFilters((prev) => ({
-                      ...prev,
-                      [key]: value,
-                    }))
+                    setDraftFilters((prev) => ({ ...prev, [key]: value }))
                   }
                 />
               </div>
             )}
           </div>
 
-          {/* VERTICAL DIVIDER */}
           <div className="search-divider" />
 
-          {/* BUDGET DROPDOWN */}
           <div className="search-field-budget" ref={budgetRef}>
             <button
               type="button"
@@ -199,9 +176,7 @@ const MainSearchBar = () => {
               aria-expanded={isBudgetOpen}
               onClick={() => setIsBudgetOpen((p) => !p)}
             >
-              <span className="budget-icon">
-              <MapPin width={16}/>
-              </span>
+              <span className="budget-icon"><MapPin width={16} /></span>
               <span>Budget</span>
               <span className="chevron">▾</span>
             </button>
@@ -215,19 +190,13 @@ const MainSearchBar = () => {
             )}
           </div>
 
-          {/* SEARCH BUTTON */}
-          <button
-            className="mainsearch-btn"
-            type="button"
-            onClick={handleSearch}
-          >
+          <button className="mainsearch-btn" type="button" onClick={handleSearch}>
             <Search size={18} />
             Search
           </button>
 
         </div>
       </div>
-
       <ExpandableSearch />
     </div>
   );

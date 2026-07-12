@@ -8,11 +8,13 @@ import PrivacyPolicy from "./shared/Documents/Privacypolicy";
 import Terms from "./shared/Documents/Terms";
 import Disclaimer from "./shared/Documents/Disclaimer";
 
+import CompareSync from "./components/CompareSync";
+
 // For Disclaimer — add <Disclaimer /> in your App.jsx layout (outside the Router
 // Switch but inside the Router) so it shows on every page:
 
-// import { ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
+import { Toaster } from 'react-hot-toast';
+
  
 import { HeadProvider  } from "react-head";
 import { CompareProvider, useCompare } from "./contexts/CompareContext";
@@ -28,7 +30,6 @@ import Footer from './shared/Footer/Footer';
 import NavigationBar from './shared/NavigationBar/NavigationBar';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedCustomerRoute from "./components/ProtectedCustomerRoute";
-
 
 import ErrorBoundary from './shared/ErrorBoundary/ErrorBoundary';
 
@@ -64,12 +65,12 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000, 
     },
   },
 });
 
-const AppContent = () => {   // fixed function syntax
+const AppContent = () => {   
   const { compareList, setCompareList, addToCompare, removeFromCompare } = useCompare();
   const location = useLocation();
 
@@ -93,6 +94,9 @@ const hideBreadcrumbRoutes = [
   "/customer-login",
   "/customer-signup",
   "/admin",
+  "/customer-profile",
+  "/dashboard"
+
 ];
 
 const showBreadcrumbs = !hideBreadcrumbRoutes.some((path) =>
@@ -102,13 +106,14 @@ const showBreadcrumbs = !hideBreadcrumbRoutes.some((path) =>
   return (
     <>
       <Header compareCount={compareList.length} />
+      <CompareSync />
       {showNavigationBar && <NavigationBar />}
 
       {showBreadcrumbs && <Breadcrumbs hasNavbar={showNavigationBar} />}
 
         <Suspense fallback={
-          <div className="spinner-container">
-            <LoadingSpinner size="lg" text="Loading page..." />
+          <div>
+            <LoadingSpinner text="Loading page..." />
           </div>
         }>
 
@@ -171,15 +176,34 @@ const showBreadcrumbs = !hideBreadcrumbRoutes.some((path) =>
       </Suspense>
 
       <Footer />
-
       <Disclaimer />
+
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            fontFamily: 'inherit',
+            fontSize: '14px',
+          },
+          success: {
+            iconTheme: {
+              primary: '#9417E2',  // your brand purple
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 5000,  // errors stay longer
+          },
+        }}
+      />
 
     </>
   );
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>    
+  <QueryClientProvider client={queryClient}> 
     <HeadProvider > 
     <AuthProvider>
     <CustomerActivityProvider>

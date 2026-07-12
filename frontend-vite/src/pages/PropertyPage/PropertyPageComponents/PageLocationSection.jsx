@@ -1,4 +1,4 @@
-//frontend/src/pages/PropertyPage/PropertyPageComponents/LocationSection 
+//frontend/src/pages/PropertyPage/PropertyPageComponents/PageLocationSection 
 //  * What it does:
 //  *  - Derives a working embed URL via getMapEmbedUrl() (coords → mapLink → address)
 //  *  - Shows a "Map not available" placeholder if nothing resolves
@@ -8,7 +8,7 @@
 import React, { useMemo, useState } from "react";
 import { MapPin, Building2, AlertCircle } from "lucide-react";
 import { getMapEmbedUrl, getLandmarkHref } from "../../../utils/mapUtils";
-import "./LocationSection.css";
+import "./PageLocationSection.css"; 
 
 // ── Map iframe with error/loading states ──────────────────────
 const MapEmbed = ({ src }) => {
@@ -46,7 +46,7 @@ const MapEmbed = ({ src }) => {
 };
 
 // ── Main component ────────────────────────────────────────────
-const LocationSection = ({ property }) => {
+const PageLocationSection = ({ property }) => {
   const embedUrl = useMemo(() => getMapEmbedUrl(property), [property]);
 
   const landmarks = property.landmarks || [];
@@ -109,4 +109,4 @@ const LocationSection = ({ property }) => {
   );
 };
 
-export default LocationSection;
+export default PageLocationSection;

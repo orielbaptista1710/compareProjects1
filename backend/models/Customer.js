@@ -25,7 +25,7 @@ const customerSchema = new mongoose.Schema({
       message: 'Invalid email address',
     },
   },
-  customerPhone: {
+  customerPhone: { 
     type: String,
     unique: true,
     sparse: true,          // ← allows multiple null values

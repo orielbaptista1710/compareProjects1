@@ -1,283 +1,500 @@
-import React, { useState, useEffect, useMemo } from "react";
+// frontend-vite/src/pages/Admin/AdminDashboard.jsx
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
-  Box, Typography, TextField, Button, CircularProgress, Snackbar, Alert,
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  // Select,MenuItem,Stack
+  Box, Typography, Button, CircularProgress,
+  Dialog, DialogTitle, DialogContent, DialogActions, TextField,
+  Alert, Skeleton,
 } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import API from "../../api"
+import API from "../../api";
 import debounce from "lodash.debounce";
-// import { Autocomplete } from "@mui/material";
 
-import AdminPropertyTable from "../Admin/AdminDasboardComponents/AdminPropertyTable";
-import DeveloperDetailsModal from "../Admin/AdminDasboardComponents/DeveloperDetailsModal";
-import AdminFilters from "../Admin/AdminDasboardComponents/AdminFilters";
+import AdminPropertyTable from "./AdminDasboardComponents/AdminPropertyTable";
+import DeveloperDetailsModal from "./AdminDasboardComponents/DeveloperDetailsModal";
+import AdminFilters from "./AdminDasboardComponents/AdminFilters";
 
-// Fetch properties
-//CHECK THIS - LINK UP WITH THE ADMINBACKEND STUFF 
+import { LogOut, User } from "lucide-react";
+import toast from "react-hot-toast";
+import toastError from "../../utils/toastError";
+
+// ─── API helpers (outside component — stable references) ────────────────────
+ 
 const fetchProperties = async ({ queryKey }) => {
   const [, filters] = queryKey;
   const params = {
-    page: filters.page,
-    limit: filters.limit, 
-    status: filters.status,
-    propertyType: filters.propertyType,
-    search: filters.search,
-    city: filters.city || undefined,
-    locality: filters.locality || undefined,
-    sortBy: filters.sortBy,
-    imageFilter: filters.imageFilter,
-
+    page:         filters.page,
+    limit:        filters.limit,
+    status:       filters.status       || undefined,
+    propertyType: filters.propertyType || undefined,
+    search:       filters.search       || undefined,
+    city:         filters.city         || undefined,
+    locality:     filters.locality     || undefined,
+    sortBy:       filters.sortBy,
+    imageFilter:  filters.imageFilter  || undefined,
   };
   const { data } = await API.get("/api/admin/properties", { params });
   return data;
+};
 
-};    
-
-// Approve / Reject API
-const approveProperty = async (id) => {
+const approvePropertyApi = async (id) => {
   const { data } = await API.put(`/api/admin/approve/${id}`);
   return data;
 };
-const rejectProperty = async ({ id, reason }) => {
+
+const rejectPropertyApi = async ({ id, reason }) => {
   const { data } = await API.put(`/api/admin/reject/${id}`, { rejectionReason: reason });
   return data;
 };
 
+const logoutApi = async () => {
+  await API.post("/api/auth/logout");
+};
+
+// ─── Default filter state (stable reference — avoids inline object recreation) ─
+
+const DEFAULT_FILTERS = {
+  search:       "",
+  propertyType: "",
+  status:       "",
+  city:         "",
+  locality:     null,
+  imageFilter:  "",
+  sortBy:       "latest",
+};
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
 
-  // Pagination & Filters
-  const [page, setPage] = useState(0);
+  // Pagination
+  const [page, setPage]               = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
 
-  const [filters, setFilters] = useState({
-  search: "",
-  propertyType: "",
-  status: "",
-  city: "",
-  locality: null,
-  imageFilter: "",
-  sortBy: "latest"
-});
+  // Filters
+  const [filters, setFilters]               = useState(DEFAULT_FILTERS);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-//   const [statusFilter, setStatusFilter] = useState("");
-//   const [search, setSearch] = useState("");
-//   const [propertyTypeFilter, setPropertyTypeFilter] = useState("");
-// const [cityFilter, setCityFilter] = useState("");
+  // Modals
+  const [selectedProperty, setSelectedProperty]   = useState(null);
+  const [detailsModalOpen, setDetailsModalOpen]   = useState(false);
+  const [detailsLoading, setDetailsLoading]       = useState(false);
+  const [rejectModal, setRejectModal]             = useState({ open: false, propertyId: null, reason: "" });
+  const [confirmApprove, setConfirmApprove]       = useState({ open: false, propertyId: null });
 
-//   const [localityFilter, setLocalityFilter] = useState(null);
-//   const [localitySearch, setLocalitySearch] = useState("");
-//   const [sortBy, setSortBy] = useState("latest"); 
+  // ── Debounced search ────────────────────────────────────────────────────────
+  const debounceSearch = useMemo(
+    () => debounce((val) => setDebouncedSearch(val), 500),
+    []
+  );
 
-//   const [imageFilter, setImageFilter] = useState("");
+  // Cancel debounce on unmount — prevents state update on unmounted component
+  useEffect(() => () => debounceSearch.cancel(), [debounceSearch]);
 
-
-  const [selectedProperty, setSelectedProperty] = useState(null);
-  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-
-  
-
-
-  
-
-
-const handleRowClick = async (property) => { 
-  try {
-    const res = await API.get(`/api/admin/property/${property._id}`);
-    setSelectedProperty(res.data.data);   // ⭐ FIX HERE
-    setDetailsModalOpen(true);
-  } catch (e) {
-    console.error("Failed to fetch full property", e);
-  }
-};
-
-  // Debounced search
-//   const [debouncedSearch, setDebouncedSearch] = useState(search);
-
-//   const debounceSearch = useMemo(
-//   () => debounce((val) => setDebouncedSearch(val), 500),
-//   []
-// );
-
-// Debounced search
-const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
-
-const debounceSearch = useMemo(
-  () => debounce((val) => setDebouncedSearch(val), 500),
-  []
-);
-
-useEffect(() => {
-  debounceSearch(filters.search);
-}, [filters.search, debounceSearch]);
-
-
-  // ✅ Reset locality when city changes
   useEffect(() => {
-  setFilters((prev) => ({
-    ...prev,
-    locality: null
-  }));
-}, [filters.city]);
+    debounceSearch(filters.search);
+  }, [filters.search, debounceSearch]);
 
+  // ── Reset locality when city changes ────────────────────────────────────────
+  useEffect(() => {
+    setFilters((prev) => ({ ...prev, locality: null }));
+  }, [filters.city]);
 
-  // Snackbar
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  // ── Reset page on any filter change ─────────────────────────────────────────
+  useEffect(() => {
+    setPage(0);
+  }, [
+    debouncedSearch,
+    filters.status,
+    filters.propertyType,
+    filters.city,
+    filters.locality,
+    filters.sortBy,
+    filters.imageFilter,
+  ]);
 
-  // Reject Modal
-  const [rejectModal, setRejectModal] = useState({ open: false, propertyId: null, reason: "" });
+  // ── Queries ──────────────────────────────────────────────────────────────────
 
-
-  // Fetch properties
-  const { data, isLoading, isError, refetch, isFetching } = useQuery({
-    queryKey: ["properties", {
-      page: page + 1,
-      limit: rowsPerPage,
-
-      status: filters.status,
+  const queryKey = useMemo(() => [
+    "adminProperties",
+    {
+      page:         page + 1,
+      limit:        rowsPerPage,
+      status:       filters.status,
       propertyType: filters.propertyType,
-      search: debouncedSearch,
-      city: filters.city,
-      locality: filters.locality,
-      sortBy: filters.sortBy,
-      imageFilter: filters.imageFilter
+      search:       debouncedSearch,
+      city:         filters.city,
+      locality:     filters.locality,
+      sortBy:       filters.sortBy,
+      imageFilter:  filters.imageFilter,
+    },
+  ], [page, rowsPerPage, filters, debouncedSearch]);
 
-    }],
-    queryFn: fetchProperties,
-    keepPreviousData: true,
-    staleTime: 30000,
-    retry: 2,
-    retryDelay: 1500,
+  const { data, isLoading, isError, refetch, isFetching } = useQuery({
+    queryKey,
+    queryFn:        fetchProperties,
+    // v5 equivalent of keepPreviousData — prevents table flash on filter change
+    placeholderData: (prev) => prev,
+    staleTime:      30_000,
+    retry:          2,
+    retryDelay:     1500,
   });
 
   const { data: cityList = [] } = useQuery({
-  queryKey: ["cities"],
-  queryFn: async () => {
-    const { data } = await API.get("/api/admin/cities");
-    return data;
-  }
-});
-
-const { data: localities = [], isFetching: loadingLocalities } = useQuery({
-  queryKey: ["localities", filters.city],
-  queryFn: async () => {
-    if (!filters.city) return [];
-    const { data } = await API.get("/api/admin/localities", {
-      params: { city: filters.city }
-    });
-    return data;
-  },
-  enabled: !!filters.city,
-  staleTime: 5 * 60 * 1000
-});
-
-
-  // Mutations
-  const approveMutation = useMutation({ 
-    mutationFn: approveProperty, 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["properties"] });
-      setSnackbar({ open: true, message: "Property approved!", severity: "success" });
+    queryKey: ["adminCities"],
+    queryFn:  async () => {
+      const { data } = await API.get("/api/admin/cities");
+      return data;
     },
-    onError: () => {
-      setSnackbar({ open: true, message: "Failed to approve.", severity: "error" });
-    }
+    staleTime: 10 * 60 * 1000, // cities rarely change
   });
-  
-  const rejectMutation = useMutation({ 
-    mutationFn: rejectProperty, 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["properties"] });
-      setSnackbar({ open: true, message: "Property rejected!", severity: "success" });
+
+  const { data: localities = [], isFetching: loadingLocalities } = useQuery({
+    queryKey: ["adminLocalities", filters.city],
+    queryFn:  async () => {
+      if (!filters.city) return [];
+      const { data } = await API.get("/api/admin/localities", {
+        params: { city: filters.city },
+      });
+      return data;
+    },
+    enabled:   !!filters.city,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch logged-in admin info — used in header display
+  // staleTime: Infinity because identity doesn't change mid-session
+  const { data: currentUser } = useQuery({
+    queryKey: ["adminMe"],
+    queryFn:  async () => {
+      const { data } = await API.get("/api/auth/me");
+      return data.user; // { displayName, username, role }
+    },
+    staleTime: Infinity,
+    retry: false, // if /me fails, don't spam retries — just show nothing
+  });
+
+  // ── Mutations ────────────────────────────────────────────────────────────────
+
+  const invalidateProperties = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["adminProperties"] });
+  }, [queryClient]);
+
+  const approveMutation = useMutation({
+    mutationFn: approvePropertyApi,
+    onSuccess:  () => {
+      invalidateProperties();
+      toast.success("Property approved");
+      setConfirmApprove({ open: false, propertyId: null });
+    },
+    onError: (err) => toastError(err, "Failed to approve property"),
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: rejectPropertyApi,
+    onSuccess:  () => {
+      invalidateProperties();
+      toast.success("Property rejected");
       setRejectModal({ open: false, propertyId: null, reason: "" });
     },
-    onError: () => {
-      setSnackbar({ open: true, message: "Failed to reject.", severity: "error" });
-    }
+    onError: (err) => toastError(err, "Failed to reject property"),
   });
 
-  const handleApprove = (id) => {
-    if(window.confirm("Approve this property?")) approveMutation.mutate(id);
-  };
-  const handleOpenReject = (id) => setRejectModal({ open: true, propertyId: id, reason: "" });
-  const handleRejectConfirm = () => rejectMutation.mutate({ id: rejectModal.propertyId, reason: rejectModal.reason });
+  const logoutMutation = useMutation({
+    mutationFn: logoutApi,
+    onSuccess: () => {
+      // Clear all cached queries — admin data shouldn't persist after logout
+      queryClient.clear();
+      window.location.href = "/login";
+    },
+    onError: () => {
+      // Cookie may already be gone — redirect anyway
+      queryClient.clear();
+      window.location.href = "/login";
+    },
+  });
 
-  // Reset page when filters/search change
-  useEffect(() => { setPage(0); }, 
-[
-  debouncedSearch,
-  filters.status,
-  filters.propertyType,
-  filters.city,
-  filters.locality,
-  filters.sortBy,
-  filters.imageFilter
-]);
+  // ── Row click — load full property detail ────────────────────────────────────
 
-  if (isLoading) return <CircularProgress />;
-  if (isError) return <Typography color="error">Failed to load properties. <Button onClick={refetch}>Retry</Button></Typography>;
+  const handleRowClick = useCallback(async (property) => {
+    setDetailsLoading(true);
+    setDetailsModalOpen(true);
+    try {
+      const res = await API.get(`/api/admin/property/${property._id}`);
+      setSelectedProperty(res.data.data);
+    } catch (e) {
+      toastError(e, "Failed to load property details");
+      setDetailsModalOpen(false);
+    } finally {
+      setDetailsLoading(false);
+    }
+  }, []);
+
+  const handleCloseDetails = useCallback(() => {
+    setDetailsModalOpen(false);
+    // Small delay so modal close animation finishes before clearing data
+    setTimeout(() => setSelectedProperty(null), 300);
+  }, []);
+
+  // ── Approve flow — MUI dialog instead of window.confirm ─────────────────────
+
+  const handleApprove = useCallback((id) => {
+    setConfirmApprove({ open: true, propertyId: id });
+  }, []);
+
+  const handleApproveConfirm = useCallback(() => {
+    approveMutation.mutate(confirmApprove.propertyId);
+  }, [approveMutation, confirmApprove.propertyId]);
+
+  // ── Reject flow ──────────────────────────────────────────────────────────────
+
+  const handleOpenReject  = useCallback((id) => setRejectModal({ open: true, propertyId: id, reason: "" }), []);
+  const handleRejectConfirm = useCallback(() => {
+    rejectMutation.mutate({ id: rejectModal.propertyId, reason: rejectModal.reason });
+  }, [rejectMutation, rejectModal]);
+
+  // ── Render ───────────────────────────────────────────────────────────────────
+
+  // Hard error state (first load only — not on filter change)
+  if (isError && !data) {
+    return (
+      <Box p={4} pt={13}>
+        <Alert
+          severity="error"
+          action={<Button onClick={refetch} size="small">Retry</Button>}
+        >
+          Failed to load properties.
+        </Alert>
+      </Box>
+    );
+  }
 
   return (
-    <Box p={3} pt={13}>
-      <Typography variant="h4" gutterBottom >
-        Admin Dashboard {isFetching && <CircularProgress size={16} sx={{ ml: 1 }} />}
-      </Typography>
+    <Box
+      sx={{
+        px: { xs: 2, sm: 3, md: 4 },
+        pt: { xs: 11, md: 13 },   // extra top padding — clears fixed navbar
+        pb: 6,
+        maxWidth: 1600,
+        mx: "auto",
+      }}
+    >
+      {/* ── Header ── */}
+      <Box
+        sx={{
+          display:        "flex",
+          alignItems:     "center",
+          justifyContent: "space-between",
+          mb: 3,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Typography variant="h5" fontWeight={600}>
+            Properties
+          </Typography>
+          {isFetching && (
+            <CircularProgress size={16} thickness={4} sx={{ color: "primary.main" }} />
+          )}
+        </Box>
 
-      {/* Filters */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+
+          {/* Property count pill */}
+          {data?.total != null && (
+            <Box
+              sx={{
+                px: 1.5, py: 0.4,
+                borderRadius: 2,
+                bgcolor: "action.hover",
+                display: "flex",
+                alignItems: "center",
+                gap: 0.75,
+              }}
+            >
+              <Typography variant="body2" fontWeight={600} lineHeight={1}>
+                {data.total.toLocaleString()}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" lineHeight={1}>
+                {data.total === 1 ? "property" : "properties"}
+              </Typography>
+            </Box>
+          )}
+
+          {/* Divider */}
+          <Box sx={{ width: "1px", height: 28, bgcolor: "divider" }} />
+
+          {/* Logged-in user */}
+          {currentUser && (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              {/* Avatar circle — initials */}
+              <Box
+                sx={{
+                  width: 30, height: 30,
+                  borderRadius: "50%",
+                  bgcolor: "primary.main",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  fontWeight={700}
+                  sx={{ color: "#fff", lineHeight: 1, fontSize: "0.7rem" }}
+                >
+                  {currentUser.displayName?.charAt(0).toUpperCase() ?? "A"}
+                </Typography>
+              </Box>
+
+              {/* Name + role — hide on small screens */}
+              <Box sx={{ display: { xs: "none", sm: "flex" }, flexDirection: "column" }}>
+                <Typography variant="body2" fontWeight={600} lineHeight={1.2}>
+                  {currentUser.displayName}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  lineHeight={1.2}
+                  sx={{
+                    color: "primary.main",
+                    textTransform: "capitalize",
+                    fontWeight: 500,
+                  }}
+                >
+                  {currentUser.role}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+
+          {/* Sign out */}
+          <Button
+            size="small"
+            variant="outlined"
+            color="inherit"
+            startIcon={<LogOut size={14} />}
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
+            sx={{
+              borderColor: "divider",
+              color: "text.secondary",
+              "&:hover": { borderColor: "error.main", color: "error.main" },
+            }}
+          >
+            {logoutMutation.isPending ? "Signing out…" : "Sign out"}
+          </Button>
+        </Box>
+      </Box>
+
+      {/* ── Filters ── */}
       <AdminFilters
-  filters={filters}
-  setFilters={setFilters}
-  cityList={cityList}
-  localities={localities}
-  loadingLocalities={loadingLocalities}
-/>
+        filters={filters}
+        setFilters={setFilters}
+        cityList={cityList}
+        localities={localities}
+        loadingLocalities={loadingLocalities}
+      />
 
+      {/* ── Table — skeleton on first load only, table persists on filter change ── */}
+      {isLoading && !data ? (
+        <Box>
+          {[...Array(8)].map((_, i) => (
+            <Skeleton key={i} variant="rectangular" height={52} sx={{ mb: 0.5, borderRadius: 1 }} />
+          ))}
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            // Dim slightly while fetching new page — no layout shift
+            opacity:    isFetching ? 0.6 : 1,
+            transition: "opacity 0.15s ease",
+          }}
+        >
+          <AdminPropertyTable
+            data={data}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            setPage={setPage}
+            setRowsPerPage={setRowsPerPage}
+            handleApprove={handleApprove}
+            handleOpenReject={handleOpenReject}
+            approveMutation={approveMutation}
+            rejectMutation={rejectMutation}
+            onRowClick={handleRowClick}
+          />
+        </Box>
+      )}
 
-      {/* Properties Table */}
-      <AdminPropertyTable
-  data={data}
-  page={page}
-  rowsPerPage={rowsPerPage}
-  setPage={setPage}
-  setRowsPerPage={setRowsPerPage}
-  handleApprove={handleApprove}
-  handleOpenReject={handleOpenReject}
-  approveMutation={approveMutation}
-  rejectMutation={rejectMutation}
-  onRowClick={handleRowClick}
-/>
+      {/* ── Detail modal ── */}
+      <DeveloperDetailsModal
+        open={detailsModalOpen}
+        onClose={handleCloseDetails}
+        property={selectedProperty}
+        loading={detailsLoading}
+      />
 
-    <DeveloperDetailsModal 
-  open={detailsModalOpen}
-  onClose={() => setDetailsModalOpen(false)}
-  property={selectedProperty}
-/>
-
-
-      {/* Reject Reason Modal */}
-      <Dialog open={rejectModal.open} onClose={()=>setRejectModal({ open:false, propertyId:null, reason:"" })}>
-        <DialogTitle>Reject Property</DialogTitle>
+      {/* ── Approve confirm dialog (replaces window.confirm) ── */}
+      <Dialog
+        open={confirmApprove.open}
+        onClose={() => setConfirmApprove({ open: false, propertyId: null })}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Approve property?</DialogTitle>
         <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            This will mark the listing as approved and make it visible to customers.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmApprove({ open: false, propertyId: null })}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={handleApproveConfirm}
+            disabled={approveMutation.isPending}
+          >
+            {approveMutation.isPending ? "Approving…" : "Approve"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ── Reject dialog ── */}
+      <Dialog
+        open={rejectModal.open}
+        onClose={() => setRejectModal({ open: false, propertyId: null, reason: "" })}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Reject property</DialogTitle>
+        <DialogContent sx={{ pt: 2 }}>
           <TextField
-            label="Rejection Reason"
+            label="Reason for rejection"
+            placeholder="e.g. Missing RERA number, incorrect price…"
             fullWidth
             multiline
             rows={3}
             value={rejectModal.reason}
-            onChange={(e)=>setRejectModal({...rejectModal, reason:e.target.value})}
+            onChange={(e) => setRejectModal((prev) => ({ ...prev, reason: e.target.value }))}
+            autoFocus
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={()=>setRejectModal({ open:false, propertyId:null, reason:"" })}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleRejectConfirm}>Reject</Button>
+          <Button onClick={() => setRejectModal({ open: false, propertyId: null, reason: "" })}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleRejectConfirm}
+            disabled={rejectMutation.isPending}
+          >
+            {rejectMutation.isPending ? "Rejecting…" : "Reject"}
+          </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Snackbar */}
-      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={()=>setSnackbar({...snackbar, open:false})}>
-        <Alert severity={snackbar.severity} sx={{ width:"100%" }}>{snackbar.message}</Alert>
-      </Snackbar>
     </Box>
   );
 }

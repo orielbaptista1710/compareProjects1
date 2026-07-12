@@ -1,11 +1,16 @@
 // backend/config/firebaseAdmin.js
 import customerAdminFire from "firebase-admin";
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+let credential;
 
-customerAdminFire.initializeApp({
-  credential: customerAdminFire.credential.cert(serviceAccount)
-});
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  credential = customerAdminFire.credential.cert(serviceAccount);
+} else {
+  const { default: serviceAccount } = await import("./firebase-service-account.json", { assert: { type: "json" } });
+  credential = customerAdminFire.credential.cert(serviceAccount);
+}
+
+customerAdminFire.initializeApp({ credential });
 
 export default customerAdminFire;
-

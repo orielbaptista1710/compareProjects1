@@ -5,7 +5,7 @@ import { ChevronDown, Loader2 } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 
 const ResultsHeader = ({
-  totalMatched,
+  totalMatched, 
   filters,
   sortBy,
   setSortBy,

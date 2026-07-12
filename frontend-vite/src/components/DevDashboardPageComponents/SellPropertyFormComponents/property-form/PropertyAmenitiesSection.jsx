@@ -1,115 +1,89 @@
-// src/components/forms/propertySections/PropertyAmenitiesSection.js
+// SellPropertyFormComponents/property-form/PropertyAmenitiesSection.jsx
+// Amenities, Facilities, Security — all multi-select checkbox grids.
+// Uses a single reusable CheckboxGrid component to avoid code duplication.
 
-import React from "react";
-import { useFormContext } from "react-hook-form"; 
+import React, { useCallback } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 import {
   amenitiesList,
   facilitiesList,
   securityList,
-} from "../../../../constants/propertyFormConstants"; // adjust path if needed
+} from "../../../../assests/constants/propertyFormConstants";
 
-const PropertyAmenitiesSection = () => {
-  const { watch, setValue, getValues } = useFormContext();
+// ── Reusable CheckboxGrid ──────────────────────────────────────────────────────
+const CheckboxGrid = React.memo(({ fieldName, items, legend }) => {
+  const { setValue, getValues, control } = useFormContext();
+  const selected = useWatch({ control, name: fieldName }) || [];
 
-  const selectedAmenities = watch("amenities") || [];
-  const selectedFacilities = watch("facilities") || [];
-  const selectedSecurity = watch("security") || [];
-
-  const handleCheckboxChange = (fieldName, value) => {
-    const current = getValues(fieldName) || [];
-    const updated = current.includes(value)
-      ? current.filter((v) => v !== value)
-      : [...current, value];
-    setValue(fieldName, updated);
-  };
+  const toggle = useCallback(
+    (itemName) => {
+      const current = getValues(fieldName) || [];
+      const next = current.includes(itemName)
+        ? current.filter((v) => v !== itemName)
+        : [...current, itemName];
+      // shouldDirty keeps the form aware this field changed
+      setValue(fieldName, next, { shouldDirty: true });
+    },
+    [fieldName, getValues, setValue]
+  );
 
   return (
-    <section aria-labelledby="amenities-section">
-      <h3 id="amenities-section" className="section-title">
-        Amenities & Facilities
-      </h3>
-
-      {/* Amenities */}
-      <div className="form-section">
-        <h4 className="section-subtitle">Amenities</h4>
-        <fieldset>
-          <div className="checkbox-container">
-            {amenitiesList.map((amenity) => (
-              <label
-                key={amenity.name}
-                className={`checkbox-label ${
-                  selectedAmenities.includes(amenity.name) ? "selected" : ""
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  value={amenity.name}
-                  checked={selectedAmenities.includes(amenity.name)}
-                  onChange={() => handleCheckboxChange("amenities", amenity.name)}
-                />
-                {amenity.icon} {amenity.name}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+    <fieldset className="fieldset">
+      <legend className="section-subtitle">{legend}</legend>
+      <div className="checkbox-grid">
+        {items.map((item) => {
+          const isSelected = selected.includes(item.name);
+          return (
+            <label
+              key={item.name}
+              className={`checkbox-card ${isSelected ? "checkbox-card--selected" : ""}`}
+              // Keyboard accessible — label wraps input so clicking label toggles
+            >
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => toggle(item.name)}
+                // Not registered with RHF directly — setValue handles state
+              />
+              {item.icon && (
+                <span className="checkbox-card__icon" aria-hidden="true">
+                  {item.icon}
+                </span>
+              )}
+              <span className="checkbox-card__label">{item.name}</span>
+            </label>
+          );
+        })}
       </div>
-
-      {/* Facilities */}
-      <div className="form-section">
-        <h4 className="section-subtitle">Facilities</h4>
-        <fieldset>
-          <div className="checkbox-container">
-            {facilitiesList.map((facility) => (
-              <label
-                key={facility.name}
-                className={`checkbox-label ${
-                  selectedFacilities.includes(facility.name) ? "selected" : ""
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  value={facility.name}
-                  checked={selectedFacilities.includes(facility.name)}
-                  onChange={() =>
-                    handleCheckboxChange("facilities", facility.name)
-                  }
-                />
-                {facility.icon} {facility.name}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      </div>
-
-      {/* Security */}
-      <div className="form-section">
-        <h4 className="section-subtitle">Security</h4>
-        <fieldset>
-          <div className="checkbox-container">
-            {securityList.map((security) => (
-              <label
-                key={security.name}
-                className={`checkbox-label ${
-                  selectedSecurity.includes(security.name) ? "selected" : ""
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  value={security.name}
-                  checked={selectedSecurity.includes(security.name)}
-                  onChange={() =>
-                    handleCheckboxChange("security", security.name)
-                  }
-                />
-                {security.icon} {security.name}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      </div>
-    </section>
+    </fieldset>
   );
-};
+});
+
+// ── Section ────────────────────────────────────────────────────────────────────
+const PropertyAmenitiesSection = () => (
+  <section aria-labelledby="amenities-section-title" className="form-section">
+    <h3 id="amenities-section-title" className="section-title">
+      Amenities &amp; Facilities
+    </h3>
+
+    <CheckboxGrid
+      fieldName="amenities"
+      items={amenitiesList}
+      legend="Amenities"
+    />
+
+    <CheckboxGrid
+      fieldName="facilities"
+      items={facilitiesList}
+      legend="Facilities"
+    />
+
+    <CheckboxGrid
+      fieldName="security"
+      items={securityList}
+      legend="Security Features"
+    />
+  </section>
+);
 
 export default React.memo(PropertyAmenitiesSection);
-

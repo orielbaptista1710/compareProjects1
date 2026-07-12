@@ -1,11 +1,32 @@
 //controllers/adminController.js 
 import asyncHandler from 'express-async-handler';
 import * as propertyService from '../services/propertyAdminService.js';
+
+// import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from '../models/propertyType.js';
+
  
 //PROPERTIES SHOW THAT ARE APPROVE, REJECTED N PENDING 
 // GET /api/admin/properties - here are all the properties that are not approved/approved/pending for the admin to review
 export const getProperties = asyncHandler(async (req, res) => {
-  const { page, limit, status, propertyType, q, city, locality , sortBy, imageFilter } = req.query;
+
+  const { page, limit, status, propertyType, search, city, locality, sortBy, imageFilter } = req.query;
+
+  const VALID_STATUSES = ["pending", "approved", "rejected", ""];
+  //CHECK THIS DEPENDS ON Properties filter 
+  const VALID_TYPES = ["Flats/Apartments", "Villa", "Plot",
+                       "Builder Floor", "Commercial","Penthouse",
+                       "Commercial Land", "Office Space", "Shop/Showroom" ,"Industrial Warehouse/Godown" , "Industrial Building"];
+
+  if (status && !VALID_STATUSES.includes(status)) {
+  return res.status(400).json({ message: "Invalid status filter" });
+  }
+
+  if (propertyType && !VALID_TYPES.includes(propertyType)) {
+  return res.status(400).json({ message: "Invalid property type" });
+  }
+
+  console.log("✅ getProperties hit");
+  console.log("📦 query params:", req.query);
 
   const result = await propertyService.fetchProperties({
     page,
@@ -14,7 +35,7 @@ export const getProperties = asyncHandler(async (req, res) => {
     propertyType,
     city, 
     locality, 
-    search: q,
+    search,
     sortBy,
     imageFilter,
   });

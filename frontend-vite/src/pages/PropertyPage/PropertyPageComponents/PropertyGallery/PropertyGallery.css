@@ -24,6 +24,17 @@
   position: relative;
 }
 
+/* Only 1 image total (no thumbnails) — main image goes full width */
+.gallery-section.gallery-single {
+  grid-template-columns: 1fr;
+}
+
+/* Exactly 2 images — single thumbnail spans full height instead of
+   half height + empty gap */
+.gallery-section.gallery-two .thumbnail-grid {
+  grid-template-rows: 1fr;
+}
+
 /* ===========================
    MAIN IMAGE
    =========================== */
@@ -168,6 +179,9 @@
   z-index: 9999;
   animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(4px);
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
 @keyframes fadeIn {
@@ -193,9 +207,17 @@
   cursor: pointer;
   color: #fff;
   z-index: 10000;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.1);
+}
+
+.lightbox-close:active {
+  transform: scale(0.95);
+}
 
 /* ===========================
    SLIDER CONTAINER
@@ -406,6 +428,12 @@
     grid-template-rows: 1fr;
   }
 
+  /* Two-image case already collapses to 1 column on desktop grid;
+     on stacked mobile layout let the single thumbnail take full width */
+  .gallery-section.gallery-two .thumbnail-grid {
+    grid-template-columns: 1fr;
+  }
+
   .thumbnail img {
     height: 180px;
   }
@@ -550,13 +578,6 @@
 .main-image img[loading="lazy"],
 .thumbnail img[loading="lazy"] {
   background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-}
-
-/* Prevent Text Selection in Lightbox */
-.lightbox-overlay {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
 }
 
 /* Touch Device Optimizations */

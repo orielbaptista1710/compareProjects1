@@ -39,7 +39,9 @@ const propertySchema = new mongoose.Schema({
   state: { type: String, required: true, trim: true },
   city: { type: String, required: true, trim: true},
   locality: { type: String, required: true, trim: true },
+
   sub_locality: { type: String, trim: true },
+
   address: { type: String, required: true, trim: true},
   pincode: {
     type: String,
@@ -122,7 +124,9 @@ geo: {
   reraApproved: { type: Boolean, default: false },//if data contains reraNumber or not 
   reraNumber: { type: String , required: false },
   reraDate: { type: Date }, //reraDate of Completion
+
   reraQR: {type: String },
+
   possessionStatus: { 
     type: String,
     enum: ["Ready to Move", "Under Construction"],
@@ -159,7 +163,7 @@ geo: {
   bathrooms: { type: Number, min: 0 },
   facing: { type: String },
   balconies: { type: Number },
-  parkings: { type: String },
+  parkings: { type: [String], default: []  },
 
   ageOfProperty: { 
     type: String,
@@ -171,7 +175,9 @@ geo: {
   floor: { type: Number  },//the floor on which the unit is located
   floorLabel: { 
     type: String,
-    enum: ["Low Floor", "Mid Floor", "High Floor"]
+    enum: ["Low Floor", "Mid Floor", "High Floor"]  //should i add a  Keep as Number BUT add a computed floorLabel field
+// Parse the floor text on the backend: "5th" → 5, "Ground" → 0, "Basement" → -1
+// Set floorLabel ("Low Floor" / "Mid Floor" / "High Floor") from the number
    },
   //new field added u can add eg:  High Rise / Mid Rise / Low Floor dependent on floor n totalFloors
 
@@ -438,12 +444,7 @@ propertySchema.index({
 propertySchema.index({
   status: 1,
   createdAt: -1,
-});
-
-// SEO slug
-propertySchema.index(
-  { unique: true }
-);
+}); 
 
  // For full-text search- 
 propertySchema.index(

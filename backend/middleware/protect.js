@@ -1,40 +1,64 @@
+// middleware/protect.js
 
-//middleware/protect.js 
-import jwt from 'jsonwebtoken'; 
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import asyncHandler from 'express-async-handler';
 
 const protect = asyncHandler(async (req, res, next) => {
-  const token = req.cookies.token;
+  // ── 1. Extract token ──────────────────────────────────────────────────────
+  // We accept it from an HTTP-only cookie (preferred — not readable by JS)
+  // OR from an Authorization header as a fallback for API clients.
+  const token =
+    req.cookies?.token ||
+    (req.headers.authorization?.startsWith('Bearer ')
+      ? req.headers.authorization.split(' ')[1]
+      : null);
 
   if (!token) {
     res.status(401);
-    throw new Error("Not authorized, no token");
+    throw new Error('Not authorised — no token provided.');
   }
 
+  // ── 2. Verify signature & expiry ──────────────────────────────────────────
+  let decoded;
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id).select('-password');
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!req.user) {
-      res.status(401);
-      throw new Error("User not found");
-    }
-    next();
-  } catch (error) {
-    console.error("Protect middleware error:", error);
+    console.log("Decoded JWT:", decoded);
+    console.log("decoded.id:", decoded.id);
+    console.log("Length:", decoded.id?.length);
 
-    if (error.name === 'TokenExpiredError') {
-      res.status(401);
-      throw new Error("Session expired, please log in again");
-    }
-
+  } catch (err) {
     res.status(401);
-    throw new Error("Not authorized, token failed");
+    // Give the client a specific, actionable message
+    throw new Error(
+      err.name === 'TokenExpiredError'
+        ? 'Session expired — please log in again.'
+        : 'Not authorised — invalid token.'
+    );
   }
 
+  // ── 3. Load user from DB ───────────────────────────────────────────────────
+  // IMPORTANT: this makes req.user._id a real mongoose ObjectId,
+  // which is what Property.find({ userId: req.user._id }) needs.
+  const user = await User.findById(decoded.id).select('-password').lean();
 
+  if (!user) {
+    res.status(401);
+    throw new Error('Not authorised — user account no longer exists.');
+  }
 
+  if (!user.isActive) {
+    res.status(403);
+    throw new Error('Account has been deactivated. Contact support.');
+  }
+
+  // ── 4. Attach to request ──────────────────────────────────────────────────
+  // We re-attach _id as a mongoose ObjectId so downstream code can safely
+  // use it in queries.  .lean() returns a plain object, so _id is already
+  // a native ObjectId — no cast needed.
+  req.user = user;
+  next();
 });
 
 export default protect;

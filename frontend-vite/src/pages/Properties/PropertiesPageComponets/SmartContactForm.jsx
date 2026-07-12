@@ -829,7 +829,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                       borderRadius: 14,
                       background:"#faf5ff",
                     }}
-                  >
+                  > 
                     <ShieldCheck
                       size={16}
                       color="#9417E2"

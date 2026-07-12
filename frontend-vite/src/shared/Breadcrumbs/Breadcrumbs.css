@@ -27,12 +27,12 @@
   margin-right: auto;
 }
 
-/* ✅ WHEN NAVBAR EXISTS */
+/*  WHEN NAVBAR EXISTS */
 .breadcrumbs.with-nav {
   margin-top: calc(var(--header-height) + var(--nav-height));
 }
 
-/* ✅ WHEN NAVBAR IS HIDDEN */
+/*  WHEN NAVBAR IS HIDDEN */
 .breadcrumbs.no-nav {
   margin-top: var(--header-height);
 }

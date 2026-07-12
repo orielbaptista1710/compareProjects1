@@ -1,8 +1,9 @@
+//frontend-vite/src/hooks/useHeartProperty.js
 import { useMemo, useCallback, useContext } from "react";
 import { CustomerActivityContext } from "../contexts/CustomerActivityContext";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-// import { toast } from "react-toastify";
+import toast from 'react-hot-toast';
 
 function useHeartProperty(propertyId) {
   const { heartProperties, toggleHeart } = useContext(CustomerActivityContext);

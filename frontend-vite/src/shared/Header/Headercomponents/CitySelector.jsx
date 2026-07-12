@@ -1,11 +1,17 @@
+//frontend-vite/src/shared/Header/Headercomponents/CitySelector.jsx
 import { useState, useRef, useMemo, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+
 import { Search, MapPin, ChevronDown } from "lucide-react";
 import { TOP_SELECTOR_CITIES } from "../../../database/citySelectorData";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { useCity } from "../../../contexts/CityContext";
 import "./CitySelector.css";
 
-export default function CitySelector() {
+ export default function CitySelector() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const wrapperRef = useRef(null);
@@ -18,14 +24,23 @@ export default function CitySelector() {
   /**
    * Centralized city selection handler
    */
-  const handleSelectCity = useCallback(
-    (selectedCity) => {
-      setCity(selectedCity);
-      setOpen(false);
-      setSearch("");
-    },
-    [setCity]
-  );
+  const handleSelectCity = useCallback((selectedCity) => {
+    setCity(selectedCity);      // still update context (for non-Properties pages)
+    setOpen(false);
+    setSearch("");
+
+    // If already on /properties, push city into URL so the page reacts immediately
+    if (location.pathname === "/properties") {
+      const params = new URLSearchParams(location.search);
+      if (selectedCity) {
+        params.set("city", selectedCity);
+      } else {
+        params.delete("city");
+      }
+      params.delete("locality"); // stale locality from old city
+      navigate(`/properties?${params.toString()}`, { replace: true });
+    }
+  }, [setCity, navigate, location]);
 
   /**
    * Reset city selection

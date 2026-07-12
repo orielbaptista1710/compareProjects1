@@ -36,7 +36,7 @@ const LOCATION_RESULT_CAP = 8;
 // Internal helpers
 // ─────────────────────────────────────────────
 
-/** Escape special regex characters from user input */
+/** Escape special regex characters from user input — prevents ReDoS */
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
@@ -51,22 +51,64 @@ const sanitiseSearch = (value) => {
 };
 
 /**
- * Parse a query parameter that may arrive as a single string or an array
- * (Express repeats the key for multi-value params).
+ * Parse a query parameter that may arrive as a single string or an array.
+ * Express repeats the key for multi-value params: ?bhk=2&bhk=3
  */
 const toArray = (value) => (value == null ? [] : [].concat(value));
 
-/**
- * Safely parse an integer from a query param with clamping.
- */
+/** Safely parse an integer from a query param with min/max clamping. */
 const clampInt = (value, fallback, min, max) => {
   const n = parseInt(value, 10);
   if (Number.isNaN(n)) return fallback;
   return Math.max(min, Math.min(max, n));
 };
 
-/** Validate MongoDB ObjectId to avoid CastError in downstream queries */
+/** Validate MongoDB ObjectId to avoid CastError leaking into error responses. */
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
+
+/**
+ * Previously, having both a BHK filter and a search filter active at the same
+ * time would silently produce two top-level $or clauses (only the last one wins
+ * in MongoDB).  This helper always merges correctly into $and.
+ */
+const addOrClause = (query, orClause) => {
+  if (query.$or) {
+    // There's already an $or — move both into $and so both conditions apply
+    query.$and = [...(query.$and || []), { $or: query.$or }, { $or: orClause }];
+    delete query.$or;
+  } else {
+    query.$or = orClause;
+  }
+};
+
+/**
+ * FIX — normalise the area sub-document from the frontend payload.
+ * The SellPropertyForm sends { areaValue, areaUnit } as flat fields.
+ * The submit transform in usePropertyForm assembles { area: { value, unit } }
+ * before sending, but we defensively handle both shapes here so a bad client
+ * can't silently drop the area data.
+ */
+const normaliseArea = (body) => {
+  if (body.area?.value != null) return body.area; // already nested — correct
+  if (body.areaValue != null) {
+    return { value: Number(body.areaValue), unit: body.areaUnit || 'sqft' };
+  }
+  return undefined;
+};
+
+/**
+ * FIX — normalise coordinates to ensure both fields are numbers, not strings.
+ * Mongoose's pre('validate') hook recomputes geo from coordinates,
+ * so this being numbers is critical.
+ */
+const normaliseCoordinates = (raw) => {
+  if (!raw) return undefined;
+  const lat = Number(raw.lat);
+  const lng = Number(raw.lng);
+  if (isNaN(lat) || isNaN(lng)) return undefined;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return undefined;
+  return { lat, lng };
+};
 
 // ─────────────────────────────────────────────
 // Public – Filter meta-data
@@ -88,13 +130,13 @@ const getFilterOptions = asyncHandler(async (_req, res) => {
     possessionStatusOptions,
     floorLabelOptions,
   ] = await Promise.all([
-    Property.distinct('city',            base),
-    Property.distinct('propertyType',    base),
-    Property.distinct('furnishing',      base),
-    Property.distinct('facing',          base),
-    Property.distinct('parkings',        base),
-    Property.distinct('possessionStatus',base),
-    Property.distinct('floorLabel',      base),
+    Property.distinct('city',             base),
+    Property.distinct('propertyType',     base),
+    Property.distinct('furnishing',       base),
+    Property.distinct('facing',           base),
+    Property.distinct('parkings',         base), // parkings is [String] array
+    Property.distinct('possessionStatus', base),
+    Property.distinct('floorLabel',       base),
   ]);
 
   const amenitiesOptions = [
@@ -138,7 +180,14 @@ const getPropertiesByType = asyncHandler(async (_req, res) => {
 
 /**
  * GET /api/properties/localities/:city
- * All distinct localities for a given city (used in filter dropdowns).
+ * All distinct localities for a given city.
+ *
+ * NOTE on "Vile Parle East / West / Juhu" style sub-areas:
+ * The current approach returns all locality strings that match the city.
+ * If you want to support hierarchical locality groups (e.g. "Vile Parle" →
+ * ["Vile Parle East", "Vile Parle West"]), consider storing a
+ * `sub_locality` field and grouping by `locality` in the aggregate.
+ * For now, the distinct list covers all variants as-stored.
  */
 const getLocalitiesByCity = asyncHandler(async (req, res) => {
   const { city } = req.params;
@@ -164,7 +213,6 @@ const getLocalitiesByCity = asyncHandler(async (req, res) => {
 
 /**
  * GET /api/properties/featured
- * Returns featured + approved properties, optionally filtered by city.
  */
 const getFeaturedProperties = asyncHandler(async (req, res) => {
   const limit = clampInt(req.query.limit, 3, 1, MAX_LIMIT_FEATURED);
@@ -191,7 +239,6 @@ const getFeaturedProperties = asyncHandler(async (req, res) => {
 
 /**
  * GET /api/properties/recent
- * Returns the most recently created approved properties, optionally by city.
  */
 const getRecentProperties = asyncHandler(async (req, res) => {
   const limit = clampInt(req.query.limit, 6, 1, MAX_LIMIT_RECENT);
@@ -206,9 +253,9 @@ const getRecentProperties = asyncHandler(async (req, res) => {
   const properties = await Property.find(query)
     .select(
       'title city locality price bhk furnishing area coverImage ' +
-      'developerName propertyType slug bhkType createdAt'
+      'developerName propertyType slug createdAt'
     )
-    .sort({ createdAt: -1 }) 
+    .sort({ createdAt: -1 })
     .limit(limit)
     .lean();
 
@@ -221,7 +268,10 @@ const getRecentProperties = asyncHandler(async (req, res) => {
 
 /**
  * GET /api/properties/:id/related
- * Returns properties from the same project or the same developer (fallback).
+ *
+ * FIX: was using `projectName` which doesn't exist in the schema.
+ * Now falls back to: same developer (developerName) OR same locality.
+ * Same locality is more useful to a buyer than same developer anyway.
  */
 const getRelatedProperties = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -231,7 +281,8 @@ const getRelatedProperties = asyncHandler(async (req, res) => {
     throw new Error('Invalid property ID.');
   }
 
-  const current = await Property.findById(id).lean();
+  // FIX: also ensure the current property is approved when accessed publicly
+  const current = await Property.findOne({ _id: id, status: 'approved' }).lean();
   if (!current) {
     res.status(404);
     throw new Error('Property not found.');
@@ -241,13 +292,15 @@ const getRelatedProperties = asyncHandler(async (req, res) => {
     _id:    { $ne: id },
     status: 'approved',
     $or: [
-      { projectName: current.projectName },
-      { userId:      current.userId      },
+      // Same developer first (most relevant for a developer dashboard context)
+      { developerName: current.developerName },
+      // Same locality as a geographic fallback
+      { locality: current.locality, city: current.city },
     ],
   })
     .sort({ createdAt: -1 })
     .limit(10)
-    .select('title price bhk area coverImage createdAt developerName slug')
+    .select('title price bhk area coverImage createdAt developerName slug propertyType locality')
     .lean();
 
   res.json(related);
@@ -259,7 +312,6 @@ const getRelatedProperties = asyncHandler(async (req, res) => {
 
 /**
  * GET /api/properties
- * Full-featured paginated listing with every supported filter.
  */
 const getAllApprovedProperties = asyncHandler(async (req, res) => {
   const page  = clampInt(req.query.page,  1,  1,  MAX_PAGE_NUMBER);
@@ -271,7 +323,7 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
   // ── Base query ──────────────────────────────
   const query = { status: 'approved', bhk: { $ne: 0 } };
 
-  // ── Scalar string filters ────────────────────
+  // ── City ─────────────────────────────────────
   if (req.query.city) {
     const safeCity = sanitiseSearch(req.query.city);
     if (safeCity) query.city = { $regex: new RegExp(`^${safeCity}$`, 'i') };
@@ -283,10 +335,10 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
     'facing', 'parkings', 'possessionStatus',
   ];
 
-  arrayFilters.forEach((key) => {
+  for (const key of arrayFilters) {
     const values = toArray(req.query[key]).filter(Boolean);
     if (values.length) query[key] = { $in: values };
-  });
+  }
 
   // floorLabel arrives comma-separated or repeated
   if (req.query.floorLabel) {
@@ -316,7 +368,7 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
     const exact   = [];
     let   minPlus = null;
 
-    bhkValues.forEach((v) => {
+    for (const v of bhkValues) {
       const match = String(v).match(/^(\d+)\+$/);
       if (match) {
         const n = Number(match[1]);
@@ -325,15 +377,19 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
         const n = Number(v);
         if (!Number.isNaN(n)) exact.push(n);
       }
-    });
+    }
 
+    let bhkClause = null;
     if (minPlus !== null && exact.length) {
-      query.$or = [{ bhk: { $in: exact } }, { bhk: { $gte: minPlus } }];
+      bhkClause = [{ bhk: { $in: exact } }, { bhk: { $gte: minPlus } }];
     } else if (minPlus !== null) {
       query.bhk = { $gte: minPlus };
     } else if (exact.length) {
       query.bhk = { $in: exact };
     }
+
+    // FIX: use addOrClause so a simultaneous search filter doesn't clobber this
+    if (bhkClause) addOrClause(query, bhkClause);
   }
 
   // ── Area range ───────────────────────────────
@@ -341,15 +397,10 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
     const areaQuery = {};
     const min = parseFloat(req.query.areaMin);
     const max = parseFloat(req.query.areaMax);
-    if (!Number.isNaN(min) && min >= 0)  areaQuery.$gte = min;
-    if (!Number.isNaN(max) && max >= 0)  areaQuery.$lte = max;
-    if (Object.keys(areaQuery).length) {
-      query['area.value'] = areaQuery;
-    }
-    // Optionally filter by unit when both bounds + unit are supplied
-    if (req.query.areaUnit) {
-      query['area.unit'] = req.query.areaUnit;
-    }
+    if (!Number.isNaN(min) && min >= 0) areaQuery.$gte = min;
+    if (!Number.isNaN(max) && max >= 0) areaQuery.$lte = max;
+    if (Object.keys(areaQuery).length) query['area.value'] = areaQuery;
+    if (req.query.areaUnit) query['area.unit'] = req.query.areaUnit;
   }
 
   // ── Price range ──────────────────────────────
@@ -362,25 +413,17 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
     if (Object.keys(priceQuery).length) query.price = priceQuery;
   }
 
-  // ── Full-text search (title / description / locality) ─────────
+  // ── Full-text search ─────────────────────────
+  // FIX: uses addOrClause so simultaneous BHK + search filters both apply
   if (req.query.search) {
     const safe = sanitiseSearch(req.query.search);
     if (safe) {
       const regex = { $regex: safe, $options: 'i' };
-      const searchOr = [
+      addOrClause(query, [
         { title:       regex },
         { description: regex },
         { locality:    regex },
-      ];
-      // Merge with any existing $or (e.g. from BHK filter)
-      if (query.$or) {
-        query.$and = query.$and ?? [];
-        query.$and.push({ $or: query.$or  });
-        query.$and.push({ $or: searchOr  });
-        delete query.$or;
-      } else {
-        query.$or = searchOr;
-      }
+      ]);
     }
   }
 
@@ -405,6 +448,8 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
 /**
  * GET /api/properties/location-options?q=&city=
  * Powers the main search-bar autocomplete.
+ * The same endpoint is usable for MainSearchBar and FilterPanel —
+ * just pass city= to narrow results when already on a city page.
  */
 const getLocationOptions = asyncHandler(async (req, res) => {
   const { q, city } = req.query;
@@ -426,7 +471,11 @@ const getLocationOptions = asyncHandler(async (req, res) => {
 
   const results = await Property.aggregate([
     { $match: match },
-    { $group: { _id: { city: '$city', locality: '$locality', pincode: '$pincode' } } },
+    {
+      $group: {
+        _id: { city: '$city', locality: '$locality', pincode: '$pincode' },
+      },
+    },
     { $limit: LOCATION_RESULT_CAP },
   ]);
 
@@ -434,9 +483,9 @@ const getLocationOptions = asyncHandler(async (req, res) => {
     results.map(({ _id }) => ({
       label:    _id.locality ? `${_id.locality}, ${_id.city}` : _id.city,
       city:     _id.city,
-      locality: _id.locality  ?? null,
-      pincode:  _id.pincode   ?? null,
-      type:     _id.locality  ? 'locality' : 'city',
+      locality: _id.locality ?? null,
+      pincode:  _id.pincode  ?? null,
+      type:     _id.locality ? 'locality' : 'city',
     }))
   );
 });
@@ -447,6 +496,10 @@ const getLocationOptions = asyncHandler(async (req, res) => {
 
 /**
  * GET /api/properties/:id
+ *
+ * FIX: restrict public access to approved properties only.
+ * Previously a caller who knew the _id of a pending/rejected property
+ * could retrieve all its data.
  */
 const getPropertyById = asyncHandler(async (req, res) => {
   if (!isValidObjectId(req.params.id)) {
@@ -454,7 +507,10 @@ const getPropertyById = asyncHandler(async (req, res) => {
     throw new Error('Invalid property ID.');
   }
 
-  const property = await Property.findById(req.params.id).lean();
+  const property = await Property.findOne({
+    _id:    req.params.id,
+    status: 'approved',
+  }).lean();
 
   if (!property) {
     res.status(404);
@@ -470,16 +526,74 @@ const getPropertyById = asyncHandler(async (req, res) => {
 
 /**
  * POST /api/properties/add  [protected]
+ *
+ * DASHBOARD FIX:
+ *   - req.user._id is a real ObjectId from User.findById() in protect.js
+ *   - It is stored as userId on the property document
+ *   - getMyProperties queries { userId: req.user._id }
+ *   - Both sides are ObjectId → MongoDB matches correctly
+ *   - DevPropertyList calls GET /api/properties/my-properties (protected) NOT
+ *     GET /api/properties (public, approved-only) — this is correct
+ *
+ * Server-managed fields stripped from client payload:
+ *   geo           — recomputed by pre('validate') from coordinates
+ *   propertyGroup — recomputed by pre('validate') from propertyType
+ *   status        — always set to 'pending' on create
+ *   userId        — always taken from req.user, never from client
+ *   slug          — generated by pre('save') from title
  */
 const addProperty = asyncHandler(async (req, res) => {
-  // Strip any fields that must not be set by the client
-  const { geo, propertyGroup, status, userId: _uid, ...safeBody } = req.body;
+  if (!req.user?._id) {
+    res.status(401);
+    throw new Error('Not authorised.');
+  }
 
+  // Strip server-managed fields — clients must not set these
+  const {
+    geo,
+    propertyGroup,
+    status,
+    slug,
+    userId: _uid,
+    ...safeBody
+  } = req.body;
+
+  // Normalise area — handles both flat (areaValue/areaUnit) and nested shapes
+  const area = normaliseArea(safeBody);
+  if (area) {
+    safeBody.area = area;
+    delete safeBody.areaValue;
+    delete safeBody.areaUnit;
+  }
+
+  // Normalise coordinates — ensure numbers, reject out-of-range values
+  if (safeBody.coordinates) {
+    const coords = normaliseCoordinates(safeBody.coordinates);
+    if (!coords) delete safeBody.coordinates; // invalid coords — drop silently
+    else safeBody.coordinates = coords;
+  }
+
+  // Ensure pincode is always a string (matches schema regex /^\d{6}$/)
+  if (safeBody.pincode != null) {
+    safeBody.pincode = String(safeBody.pincode).trim();
+  }
+
+  console.log('[addProperty] safeBody reaching Mongoose:', JSON.stringify(safeBody, null, 2));
   const property = await Property.create({
     ...safeBody,
-    userId: req.user._id,
+    userId: req.user._id, // ObjectId from protect middleware
     status: 'pending',
-  });
+  }).catch((err) => {
+    console.error('[addProperty] Mongoose ValidationError:');
+    if(err.errors){
+      Object.entries(err.errors).forEach(([field, e]) => {
+        console.error(`  ${field}: ${e.message} (value: ${JSON.stringify(e.value)})`);
+    });
+  }else{
+    console.error(err.message);
+    }
+    throw err;
+  })
 
   res.status(201).json({
     success: true,
@@ -490,8 +604,28 @@ const addProperty = asyncHandler(async (req, res) => {
 
 /**
  * GET /api/properties/my-properties  [protected]
+ *
+ * DASHBOARD FIX — how this links users to their properties:
+ *   User collection:     { _id: ObjectId("abc123"), email, password, ... }
+ *   Property collection: { _id: ObjectId("xyz789"), userId: ObjectId("abc123"), ... }
+ *
+ *   When a developer submits a property, addProperty sets userId = req.user._id.
+ *   This creates the link: property.userId === user._id.
+ *
+ *   getMyProperties queries Property.find({ userId: req.user._id }).
+ *   Because protect.js does User.findById(decoded.id), req.user._id is an
+ *   ObjectId (not a string), so the query matches correctly.
+ *
+ *   DevPropertyList receives the result and renders it — no other linking needed.
+ *   The _id values between collections are different (property._id ≠ user._id).
+ *   What links them is property.userId = user._id.
  */
 const getMyProperties = asyncHandler(async (req, res) => {
+  if (!req.user?._id) {
+    res.status(401);
+    throw new Error('Not authorised.');
+  }
+
   const properties = await Property.find({ userId: req.user._id })
     .sort({ createdAt: -1 })
     .lean();
@@ -501,6 +635,11 @@ const getMyProperties = asyncHandler(async (req, res) => {
 
 /**
  * PUT /api/properties/update/:id  [protected]
+ *
+ * FIX: replaced findOneAndUpdate with fetch-then-save so that:
+ *   1. pre('validate') runs → propertyGroup and geo are recomputed
+ *   2. pre('save') runs → slug is regenerated if title changed
+ *   3. runValidators: true on findOneAndUpdate does NOT trigger these hooks
  */
 const updateProperty = asyncHandler(async (req, res) => {
   if (!isValidObjectId(req.params.id)) {
@@ -508,19 +647,60 @@ const updateProperty = asyncHandler(async (req, res) => {
     throw new Error('Invalid property ID.');
   }
 
-  // Strip immutable / server-managed fields from the payload
-  const { geo, propertyGroup, status, userId: _uid, ...safeBody } = req.body;
+  if (!req.user?._id) {
+    res.status(401);
+    throw new Error('Not authorised.');
+  }
 
-  const property = await Property.findOneAndUpdate(
-    { _id: req.params.id, userId: req.user._id },
-    safeBody,
-    { new: true, runValidators: true }
-  );
+  // Ownership check — only the submitting developer can update
+  const property = await Property.findOne({
+    _id:    req.params.id,
+    userId: req.user._id,
+  });
 
   if (!property) {
     res.status(404);
     throw new Error('Property not found or you do not have permission to edit it.');
   }
+
+  // Strip server-managed fields
+  const {
+    geo,
+    propertyGroup,
+    status,
+    slug,
+    userId: _uid,
+    ...safeBody
+  } = req.body;
+
+  // Same normalisations as addProperty
+  const area = normaliseArea(safeBody);
+  if (area) {
+    safeBody.area = area;
+    delete safeBody.areaValue;
+    delete safeBody.areaUnit;
+  }
+
+  if (safeBody.coordinates) {
+    const coords = normaliseCoordinates(safeBody.coordinates);
+    if (!coords) delete safeBody.coordinates;
+    else safeBody.coordinates = coords;
+  }
+
+  if (safeBody.pincode != null) {
+    safeBody.pincode = String(safeBody.pincode).trim();
+  }
+
+  // Apply updates to the document instance
+  Object.assign(property, safeBody);
+
+  // Re-submit for admin approval when the developer edits
+  // (optional — remove this line if edits should not reset status)
+  property.status = 'pending';
+
+  // .save() triggers pre('validate') → propertyGroup + geo recomputed
+  //         triggers pre('save')     → slug regenerated if title changed
+  await property.save();
 
   res.json(property);
 });
@@ -534,9 +714,14 @@ const deleteProperty = asyncHandler(async (req, res) => {
     throw new Error('Invalid property ID.');
   }
 
+  if (!req.user?._id) {
+    res.status(401);
+    throw new Error('Not authorised.');
+  }
+
   const property = await Property.findOneAndDelete({
     _id:    req.params.id,
-    userId: req.user._id,
+    userId: req.user._id, // ownership enforced at DB level
   });
 
   if (!property) {
@@ -552,20 +737,15 @@ const deleteProperty = asyncHandler(async (req, res) => {
 // ─────────────────────────────────────────────
 
 export {
-  // Meta
   getFilterOptions,
   getPropertiesByType,
   getLocalitiesByCity,
   getLocationOptions,
-
-  // Public reads
   getFeaturedProperties,
   getRecentProperties,
   getRelatedProperties,
   getAllApprovedProperties,
   getPropertyById,
-
-  // Auth-protected CRUD
   addProperty,
   getMyProperties,
   updateProperty,

@@ -135,7 +135,7 @@
 }
 
 /* Actions Section */
-.compare-actions {
+.comparebar-actions {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -193,6 +193,35 @@
   transform: translateY(0);
 }
 
+/* Close Bar Button */
+.compare-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  background: transparent;
+  color: #6b7280;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.compare-close-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.compare-close-btn:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .compare-bar {
@@ -204,7 +233,7 @@
     max-width: 150px;
   }
 
-  .compare-actions {
+  .comparebar-actions {
     gap: 10px;
   }
 }
@@ -225,7 +254,7 @@
     min-width: 200px;
   }
 
-  .compare-actions {
+  .comparebar-actions {
     width: 100%;
     justify-content: space-between;
   }
@@ -242,6 +271,10 @@
   .compare-now-btn {
     flex: 1;
     padding: 10px 20px;
+  }
+  .compare-close-btn {
+    width: 30px;
+    height: 30px;
   }
 }
 

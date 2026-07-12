@@ -260,9 +260,9 @@ const Footer = () => {
               <li>
                 <MapPin size={15} aria-hidden="true" />
                 {/* address is not a link — use <address> semantics */}
-                <address style={{ fontStyle: "normal" }}>
+                <span style={{ fontStyle: "normal" }}>
                   Mumbai, Maharashtra
-                </address>
+                </span>
               </li>
             </ul>
           </div>

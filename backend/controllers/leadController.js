@@ -1,12 +1,9 @@
-//controllers/leadController.js -- this is for the CRM for customers and developers form leads 
-//Note models/DeveloperFormLeads.js  and valdators/developerFormLeadsValidator.js are NOT created yet
-
-//Have to add middleware - rate-limiter ????? CHECK THIS 
+//controllers/leadController.js
 
 import { CustomerLead } from "../models/CustomerFormLeads.js";
 import { customerLeadValidator } from "../validators/customerFormLeadValidator.js";
 
-import {DeveloperLead} from "../models/DeveloperFormLeads.js";
+import { DeveloperLead } from "../models/DeveloperFormLeads.js";
 import { developerLeadValidator } from "../validators/developerFormLeadValidator.js";
 
 import { sanitizeObject } from "../utils/sanitizeInput.js";
@@ -25,13 +22,11 @@ export const createCustomerLead = async (req, res, next) => {
       });
     }
 
-    // SANITIZE AFTER VALIDATION
     const cleanData = sanitizeObject(parsed.data);
-
     const { customerEmail, propertyId } = cleanData;
 
     //    DUPLICATE CHECK (24H)
-    const existingLead = await CustomerLead.findOne({
+    const existingLead = await CustomerLead().findOne({
       customerEmail,
       propertyId,
       createdAt: {
@@ -46,13 +41,9 @@ export const createCustomerLead = async (req, res, next) => {
       });
     }
 
-    /* -------------------------
-       SAVE LEAD
-    ------------------------- */
-
-    const lead = await CustomerLead.create({
+    const lead = await CustomerLead().create({
       ...cleanData,
-      ipAddress: req.ip,
+      ipAddress: req.ip, //req.ip depends on trust proxy in server.js CHECK THIS 
       userAgent: req.headers["user-agent"] || "",
       pageUrl: req.headers.referer || "",
       leadStatus: "new",
@@ -69,7 +60,7 @@ export const createCustomerLead = async (req, res, next) => {
 };
 
 
-//    DEVELOPER LEAD CONTROLLER -- Developer popup n form in the dev dashboard for queries??(needs to be added)
+//    DEVELOPER LEAD CONTROLLER
 export const createDeveloperLead = async (req, res, next) => {
   try {
     const parsed = developerLeadValidator.safeParse(req.body);
@@ -82,12 +73,10 @@ export const createDeveloperLead = async (req, res, next) => {
       });
     }
 
-    // ✅ SANITIZE
     const cleanData = sanitizeObject(parsed.data);
-
     const { developerEmail } = cleanData;
 
-    const existingLead = await DeveloperLead.findOne({
+    const existingLead = await DeveloperLead().findOne({
       developerEmail,
       createdAt: {
         $gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -101,7 +90,7 @@ export const createDeveloperLead = async (req, res, next) => {
       });
     }
 
-    const lead = await DeveloperLead.create({
+    const lead = await DeveloperLead().create({
       ...cleanData,
       ipAddress: req.ip,
       userAgent: req.headers["user-agent"] || "",
@@ -118,10 +107,3 @@ export const createDeveloperLead = async (req, res, next) => {
     next(error);
   }
 };
-
-
-
-
-
-
-

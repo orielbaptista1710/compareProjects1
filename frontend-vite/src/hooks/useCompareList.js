@@ -1,10 +1,11 @@
 // this hook is used to manage the compare list state
 // it also saves the state to localStorage
 
+//frontend-vite/src/hooks/useCompareList.js
 import { useState, useEffect } from "react"; 
 // import { toast } from "react-toastify";
 
-export default function useCompareList() {
+export default function useCompareList() { 
   const [compareList, setCompareList] = useState(() => {
     try {
       const saved = localStorage.getItem("compareList");

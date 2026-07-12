@@ -1,29 +1,33 @@
+// frontend-vite/src/pages/Home/HomePageComponents/PropertyCardSmall.jsx
 import React, { memo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Home,
   BedDouble,
-  Ruler, 
+  Ruler,
   BedIcon,
   HourglassIcon,
 } from "lucide-react";
 import "./PropertyCardSmall.css";
 import { useCompare } from "../../../contexts/CompareContext";
-
 import { formatCurrencyShort } from "../../../utils/formatters";
 import { getPropertyImage, fallbackImg } from "../../../utils/propertyHelpers";
 
-
-const PropertyCardSmall = ({ property }) => {
+// disableNavigation — pass true when the parent (e.g. ExpandableSearch) owns
+// routing.  This prevents the card's own navigate() from firing alongside the
+// parent's handler and causing a double-navigation race.
+const PropertyCardSmall = ({ property, disableNavigation = false }) => {
   const { addToCompare } = useCompare();
   const navigate = useNavigate();
 
   const imageUrl = getPropertyImage(property);
 
-
-
   const handleCardClick = () => {
-    navigate(`/property/${property?._id}`);
+    if (!disableNavigation) {
+      navigate(`/property/${property?._id}`);
+    }
+    // When disableNavigation is true, the parent's onClick on the wrapper
+    // handles routing.  We do nothing here so there's one navigation, not two.
   };
 
   const handleKeyPress = (e) => {
@@ -33,8 +37,8 @@ const PropertyCardSmall = ({ property }) => {
   return (
     <div
       className="modern-property-card"
-      role="button"
-      tabIndex={0}
+      role={disableNavigation ? "presentation" : "button"}
+      tabIndex={disableNavigation ? -1 : 0}
       onClick={handleCardClick}
       onKeyDown={handleKeyPress}
     >
@@ -62,7 +66,6 @@ const PropertyCardSmall = ({ property }) => {
             <span className="span_propertytype">
               {property?.propertyType || "Apartment NA"} |{" "}
             </span>
-
             <span className="span_developerName">
               by {property?.developerName || "Developer NA"}
             </span>
@@ -73,20 +76,20 @@ const PropertyCardSmall = ({ property }) => {
         <div className="property-features">
           {/* Possession */}
           <span className="small-feature">
-            <Home size={16} strokeWidth={1.8} />
+            <Home size={16} strokeWidth={1.8} aria-hidden="true" />
             {property?.possessionStatus || "NA"}
           </span>
 
           {/* Locality */}
           <span className="small-feature">
-            <BedDouble size={16} strokeWidth={1.8} />
+            <BedDouble size={16} strokeWidth={1.8} aria-hidden="true" />
             {property?.locality || "NA"}
           </span>
 
-          {/* AREA — only if exists */}
+          {/* Area — only if exists */}
           {property?.area?.value && (
             <span className="small-feature">
-              <Ruler size={16} strokeWidth={1.8} />
+              <Ruler size={16} strokeWidth={1.8} aria-hidden="true" />
               {property.area.value}
               {property.area.unit ? ` ${property.area.unit}` : " sq ft"}
             </span>
@@ -94,13 +97,13 @@ const PropertyCardSmall = ({ property }) => {
 
           {/* BHK */}
           <span className="small-feature">
-            <BedIcon size={16} strokeWidth={1.8} />
+            <BedIcon size={16} strokeWidth={1.8} aria-hidden="true" />
             {property?.bhk || "NA"} BHK
           </span>
 
           {/* Age of Property */}
           <span className="small-feature">
-            <HourglassIcon size={16} strokeWidth={1.8} />
+            <HourglassIcon size={16} strokeWidth={1.8} aria-hidden="true" />
             {property?.ageOfProperty || "NA"}
           </span>
         </div>
@@ -113,17 +116,17 @@ const PropertyCardSmall = ({ property }) => {
           {formatCurrencyShort(property?.price)}
         </div>
 
-
         {/* Compare Button */}
         <button
           className="small-compare-btn"
+          type="button"
           onClick={(e) => {
-            e.stopPropagation(); // prevent page navigation
+            e.stopPropagation(); // prevent card click / parent click
             addToCompare(property);
           }}
         >
           Compare
-        </button> 
+        </button>
       </div>
     </div>
   );

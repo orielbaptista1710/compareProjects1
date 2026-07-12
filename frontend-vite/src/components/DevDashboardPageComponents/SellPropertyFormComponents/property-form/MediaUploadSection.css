@@ -1,0 +1,479 @@
+/* MediaUploadSection.css  ·  v2
+   Inherits design tokens from SellPropertyForm.css (:root vars)
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Collapsible slot ────────────────────────────────────────────────────── */
+.mup-slot {
+  border: 1px solid var(--spf-border);
+  border-radius: var(--spf-radius);
+  overflow: hidden;
+  margin-bottom: 0.6rem;
+  background: var(--spf-surface);
+}
+
+.mup-slot__header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--spf-text);
+  transition: background var(--spf-transition);
+}
+
+.mup-slot__header:hover {
+  background: var(--spf-purple-faint);
+}
+
+.mup-slot__title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--spf-navy);
+  flex-shrink: 0;
+}
+
+.mup-slot__badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: var(--spf-purple-light);
+  color: var(--spf-purple);
+  padding: 0.1rem 0.5rem;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.mup-slot__hint {
+  font-size: 0.72rem;
+  color: var(--spf-text-hint);
+  flex: 1;
+}
+
+.mup-slot__chevron {
+  font-size: 0.55rem;
+  color: var(--spf-text-hint);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.mup-slot__body {
+  padding: 0.85rem 1rem 1rem;
+  border-top: 1px solid var(--spf-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* ── Drop zone ───────────────────────────────────────────────────────────── */
+.mup-dropzone {
+  border: 2px dashed var(--spf-border);
+  border-radius: var(--spf-radius);
+  background: var(--spf-purple-faint);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: border-color var(--spf-transition), background var(--spf-transition), box-shadow var(--spf-transition);
+  outline: none;
+  user-select: none;
+}
+
+.mup-dropzone:hover,
+.mup-dropzone:focus-visible {
+  border-color: var(--spf-purple);
+  background: var(--spf-purple-light);
+}
+
+.mup-dropzone--drag {
+  border-color: var(--spf-purple);
+  background: var(--spf-purple-light);
+  box-shadow: 0 0 0 3px var(--spf-purple-ring);
+}
+
+/* compact variant — shown when files already exist */
+.mup-dropzone--compact {
+  padding: 0.6rem 1rem;
+  flex-direction: row;
+  justify-content: center;
+  gap: 0.4rem;
+  border-style: dashed;
+  border-width: 1.5px;
+}
+
+.mup-dropzone__icon {
+  color: var(--spf-purple);
+  opacity: 0.75;
+}
+
+.mup-dropzone__text {
+  font-size: 0.82rem;
+  color: var(--spf-text);
+  text-align: center;
+}
+
+.mup-dropzone__text strong {
+  color: var(--spf-purple);
+  font-weight: 700;
+}
+
+.mup-dropzone__hint {
+  font-size: 0.72rem;
+  color: var(--spf-text-hint);
+}
+
+.mup-dropzone__compact-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--spf-purple);
+}
+
+/* ── File list ────────────────────────────────────────────────────────────── */
+.mup-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* ── File row ─────────────────────────────────────────────────────────────── */
+.mup-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--spf-border);
+  border-radius: var(--spf-radius);
+  background: var(--spf-surface);
+}
+
+.mup-file-row--error {
+  border-color: #FCA5A5;
+  background: var(--spf-error-bg);
+}
+
+.mup-file-row__thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 5px;
+  flex-shrink: 0;
+  border: 1px solid var(--spf-border);
+}
+
+.mup-file-row__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: var(--spf-purple-faint);
+  color: var(--spf-purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mup-file-row__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mup-file-row__name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--spf-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mup-file-row__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.1rem;
+}
+
+.mup-file-row__size {
+  font-size: 0.7rem;
+  color: var(--spf-text-hint);
+}
+
+.mup-file-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* ── Status badge ─────────────────────────────────────────────────────────── */
+.mup-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.1rem 0.45rem;
+  border-radius: 20px;
+}
+
+.mup-badge--done        { background: #D1FAE5; color: #065F46; }
+.mup-badge--error       { background: var(--spf-error-bg); color: var(--spf-error); }
+.mup-badge--uploading   { background: var(--spf-purple-light); color: var(--spf-purple); }
+.mup-badge--compressing { background: #FEF3C7; color: #92400E; }
+.mup-badge--pending     { background: #F3F4F6; color: var(--spf-text-muted); }
+
+/* ── Progress bar ─────────────────────────────────────────────────────────── */
+.mup-progress {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--spf-purple-light);
+  margin-top: 0.35rem;
+  overflow: hidden;
+}
+
+.mup-progress__fill {
+  height: 100%;
+  background: var(--spf-purple);
+  border-radius: 2px;
+  transition: width 0.15s ease;
+}
+
+.mup-progress__fill--indeterminate {
+  width: 40%;
+  animation: mup-indeterminate 1.2s ease-in-out infinite;
+}
+
+@keyframes mup-indeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* ── Action buttons ───────────────────────────────────────────────────────── */
+.mup-btn-remove,
+.mup-btn-retry {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  transition: background var(--spf-transition), color var(--spf-transition);
+  flex-shrink: 0;
+}
+
+.mup-btn-remove {
+  color: var(--spf-text-hint);
+}
+
+.mup-btn-remove:hover {
+  background: var(--spf-error-bg);
+  color: var(--spf-error);
+}
+
+.mup-btn-retry {
+  font-size: 0.95rem;
+  color: var(--spf-purple);
+}
+
+.mup-btn-retry:hover {
+  background: var(--spf-purple-light);
+}
+
+/* ── Cover image large preview ────────────────────────────────────────────── */
+.mup-cover-preview {
+  position: relative;
+  border-radius: var(--spf-radius);
+  overflow: hidden;
+  border: 1px solid var(--spf-border);
+}
+
+.mup-cover-preview img {
+  display: block;
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+}
+
+.mup-cover-preview__remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  border: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background var(--spf-transition);
+}
+
+.mup-cover-preview__remove:hover {
+  background: rgba(0,0,0,0.75);
+}
+
+/* ── Gallery grid ─────────────────────────────────────────────────────────── */
+.mup-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.45rem;
+}
+
+.mup-gallery-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--spf-radius);
+  overflow: hidden;
+  border: 1px solid var(--spf-border);
+  background: var(--spf-purple-faint);
+}
+
+.mup-gallery-item--error {
+  border-color: #FCA5A5;
+}
+
+.mup-gallery-item__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mup-gallery-item__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.mup-gallery-item__overlay--error {
+  background: rgba(220,38,38,0.6);
+}
+
+.mup-gallery-item__remove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #fff;
+  opacity: 0;
+  transition: opacity var(--spf-transition);
+}
+
+.mup-gallery-item:hover .mup-gallery-item__remove {
+  opacity: 1;
+}
+
+.mup-gallery-item__done {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  background: #059669;
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 700;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Floor plan type tags ─────────────────────────────────────────────────── */
+.mup-plan-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0 0 2.75rem;
+}
+
+.mup-plan-tags__label {
+  font-size: 0.7rem;
+  color: var(--spf-text-hint);
+}
+
+.mup-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  border: 1.5px solid var(--spf-border);
+  background: #fff;
+  color: var(--spf-text-muted);
+  cursor: pointer;
+  transition: border-color var(--spf-transition), background var(--spf-transition), color var(--spf-transition);
+}
+
+.mup-tag:hover {
+  border-color: var(--spf-purple);
+  color: var(--spf-purple);
+}
+
+.mup-tag--active {
+  border-color: var(--spf-purple);
+  background: var(--spf-purple);
+  color: #fff;
+}
+
+/* ── Virtual tour OR rule ─────────────────────────────────────────────────── */
+.mup-or-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--spf-text-hint);
+}
+
+.mup-or-rule::before,
+.mup-or-rule::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--spf-border);
+}
+
+/* ── Misc ─────────────────────────────────────────────────────────────────── */
+.mup-field-hint {
+  font-size: 0.72rem;
+  color: var(--spf-text-hint);
+}
+
+.mup-limit-note {
+  font-size: 0.72rem;
+  color: var(--spf-text-hint);
+  text-align: center;
+  padding: 0.4rem;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .mup-gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+
+  .mup-cover-preview img {
+    max-height: 160px;
+  }
+
+  .mup-plan-tags {
+    padding-left: 0;
+  }
+}

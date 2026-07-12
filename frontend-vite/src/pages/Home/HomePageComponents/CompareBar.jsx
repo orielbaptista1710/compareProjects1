@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import { X, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./CompareBar.css";
@@ -6,12 +6,24 @@ import "./CompareBar.css";
 import { formatCurrencyShort } from "../../../utils/formatters";
 import { getPropertyImage } from "../../../utils/propertyHelpers";
 
-const CompareBar = ({ compareList, removeFromCompare }) =>{
+const CompareBar = ({ compareList, removeFromCompare, setCompareList }) => {
   const navigate = useNavigate();
+  const [isClosed, setIsClosed] = useState(false);
+  const prevLengthRef = useRef(compareList.length);
 
-  const goToComparePage = () => {
-    navigate("/compare");
-  };
+  const clearAll = useCallback(() => setCompareList([]), [setCompareList]);
+  const goToComparePage = () => navigate("/compare");
+  const closeBar = useCallback(() => setIsClosed(true), []);
+
+  // If a new property gets added after the bar was closed, bring it back
+  useEffect(() => {
+    if (compareList.length > prevLengthRef.current) {
+      setIsClosed(false);
+    }
+    prevLengthRef.current = compareList.length;
+  }, [compareList.length]);
+
+  if (isClosed || compareList.length === 0) return null;
 
   return (
     <div className="compare-bar-wrapper">
@@ -35,6 +47,7 @@ const CompareBar = ({ compareList, removeFromCompare }) =>{
               <button
                 className="compare-remove-btn"
                 onClick={() => removeFromCompare(property._id)}
+                aria-label={`Remove ${property.title} from compare`}
               >
                 <X size={14} />
               </button>
@@ -42,29 +55,30 @@ const CompareBar = ({ compareList, removeFromCompare }) =>{
           ))}
         </div>
 
-        <div className="compare-actions">
+        <div className="comparebar-actions">
           <span className="compare-count">
             {compareList.length} selected
           </span>
 
-          <button
-            className="compare-clear-btn"
-            onClick={() => navigate("/compare")}
-          >
-            <Trash2 size={16} />
-            Clear All
+          <button className="compare-clear-btn" onClick={clearAll}>
+            <Trash2 size={14} strokeWidth={1.5} /> Clear All
+          </button>
+
+          <button className="compare-now-btn" onClick={goToComparePage}>
+            Compare Now
           </button>
 
           <button
-            className="compare-now-btn"
-            onClick={goToComparePage}
+            className="compare-close-btn"
+            onClick={closeBar}
+            aria-label="Hide compare bar"
           >
-            Compare Now
+            <X size={16} />
           </button>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default React.memo(CompareBar);

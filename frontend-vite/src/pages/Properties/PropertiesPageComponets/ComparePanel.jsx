@@ -4,6 +4,7 @@ import { X, MapPin, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
+import { useEscapeKey } from "../../../hooks/useEscapeKey";
 import { formatCurrencyShort } from "../../../utils/formatters";
 import { getPropertyImage, getPropertyLocation } from "../../../utils/propertyHelpers";
 import "./ComparePanel.css";
@@ -23,19 +24,7 @@ const ComparePanel = ({
   useOutsideClick(true, [panelRef], onClose);
 
   // Close on Escape key
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [onClose]);
-
-  // Lock body scroll while open
-  // useEffect(() => {
-  //   document.body.style.overflow = "hidden";
-  //   return () => { document.body.style.overflow = ""; };
-  // }, []);
+  useEscapeKey(true, onClose);
 
   const handleRemove = useCallback(
     (id) => {

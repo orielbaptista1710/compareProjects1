@@ -1,11 +1,14 @@
-
-// src/components/QuickLinks 
+//src/components/QuickLinks 
 import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthContext";
 // import { toast } from "react-toastify";
 import { Phone, Mail, Download, Heart, X } from "lucide-react";
+
 import useHeartProperty from "../../../hooks/useHeartProperty";
+import { useOutsideClick } from "../../../hooks/useOutsideClick";
+import { useEscapeKey } from "../../../hooks/useEscapeKey";
+
 import "./QuickLinks.css";
 
 function QuickLinks({ property }) {
@@ -27,11 +30,16 @@ function QuickLinks({ property }) {
   const modalRef = useRef(null);
 
   // Close modal on Escape
+  useEscapeKey(
+  showModal,
+  () => setShowModal(false)
+);
+
+// Lock body scroll while modal is open
   useEffect(() => {
-    const handleEsc = (e) => e.key === "Escape" && setShowModal(false);
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
+    document.body.style.overflow = showModal ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showModal]);
 
   // Focus trap
   useEffect(() => {
@@ -66,15 +74,13 @@ function QuickLinks({ property }) {
     window.location.href = "tel:+911234567890";
   };
 
-  const handleEnquiry = () => setShowModal(true);
+  const handleEnquiry = () => {
+    setShowModal(true);
+  };
 
   const handleBrochure = () => {
-    if (!property?.brochure) {
-      // toast.warning("Brochure not available.");
-      return;
-    }
+    if (!property?.brochure) return;
     window.open(property.brochure, "_blank", "noopener,noreferrer");
-    // toast.success("Brochure downloaded");
   };
 
 
@@ -100,31 +106,25 @@ function QuickLinks({ property }) {
   const email = formData.customerEmail.trim();
   const phone = formData.customerPhone.trim();
 
-  if (name.length < 2) {
-    // toast.error("Enter valid full name");
-    return false;
-  }
-
-  if (!/^[6-9]\d{9}$/.test(phone)) {
-    // toast.error("Enter valid 10-digit mobile number");
-    return false;
-  }
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    // toast.error("Enter valid email address");
-    return false;
-  }
-
-  return true;
-};
+  if (name.length < 2) return "Enter your full name";
+    if (!/^[6-9]\d{9}$/.test(phone)) return "Enter a valid 10-digit mobile number";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Enter a valid email address";
+    return null;
+  };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return; 
 
-    if (!validateForm()) return;
+    const validationError = validateForm();
+    if (validationError) {
+      setStatus({ type: "error", message: validationError });
+      return;
+    }
 
     try {
       setLoading(true);
+      setStatus(null);
 
 
       //CHECK THIS -- CUSTOMER FORM API N BACKEND ZOD , RATE LIMITS NEEDS TO BE DONE
@@ -140,7 +140,9 @@ function QuickLinks({ property }) {
           body: JSON.stringify({
             ...formData,
             propertyId: property?._id,
+            propertyTitle: property?.title,
             source: "quick_links_property_page_form",
+            pageUrl: window.location.href, //this is use for track the page from where the lead is generated
           }),
         }
       );
@@ -149,17 +151,11 @@ function QuickLinks({ property }) {
         throw new Error("Failed to submit enquiry");
       }
 
-      // toast.success("Enquiry submitted successfully!");
-
-      setFormData({
-        customerName: "",
-        customerPhone: "",
-        customerEmail: "",
-      });
-
-      setShowModal(false);
+      setStatus({ type: "success", message: "Enquiry sent! We'll reach out shortly." });
+      setFormData({ customerName: "", customerPhone: "", customerEmail: "" });
+      setTimeout(() => setShowModal(false), 1500);
     } catch (error) {
-      // toast.error("Something went wrong. Try again.");
+      setStatus({ type: "error", message: "Something went wrong. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -168,23 +164,22 @@ function QuickLinks({ property }) {
   return (
     <>
       <div className="quick-action-bar">
-        
-        <button className="quick-action-btn" onClick={handleCall}>
+        <button type="button" className="quick-action-btn" onClick={handleCall}>
           <Phone size={18} strokeWidth={1.5} />
           <span>Call Now</span>
         </button>
 
-        <button className="quick-action-btn" onClick={handleEnquiry}>
+        <button type="button" className="quick-action-btn" onClick={handleEnquiry}>
           <Mail size={18} strokeWidth={1.5} />
           <span>Enquiry</span>
         </button>
 
-        <button className="quick-action-btn" onClick={handleBrochure}>
+        <button type="button" className="quick-action-btn" onClick={handleBrochure}>
           <Download size={18} strokeWidth={1.5} />
           <span>Brochure</span>
         </button>
 
-        <button className="quick-action-btn" onClick={handleToggleHeart}>
+        <button type="button" className="quick-action-btn" onClick={handleToggleHeart}>
           <Heart
             size={18}
             strokeWidth={1.5}
@@ -193,7 +188,6 @@ function QuickLinks({ property }) {
           />
           <span>{isSaved ? "Saved" : "Save"}</span>
         </button>
-
       </div>
 
       {showModal && (
@@ -204,18 +198,13 @@ function QuickLinks({ property }) {
           aria-labelledby="quick-enquiry-modal-title"
           onClick={() => setShowModal(false)}
         >
-          <div
-            className="quick-modal-content"
-            ref={modalRef}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 id="quick-enquiry-modal-title">Enquiry Form</h3>
+          <div className="quick-modal-content" ref={modalRef} onClick={(e) => e.stopPropagation()}>
+            <h3 id="quick-enquiry-modal-title" className="quick-modal-title">Enquiry Form</h3>
 
-            <form
-              className="quick-enquiry-modal-form"
-              onSubmit={handleFormSubmit}
-            >
+            <form className="quick-enquiry-modal-form" onSubmit={handleFormSubmit}>
+              <label className="sr-only" htmlFor="quick-name">Full name</label>
               <input
+                id="quick-name"
                 type="text"
                 name="customerName"
                 placeholder="Your Name"
@@ -224,7 +213,9 @@ function QuickLinks({ property }) {
                 required
               />
 
+              <label className="sr-only" htmlFor="quick-phone">Phone number</label>
               <input
+                id="quick-phone"
                 type="tel"
                 name="customerPhone"
                 placeholder="Your Phone"
@@ -233,7 +224,9 @@ function QuickLinks({ property }) {
                 required
               />
 
+              <label className="sr-only" htmlFor="quick-email">Email address</label>
               <input
+                id="quick-email"
                 type="email"
                 name="customerEmail"
                 placeholder="Your Email"
@@ -241,6 +234,13 @@ function QuickLinks({ property }) {
                 onChange={handleFormChange}
                 required
               />
+
+              {status && (
+                <div className={`quick-form-status quick-form-status--${status.type}`}>
+                  {status.type === "success" ? <Check size={16} /> : <AlertCircle size={16} />}
+                  <span>{status.message}</span>
+                </div>
+              )}
 
               <button
                 className="quick-enquiry-modal-form-submit-btn"
@@ -252,8 +252,10 @@ function QuickLinks({ property }) {
             </form>
 
             <button
+              type="button"
               className="quick-modal-close-btn"
               onClick={() => setShowModal(false)}
+              aria-label="Close"
             >
               <X size={18} strokeWidth={1.5} />
             </button>

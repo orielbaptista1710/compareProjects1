@@ -12,4 +12,4 @@ Used by footer to display locality links
 */
 router.get("/localities", getDiscover);
 
-export default router;
+export default router; 

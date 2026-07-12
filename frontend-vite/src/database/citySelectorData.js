@@ -22,7 +22,7 @@ export const TOP_SELECTOR_CITIES = [
     icon: Factory,
   },
   {
-    name: "Bengaluru",
+    name: "Bangalore",
     icon: Castle,
   },
   {

@@ -7,18 +7,50 @@ import { FILTER_LABELS } from "../assests/constants/propertyTypeConfig";
      parseFiltersFromURL and FilterPanel
 ================================ */
 export const DEFAULT_FILTERS = {
-  city:             "",
+  city:             "", 
   locality:         [],
   search:           "",
   area:             null,
   bhk:              [],
   propertyType:     [],
-  furnishing:       [],
+  furnishing:       [], 
   facing:           [],
   parkings:         [],
-  amenities:        [],   // fixed: was "amenites"
+  amenities:        [],   
   floorLabel:       [],
-  possessionStatus: [],   // fixed: was "possessionaStatus"
+  possessionStatus: [],   
+};
+
+export const parseFiltersFromURL = (search) => {
+  const p = new URLSearchParams(search);
+
+  const areaMin  = p.get('areaMin');
+  const areaMax  = p.get('areaMax');
+  const areaUnit = p.get('areaUnit') ?? 'sqft';
+
+  const area =
+    areaMin != null || areaMax != null
+      ? {
+          min:  areaMin  != null ? Number(areaMin)  : 0,
+          max:  areaMax  != null ? Number(areaMax)  : 10_000,
+          unit: areaUnit,
+        }
+      : null;
+
+  return {
+    city:             p.get('city')              ?? '',
+    locality:         p.getAll('locality'),
+    search:           p.get('search')            ?? '',
+    propertyType:     p.getAll('propertyType'),
+    area,
+    bhk:              p.getAll('bhk'),
+    furnishing:       p.getAll('furnishing'),
+    facing:           p.getAll('facing'),
+    parkings:         p.getAll('parkings'),
+    possessionStatus: p.getAll('possessionStatus'),
+    floorLabel:       p.getAll('floorLabel'),
+    amenities:        p.getAll('amenities'),
+  };
 };
 
 /* ================================

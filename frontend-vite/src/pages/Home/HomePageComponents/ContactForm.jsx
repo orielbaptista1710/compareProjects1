@@ -20,7 +20,9 @@ const LOCALITIES = {
 const PROPERTY_TYPES = [
   "Flats/Apartments", 
     "Villa", 
-    "Plot","Shop/Showroom",
+    "Plot",
+    
+    "Shop/Showroom",
     "Industrial Warehouse/Godown",
     "Office Space",
     "Commercial Land",

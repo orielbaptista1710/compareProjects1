@@ -1,21 +1,13 @@
 // src/pages/PropertyPage/PropertyPageComponents/ContactFormm 
-/**
- * Lead capture form — sends data to /api/leads/customer
- *
- * FIXES vs old version:
- *  - error field names corrected (errors.name → errors.customerName etc.)
- *  - Removed MUI dependency — pure CSS form (matches new brand, no extra bundle weight)
- *  - countryCode prepended to phone before API call (no dead field)
- *  - isSubmitting disables every input, not just the button
- *  - Consent checkbox error displayed
- *  - Avatar initial handles multi-word names gracefully
- */
+
+// Lead capture form — sends data to /api/leads/customer
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User, Phone, Mail, MessageSquare, Home } from "lucide-react";
+import { User, Phone, Mail, MessageSquare, Heart } from "lucide-react";
 import API from "../../../api";
 // import useAppSnackbar from "../../../hooks/useAppSnackbar";
 import "./ContactFormm.css";
@@ -278,8 +270,8 @@ const ContactFormm = ({ property }) => {
 
         {/* Footer nudge */}
         <div className="cf-footer-nudge">
-          <Home size={14} strokeWidth={2} />
-          <span>Still deciding? Save this property to your wishlist</span>
+          <Heart size={14} strokeWidth={2} />
+          <span>Still deciding? Save this property to your favorites</span>
         </div>
       </form>
     </div>

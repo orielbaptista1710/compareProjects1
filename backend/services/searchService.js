@@ -1,4 +1,4 @@
-//backend/services/searchService.js
+// backend/services/searchService.js
 //
 // ATLAS-READY ABSTRACTION
 // ─────────────────────────────────────────────────────────────────────────────
@@ -52,6 +52,11 @@ function parsePrice(num, unit = '') {
   return price;
 }
 
+// ─── Field projection (DRY) ──────────────────────────────────────────────────
+// Single source of truth for what the search endpoints return.
+// Keeps payloads lean; the full property is only fetched on the property page.
+const SEARCH_PROJECTION = 'title locality city state price coverImage galleryImages propertyType bhk furnishing reraApproved possessionStatus area ageOfProperty developerName';
+
 // ─── Filter builder ───────────────────────────────────────────────────────────
 // Kept separate so the Atlas migration can reuse the same parsed intent.
 // atlasSearch() will receive the same `intent` object and convert it to
@@ -96,13 +101,18 @@ export function buildSearchIntent(q) {
     $lte: parsePrice(priceBetween[3], priceBetween[4]),
   };
 
-  // Location — prefer explicit "in <place>" pattern, fall back to first word
+  // Location — prefer explicit "in <place>" pattern, fall back to first word.
+  // Guard: only use location terms that are ≥ 3 characters to avoid
+  // catastrophic regex scans (e.g. loc = "a" matching half the DB with ^a).
   const locationMatch = lower.match(/in ([a-zA-Z\u0900-\u097F\s]+?)(?:\s+under|\s+above|\s+between|$)/);
   const loc = locationMatch
     ? locationMatch[1].trim()
     : lower.split(' ')[0];
 
-  intent.locationTerms = [loc];
+  if (loc && loc.length >= 3) {
+    intent.locationTerms = [loc];
+  }
+
   return intent;
 }
 
@@ -116,7 +126,7 @@ async function mongoTextSearch(intent, limit) {
     { score: { $meta: 'textScore' } }
   )
     .sort({ score: { $meta: 'textScore' } })
-    .select('title locality city state price coverImage galleryImages propertyType bhk furnishing reraApproved possessionStatus area ageOfProperty developerName')
+    .select(SEARCH_PROJECTION)
     .limit(limit)
     .lean();
 
@@ -125,6 +135,7 @@ async function mongoTextSearch(intent, limit) {
 
 // ─── Strategy 2: Regex (anchored — uses compound indexes) ────────────────────
 // Anchoring with ^ means MongoDB CAN use the index for city/locality lookups.
+// Only runs when locationTerms has a term that passed the ≥3-char guard above.
 async function regexSearch(intent, limit) {
   const filters = { ...intent.filters };
   const loc = intent.locationTerms[0];
@@ -141,7 +152,7 @@ async function regexSearch(intent, limit) {
   }
 
   return Property.find(filters)
-    .select('title locality city state price coverImage galleryImages propertyType bhk furnishing reraApproved possessionStatus area ageOfProperty developerName')
+    .select(SEARCH_PROJECTION)
     .limit(limit)
     .lean();
 }
@@ -149,15 +160,15 @@ async function regexSearch(intent, limit) {
 // ─── Strategy 3: Fuse.js (typo-tolerant, capped at 300 docs) ─────────────────
 async function fuseSearch(rawQuery, limit) {
   const allApproved = await Property.find({ status: 'approved' })
-    .select('title city locality propertyType bhk price coverImage possessionStatus area ageOfProperty developerName') // minimal projection
+    .select('title city locality propertyType bhk price coverImage possessionStatus area ageOfProperty developerName')
     .limit(300) // hard cap — prevents memory spike
     .lean();
 
   const fuse = new Fuse(allApproved, {
     keys: [
-      { name: 'title',        weight: 0.5 },
-      { name: 'city',         weight: 0.3 },
-      { name: 'locality',     weight: 0.2 },
+      { name: 'title',    weight: 0.5 },
+      { name: 'city',     weight: 0.3 },
+      { name: 'locality', weight: 0.2 },
     ],
     threshold: 0.35,
     includeScore: true,
@@ -179,9 +190,9 @@ async function atlasSearch(intent, limit) {
   const pipeline = [
     {
       $search: {
-        index: 'property_search', // create this in Atlas UI
+        index: 'property_search',
         compound: {
-          must: [],
+          must: [], 
           should: [
             {
               autocomplete: {
@@ -216,17 +227,9 @@ async function atlasSearch(intent, limit) {
     },
     { $addFields: { score: { $meta: 'searchScore' } } },
     { $limit: limit },
-    {
-      $project: {
-        title: 1, locality: 1, city: 1, state: 1, price: 1,
-        coverImage: 1, propertyType: 1, bhk: 1, furnishing: 1,
-        reraApproved: 1, possessionStatus: 1, area: 1,
-        ageOfProperty: 1, developerName: 1,
-      },
-    },
+    { $project: { [SEARCH_PROJECTION.split(' ').join(': 1, ')]: 1 } },
   ];
 
-  // Add price filter if present
   if (intent.filters.price) {
     pipeline[0].$search.compound.filter.push({
       range: { path: 'price', ...intent.filters.price },

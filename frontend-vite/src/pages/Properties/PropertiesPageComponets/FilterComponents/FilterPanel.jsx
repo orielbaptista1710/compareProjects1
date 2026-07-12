@@ -4,7 +4,7 @@ import {
   Search,
   Home,
   Building2,
-  BedDouble,
+  BedDouble, 
   Layers, 
   Compass,
   Car,
@@ -181,7 +181,7 @@ const FilterPanel = ({
         {/* Floor Label */}
         <FilterSection
           title="Floor preference"
-          icon={Layers}
+          icon={Layers} 
           initiallyOpen={false}
         >
           <CheckboxGroup

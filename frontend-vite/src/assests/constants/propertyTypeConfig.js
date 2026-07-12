@@ -6,10 +6,11 @@ import {
   Building2,
   Map,
   Store,
-  Warehouse,
+  Warehouse, 
   Factory,
 } from "lucide-react";
 
+// USE IN THE MAINSRACHBAR PILLS
 export const PROPERTY_TYPE_CONFIG = [
   {
     group: "Residential",
@@ -28,7 +29,7 @@ export const PROPERTY_TYPE_CONFIG = [
     target: "bhk",
     items: [
       { label: "1 BHK", value: "1" },
-      { label: "2 BHK", value: "2" },
+      { label: "2 BHK", value: "2" }, 
       { label: "3 BHK", value: "3" },
       { label: "4 BHK", value: "4" },
       { label: "5+ BHK", value: "5+" },

@@ -6,6 +6,7 @@ import { X, Check } from "lucide-react";
 // import { lazy, Suspense } from "react";
 // import { toast } from "react-toastify";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 import "./DeveloperPopup.css";
 
 const BENEFITS = [
@@ -32,12 +33,7 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
   useOutsideClick(isOpen, [panelRef], onClose);
 
   // Close on Escape
-  // useEffect(() => {
-  //   if (!isOpen) return;
-  //   const handler = (e) => { if (e.key === "Escape") onClose(); };
-  //   document.addEventListener("keydown", handler);
-  //   return () => document.removeEventListener("keydown", handler);
-  // }, [isOpen, onClose]);
+  useEscapeKey(isOpen, onClose);
 
   // Lock body scroll
   useEffect(() => {

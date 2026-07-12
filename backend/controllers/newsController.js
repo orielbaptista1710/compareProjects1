@@ -1,4 +1,5 @@
 //controllers/newsController.js
+//used in PropertyGuide -- check performace 
 import axios from "axios";
 import NodeCache from "node-cache";
 

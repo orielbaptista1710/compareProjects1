@@ -54,9 +54,7 @@ export const customerLeadValidator = z.object({
   /* -------------------------
      CONSENT
   ------------------------- */
-  customerContactConsent: z.literal(true, {
-    errorMap: () => ({ message: "Consent is required" }),
-  }),
+  customerContactConsent: z.boolean().default(true),
 });
 
 

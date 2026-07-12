@@ -3,14 +3,6 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
-  
-  // clerkId: {
-  //     type: String,
-  //     unique: true,
-  //     required: true,
-  //     index: true,
-  //   },
-  
   // --- Profile ---
     displayName: {
       type: String,
@@ -68,9 +60,14 @@ const userSchema = new mongoose.Schema({
       trim: true,
     },
 
+    migrationSource: {
+    type: String,
+    enum: ["manual", "scraper-import", "test"]
+    },
+
     isActive: {
       type: Boolean,
-      default: true, // set false to soft-ban a developer without touching Clerk
+      default: true, 
     },
 },
 {

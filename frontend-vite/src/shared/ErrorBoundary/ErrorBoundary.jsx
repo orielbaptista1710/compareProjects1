@@ -1,3 +1,4 @@
+//frontend-vite\src\shared\ErrorBoundary\ErrorBoundary.jsx
 import React from "react";
 import "./ErrorBoundary.css";
 

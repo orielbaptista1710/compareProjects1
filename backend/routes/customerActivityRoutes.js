@@ -12,27 +12,26 @@ router.get('/my-activity', protectCustomer, async (req, res) => {
     const customer = await Customer.findById(req.customer._id)
       .populate({
         path: 'heartProperties',
-        select: 'title price coverImage locality city propertyType bhk', // only what PropertyCard needs
+        select: 'title price coverImage locality city propertyType bhk',
       })
-      .lean(); // IMPORTANT
-
-      // .populate('comparedProperties')
-      // .populate('shortlistedProperties');
+      .populate({
+        path: 'compareProperties',
+        select: 'title price coverImage locality city propertyType bhk',
+      })
+      .lean();
 
     res.json({
       success: true,
       heartProperties: customer.heartProperties,
-      // comparedProperties: customer.comparedProperties,
-      // shortlistedProperties: customer.shortlistedProperties,
+      compareProperties: customer.compareProperties,
     });
-
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Toggle save property
-router.post('/toggle-save/:propertyId', protectCustomer, async (req, res) => {
+// Toggle save property- favorite
+router.post('/toggle-heart/:propertyId', protectCustomer, async (req, res) => {
   try {
     const { propertyId } = req.params;
 
@@ -46,7 +45,7 @@ router.post('/toggle-save/:propertyId', protectCustomer, async (req, res) => {
       heartProperties: propertyId,
     });
 
-    const update = existing
+    const update = existing 
       ? { $pull: { heartProperties: propertyId } }
       : { $addToSet: { heartProperties: propertyId } };  // $addToSet prevents duplicates
 
@@ -64,6 +63,40 @@ router.post('/toggle-save/:propertyId', protectCustomer, async (req, res) => {
 
   } catch (err) {
     console.error('Toggle heart error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+// Toggle save property- compare
+// router.post('/toggle-compare/:propertyId', protectCustomer, async (req, res) => {
+router.put('/compare', protectCustomer, async (req, res) => {
+  try {
+    const { propertyIds } = req.body;
+
+    if (!Array.isArray(propertyIds)) {
+      return res.status(400).json({ message: 'propertyIds must be an array' });
+    }
+
+    const validIds = propertyIds
+      .filter((id) => mongoose.Types.ObjectId.isValid(id))
+      .slice(0, 4); // hard cap server-side, don't trust the client
+
+    const updated = await Customer.findByIdAndUpdate(
+      req.customer._id,
+      { compareProperties: validIds }, // <-- matches schema field name
+      { new: true, runValidators: true }
+    ).populate({
+      path: 'compareProperties',
+      select: 'title price coverImage locality city propertyType bhk',
+    });
+
+    res.json({
+      success: true,
+      compareProperties: updated.compareProperties,
+    });
+  } catch (err) {
+    console.error('Compare sync error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

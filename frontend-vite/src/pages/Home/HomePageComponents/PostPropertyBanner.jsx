@@ -1,6 +1,8 @@
+//frontend-vite\src\pages\Home\HomePageComponents\PostPropertyBanner.jsx
 import React, { useState, useCallback, useEffect } from "react";
 import GradientBanner from "./GradientBanner";
 import DeveloperPopup from "../../../shared/Popups/DeveloperPopup";
+import { useEscapeKey } from "../../../hooks/useEscapeKey";
 
 const PostPropertyBanner = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -8,14 +10,7 @@ const PostPropertyBanner = () => {
   const openPopup = useCallback(() => setShowPopup(true), []);
   const closePopup = useCallback(() => setShowPopup(false), []);
 
-  useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === "Escape") setShowPopup(false);
-    };
-
-    if (showPopup) document.addEventListener("keydown", handleEsc);
-    return () => document.removeEventListener("keydown", handleEsc);
-  }, [showPopup]);
+  useEscapeKey(showPopup, closePopup);
 
   return (
     <>

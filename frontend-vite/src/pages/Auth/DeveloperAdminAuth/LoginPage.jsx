@@ -5,9 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import './LoginPage.css';
 import API from '../../../api'; 
-import { Eye, EyeOff } from 'lucide-react'; // ✅ Lucide React icons
+import { Eye, EyeOff } from 'lucide-react'; 
 import DeveloperPopup from '../../../shared/Popups/DeveloperPopup';
+import MascotGuide from '../../../components/DevDashboardPageComponents/Mascot/MascotGuide'
 // import Seo from '../constants/Seo';
+import toast from 'react-hot-toast';
+
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -37,29 +40,32 @@ const LoginPage = () => {
     try {
       const { data } = await API.post('/api/auth/login', formData, {
         headers: { 'Content-Type': 'application/json' },
-        withCredentials: true, // important for cookies
+        withCredentials: true, 
       });
 
-      if (data.user) {
+      if (data.user || data.user.isActive=='true') {
         await queryClient.invalidateQueries(['current-user']);
         navigate(data.user.role === 'admin' ? '/admin' : '/dashboard');
-      } else {
-        setError('Unexpected server response. Please try again.');
+        toast.success(`Welcome back, ${data.user.displayName}!`);
+
+
       }
     } catch (err) {
-      console.error('Login error:', err);
+      const status = err.response?.status;
+      const serverMsg = err.response?.data?.message;
       const msg =
-        err.response?.data?.message ||
-        (err.response
-          ? `Login failed (${err.response.status})`
-          : err.request
-          ? 'No response from server'
-          : 'Error setting up request');
-      setError(msg);
+      status === 403 ? 'Your account has been deactivated. Contact admin.' :
+      status === 429 ? 'Too many attempts. Try again in 15 minutes.' :
+      status === 401 ? 'Invalid username or password.' :
+      !err.response   ? 'Server unreachable. It may be waking up — try again in 30 seconds.' :
+      serverMsg       || 'Login failed. Please try again.';
+  
+      toast.error(msg);
+      setError(msg); 
     } finally {
-      setLoading(false);
-    }
-  };
+          setLoading(false);
+        }
+      };
 
   return (
     <div className="login-container">
@@ -119,31 +125,14 @@ const LoginPage = () => {
           </label>
 
           <div className="login-extra">
-            {/* <label className="remember-me">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={() => setRememberMe(!rememberMe)}
-              />
-              Remember me
-            </label> */}
             
-            {/* <button
+            <button
               type="button"
-              className="forgot-password"
-              onClick={async () => {
-                const username = formData.username;
-                if (!username) return alert('Please enter your username first');
-                try {
-                  const { data } = await API.post('/api/devlog/developer-forgot-password', { username });  // routes/devResetPwdRoutes.js
-                  alert(data.message);
-                } catch (err) {
-                  alert(err.response?.data?.message || 'Error sending temporary password');
-                }
-              }}
+              className="dev-forgot-password"
             >
               Forgot password?
-            </button> */}
+            </button>
+
           </div>
 
           <button
@@ -168,6 +157,14 @@ const LoginPage = () => {
           </p>
         </form>
       </div>
+
+      <MascotGuide
+              steps={[
+                "Welcome Developer!.",
+                "If want to join our community please contact us",
+              ]}
+            />  
+
     </div>
   );
 };

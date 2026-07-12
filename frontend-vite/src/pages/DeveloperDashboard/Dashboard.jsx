@@ -1,30 +1,24 @@
 // Developer Dashboard
-// ==============================
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-// import { toast } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
 import './Dashboard.css';
 import SellPropertyForm from '../../components/DevDashboardPageComponents/SellPropertyFormComponents/SellPropertyForm';
 import DeveloperSupport from "./DeveloperDashboardComponents/DeveloperSupport";
 import DashboardNav from './DeveloperDashboardComponents/DashboardNav';
-// import SkeletonPropertyCard from '../components/SkeletonComponents/SkeletonPropertyCard';
-import API from '../../api'; // Axios instance
-import DevPropertyList from './DeveloperDashboardComponents/DevPropertyList';
+import API from '../../api';
+import DevPropertyList from './DeveloperDashboardComponents/DevPropertyList/DevPropertyList';
+import './DeveloperDashboardComponents/DevPropertyList/DevPropertyList.css';
+
+import toast from 'react-hot-toast';
+import toastError from '../../utils/toastError';
 
 import {
   initialFormData,
   normalizePropertyData,
   REQUIRED_FIELDS,
-}  from "./utils/developerDashPropertyHelpers"
-import { formatCurrency } from "../../utils/formatters"
-
-//CHECK THIS -- 'API_BASE_URL' is assigned a value but never used
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-
-
+} from "./utils/developerDashPropertyHelpers";
+import { formatCurrency } from "../../utils/formatters";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -34,25 +28,13 @@ const Dashboard = () => {
   const [formData, setFormData] = useState(initialFormData);
   const [editingId, setEditingId] = useState(null);
 
-  // -------------------------
-  // Helper: Format Price
-  // -------------------------
+  const formatIndianPrice = formatCurrency;
 
-  const  formatIndianPrice = formatCurrency;
-
-  // const formatIndianPrice = (price) => {
-  //   if (!price) return 'Price on Request';
-  //   if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
-  //   if (price >= 100000) return `₹${(price / 100000).toFixed(2)} Lakh`;
-  //   return `₹${price.toLocaleString('en-IN')}`;
-  // };
-
-  // -------------------------
   // Logout
-  // -------------------------
   const handleLogout = useCallback(async () => {
     try {
       await API.post('/api/auth/logout');
+      toast.success('Logged out successfully');
     } catch (err) {
       console.error('Logout failed:', err);
     } finally {
@@ -62,9 +44,7 @@ const Dashboard = () => {
     }
   }, [navigate, queryClient]);
 
-  // -------------------------
   // Fetch Current User
-  // -------------------------
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['current-user'],
     queryFn: async () => {
@@ -80,83 +60,63 @@ const Dashboard = () => {
     if (!userLoading && !user) navigate('/login');
   }, [user, userLoading, navigate]);
 
-  // -------------------------
   // Fetch Developer Properties
-  // -------------------------
   const { data: properties = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['my-properties'],
     queryFn: async () => {
       const res = await API.get('/api/properties/my-properties');
       return res.data;
     },
-    onError: (err) => {
-      // toast.error(err.response?.data?.message || "Failed to fetch properties");
-    },
   });
- 
-  // -------------------------
+
   // Add Property
-  // -------------------------
   const { mutate: addProperty, isPending: isAdding } = useMutation({
     mutationFn: (newProperty) => API.post('/api/properties/add', newProperty),
     onSuccess: () => {
-      // toast.success("Property added successfully");
+      toast.success('Property submitted successfully!');
       queryClient.invalidateQueries(['my-properties']);
       setFormData(initialFormData);
       setActiveTab('properties');
       setEditingId(null);
     },
+    onError: (err) => toastError(err, 'Failed to add property'),
   });
 
-  // -------------------------
   // Update Property
-  // -------------------------
   const { mutate: updateProperty, isPending: isUpdating } = useMutation({
     mutationFn: ({ id, data }) => API.put(`/api/properties/update/${id}`, data),
     onSuccess: () => {
-      // toast.success('Property updated successfully');
-      refetch();
+      toast.success('Property updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['my-properties'] });
       setActiveTab('properties');
       setEditingId(null);
       setFormData(initialFormData);
     },
+    onError: (err) => toastError(err, 'Failed to update property'),
   });
 
-  // -------------------------
   // Delete Property
-  // -------------------------
   const { mutate: deleteProperty } = useMutation({
     mutationFn: (id) => API.delete(`/api/properties/delete/${id}`),
-    onSuccess: () => {
-      // toast.success('Property deleted successfully');
-      refetch();
-    },
+    onSuccess: () => toast.success('Property deleted'),
+    onError: (err) => toastError(err, 'Failed to delete property'),
   });
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this property?'))
       deleteProperty(id);
   };
 
-  // -------------------------
   // Form Submit
-  // -------------------------
   const handleSubmit = (data) => {
     const missing = REQUIRED_FIELDS.filter((f) => !data[f]);
     if (missing.length) {
-      // toast.error(`Please fill in: ${missing.join(', ')}`);
+      toast.error(`Please fill in: ${missing.join(', ')}`);
       return;
     }
     editingId ? updateProperty({ id: editingId, data }) : addProperty(data);
   };
 
-
-  // const toggleExpand = (id) => {
-  //   setExpandedCards((prev) => ({ ...prev, [id]: !prev[id] }));
-  // };
-
-
- const handleEdit = (property) => {
+  const handleEdit = (property) => {
     setEditingId(property._id);
     setFormData(normalizePropertyData(property));
     setActiveTab('sell');
@@ -167,18 +127,19 @@ const Dashboard = () => {
     setFormData(initialFormData);
   };
 
-
   return (
     <div className="dashboard-container">
       <div className="dashboard-layout">
-        <DashboardNav 
-          activeTab={activeTab} 
+
+        <DashboardNav
+          activeTab={activeTab}
           setActiveTab={setActiveTab}
           user={user}
           handleLogout={handleLogout}
         />
 
-        <div className="dashboard-content">
+        <div className="dashboard-panel">
+
           {activeTab === 'sell' && (
             <SellPropertyForm
               formData={formData}
@@ -190,26 +151,21 @@ const Dashboard = () => {
             />
           )}
 
-   {/* My Properties Section */}
-         {activeTab === 'properties' && (
-  <>
-    <h2 className="properties-title">My Properties</h2>
+          {activeTab === 'properties' && (
+            <div className="dashboard-tab-content">
+              <h2 className="dashboard-tab-title">My Properties</h2>
+              <DevPropertyList
+                properties={properties}
+                isLoading={isLoading}
+                isError={isError}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                formatIndianPrice={formatIndianPrice}
+              />
+            </div>
+          )}
 
-    <DevPropertyList
-      properties={properties}
-      isLoading={isLoading}
-      isError={isError}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-      formatIndianPrice={formatIndianPrice}
-    />
-  </>
-)}
-
-
-
-
-          {activeTab === "support" && <DeveloperSupport />}
+          {activeTab === 'support' && <DeveloperSupport />}
 
         </div>
       </div>

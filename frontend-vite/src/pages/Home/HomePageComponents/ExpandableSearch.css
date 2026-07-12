@@ -9,7 +9,7 @@
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
-  isolation: isolate; 
+  isolation: isolate;
 }
 
 /* ---------------- Search Container ---------------- */
@@ -94,26 +94,19 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  box-shadow:
-    0 4px 12px rgba(124, 58, 237, 0.25);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
 }
 
 .ai-search-submit:hover {
-  box-shadow:
-    0 6px 18px rgba(124, 58, 237, 0.35);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35);
 }
 
 .ai-search-submit:active {
   transform: scale(0.96);
 }
 
-.ai-search-submit svg:hover {
-  transform: scale(1.05);
-}
-
-
 /* --------------------------------------------------------------------------
-   Quick Suggestions - Compact
+   Quick Suggestions
    -------------------------------------------------------------------------- */
 
 .quick-suggestions-container {
@@ -122,7 +115,7 @@
   gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
-  
+
   animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -139,31 +132,30 @@
 
 .suggestion-pill {
   all: unset;
-  
+
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  
+
   padding: 6px 12px;
-  
+
   background: #cab1f5a9;
   color: #7c3aed;
-  
+
   border: 1.5px solid #7c3aed;
   border-radius: 50px;
-  
+
   font-size: 12px;
   font-weight: 600;
-  
+
   cursor: pointer;
-  
+
   transition: all 0.2s ease;
 }
 
 .suggestion-pill:hover {
   background: rgba(124, 58, 237, 0.12);
   transform: translateY(-1px);
-  
   box-shadow: 0 3px 10px rgba(124, 58, 237, 0.15);
 }
 
@@ -182,16 +174,24 @@
 .search-results-dropdown {
   position: absolute;
   top: calc(100% + 12px);
-  
   left: 0;
-
   width: 100%;
-  background: #ffffff;
 
+  background: #ffffff;
   border-radius: 18px;
   border: 1px solid #f3f4f6;
 
   padding: 12px;
+
+  /* Cap height so 3 tall cards don't overflow the viewport on mobile.
+     Cards are ~130px each + padding = ~420px max is comfortable on any screen. */
+  max-height: 440px;
+  overflow-y: auto;
+  /* Smooth inertial scroll on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Custom minimal scrollbar — unobtrusive on desktop */
+  scrollbar-width: thin;
+  scrollbar-color: #e9d5ff transparent;
 
   box-shadow:
     0 20px 45px rgba(0, 0, 0, 0.12),
@@ -200,6 +200,19 @@
   z-index: 1000;
 
   animation: dropdownFade 0.2s ease forwards;
+}
+
+.search-results-dropdown::-webkit-scrollbar {
+  width: 4px;
+}
+
+.search-results-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.search-results-dropdown::-webkit-scrollbar-thumb {
+  background: #e9d5ff;
+  border-radius: 2px;
 }
 
 @keyframes dropdownFade {
@@ -274,35 +287,40 @@
 }
 
 /* --------------------------------------------------------------------------
-   Fuzzy Indicator - Compact
+   Fuzzy Indicator
    -------------------------------------------------------------------------- */
 
 .fuzzy-indicator {
   padding: 5px 12px;
   margin-bottom: 6px;
-  position: flex-start;
   color: #92400e;
   font-size: 11px;
   box-shadow: 0 1px 4px rgba(251, 191, 36, 0.15);
 }
 
 /* --------------------------------------------------------------------------
-   Property Results - Compact (Next step: PropertyCardSmall)
+   Property Results
    -------------------------------------------------------------------------- */
 
 .property-result-item {
   border-radius: 12px;
   cursor: pointer;
-  
+
   padding: 4px;
   margin: -4px;
-  
-  transition: all 0.2s ease;
+
+  transition: background 0.15s ease;
+}
+
+.property-result-item:hover,
+.property-result-item.highlighted {
+  background: #f5f3ff;
 }
 
 .property-result-item:active {
-  transform: scale(0.99);
+  background: #ede9fe;
 }
+
 /* ==========================================================
    RESPONSIVE
    ========================================================== */
@@ -318,6 +336,8 @@
 
   .search-results-dropdown {
     border-radius: 16px;
+    /* Tighter on small phones — leaves room for the keyboard */
+    max-height: 320px;
   }
 }
 
@@ -343,7 +363,12 @@
 
 .ai-search-submit:focus-visible,
 .suggestion-pill:focus-visible {
-  outline: 2px solid #fbbf24;
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.property-result-item:focus-visible {
+  outline: 2px solid #7c3aed;
   outline-offset: 2px;
 }
 

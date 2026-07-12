@@ -31,6 +31,7 @@ const customerLeadSchema = new mongoose.Schema(
         "home_page_contact",
         "property_page_contact",
         "smart_properties_page_form",
+        "quick_links_property_page_form"
       ],
     },
 
@@ -93,7 +94,7 @@ customerLeadSchema.index({ source: 1 });
 
 export const CustomerLead = () => {
   const conn = getLeadsConnection();
-  return conn.model("CustomerLead", customerLeadSchema);
+  return conn.model.CustomerLead || conn.model("CustomerLead", customerLeadSchema);
 };
 
 //---------------------------------------

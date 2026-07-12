@@ -1,7 +1,7 @@
 //frontend/src/pages/Auth/CustomerAuth/CustomerLoginPage.js
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Check } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react"; 
 import { AuthContext } from "../../../contexts/AuthContext";
 import API from "../../../api";
 
@@ -109,6 +109,7 @@ const CustomerLoginPage = () => {
 
       {/* Right — Login Form */}
       <div className="auth-right">
+
         <div className="auth-card">
           <h2 className="auth-title">Customer Login</h2>
           <p className="auth-subtitle">Access your account to continue</p>
@@ -154,7 +155,7 @@ const CustomerLoginPage = () => {
               <div className="forgot-password">
                 {resetSent ? (
                   <span className="reset-sent">
-                    ✅ Reset email sent — check your inbox
+                     Reset email sent — check your inbox
                   </span>
                 ) : (
                   <span
@@ -188,6 +189,7 @@ const CustomerLoginPage = () => {
 
           </form>
         </div>
+
       </div>
 
     

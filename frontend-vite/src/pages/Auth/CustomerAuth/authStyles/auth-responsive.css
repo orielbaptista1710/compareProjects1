@@ -1,277 +1,117 @@
 /* ==========================================================================
    auth-responsive.css
-   Breakpoints: 1100 → 900 → 768 → 640 → 480 → 360
-   Strategy:
-     - ≥ 901 px   : side-by-side layout
-     - ≤ 900 px   : stacked — compact left banner + full-width form
-     - ≤ 640 px   : mobile — left panel collapses to slim top band
-     - ≤ 480 px   : small phones — tighter spacing
-     - ≤ 360 px   : very small phones — minimum sizes
    ========================================================================== */
 
-/* ── 1100 px – wide laptops ──────────────────────────────────────────────── */
+/* ── 1100px ── */
 @media (max-width: 1100px) {
-  .auth-left {
-    flex: 0 0 42%;
-  }
-
-  .auth-left h1 {
-    font-size: clamp(1.6rem, 3vw, 2.5rem);
-  }
+  .auth-left { flex: 0 0 42%; }
 }
 
-/* ── 900 px – tablets landscape / small laptops ──────────────────────────── */
+/* ── 900px — stack vertically ── */
 @media (max-width: 900px) {
   .auth-page {
-    padding-top: 7dvh;
     flex-direction: column;
-    overflow: auto;
+    overflow-y: auto;
+    min-height: 100dvh;
   }
 
-  /* Left becomes a horizontal banner */
   .auth-left {
     flex: none;
     width: 100%;
     max-width: 100%;
-    min-height: auto;
-    padding: 2.5rem 2rem 2.25rem;
+    padding: 2.5rem 2rem;
     align-items: flex-start;
-    justify-content: center;
   }
 
   .signup-content {
-    max-width: 660px;
-    width: 100%;
+    max-width: 620px;
     margin: 0 auto;
   }
 
-  .auth-brand-mark {
-    margin-bottom: 1.25rem;
-  }
-
   .auth-left h1 {
-    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-size: clamp(1.5rem, 4vw, 2rem);
     margin-bottom: 1.25rem;
-  }
-
-  /* Hide testimonial at tablet to save height */
-  .testimonial {
-    display: none;
   }
 
   .benefits-list {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem 1.5rem;
-    margin-bottom: 1.25rem;
+    gap: 0.4rem 1.5rem;
   }
 
-  .trusted-by {
-    margin-bottom: 0;
+  .benefits-list li {
+    border-bottom: none;
+    font-size: 0.9rem;
+    padding: 6px 0;
   }
 
-  /* Right */
   .auth-right {
     flex: none;
     width: 100%;
-    padding: 2.5rem 2rem;
-    align-items: flex-start;
+    padding: 2.5rem 2rem 3rem;
     justify-content: center;
   }
 
   .auth-card {
-    max-width: 520px;
-    width: 100%;
+    max-width: 500px;
     margin: 0 auto;
   }
 }
 
-/* ── 768 px – tablets portrait ───────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .auth-left {
-    padding: 2rem 1.75rem;
-  }
-
-  .benefits-list {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .auth-right {
-    padding: 2rem 1.75rem;
-  }
-}
-
-/* ── 640 px – mobile ─────────────────────────────────────────────────────── */
+/* ── 640px — mobile ── */
 @media (max-width: 640px) {
-  /* Left collapses to a slim colour strip with only heading + benefits */
   .auth-left {
-    padding: 1.75rem 1.25rem 1.5rem;
-  }
-
-  .auth-brand-mark {
-    display: none; /* Save vertical space */
+    padding: 1.75rem 1.25rem;
   }
 
   .auth-left h1 {
-    font-size: 1.55rem;
+    font-size: 1.4rem;
     margin-bottom: 1rem;
   }
 
-  /* Single-column benefits */
   .benefits-list {
     grid-template-columns: 1fr;
-    gap: 0.45rem;
-    margin-bottom: 1rem;
   }
 
-  .benefits-list li {
-    font-size: 0.9rem;
-  }
-
-  /* Hide brands + testimonial on small mobile */
-  .trusted-by,
-  .testimonial {
-    display: none;
-  }
-
-  /* Right panel */
   .auth-right {
     padding: 1.75rem 1.25rem 2.5rem;
-    align-items: flex-start;
   }
 
-  .auth-card {
-    max-width: 100%;
-  }
+  .auth-card { max-width: 100%; }
 
-  .auth-card h2,
-  .auth-title {
-    font-size: 1.5rem;
-  }
+  /* 16px minimum prevents iOS auto-zoom */
+  .form-group input { font-size: 16px; }
+
+  .password-requirements { grid-template-columns: 1fr 1fr; }
 
   .auth-subtitle,
-  .subheading {
-    font-size: 0.88rem;
-    margin-bottom: 1.5rem;
-  }
-
-  /* Inputs: 16px minimum prevents iOS auto-zoom */
-  .form-group input {
-    height: 50px;
-    font-size: 16px;
-  }
-
-  .form-group label {
-    font-size: 0.87rem;
-  }
-
-  /* Keep requirements readable in single column on small screens */
-  .password-requirements {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .auth-btn,
-  .signup-btn {
-    height: 52px;
-    font-size: 0.92rem;
-  }
-
-  .form-group {
-    margin-bottom: 1rem;
-  }
+  .subheading { margin-bottom: 1.5rem; }
 }
 
-/* ── 480 px – small phones ───────────────────────────────────────────────── */
+/* ── 480px ── */
 @media (max-width: 480px) {
-  .auth-left {
-    padding: 1.5rem 1rem 1.25rem;
-  }
-
-  .auth-left h1 {
-    font-size: 1.35rem;
-  }
-
-  .auth-right {
-    padding: 1.5rem 1rem 2.5rem;
-  }
-
-  .country-code {
-    padding: 0 0.65rem;
-    font-size: 0.88rem;
-  }
-
-  .password-requirements {
-    grid-template-columns: 1fr;
-  }
+  .auth-left  { padding: 1.5rem 1rem; }
+  .auth-right { padding: 1.5rem 1rem 2.5rem; }
+  .country-code { padding: 0 0.65rem; font-size: 0.875rem; }
+  .password-requirements { grid-template-columns: 1fr; }
 }
 
-/* ── 360 px – very small phones (Galaxy A series, older iPhones) ─────────── */
+/* ── 360px ── */
 @media (max-width: 360px) {
-  .auth-left {
-    padding: 1.25rem 0.9rem 1rem;
-  }
-
-  .auth-left h1 {
-    font-size: 1.2rem;
-  }
-
-  .auth-right {
-    padding: 1.25rem 0.9rem 2rem;
-  }
-
-  .auth-card h2,
-  .auth-title {
-    font-size: 1.3rem;
-  }
-
-  .form-group input {
-    height: 48px;
-  }
-
-  .auth-btn,
-  .signup-btn {
-    height: 50px;
-  }
+  .auth-left h1   { font-size: 1.2rem; }
+  .form-group input { height: 46px; }
+  .auth-btn, .signup-btn { height: 50px; }
 }
 
-/* ── Touch device accessibility ──────────────────────────────────────────── */
+/* ── Touch targets ── */
 @media (hover: none) and (pointer: coarse) {
-  /* Larger tap targets on touch */
-  .toggle-eye {
-    padding: 8px;
-    right: 0.6rem;
-  }
-
-  .forgot-link {
-    padding: 4px 0;
-    display: inline-block;
-  }
-
-  .auth-redirect span {
-    padding: 2px 0;
-    display: inline-block;
-  }
+  .toggle-eye  { padding: 8px; right: 0.5rem; }
+  .forgot-link { padding: 4px 0; display: inline-block; }
 }
 
-/* ── Reduced motion preference ───────────────────────────────────────────── */
+/* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     transition-duration: 0ms !important;
-    animation-duration: 0ms !important;
-  }
-}
-
-/* ── High-contrast / forced colors ──────────────────────────────────────── */
-@media (forced-colors: active) {
-  .auth-left {
-    forced-color-adjust: none;
-  }
-
-  .form-group input,
-  .auth-btn,
-  .signup-btn {
-    forced-color-adjust: auto;
   }
 }

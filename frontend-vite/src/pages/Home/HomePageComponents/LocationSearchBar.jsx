@@ -1,7 +1,9 @@
+//frontend/src/pages/Home/HomePageComponents/LocationSearchBar.jsx
+//LocationSearchBar is used in Home page on MainSearchBar- Hve to CHECK THIS  for dropdown
 
+//  * Autocomplete for MainSearchBar and FilterPanel.
+//  * Pass ?city= to scope results to a specific city.
 
-
-//LocationBar
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -14,7 +16,7 @@ import "./LocationSearchBar.css";
 const LocationSearchBar = ({ onSelect }) => {
   const { city } = useCity();
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(""); 
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 

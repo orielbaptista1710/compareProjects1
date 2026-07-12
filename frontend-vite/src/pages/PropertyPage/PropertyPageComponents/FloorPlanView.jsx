@@ -22,6 +22,9 @@ import {
   Building2, IndianRupee, X, ZoomIn,
 } from "lucide-react";
 import { formatCurrencyShort } from "../../../utils/formatters";
+import { useOutsideClick } from "../../../hooks/useOutsideClick";
+import { useEscapeKey } from "../../../hooks/useEscapeKey";
+
 import "./FloorPlanView.css";
 
 // ── Helpers ───────────────────────────────────────────────────

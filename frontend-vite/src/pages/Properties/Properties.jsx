@@ -17,11 +17,15 @@ import Pagination         from './PropertiesPageComponets/Pagination';
 import Seo                from '../../database/Seo';
 
 import API from '../../api';
-import { DEFAULT_FILTERS, formatFilterValue } from '../../utils/filters.schema';
+import { DEFAULT_FILTERS, formatFilterValue, parseFiltersFromURL } from '../../utils/filters.schema';
 import { FILTER_LABELS } from '../../assests/constants/propertyTypeConfig';
 
-import './Properties.css';
+import { useEscapeKey } from "../../hooks/useEscapeKey";
 
+import { useCity } from '../../contexts/CityContext';
+
+import './Properties.css';
+ 
 // ─────────────────────────────────────────────
 // Constants
 // ─────────────────────────────────────────────
@@ -52,42 +56,6 @@ const EmptyState = ({ onReset }) => (
     </button>
   </div>
 );
-
-// ─────────────────────────────────────────────
-// URL ↔ Filter helpers
-// ─────────────────────────────────────────────
-
-const parseFiltersFromURL = (search) => {
-  const p = new URLSearchParams(search);
-
-  const areaMin  = p.get('areaMin');
-  const areaMax  = p.get('areaMax');
-  const areaUnit = p.get('areaUnit') ?? 'sqft';
-
-  const area =
-    areaMin != null || areaMax != null
-      ? {
-          min:  areaMin  != null ? Number(areaMin)  : 0,
-          max:  areaMax  != null ? Number(areaMax)  : 10_000,
-          unit: areaUnit,
-        }
-      : null;
-
-  return {
-    city:             p.get('city')              ?? '',
-    locality:         p.getAll('locality'),
-    search:           p.get('search')            ?? '',
-    propertyType:     p.getAll('propertyType'),
-    area,
-    bhk:              p.getAll('bhk'),
-    furnishing:       p.getAll('furnishing'),
-    facing:           p.getAll('facing'),
-    parkings:         p.getAll('parkings'),
-    possessionStatus: p.getAll('possessionStatus'),
-    floorLabel:       p.getAll('floorLabel'),
-    amenities:        p.getAll('amenities'),
-  };
-};
 
 const normalizeFiltersForAPI = (filters) => {
   const api = {};
@@ -153,6 +121,8 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
   const [sortBy,        setSortBy       ] = useState('relevance');
   const [isFilterOpen,  setIsFilterOpen ] = useState(false);  // filter drawer
   const [isContactOpen, setIsContactOpen] = useState(false);  // contact bottom sheet
+  // const { setCity } = useCity();
+
 
   // URL is the single source of truth for filter state
   const filters = useMemo(
@@ -178,7 +148,6 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
   const totalMatched = data?.totalMatched ?? 0;
   const totalPages   = data?.totalPages   ?? 1;
 
-  // ── Side-effects ───────────────────────────
 
   useEffect(() => {
     setSearchInput(filters.search ?? '');
@@ -200,15 +169,8 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
   }, [anyOverlayOpen]);
 
   // Escape closes whatever is open
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key !== 'Escape') return;
-      setIsFilterOpen(false);
-      setIsContactOpen(false);
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, []);
+  useEscapeKey(anyOverlayOpen, () => setIsContactOpen(false));
+
 
   // ── URL mutation helpers ───────────────────
 

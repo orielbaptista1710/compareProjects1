@@ -1,3 +1,7 @@
+/* ===========================
+   RELATED PROPERTIES
+   =========================== */
+
 .rp-wrapper {
   margin-top: 40px;
 }
@@ -6,76 +10,192 @@
   font-size: 22px;
   font-weight: 600;
   margin-bottom: 16px;
+  color: #1a1a1a;
+}
+
+/* ===========================
+   SCROLL CONTAINER + ARROW
+   =========================== */
+.rp-scroll-container {
+  position: relative;
 }
 
 .rp-scroll {
   display: flex;
   gap: 20px;
   overflow-x: auto;
+  scroll-snap-type: x proximity;
   padding-bottom: 10px;
+  scrollbar-width: none; /* Firefox */
 }
 
+.rp-scroll::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}
+
+.rp-scroll-btn {
+  position: absolute;
+  top: 40%;
+  right: -8px;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.rp-scroll-btn:hover {
+  background: #f5f5f5;
+  transform: translateY(-50%) scale(1.06);
+}
+
+.rp-scroll-btn:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+/* ===========================
+   CARD
+   =========================== */
 .rp-card {
   min-width: 280px;
+  max-width: 280px;
   border-radius: 14px;
+  border: 1px solid #eee;
   background: #fff;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   cursor: pointer;
-  transition: 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  scroll-snap-align: start;
+  overflow: hidden;
 }
 
 .rp-card:hover {
   transform: translateY(-4px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1);
 }
 
+.rp-card:focus-visible {
+  outline: 3px solid #5b21b6;
+  outline-offset: 2px;
+}
+
+/* ===========================
+   IMAGE / PLACEHOLDER
+   =========================== */
 .rp-image {
   position: relative;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
 }
 
 .rp-image img {
   width: 100%;
   height: 170px;
   object-fit: cover;
-  border-top-left-radius: 14px;
-  border-top-right-radius: 14px;
+  display: block;
 }
 
-.rp-date {
+.rp-no-image {
+  width: 100%;
+  height: 170px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #f7ecfb;
+  color: #9b8aa8;
+}
+
+.rp-no-image span {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.rp-image-count {
   position: absolute;
-  bottom: 8px;
-  left: 8px;
-  background: rgba(0,0,0,0.7);
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.72);
   color: #fff;
-  padding: 4px 8px;
+  padding: 4px 9px;
   font-size: 12px;
+  font-weight: 600;
   border-radius: 6px;
 }
 
+/* ===========================
+   BODY
+   =========================== */
 .rp-body {
-  padding: 12px;
+  padding: 14px 14px 16px;
+}
+
+.rp-type {
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.rp-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .rp-price {
   font-weight: 700;
-  font-size: 18px;
+  font-size: 19px;
+  color: #1a1a1a;
 }
 
-.rp-meta {
-  font-size: 13px;
-  color: #666;
+.rp-sep {
+  color: #ccc;
+  font-size: 14px;
 }
 
-.rp-desc {
+.rp-area {
+  font-weight: 600;
+  font-size: 14px;
+  color: #444;
+}
+
+.rp-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rp-location {
   font-size: 13px;
-  margin: 8px 0;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rp-btn {
-  width: 100%;
+  width:255px;
   background: #D90429;
   color: white;
   border: none;
   padding: 10px;
+  margin:10px;
   border-radius: 22px;
   cursor: pointer;
 }
@@ -85,4 +205,68 @@
   color: #D90429;
   font-weight: 500;
   cursor: pointer;
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+
+/* Tablet */
+@media (max-width: 900px) {
+  .rp-card {
+    min-width: 240px;
+    max-width: 240px;
+  }
+
+  .rp-image img,
+  .rp-no-image {
+    height: 150px;
+  }
+}
+
+/* Mobile: arrow button becomes redundant next to native touch
+   scrolling, so drop it entirely rather than leave a dead-weight
+   fixed element on small screens */
+@media (max-width: 640px) {
+  .rp-scroll-btn {
+    display: none;
+  }
+
+  .rp-scroll {
+    gap: 14px;
+  }
+
+  .rp-card {
+    min-width: 210px;
+    max-width: 210px;
+  }
+
+  .rp-title {
+    font-size: 19px;
+  }
+
+  .rp-image img,
+  .rp-no-image {
+    height: 130px;
+  }
+
+  .rp-body {
+    padding: 10px 12px 12px;
+  }
+
+  .rp-price {
+    font-size: 17px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .rp-card,
+  .rp-scroll-btn {
+    transition: none !important;
+  }
+
+  .rp-card:hover {
+    transform: none !important;
+  }
 }

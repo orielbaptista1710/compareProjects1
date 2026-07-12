@@ -22,6 +22,9 @@ import newsRoutes from "./routes/newsRoutes.js";
 import { connectLeadsDB } from "./config/leadsDb.js";
 
 const app = express();
+
+app.set('trust proxy', 1); //this is used to trust the proxy server (nginx, render) for the ip address
+
 app.use(cors({ 
   origin: process.env.REACT_APP_FRONTEND_URL || 'http://localhost:5173',
   credentials: true
@@ -36,8 +39,8 @@ app.use(requestLogger);
 //   // res.setHeader('Content-Type', 'application/json');
 //   next();
 // });
-
-// Routes
+ 
+// Routes 
 app.use('/api/customers', customerRoutes); 
 app.use('/api/auth', authRoutes);          
 app.use('/api/properties', propertyRoutes);

@@ -1,47 +1,27 @@
 /* ==========================================================================
    auth-form.css
-   Form elements, inputs, buttons, errors, password meter
    ========================================================================== */
 
-/* ── Card heading ────────────────────────────────────────────────────────── */
+/* ── Card heading ── */
 .auth-card h2,
 .auth-title {
-  font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+  font-size: clamp(1.6rem, 2.5vw, 2rem);
   font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   line-height: 1.15;
   margin-bottom: 0.4rem;
 }
 
 .auth-subtitle,
 .subheading {
-  font-size: 0.93rem;
+  font-size: 0.9rem;
   color: var(--text-secondary);
   line-height: 1.55;
   margin-bottom: 2rem;
 }
 
-/* ── Divider ─────────────────────────────────────────────────────────────── */
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.auth-divider::before,
-.auth-divider::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-/* ── Form layout ─────────────────────────────────────────────────────────── */
+/* ── Form layout ── */
 .auth-form,
 .signup-form {
   width: 100%;
@@ -53,85 +33,63 @@
 
 .form-group label {
   display: block;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.4rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
-  letter-spacing: 0.005em;
 }
 
-/* ── Inputs ──────────────────────────────────────────────────────────────── */
+/* ── Inputs — pill shaped, soft grey fill like reference ── */
 .form-group input {
   width: 100%;
-  height: 50px;
-  padding: 0 1rem;
+  height: 52px;
+  padding: 0 1.25rem;
   border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
+  border-radius: 100px;
+  background: #f5f5f7;
   color: var(--text-primary);
-  font-size: 0.97rem;
+  font-size: 0.95rem;
   font-family: inherit;
-  line-height: 1;
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    background var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-appearance: none;
+  box-sizing: border-box;
 }
 
 .form-group input::placeholder {
   color: var(--text-muted);
-  font-weight: 400;
-}
-
-.form-group input:hover:not(:focus) {
-  border-color: #c4b5fd;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: var(--brand-600);
   box-shadow: var(--shadow-input-focus);
-  background: var(--brand-50);
+  background: #ffffff;
 }
 
-/* Error state */
-.form-group input.input-error {
-  border-color: var(--danger);
-  box-shadow: 0 0 0 3px rgba(220,38,38,0.12);
-}
-
-/* ── Phone wrapper ───────────────────────────────────────────────────────── */
+/* ── Phone wrapper ── */
 .phone-input-wrapper {
   display: flex;
   align-items: stretch;
   border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 100px;
   overflow: hidden;
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
+  background: #f5f5f7;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .phone-input-wrapper:focus-within {
   border-color: var(--brand-600);
   box-shadow: var(--shadow-input-focus);
-}
-
-.phone-input-wrapper:hover:not(:focus-within) {
-  border-color: #c4b5fd;
+  background: #ffffff;
 }
 
 .country-code {
   display: flex;
   align-items: center;
-  padding: 0 0.85rem;
-  font-size: 0.92rem;
+  padding: 0 0.85rem 0 1.25rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-secondary);
-  background: #f3f4f6;
-  border-right: 1.5px solid var(--border);
-  white-space: nowrap;
   flex-shrink: 0;
   user-select: none;
 }
@@ -140,16 +98,12 @@
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
+  background: transparent !important;
   flex: 1;
-  background: var(--surface);
+  padding-left: 0.25rem;
 }
 
-.phone-input-wrapper input:focus {
-  background: var(--brand-50);
-  box-shadow: none !important;
-}
-
-/* ── Password input ──────────────────────────────────────────────────────── */
+/* ── Password input ── */
 .password-input-wrapper {
   position: relative;
 }
@@ -161,24 +115,28 @@
 .toggle-eye {
   position: absolute;
   top: 50%;
-  right: 0.9rem;
+  right: 1.1rem;
   transform: translateY(-50%);
   color: var(--text-muted);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: color var(--transition-fast);
   line-height: 0;
 }
 
-.toggle-eye:hover {
-  color: var(--brand-700);
+/* Hide browser's native password reveal (Chrome/Edge) */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
 }
 
-/* ── Password strength bar ───────────────────────────────────────────────── */
+input::-webkit-credentials-auto-fill-button,
+input::-webkit-textfield-decoration-container {
+  display: none !important;
+}
+
+/* ── Password strength bar ── */
 .password-strength {
-  margin-top: 0.55rem;
-  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
   font-weight: 500;
   color: var(--text-secondary);
   display: flex;
@@ -197,52 +155,41 @@
   transition: background var(--transition-med);
 }
 
-.password-strength.very-weak::before  { background: #ef4444; width: 15px; }
-.password-strength.weak::before       { background: #f97316; width: 25px; }
-.password-strength.fair::before       { background: #eab308; width: 38px; }
-.password-strength.good::before       { background: #22c55e; width: 50px; }
-.password-strength.strong::before     { background: #16a34a; width: 60px; }
+.password-strength.very-weak::before { background: #ef4444; width: 15px; }
+.password-strength.weak::before      { background: #f97316; width: 25px; }
+.password-strength.fair::before      { background: #eab308; width: 38px; }
+.password-strength.good::before      { background: #22c55e; width: 50px; }
+.password-strength.strong::before    { background: #16a34a; width: 60px; }
 
-.password-strength.very-weak  strong { color: #ef4444; }
-.password-strength.weak        strong { color: #f97316; }
-.password-strength.fair        strong { color: #ca8a04; }
-.password-strength.good        strong { color: #16a34a; }
-.password-strength.strong      strong { color: #15803d; }
+.password-strength.very-weak strong { color: #ef4444; }
+.password-strength.weak      strong { color: #f97316; }
+.password-strength.fair      strong { color: #ca8a04; }
+.password-strength.good      strong { color: #16a34a; }
+.password-strength.strong    strong { color: #15803d; }
 
-/* ── Password requirements checklist ────────────────────────────────────── */
+/* ── Password requirements checklist ── */
 .password-requirements {
-  margin-top: 0.65rem;
+  margin-top: 0.6rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.35rem 0.5rem;
+  gap: 0.3rem 0.5rem;
 }
 
 .requirement {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
+  gap: 0.35rem;
+  font-size: 0.775rem;
   color: var(--text-muted);
-  transition: color var(--transition-fast);
 }
 
-.requirement .valid {
-  color: var(--success);
-  flex-shrink: 0;
-}
+.requirement .valid   { color: var(--success); flex-shrink: 0; }
+.requirement .invalid { color: #d1d5db;        flex-shrink: 0; }
+.requirement:has(.valid) { color: var(--text-secondary); }
 
-.requirement .invalid {
-  color: #d1d5db;
-  flex-shrink: 0;
-}
-
-.requirement:has(.valid) {
-  color: var(--text-secondary);
-}
-
-/* ── Forgot password ─────────────────────────────────────────────────────── */
+/* ── Forgot password ── */
 .forgot-password {
-  margin-top: 0.5rem;
+  margin-top: 0.45rem;
   text-align: right;
 }
 
@@ -251,13 +198,6 @@
   font-weight: 600;
   color: var(--brand-700);
   cursor: pointer;
-  border-radius: 4px;
-  transition: color var(--transition-fast);
-}
-
-.forgot-link:hover {
-  color: var(--brand-900);
-  text-decoration: underline;
 }
 
 .reset-sent {
@@ -266,20 +206,16 @@
   color: var(--success);
 }
 
-/* ── Error messages ──────────────────────────────────────────────────────── */
+/* ── Error messages ── */
 .error {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.35rem;
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--danger);
-  margin-top: 0.4rem;
-  line-height: 1.4;
+  margin-top: 0.35rem;
 }
 
 .global-error {
-  padding: 0.75rem 1rem;
+  padding: 0.7rem 1rem;
   background: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: var(--radius-sm);
@@ -287,81 +223,100 @@
   font-size: 0.875rem;
 }
 
-/* ── Primary CTA button ──────────────────────────────────────────────────── */
+/* ── CTA button — pill shaped, matches reference ── */
 .auth-btn,
 .signup-btn {
   width: 100%;
   height: 52px;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 100px;
   background: var(--brand-700);
   color: #ffffff;
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition:
-    background var(--transition-fast),
-    transform var(--transition-fast),
-    box-shadow var(--transition-fast);
-
-  /* Subtle inner highlight */
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.12),
-    0 2px 8px rgba(93,59,158,0.25);
-}
-
-.auth-btn::after,
-.signup-btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
-  pointer-events: none;
+  transition: background var(--transition-fast);
 }
 
 .auth-btn:hover:not(:disabled),
 .signup-btn:hover:not(:disabled) {
   background: var(--brand-800);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.12),
-    0 4px 16px rgba(93,59,158,0.35);
-}
-
-.auth-btn:active:not(:disabled),
-.signup-btn:active:not(:disabled) {
-  transform: scale(0.985);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.1),
-    0 1px 4px rgba(93,59,158,0.2);
 }
 
 .auth-btn:disabled,
 .signup-btn:disabled {
-  opacity: 0.65;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
-/* ── Redirect link row ───────────────────────────────────────────────────── */
-.auth-redirect {
+/* ── Redirect link ── */
+.auth-redirect,
+.login-redirect {
   text-align: center;
   margin-top: 1.4rem;
-  font-size: 0.88rem;
+  font-size: 0.875rem;
   color: var(--text-muted);
 }
 
-.auth-redirect span {
+.auth-redirect span,
+.login-redirect span {
   color: var(--brand-700);
   font-weight: 600;
   cursor: pointer;
-  transition: color var(--transition-fast);
 }
 
-.auth-redirect span:hover {
-  color: var(--brand-900);
-  text-decoration: underline;
+/* ==========================================================================
+   Signup form — 2-column grid to reduce vertical length
+   ========================================================================== */
+
+.signup-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1rem;
+}
+
+/* Full-width items */
+.signup-form .form-group.full,
+.signup-form .global-error,
+.signup-form .signup-btn,
+.signup-form .login-redirect {
+  grid-column: 1 / -1;
+}
+
+/* Password block spans full width since it has the rules checklist */
+.signup-form .form-group.password-group {
+  grid-column: 1 / -1;
+}
+
+/* Tighten spacing on signup since grid adds visual separation */
+.signup-form .form-group {
+  margin-bottom: 0.85rem;
+}
+
+/* Compact the password requirements on signup */
+.signup-form .password-requirements {
+  grid-template-columns: 1fr 1fr;
+  margin-top: 0.4rem;
+  gap: 0.2rem 0.5rem;
+}
+
+.signup-form .password-strength {
+  margin-top: 0.35rem;
+}
+
+.signup-form .subheading {
+  margin-bottom: 1.25rem;
+}
+
+/* Collapse to single column on narrow right panel */
+@media (max-width: 780px) {
+  .signup-form {
+    grid-template-columns: 1fr;
+  }
+
+  .signup-form .form-group.password-group {
+    grid-column: 1;
+  }
 }

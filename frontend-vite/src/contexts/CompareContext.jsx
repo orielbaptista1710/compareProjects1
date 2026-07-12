@@ -1,3 +1,4 @@
+//frontend-vite/src/contexts/CompareContext.jsx
 import { createContext, useContext } from "react";
 import useCompareList from "../hooks/useCompareList";
 

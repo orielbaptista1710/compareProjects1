@@ -8,11 +8,14 @@ import Property from '../models/Property.js';
  * - Predictable sorting
  * - Lean projection for performance
  */
+
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export const fetchProperties = async ({
   page = 1,
   limit = 20,
   status,
-  propertyType,
+  propertyType, 
   city,
   locality,
   search,
@@ -42,16 +45,16 @@ export const fetchProperties = async ({
    * 3. SEARCH FILTER (case-insensitive, safe length)
    * -------------------------------------------------- */
   if (search && search.length <= 50) {
-    andConditions.push({
-      $or: [
-        { title: { $regex: search, $options: "i" } },
-        { developerName: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { long_description: { $regex: search, $options: "i" } },
-      ],
-    });
-  }
-
+  const safeSearch = escapeRegex(search);
+  andConditions.push({
+    $or: [
+      { title: { $regex: safeSearch, $options: "i" } },
+      { developerName: { $regex: safeSearch, $options: "i" } },
+      { description: { $regex: safeSearch, $options: "i" } },
+      { long_description: { $regex: safeSearch, $options: "i" } },
+    ],
+  });
+}
 
   /* --------------------------------------------------
    * 4. IMAGE FILTERS (robust + null-safe)
@@ -152,7 +155,7 @@ export const fetchProperties = async ({
     Property.find(filter)
       .select(LIST_PROJECTION)
       .populate("userId", "displayName")
-      .populate("reviewedBy", "displayName")
+      // .populate("reviewedBy", "displayName")
       .sort(sort)
       .skip(skip)
       .limit(limit)
@@ -168,7 +171,7 @@ export const fetchProperties = async ({
 export const fetchPropertyById = async (id) => {
   const property = await Property.findById(id)
     .populate("userId", "displayName")  ////
-    .populate("reviewedBy", "displayName")
+    // .populate("reviewedBy", "displayName")
     .lean();
 
   if (!property) {
