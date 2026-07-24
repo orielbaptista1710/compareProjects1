@@ -119,6 +119,7 @@ const SectionFallback = () => <div className="pp-section-skeleton" aria-hidden="
 // ─────────────────────────────────────────────────────────────
 function PropertyPage() {
   const { id }          = useParams();
+  console.log("URL PARAM =", id);
   const { currentUser } = useContext(AuthContext);
 
   const [property,  setProperty]  = useState(null);

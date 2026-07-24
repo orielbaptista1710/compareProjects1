@@ -110,7 +110,7 @@ backend/
 | Variable | Description |
 |:---|:---|
 | `PORT` | Server port (default `5000`) |
-| `MONGODB_URI` | MongoDB Atlas connection string |
+| `MONGO_URI` | MongoDB Atlas connection string |
 | `JWT_SECRET` | Secret for signing admin/developer JWTs (min 32 chars) |
 | `JWT_EXPIRES_IN` | Token expiry (e.g. `"7d"`) |
 | `FIREBASE_SERVICE_ACCOUNT` | JSON string of Firebase Admin SDK credentials |
@@ -170,7 +170,6 @@ npm test        # Must pass with zero failures
 - **ESLint** — inline lint errors as you type
 - **Prettier** — auto-format on save
 - **ES7+ React/Redux/React-Native snippets** — component shortcuts
-- **Tailwind CSS IntelliSense** — class autocomplete
 - **GitLens** — inline git blame and history
 
 ---

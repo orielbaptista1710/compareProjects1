@@ -23,7 +23,7 @@ import { connectLeadsDB } from "./config/leadsDb.js";
 
 const app = express();
 
-app.set('trust proxy', 1); //this is used to trust the proxy server (nginx, render) for the ip address
+// app.set('trust proxy', 1); //this is used to trust the proxy server (nginx, render) for the ip address
 
 app.use(cors({ 
   origin: process.env.REACT_APP_FRONTEND_URL || 'http://localhost:5173',
@@ -33,12 +33,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(requestLogger);
-
-//what is this for tho - is just forcing JSON headers
-// app.use((req, res, next) => {
-//   // res.setHeader('Content-Type', 'application/json');
-//   next();
-// });
  
 // Routes 
 app.use('/api/customers', customerRoutes); 
@@ -92,26 +86,6 @@ app.use('/api/news', newsRoutes);
 
 
 app.use(errorHandler);
-
-
-// const connectDB = async () => {
-//     try {
-//         console.log('Connect:', process.env.MONGO_URI);
-//         const conn = await mongoose.connect(process.env.MONGO_URI, {
-//             useNewUrlParser: true,
-//             useUnifiedTopology: true,
-//         });
-//         console.log('MongoDB connected');
-//         console.log('Collections in database:', (await mongoose.connection.db.listCollections().toArray()).map(c => c.name));
-//         console.log('Database name being used:', mongoose.connection.name);
-
-
-//     } catch (error) {
-//         console.error('MongoDB error ❌', error.message);
-//         process.exit(1);
-//     }
-// };
-
 
 const connectDB = async () => {
   try {

@@ -4,7 +4,7 @@ import * as propertyService from '../services/propertyAdminService.js';
 
 // import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from '../models/propertyType.js';
 
- 
+  
 //PROPERTIES SHOW THAT ARE APPROVE, REJECTED N PENDING 
 // GET /api/admin/properties - here are all the properties that are not approved/approved/pending for the admin to review
 export const getProperties = asyncHandler(async (req, res) => {

@@ -520,7 +520,7 @@ const getPropertyById = asyncHandler(async (req, res) => {
   res.json(property);
 });
 
-// ─────────────────────────────────────────────
+// ───────────────────────────────────────────── 
 // Protected – Developer CRUD
 // ─────────────────────────────────────────────
 

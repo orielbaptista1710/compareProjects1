@@ -228,7 +228,7 @@ geo: {
     thumbnail: String
   }],
   default: []
-},
+}, 
   virtualTours: {
   type: [{
     type: { type: String, enum: ['3d','video','panorama'] },
@@ -282,7 +282,7 @@ geo: {
   reviewedAt: Date,
   rejectionReason: String,
 
-  
+   
 }, { 
   timestamps: true,
   toJSON: { virtuals: true },

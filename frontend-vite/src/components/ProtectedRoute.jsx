@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 import API from '../api'; 
 import toast from 'react-hot-toast';
 
-
+ 
 const ProtectedRoute = ({ children, roles }) => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);

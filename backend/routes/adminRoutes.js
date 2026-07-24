@@ -1,6 +1,6 @@
 //routes/adminRoutes.js
 import express from 'express';
-const router = express.Router();
+const router = express.Router(); 
 
 import protect from '../middleware/protect.js';
 import isAdmin from '../middleware/isAdmin.js';

@@ -7,7 +7,9 @@
     "start": "node server.js",
     "lint": "eslint .",
     "create-user": "node scripts/createUser.js",
-    "deactivate-user": "node scripts/deactivateUser.js"
+    "deactivate-user": "node scripts/deactivateUser.js",
+    "brokenimg-urls": "node scripts/findBrokenImageUrls.js"
+
   },
   "keywords": [],
   "author": "",

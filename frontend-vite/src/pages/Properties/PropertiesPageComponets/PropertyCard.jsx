@@ -45,7 +45,12 @@ function PropertyCard({
 
   const handleCardClick = useCallback(
     (e) => {
-      if (!e.target.closest('button') && !e.target.closest('a')) {
+      if (!e.target.closest('button') && !e.target.closest('a')) { 
+
+      console.log("PROPERTY OBJECT:", property);
+      console.log("_id:", property?._id);
+      console.log("userId:", property?.userId);
+
         if (property?._id) navigate(`/property/${property._id}`);
       }
     },
