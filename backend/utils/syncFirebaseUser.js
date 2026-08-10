@@ -1,5 +1,5 @@
 //backend/utils/syncFirebaseUser.js — run once manually
-import customerAdminFire from '../config/firebaseAdmin.js';
+// import customerAdminFire from '../config/firebaseAdmin.js';
 import Customer from '../models/Customer.js';
 
 const syncUser = async (uid, name, email) => {

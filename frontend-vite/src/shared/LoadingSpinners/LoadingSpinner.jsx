@@ -1,5 +1,4 @@
 // frontend-vite/src/shared/LoadingSpinners/LoadingSpinner.jsx
-import React from "react";
 import "./LoadingSpinner.css";
 
 const LoadingSpinner = ({ text = "Loading..." }) => {

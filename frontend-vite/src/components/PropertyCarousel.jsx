@@ -1,4 +1,3 @@
-import React from 'react';
 import './PropertyCarousel.css';
 //CHECK THIS - IS THIS EVEN USED SOMEWHERE IF USING CHANGE THE USE OF STATUS INTHE dummy properties data 
 const PropertyCarousel = () => {

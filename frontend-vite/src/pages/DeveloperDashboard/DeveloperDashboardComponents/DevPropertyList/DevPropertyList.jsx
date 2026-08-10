@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from "react";
+import { useState, useCallback, memo } from "react";
 import DevDashPropertyCard from "./DevDashPropertyCard.jsx";
 import DeleteDialog from "./DeleteDialog.jsx";
 import { defaultFormatPrice } from "../../utils/Propertyutils.js";

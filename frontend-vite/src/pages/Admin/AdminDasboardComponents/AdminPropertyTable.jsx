@@ -1,5 +1,4 @@
 // src/components/Admin/AdminPropertyTable.js
-import React from "react";
 import { Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import "./AdminPropertyTable.css";

@@ -1,19 +1,17 @@
-
-
-
 /* // HomeHero.css  */
 .home-hero {
   position: relative;
   width: 100%;
   min-height: 60vh;
-
-  background: url("../../../assests/images/homyy.jpg")
-    no-repeat center center / cover;
-
+  background: 
+    linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0.5) 50%,
+      rgba(0, 0, 0, 0.7) 100%),
+    url("../../../assests/images/bg_image.jpg") no-repeat center center / cover;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-
   padding: clamp(16px, 3vw, 32px);
 }
 

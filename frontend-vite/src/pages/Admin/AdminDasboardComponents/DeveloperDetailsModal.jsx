@@ -81,7 +81,6 @@ function DeveloperDetailsModal({
   isRejecting = false,
 }) {
   // Memoized safe links
-  // const safeSourceUrl = useMemo(() => safeUrl(property?.sourceUrl), [property]);
   const safeMapLink = useMemo(() => safeUrl(property?.mapLink), [property]);
 
   // If loading, show skeleton instead of null
@@ -132,16 +131,7 @@ function DeveloperDetailsModal({
                 <Typography>
                   <strong>Tier:</strong> {property?.tierType || "N/A"}
                 </Typography>
-                {/* <Typography>
-                  <strong>Source URL:</strong>{" "}
-                  {safeSourceUrl ? (
-                    <a href={safeSourceUrl} target="_blank" rel="noopener noreferrer">
-                      Open Link
-                    </a>
-                  ) : (
-                    "N/A"
-                  )}
-                </Typography> */}
+                
               </Box>
             </Stack>
           )}
@@ -383,7 +373,6 @@ DeveloperDetailsModal.propTypes = {
     }),
     developerName: PropTypes.string,
     tierType: PropTypes.string,
-    // sourceUrl: PropTypes.string,
     propertyType: PropTypes.string,
     bhk: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     furnishing: PropTypes.string,

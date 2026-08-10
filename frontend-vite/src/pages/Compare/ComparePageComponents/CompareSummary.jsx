@@ -1,5 +1,5 @@
 // CompareSummary.js
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { TrendingUp, MapPin, DollarSign, Award } from "lucide-react";
 import { scorePropertiesAI } from "../../../utils/compareAI";
 import { formatCurrencyShort } from "../../../utils/formatters";

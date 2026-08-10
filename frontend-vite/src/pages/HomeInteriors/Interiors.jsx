@@ -1,5 +1,5 @@
 // src/pages/Interiors/Interiors 
-import React, { useState } from "react";
+import { useState } from "react";
 import "./Interiors.css";
 import BaseLayout from "../../layouts/BaseLayout";
 import FullWidthSection from "../../layouts/FullWidthSection";

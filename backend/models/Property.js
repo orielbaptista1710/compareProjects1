@@ -20,8 +20,8 @@ const propertySchema = new mongoose.Schema({
 
   featured: { type: Boolean, default: false }, 
   
-  
-  sourceUrl: { type: String },// original source if scraped/imported
+  listingType: { type: String, enum: ['sale', 'resale'] },
+  sourceUrl: { type: String },// original source if scraped/imported CHECK THIS delly delly babe
   tierType: { type: String, enum: ['tier1', 'tier2'] }, 
 
   // Contact Information 
@@ -92,7 +92,6 @@ geo: {
     type: [Number], // [lng, lat]
     index: '2dsphere',
     immutable: true
-
   }
 },
 

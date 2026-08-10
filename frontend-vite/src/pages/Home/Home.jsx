@@ -1,9 +1,7 @@
-import React from 'react';
-//components import 
 import NavigationBar from '../../shared/NavigationBar/NavigationBar';
 import AnnouncementStrip from './HomePageComponents/AnnouncementStrip';
 import HeroSection from './HomePageComponents/HeroSection';
-import RankedProjects from './HomePageComponents/RankedProjects'
+// import RankedProjects from './HomePageComponents/RankedProjects'
 import Gallery from './HomePageComponents/Gallery'; 
 import DiscoverFeaturedProjects from './HomePageComponents/DiscoverFeaturedProjects';
 import RecentlyAdded from './HomePageComponents/RecentlyAdded';
@@ -55,7 +53,7 @@ function Home() {
       )}
       </section>
 
-      <RankedProjects />
+      {/* <RankedProjects /> */}
 
       <section>
       <DiscoverFeaturedProjects />

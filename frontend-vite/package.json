@@ -21,9 +21,7 @@
     "@mui/x-data-grid": "^9.0.4",
     "@react-google-maps/api": "^2.20.8",
     "@tanstack/react-query": "^5.100.6",
-    "antd": "^6.3.7",
     "axios": "^1.15.2",
-    "dayjs": "^1.11.20",
     "firebase": "^12.12.1",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
@@ -31,7 +29,6 @@
     "lucide-react": "^1.12.0",
     "prop-types": "^15.8.1",
     "react": "^19.2.5",
-    "react-collapse": "^5.1.1",
     "react-dom": "^19.2.5",
     "react-head": "^3.4.2",
     "react-hook-form": "^7.74.0",
@@ -42,26 +39,24 @@
     "react-pdf": "^10.4.1",
     "react-router-dom": "^7.14.2",
     "react-slick": "^0.31.0",
-    "react-window": "^2.2.7",
     "slick-carousel": "^1.8.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@testing-library/dom": "^10.x",
+    "@testing-library/jest-dom": "^6.x",
+    "@testing-library/react": "^16.x",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.3.0",
     "eslint": "^10.2.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "jsdom": "^25.x",
     "sharp": "^0.34.5",
     "vite": "^5.4.0",
-
-    "vitest": "^2.x",
-    "@vitejs/plugin-react": "^4.3.0",
-    "@testing-library/react": "^16.x",
-    "@testing-library/dom": "^10.x",
-    "@testing-library/jest-dom": "^6.x",
-    "jsdom": "^25.x"
+    "vitest": "^2.x"
   }
 }

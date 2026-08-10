@@ -8,14 +8,21 @@ import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { useCity } from "../../../contexts/CityContext";
 import "./CitySelector.css";
 
+/**
+ * CitySelector component allows users to select a city from a dropdown list,
+ * search through cities, detect their location, or reset the selection.
+ * It updates the URL parameters when a city is selected on the properties page.
+ */
  export default function CitySelector() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // State for dropdown visibility and search input
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const wrapperRef = useRef(null);
 
+  // Context for managing selected city
   const { city, setCity } = useCity();
 
   // Close dropdown on outside click

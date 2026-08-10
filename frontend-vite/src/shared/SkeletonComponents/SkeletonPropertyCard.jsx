@@ -1,6 +1,5 @@
 // components/SkeletonPropertyCard 
 // Skeleton for Dev Dashboard Page  - leave the css as it is?
-import React from "react";
 import "./SkeletonPropertyCard.css";
 
 const SkeletonPropertyCard = () => {

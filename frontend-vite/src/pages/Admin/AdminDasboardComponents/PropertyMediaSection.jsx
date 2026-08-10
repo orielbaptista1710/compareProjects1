@@ -1,5 +1,4 @@
 // src/components/Admin/PropertyMediaSection.js
-import React from "react";
 import { Box, Typography, Stack } from "@mui/material";
 
 const FALLBACK = "https://placehold.co/600x400/EBEBEB/555/png?text=No+image";

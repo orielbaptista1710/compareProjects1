@@ -1,4 +1,3 @@
-//frontend-vite\src\hooks\useOutsideClick.js
 //hook is used for closing modals when the escape key is pressed
 import { useEffect } from "react";
 

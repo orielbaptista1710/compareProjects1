@@ -1,5 +1,5 @@
 // frontend-vite/src/pages/Home/HomePageComponents/PropertyCardSmall.jsx
-import React, { memo } from "react";
+import { memo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Home,

@@ -1,5 +1,4 @@
 // src/pages/Interiors/components/ServicesSection  
-import React from "react";
 import OptimizedImage from "./OptimizedImage";
 import { ArrowRight } from "lucide-react";
 import { homeServices, commercialServices, serviceTabs } from "../../../database/interiorsData";

@@ -1,10 +1,10 @@
 // frontend/src/pages/PropertyPage/PropertyPageComponents/RelatedProperties
 // Additional "related properties" strip shown on the PropertyPage
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./RelatedProperties.css";
 import { formatCurrencyShort } from "../../../utils/formatters";
 import { useNavigate } from "react-router-dom";
-import { Image as ImageIcon, Home as HomeIcon, ChevronRight } from "lucide-react";
+import { Home as HomeIcon, ChevronRight } from "lucide-react";
 import { fallbackImg, getPropertyImage, getPropertyLocation } from "../../../utils/propertyHelpers";
 
 function RelatedProperties({ propertyId }) {

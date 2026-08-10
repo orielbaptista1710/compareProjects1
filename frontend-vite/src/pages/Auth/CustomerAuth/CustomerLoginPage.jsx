@@ -1,8 +1,7 @@
 //frontend/src/pages/Auth/CustomerAuth/CustomerLoginPage.js
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react"; 
-import { AuthContext } from "../../../contexts/AuthContext";
 import API from "../../../api";
 
 import "./authStyles/auth-form.css";
@@ -36,7 +35,6 @@ const CustomerLoginPage = () => {
   const [resetSent, setResetSent]       = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
-  // const { setCurrentUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleChange = (e) => {

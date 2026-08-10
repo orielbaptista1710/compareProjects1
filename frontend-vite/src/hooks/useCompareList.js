@@ -3,7 +3,6 @@
 
 //frontend-vite/src/hooks/useCompareList.js
 import { useState, useEffect } from "react"; 
-// import { toast } from "react-toastify";
 
 export default function useCompareList() { 
   const [compareList, setCompareList] = useState(() => {
@@ -30,18 +29,15 @@ export default function useCompareList() {
     if (compareList.find((p) => p._id === property._id)) return;
 
     if (compareList.length >= 4) {
-      // toast.error("You can only compare up to 4 properties.");
       return;
     }
 
     setCompareList((prev) => [...prev, property]);
-    // toast.success("Property added to compare list!");
   };
 
   // Remove property
   const removeFromCompare = (id) => {
     setCompareList((prev) => prev.filter((p) => p._id !== id));
-    // toast.info("Property removed from compare list.");
   };
 
   //  now also returning setCompareList

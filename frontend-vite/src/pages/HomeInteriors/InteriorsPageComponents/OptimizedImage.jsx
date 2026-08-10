@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+
+//CHECK THIS DF IS THIS FOR 
+import { useState } from "react";
 
 export default function OptimizedImage({
   src,

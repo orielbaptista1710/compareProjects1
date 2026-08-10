@@ -1,5 +1,5 @@
 // src/components/MainSearchBar/MainSearchBar
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Search, MapPin, House } from "lucide-react";
@@ -12,10 +12,8 @@ import ExpandableSearch from "./ExpandableSearch";
 import { DEFAULT_FILTERS, parseFiltersFromURL  } from "../../../utils/filters.schema";
 import { useCity } from "../../../contexts/CityContext"; 
 
-import { useOutsideClick } from "../../../hooks/useOutsideClick";
-import { useEscapeKey
-  
- } from "../../../hooks/useEscapeKey";
+// import { useOutsideClick } from "../../../hooks/useOutsideClick";
+// import { useEscapeKey} from "../../../hooks/useEscapeKey";
 import "./MainSearchBar.css";
 
 const MainSearchBar = () => {

@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import Seo from "../database/Seo";
 import "./ErrorPage.css";

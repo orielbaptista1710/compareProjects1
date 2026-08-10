@@ -1,5 +1,5 @@
 // src/components/PropertyGallery
-import React, { useState, useCallback, useEffect, memo, Suspense, lazy } from "react";
+import { useState, useCallback, useEffect, memo, Suspense, lazy } from "react";
 import "./PropertyGallery.css";
 import { fallbackImg } from "../../../../utils/propertyHelpers";
 

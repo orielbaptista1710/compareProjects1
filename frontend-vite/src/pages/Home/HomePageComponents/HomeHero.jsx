@@ -1,4 +1,3 @@
-import React from "react";
 import "./HomeHero.css";
 import MainSearchBar from "../HomePageComponents/MainSearchBar";
 import { useCity } from "../../../contexts/CityContext";
@@ -12,6 +11,7 @@ const HomeHero = () => {
       <div className="hero-overlay" aria-hidden="true" />
 
       <div className="hero-content">
+        <div className="hero-content-overlay">
         <h1 className="h1-hero-content">
           Compare to Find Your Dream Home
         </h1>
@@ -23,6 +23,7 @@ const HomeHero = () => {
 
         {/* Pass city down so search is city-aware */}
         <MainSearchBar city={city} />
+        </div>
       </div>
 
       <MascotGuide

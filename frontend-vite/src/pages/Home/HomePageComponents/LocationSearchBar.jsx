@@ -4,7 +4,7 @@
 //  * Autocomplete for MainSearchBar and FilterPanel.
 //  * Pass ?city= to scope results to a specific city.
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import debounce from "lodash.debounce";

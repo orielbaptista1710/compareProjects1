@@ -26,7 +26,7 @@ router.get('/my-activity', protectCustomer, async (req, res) => {
       compareProperties: customer.compareProperties,
     });
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error-', error: err.message });
   }
 });
 

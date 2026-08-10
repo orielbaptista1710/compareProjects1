@@ -3,7 +3,7 @@
 // ATLAS-READY ABSTRACTION
 // ─────────────────────────────────────────────────────────────────────────────
 // When you move to Atlas Search on M10+, you only touch this file.
-//
+// Future migration to Altas Search/ElasticSearch
 // Migration checklist (future):
 //   1. Add Atlas Search index in the Atlas UI (autocomplete on title/city/locality)
 //   2. Replace mongoTextSearch() with atlasSearch() below
@@ -34,7 +34,7 @@ export function sanitiseQuery(raw = '') {
   return raw
     .trim()
     .slice(0, 100)
-    .replace(/[^\w\s,.\-\u0900-\u097F]/g, '') // keep Devanagari for Indian city names
+    .replace(/[^\w\s,.\-\p{Script=Devanagari}]/gu, '')
     .trim();
 }
 
@@ -104,7 +104,9 @@ export function buildSearchIntent(q) {
   // Location — prefer explicit "in <place>" pattern, fall back to first word.
   // Guard: only use location terms that are ≥ 3 characters to avoid
   // catastrophic regex scans (e.g. loc = "a" matching half the DB with ^a).
-  const locationMatch = lower.match(/in ([a-zA-Z\u0900-\u097F\s]+?)(?:\s+under|\s+above|\s+between|$)/);
+  const locationMatch = lower.match(
+    /in ([a-zA-Z\p{Script=Devanagari}\s]+?)(?:\s+under|\s+above|\s+between|$)/u
+  );
   const loc = locationMatch
     ? locationMatch[1].trim()
     : lower.split(' ')[0];
@@ -268,11 +270,13 @@ export async function runSearch(rawQuery, limit = 5) {
   const intent = buildSearchIntent(query);
   const n = Number(limit);
 
-  let properties = [];
-  let fuzzy = false;
+  // let properties;
+  // let fuzzy = false;
+  
 
   // 1. Text search (primary — weighted index, fast)
-  properties = await mongoTextSearch(intent, n);
+  let properties = await mongoTextSearch(intent, n);
+  let fuzzy = false;
 
   // 2. Anchored regex fallback (uses compound status+city index)
   if (properties.length === 0) {

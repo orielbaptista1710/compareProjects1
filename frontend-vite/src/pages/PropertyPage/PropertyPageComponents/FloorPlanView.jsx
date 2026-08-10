@@ -1,16 +1,5 @@
 // src/pages/PropertyPage/PropertyPageComponents/FloorPlanView 
-/**
- * IMPROVEMENTS vs old version:
- *  - formatCurrencyShort used instead of raw $property.price.toLocaleString()
- *  - galleryImages shape corrected: old code passed image strings but API returns {url} objects
- *  - Tab bar removed when there are no gallery images (no orphaned UI)
- *  - Floor selector hidden when only 1 floor plan (no pointless "1st floor" button)
- *  - Unit conversion moved to a pure utility — no re-calculation in render
- *  - Lightbox: click outside overlay to close, ESC key support
- *  - Room Details hidden when roomList is empty (was showing empty section)
- *  - Price uses formatCurrencyShort (₹ formatting consistent with the rest of the page)
- *  - "No floor plans" handled gracefully (parent already guards, but kept as safety net)
- */
+
 import React, {
   useState,
   useMemo,
@@ -22,8 +11,8 @@ import {
   Building2, IndianRupee, X, ZoomIn,
 } from "lucide-react";
 import { formatCurrencyShort } from "../../../utils/formatters";
-import { useOutsideClick } from "../../../hooks/useOutsideClick";
-import { useEscapeKey } from "../../../hooks/useEscapeKey";
+// import { useOutsideClick } from "../../../hooks/useOutsideClick";
+// import { useEscapeKey } from "../../../hooks/useEscapeKey";
 
 import "./FloorPlanView.css";
 

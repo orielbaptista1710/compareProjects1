@@ -5,7 +5,7 @@
 //  *  - Landmarks from property.landmarks[] (your schema field)
 //  *  - Each landmark links out using getLandmarkHref() (coords → name search)
  
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { MapPin, Building2, AlertCircle } from "lucide-react";
 import { getMapEmbedUrl, getLandmarkHref } from "../../../utils/mapUtils";
 import "./PageLocationSection.css"; 

@@ -1,4 +1,4 @@
-//services/propertyAdminService.js
+//backend/services/propertyAdminService.js
 
 import Property from '../models/Property.js';
 /**

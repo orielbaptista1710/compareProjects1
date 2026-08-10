@@ -1,4 +1,4 @@
-# CompareProjects
+# CompareProjects 
 
 **A real estate comparison platform for the Indian market.**
 
@@ -94,6 +94,7 @@ backend/
 
 ## Environment Variables
 
+//CHECK THIS ENV BEFORE PRODUCTION
 ### Frontend (`frontend-vite/.env`)
 
 | Variable | Description |
@@ -119,6 +120,14 @@ backend/
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret |
 | `GOOGLE_MAPS_API_KEY` | Server-side Maps API key (for landmark caching) |
 | `NODE_ENV` | `development` \| `test` \| `production` |
+
+---
+### Pull Request Rules(DEVELOPERS)
+-  Every PR needs a description: what changed and why
+-  At least one reviewer required (tag lead developer)
+-  CI must be green before merging
+-  PRs capped at 400 lines of diff — break large features into smaller PRs
+-  Self-merge allowed when solo, but CI must still pass
 
 ---
 

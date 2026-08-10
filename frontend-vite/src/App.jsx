@@ -1,5 +1,5 @@
 // this is my cro migrated vite APP.js 
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -56,8 +56,6 @@ const CustomerLoginPage = lazy(() => import('./pages/Auth/CustomerAuth/CustomerL
 const CustomerProfilePage = lazy(() => import('./pages/CustomerProfileDashboard/CustomerProfilePage')); 
 const Dashboard = lazy(() => import('./pages/DeveloperDashboard/Dashboard'));
 const AdminDashboard = lazy(() => import('./pages/Admin/AdminDashboard'));
-
-
 
 // Create a query client
 const queryClient = new QueryClient({
@@ -201,7 +199,7 @@ const showBreadcrumbs = !hideBreadcrumbRoutes.some((path) =>
     </>
   );
 };
-
+//need to check if CompareProvider needs to b outside CustomerActivityProvider
 const App = () => (
   <QueryClientProvider client={queryClient}> 
     <HeadProvider > 

@@ -1,5 +1,4 @@
-import React from "react";
-// import "./ContactUsInfo.css";
+//HomeInteriors
 import "./ContactSection.css"
 const ContactUsInfo = () => {
   return (

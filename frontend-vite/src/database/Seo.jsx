@@ -1,5 +1,4 @@
 // src/components/Seo.js
-import React from "react";
 import { Title, Meta, Link } from "react-head";
 
 const Seo = ({ 

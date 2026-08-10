@@ -1,5 +1,5 @@
 //frontend-vite\src\pages\DeveloperDashboard\DeveloperDashboardComponents\DevPropertyList\DeleteDialog.jsx
-import React, { useEffect, memo } from "react";
+import { useEffect, memo } from "react";
 import { useEscapeKey } from "../../../../hooks/useEscapeKey";
 
 const DeleteDialog = memo(({ open, title, onConfirm, onCancel }) => {

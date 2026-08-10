@@ -23,7 +23,7 @@ export const formatCurrency = (value, options = {}) => {
 /**
  * Format to short readable format
  * Example: 12500000 -> ₹1.25 Cr
- *          750000  -> ₹7.5 L
+ *          750000  -> ₹7.5 L 
  */
 export const formatCurrencyShort = (value, options = {}) => {
   const {
@@ -49,6 +49,16 @@ export const formatCurrencyShort = (value, options = {}) => {
 
   return showSymbol ? `₹${formatted}` : formatted;
 };
+
+
+export const formatIndianNumber = (value) =>
+  value != null ? new Intl.NumberFormat('en-IN').format(value) : null;
+
+/** Used by Key Details grid and the sidebar price summary (plain "12,345 sqft" text) */
+export const formatAreaText = (area) =>
+  area?.value != null
+    ? `${formatIndianNumber(area.value)} ${area.unit || 'sqft'}`
+    : null;
 
 
 //????Add automatic possession status calculation based on reraDate and fallback??? CHECK THIS 

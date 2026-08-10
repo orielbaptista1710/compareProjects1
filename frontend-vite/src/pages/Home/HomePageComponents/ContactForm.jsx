@@ -1,10 +1,6 @@
 
-
-
-
-
 //Home/HomePageComponents/ContactForm.js 
-import React, { useState } from "react";
+import { useState } from "react";
 import { MapPin, Mail, Phone } from "lucide-react";
 import "./ContactForm.css";
 

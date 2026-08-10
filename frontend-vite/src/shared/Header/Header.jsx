@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
+import { useState, useEffect, useContext, useCallback, useRef } from "react";
 import { lazy, Suspense } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Header.css";
-import { Menu, X, Users, Plus, ChevronRight } from "lucide-react";
+import { Menu, X, Users, Plus, ChevronRight, Scale } from "lucide-react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { menuItems } from "../../database/menuData";
 import {HeaderAuthSection} from "./Headercomponents/HeaderAuthSection"
@@ -11,24 +11,35 @@ import CitySelector from "./Headercomponents/CitySelector";
 
 import { useHeaderMenu } from "./hooks/useHeaderMenu";
 import { useHeaderScroll } from "./hooks/useHeaderScroll";
-// import { useHeaderResize } from "./hooks/useHeaderResize";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
 
-const DeveloperPopup = lazy(() =>import("../Popups/DeveloperPopup"));
+import { useCompare } from "../../contexts/CompareContext";
 
+import CompareBar from "../../pages/Home/HomePageComponents/CompareBar";
+const DeveloperPopup = lazy(() =>import("../Popups/DeveloperPopup"));
 
 function Header() { 
   const { isMenuOpen, toggleMenu, closeMenu, setIsMenuOpen } = useHeaderMenu();
   const { currentUser, loading, logout } = useContext(AuthContext);
   const [showDeveloperPopup, setShowDeveloperPopup] = useState(false);
-  // const windowWidth = useHeaderResize(1199, closeMenu);
+  const [showCompareBar, setShowCompareBar] = useState(false);
   const isScrolled = useHeaderScroll();
   const navigate = useNavigate();
   const location = useLocation();
   const menuRef = useRef(null);
   const menuButtonRef = useRef(null);
 
+  const { compareList, removeFromCompare, setCompareList } = useCompare();
+  const prevCompareLengthRef = useRef(compareList.length);
+
   useOutsideClick(isMenuOpen, [menuRef, menuButtonRef], closeMenu);
+
+  useEffect(() => {
+  if (compareList.length > prevCompareLengthRef.current) {
+    setShowCompareBar(true);
+  }
+  prevCompareLengthRef.current = compareList.length;
+}, [compareList.length]);
 
   // Scroll to section handler
   const handleScrollToSection = useCallback((section) => {
@@ -89,6 +100,16 @@ function Header() {
         <DeveloperPopup
           isOpen={showDeveloperPopup}
           onClose={() => setShowDeveloperPopup(false)}
+        />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <CompareBar
+          compareList={compareList}
+          removeFromCompare={removeFromCompare}
+          setCompareList={setCompareList}
+          isOpen={showCompareBar}
+          onClose={() => setShowCompareBar(false)}
         />
       </Suspense>
 
@@ -191,6 +212,18 @@ function Header() {
   {/* Right Nav - Actions */}
   <li className="nav-right">
     <ul className="nav-group">
+      <li>
+        <button
+          className="compare-popup-btn"
+          onClick={() => setShowCompareBar((prev) => !prev)}
+          aria-label={`Compare properties (${compareList.length} selected)`}
+        >
+          {compareList.length > 0 && (
+            <span className="compare-count-bubble">{compareList.length}</span>
+          )}
+          <Scale size={23} />
+        </button>
+      </li>
       <li>
         <button className="post-property-btn" onClick={() => setShowDeveloperPopup(true)}>
           <Plus size={18} />

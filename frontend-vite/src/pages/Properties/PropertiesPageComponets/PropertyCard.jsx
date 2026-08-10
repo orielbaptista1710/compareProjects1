@@ -51,7 +51,9 @@ function PropertyCard({
       console.log("_id:", property?._id);
       console.log("userId:", property?.userId);
 
-        if (property?._id) navigate(`/property/${property._id}`);
+        if (property?._id) 
+          console.log("Navigating to:", `/property/${property._id}`);
+          navigate(`/property/${property._id}`);
       }
     },
     [navigate, property]

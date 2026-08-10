@@ -1,5 +1,5 @@
 // ComparePanel 
-import React, { useMemo, useRef, useEffect, useCallback } from "react";
+import React, { useMemo, useRef, useCallback } from "react";
 import { X, MapPin, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

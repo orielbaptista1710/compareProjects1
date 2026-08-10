@@ -1,6 +1,5 @@
 //DO I MAKE THIS CITY CONTEXT CONCIOUS??
 // ResultsHeader 
-import React from "react";
 import { ChevronDown, Loader2 } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
 

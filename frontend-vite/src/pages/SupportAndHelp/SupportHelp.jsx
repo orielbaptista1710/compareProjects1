@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
-  Home, Tag, HelpCircle, BookOpen, Phone, Mail,
+  Home, Tag, HelpCircle, Phone, Mail,
   ChevronDown, ChevronUp, CheckCircle, MessageCircle,
   Building2, ShieldCheck, Globe, Search, ArrowRight,
-  Zap, Users, Lock, BarChart2, Star, Clock, ExternalLink,
+  Zap, Users, Lock, BarChart2, Star, ExternalLink,
   AlertCircle, FileText, Headphones, Send,
 } from "lucide-react";
 import "./SupportHelp.css";
@@ -60,12 +60,6 @@ const FAQ_DATA = {
     { q: "Is there a mobile-friendly version?", a: "Yes, the platform is fully responsive and optimized for mobile, tablet, and desktop. A dedicated iOS and Android app is currently in development." },
   ],
 };
-
-const STATS = [
-  { icon: Users,    value: "50,000+", label: "Happy Customers"   },
-  { icon: Building2,value: "12,000+", label: "Verified Listings" },
-  { icon: Star,     value: "4.8/5",   label: "Platform Rating"   },
-];
 
 const QUICK_LINKS = [
   { icon: FileText,    label: "Listing Guidelines",     href: "/docs/listings"  },
@@ -170,15 +164,7 @@ export default function SupportHelp() {
           </div>
 
           {/* Stats strip */}
-          <div className="sp-stats">
-            {STATS.map(({ icon: Icon, value, label }) => (
-              <div className="sp-stat" key={label}>
-                <Icon size={18} aria-hidden="true" className="sp-stat-icon" />
-                <span className="sp-stat-value">{value}</span>
-                <span className="sp-stat-label">{label}</span>
-              </div>
-            ))}
-          </div>
+          
         </div>
 
         {/* decorative blobs */}
@@ -292,19 +278,6 @@ export default function SupportHelp() {
                   </div>
                   <ArrowRight size={14} className="sp-contact-arrow" aria-hidden="true" />
                 </a>
-                <div className="sp-contact-row sp-contact-row--chat">
-                  <span className="sp-contact-badge sp-contact-badge--red">
-                    <MessageCircle size={16} aria-hidden="true" />
-                  </span>
-
-                  {/* //CHECK THIS WHAT BOUT THE  LIVE CHAT MAN -- ADD A LIVE CHAT PROVIDER OR CHAT BOT PROVIDER*/}
-                  {/* <div className="sp-contact-info">
-                    <span className="sp-contact-main">Live Chat</span>
-                    <span className="sp-contact-sub">Available from your dashboard</span>
-                  </div> */}
-
-                  <span className="sp-live-dot" aria-hidden="true" />
-                </div>
               </div>
             </div>
 
@@ -357,7 +330,7 @@ export default function SupportHelp() {
                 For listing emergencies or account issues, reach our priority queue directly.
               </p>
               <a href="mailto:priority@compareprojects.com" className="sp-urgent-btn">
-                Priority Support
+                Call us now
               </a>
             </div>
 

@@ -22,8 +22,6 @@ import { FILTER_LABELS } from '../../assests/constants/propertyTypeConfig';
 
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 
-import { useCity } from '../../contexts/CityContext';
-
 import './Properties.css';
  
 // ─────────────────────────────────────────────
@@ -121,7 +119,6 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
   const [sortBy,        setSortBy       ] = useState('relevance');
   const [isFilterOpen,  setIsFilterOpen ] = useState(false);  // filter drawer
   const [isContactOpen, setIsContactOpen] = useState(false);  // contact bottom sheet
-  // const { setCity } = useCity();
 
 
   // URL is the single source of truth for filter state

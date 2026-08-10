@@ -29,3 +29,12 @@ export const getPropertyLocation = (property) => {
   return parts.join(", ");
 };
 
+
+/** Cloudinary raw-upload URLs need fl_attachment to force a cross-origin download */
+export const getDownloadUrl = (url) => {
+  if (!url || !url.includes('cloudinary.com')) return url;
+  return url.replace('/raw/upload/', '/raw/upload/fl_attachment/');
+};
+
+
+

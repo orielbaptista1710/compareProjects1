@@ -1,5 +1,4 @@
 // EMICalculatorWidget  
-import React from 'react';
 import './EMICalculatorWidget.css';
 
 const EMICalculatorWidget = ({

@@ -57,7 +57,7 @@ import multer        from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import streamifier   from "streamifier";
 import crypto        from "crypto";
-import protect       from "../middleware/protect"
+// import protect       from "../middleware/protect"
 
 const router = express.Router();
  

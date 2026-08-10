@@ -4,13 +4,14 @@
 import React from "react";
 import { useFormContext, Controller } from "react-hook-form";
 
-const AREA_UNITS = [
-  { value: "sqft",     label: "sq.ft" },
-  { value: "sqmts",    label: "sq.m" },
-  { value: "guntas",   label: "Guntas" },
-  { value: "hectares", label: "Hectares" },
-  { value: "acres",    label: "Acres" },
-];
+//can use from propertyFormConstants
+// const AREA_UNITS = [
+//   { value: "sqft",     label: "sq.ft" },
+//   { value: "sqmts",    label: "sq.m" },
+//   { value: "guntas",   label: "Guntas" },
+//   { value: "hectares", label: "Hectares" },
+//   { value: "acres",    label: "Acres" },
+// ];
 
 /** Formats number as Indian currency string for display only */
 const formatINR = (val) => {

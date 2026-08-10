@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './UpnaLoansHome.css';
 import EMICalculatorWidget from '../../utils/EMICalculatorWidget';
 import Seo from '../../database/Seo';

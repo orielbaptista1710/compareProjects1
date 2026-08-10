@@ -9,13 +9,13 @@
     "create-user": "node scripts/createUser.js",
     "deactivate-user": "node scripts/deactivateUser.js",
     "brokenimg-urls": "node scripts/findBrokenImageUrls.js"
-
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "description": "",
+  "engines": { "node": ">=20.0.0" },
   "dependencies": {
     "axios": "^1.15.2",
     "bcryptjs": "^3.0.2",
@@ -38,6 +38,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "eslint": "^8.57.1"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.0",
+    "globals": "^17.8.0"
   }
 }

@@ -1,5 +1,4 @@
 // middleware/protect.js
-
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import asyncHandler from 'express-async-handler';
@@ -30,12 +29,9 @@ const protect = asyncHandler(async (req, res, next) => {
 
   } catch (err) {
     res.status(401);
-    // Give the client a specific, actionable message
-    throw new Error(
-      err.name === 'TokenExpiredError'
-        ? 'Session expired — please log in again.'
-        : 'Not authorised — invalid token.'
-    );
+    const errorMessage =  err.name === 'TokenExpiredError' ? 'Not authorised — token expired.' : 'Not authorised — invalid token.';
+    throw new Error(errorMessage, {cause:err});
+
   }
 
   // ── 3. Load user from DB ───────────────────────────────────────────────────

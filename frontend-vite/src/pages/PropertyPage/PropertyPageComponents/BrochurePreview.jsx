@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from "react";
+//BrochurePreview.jsx
+//CHECK THIS FUNTIONALITY pdfjs-dist depedency download
+import { useState, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { Eye, Download, FileText, AlertCircle } from "lucide-react";
 import "./BrochurePreview.css";

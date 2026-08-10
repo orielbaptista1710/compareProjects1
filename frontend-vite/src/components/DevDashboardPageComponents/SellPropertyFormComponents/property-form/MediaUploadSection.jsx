@@ -25,7 +25,7 @@
 // • All dropzones support keyboard navigation
 // ─────────────────────────────────────────────────────────────────────────────
 
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import "./MediaUploadSection.css";
 

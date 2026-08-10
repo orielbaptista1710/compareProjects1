@@ -1,4 +1,4 @@
-import React from "react";
+//frontend-vite/src/pages/PropertyPage/PropertyPageComponents/PropertyGallery/PropertyLightbox.jsx
 import Slider from "react-slick";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import "slick-carousel/slick/slick.css";

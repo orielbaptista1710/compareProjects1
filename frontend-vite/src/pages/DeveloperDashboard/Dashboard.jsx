@@ -61,7 +61,7 @@ const Dashboard = () => {
   }, [user, userLoading, navigate]);
 
   // Fetch Developer Properties
-  const { data: properties = [], isLoading, isError, refetch } = useQuery({
+  const { data: properties = [], isLoading, isError } = useQuery({
     queryKey: ['my-properties'],
     queryFn: async () => {
       const res = await API.get('/api/properties/my-properties');

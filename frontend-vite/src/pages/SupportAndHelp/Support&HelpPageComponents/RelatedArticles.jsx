@@ -1,4 +1,4 @@
-import React from "react";
+//frontend-vite/src/pages/components/RelatedArticles.jsx
 import Slider from "react-slick";
 import "./RelatedArticles.css"; // for styling
 

@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import { memo, useMemo } from "react";
 import { Star } from "lucide-react";
 import { AMENITY_ICONS } from "../../../assests/constants/propertyFormConstants";
 import "./IconTabContent.css";

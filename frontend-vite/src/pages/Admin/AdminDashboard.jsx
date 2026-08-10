@@ -1,5 +1,5 @@
 // frontend-vite/src/pages/Admin/AdminDashboard.jsx
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Box, Typography, Button, CircularProgress,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
@@ -13,7 +13,7 @@ import AdminPropertyTable from "./AdminDasboardComponents/AdminPropertyTable";
 import DeveloperDetailsModal from "./AdminDasboardComponents/DeveloperDetailsModal";
 import AdminFilters from "./AdminDasboardComponents/AdminFilters";
 
-import { LogOut, User } from "lucide-react";
+import { LogOut } from "lucide-react";
 import toast from "react-hot-toast";
 import toastError from "../../utils/toastError";
 

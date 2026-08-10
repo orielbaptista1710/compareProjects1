@@ -245,40 +245,6 @@
 }
 
 /* ==========================================================================
-   STATS
-   ========================================================================== */
-
-.sp-stats {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 1rem 2rem;
-}
-
-.sp-stat {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-}
-
-.sp-stat-icon {
-  color: var(--sp-amber);
-}
-
-.sp-stat-value {
-  color: white;
-
-  font-weight: 700;
-  font-size: 1rem;
-}
-
-.sp-stat-label {
-  color: rgba(255,255,255,0.65);
-
-  font-size: 0.85rem;
-}
-
-/* ==========================================================================
    BODY
    ========================================================================== */
 
@@ -621,10 +587,6 @@
   background: var(--sp-primary-light);
 }
 
-.sp-contact-row--chat:hover {
-  background: transparent;
-}
-
 .sp-contact-badge {
   width: 40px;
   height: 40px;
@@ -646,11 +608,6 @@
 .sp-contact-badge--amber {
   background: rgba(245,166,35,0.12);
   color: var(--sp-amber);
-}
-
-.sp-contact-badge--red {
-  background: rgba(230,57,70,0.12);
-  color: var(--sp-red);
 }
 
 .sp-contact-info {
@@ -680,17 +637,6 @@
 
 .sp-contact-arrow {
   color: var(--sp-text-muted);
-}
-
-.sp-live-dot {
-  width: 9px;
-  height: 9px;
-
-  border-radius: 50%;
-
-  background: var(--sp-green);
-
-  flex-shrink: 0;
 }
 
 /* ==========================================================================

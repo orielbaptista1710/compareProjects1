@@ -23,8 +23,7 @@ import { connectLeadsDB } from "./config/leadsDb.js";
 
 const app = express();
 
-// app.set('trust proxy', 1); //this is used to trust the proxy server (nginx, render) for the ip address
-
+app.set('trust proxy', 1);  // the the api differnce 
 app.use(cors({ 
   origin: process.env.REACT_APP_FRONTEND_URL || 'http://localhost:5173',
   credentials: true

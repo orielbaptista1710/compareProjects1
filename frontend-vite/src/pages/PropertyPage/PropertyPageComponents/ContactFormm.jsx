@@ -1,15 +1,12 @@
 // src/pages/PropertyPage/PropertyPageComponents/ContactFormm 
-
 // Lead capture form — sends data to /api/leads/customer
 
-import React from "react";
 import { Link } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User, Phone, Mail, MessageSquare, Heart } from "lucide-react";
 import API from "../../../api";
-// import useAppSnackbar from "../../../hooks/useAppSnackbar";
 import "./ContactFormm.css";
 
 // ── Zod schema ────────────────────────────────────────────────
@@ -56,13 +53,12 @@ const Field = ({ label, error, icon: Icon, children }) => (
 // COMPONENT
 // ─────────────────────────────────────────────────────────────
 const ContactFormm = ({ property }) => {
-  // const snackbar = useAppSnackbar();
 
   const {
     handleSubmit,
     control,
     reset,
-    register,
+    // register,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
@@ -85,7 +81,7 @@ const ContactFormm = ({ property }) => {
         source:     "property_page_contact",
         propertyId: property?._id || null,
       });
-      success("Thanks! Our team will reach out to you shortly.");
+      //CHECK THIS HAVE TO ADD A TOAST OR A MESSAGE - TEAM WILL GET BACK TO YOU SHORTYLY
       reset();
     } catch (err) {
       error(

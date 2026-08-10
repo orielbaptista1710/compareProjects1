@@ -2,11 +2,9 @@
 import { useState, useContext, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthContext";
-// import { toast } from "react-toastify";
-import { Phone, Mail, Download, Heart, X } from "lucide-react";
+import { Phone, Mail, Download, Heart, X, AlertCircle, Check} from "lucide-react";
 
 import useHeartProperty from "../../../hooks/useHeartProperty";
-import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { useEscapeKey } from "../../../hooks/useEscapeKey";
 
 import "./QuickLinks.css";

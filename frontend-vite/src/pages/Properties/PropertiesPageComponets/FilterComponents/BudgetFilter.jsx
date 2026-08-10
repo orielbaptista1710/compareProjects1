@@ -1,5 +1,5 @@
 // src/components/PropertiesPageComponents/FilterComponents/BudgetFilter 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { useOutsideClick } from "../../../hooks/useOutsideClick"
 import "./BudgetFilter.css";

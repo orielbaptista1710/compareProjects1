@@ -26,7 +26,6 @@ import {
   Mic,
   Baby,
   User,
-  Star
 } from "lucide-react";
 
 // ---------------- Dropdown / Select Options ----------------
@@ -45,13 +44,13 @@ export const PROPERTY_TYPES = [
 
 export const BHK_OPTIONS = ["1", "2", "3", "4", "5+"]; 
 
-const AREA_UNITS = [
-  { value: "sqft", label: "Square Feet" },
-  { value: "sqmts", label: "Square Meters" },
-  { value: "guntas", label: "Guntas" },
-  { value: "hectares", label: "Hectares" },
-  { value: "acres", label: "Acres" },
-];
+// const AREA_UNITS = [
+//   { value: "sqft", label: "Square Feet" },
+//   { value: "sqmts", label: "Square Meters" },
+//   { value: "guntas", label: "Guntas" },
+//   { value: "hectares", label: "Hectares" },
+//   { value: "acres", label: "Acres" },
+// ];
 
 export const FURNISHED_OPTIONS = ['Furnished', 'Semi Furnished', 'Unfurnished', 'Fully Furnished'];
 

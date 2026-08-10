@@ -3,8 +3,7 @@ import { useMemo, useCallback, useContext } from "react";
 import { CustomerActivityContext } from "../contexts/CustomerActivityContext";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import toast from 'react-hot-toast';
-
+ 
 function useHeartProperty(propertyId) {
   const { heartProperties, toggleHeart } = useContext(CustomerActivityContext);
   const { currentUser } = useContext(AuthContext);
@@ -29,7 +28,6 @@ function useHeartProperty(propertyId) {
 
     try {
       await toggleHeart(propertyId);
-
       success(
         isSaved ? "Removed from shortlist" : "Added to shortlist"
       );

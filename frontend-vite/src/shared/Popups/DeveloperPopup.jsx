@@ -1,10 +1,6 @@
-
-// DeveloperPopup 
-//frontend/src/shared/Popups/DeveloperPopup 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+ //frontend/src/shared/Popups/DeveloperPopup 
+import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Check } from "lucide-react";
-// import { lazy, Suspense } from "react";
-// import { toast } from "react-toastify";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 import "./DeveloperPopup.css";
@@ -30,7 +26,9 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
   const panelRef = useRef(null);
 
   // Close on outside click
-  useOutsideClick(isOpen, [panelRef], onClose);
+  useOutsideClick(isOpen, [panelRef], ()=>{
+    setFormData()
+  });
 
   // Close on Escape
   useEscapeKey(isOpen, onClose);

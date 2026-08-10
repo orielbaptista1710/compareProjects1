@@ -1,5 +1,5 @@
 //frontend-vite\src\pages\Home\HomePageComponents\PostPropertyBanner.jsx
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import GradientBanner from "./GradientBanner";
 import DeveloperPopup from "../../../shared/Popups/DeveloperPopup";
 import { useEscapeKey } from "../../../hooks/useEscapeKey";

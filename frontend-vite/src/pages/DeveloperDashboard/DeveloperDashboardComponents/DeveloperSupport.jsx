@@ -1,10 +1,9 @@
 // DeveloperDashboardComponents/DeveloperSupport.jsx
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  BookOpen, Bug, HelpCircle, Mail, Zap,
+   Bug, HelpCircle, Mail, Zap,
   MessageSquare, CheckCircle2, AlertCircle,
-  Users, FileText, Loader2, Search, ArrowRight,
-  Phone, Clock,
+  Users, FileText, Loader2, Search, ArrowRight, Clock,
 } from "lucide-react";
 import "./DeveloperSupport.css";
 

@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Gallery.css';
 import galleryimg1 from '../../../assests/images/image1.jpg';

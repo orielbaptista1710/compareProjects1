@@ -1,5 +1,4 @@
 // components/layouts/BaseLayout.js
-import React from "react";
 import "./BaseLayout.css";
 
 const BaseLayout = ({ children }) => {
