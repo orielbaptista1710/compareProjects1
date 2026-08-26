@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
-import { Section, Row, safeText } from "./SharedUI";
+import { Section, Row} from "./SharedUI";
+import { safeText } from "../../../../utils/formatters";
 
 const LocationTab = ({ property }) => (
   <div className="tab-content">

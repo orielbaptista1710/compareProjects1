@@ -1,4 +1,5 @@
 // constants/propertyFormConstants.js
+
 import {
   Sofa,
   Car,
@@ -9,7 +10,7 @@ import {
   Waves,
   Dumbbell,
   Trees,
-  Wifi, 
+  Wifi,
   Flame,
   Shield,
   BookOpen,
@@ -28,13 +29,12 @@ import {
   User,
 } from "lucide-react";
 
-// ---------------- Dropdown / Select Options ----------------
-// used in SellPropertyFORM
+// ─── Dropdown / Select Options ──────────────────────────────
+
 export const PROPERTY_TYPES = [
   { label: "Flats/Apartments", icon: <Building size={16} /> },
   { label: "Villa", icon: <Building size={16} /> },
   { label: "Plot", icon: <Map size={16} /> },
-
   { label: "Shop/Showroom", icon: <Store size={16} /> },
   { label: "Industrial Warehouse/Godown", icon: <Warehouse size={16} /> },
   { label: "Office Space", icon: <Building size={16} /> },
@@ -42,69 +42,62 @@ export const PROPERTY_TYPES = [
   { label: "Industrial Building", icon: <Building size={16} /> },
 ];
 
-export const BHK_OPTIONS = ["1", "2", "3", "4", "5+"]; 
+export const BHK_OPTIONS = ["1", "2", "3", "4", "5+"];
 
-// const AREA_UNITS = [
-//   { value: "sqft", label: "Square Feet" },
-//   { value: "sqmts", label: "Square Meters" },
-//   { value: "guntas", label: "Guntas" },
-//   { value: "hectares", label: "Hectares" },
-//   { value: "acres", label: "Acres" },
-// ];
+// Area unit options (for dropdowns like in PricingSection)
+export const AREA_UNITS = [
+  { value: "sqft", label: "Square Feet" },
+  { value: "sqmts", label: "Square Meters" },
+  { value: "guntas", label: "Guntas" },
+  { value: "hectares", label: "Hectares" },
+  { value: "acres", label: "Acres" },
+];
+
+// Raw unit keys & display labels (for filters and other components)
+export const AREA_UNIT_KEYS = ["sqft", "sqmts", "guntas", "hectares", "acres"];
+
+export const AREA_UNIT_LABELS = {
+  sqft: "Sq.ft",
+  sqmts: "Sq.m",
+  guntas: "Guntas",
+  hectares: "Hectares",
+  acres: "Acres",
+};
 
 export const FURNISHED_OPTIONS = ['Furnished', 'Semi Furnished', 'Unfurnished', 'Fully Furnished'];
 
 export const POSSESSION_STATUS_OPTIONS = [
   "Under Construction",
   "Ready to Move",
-  // "Ready for Development",
-  // "Possession Within 3 Months",
-  // "Possession Within 6 Months",
-  // "Possession Within 1 Year",
-  // "Ready for Sale",
-  // "New Launch"
 ];
-export const AGE_OF_PROPERTY_OPTIONS =  [        
-    "New",
-    "0-1 Years",
-    "1-5 Years",
-    "5-10 Years",
-    "10-15 Years",
-    "15+ Years"
-  ]
-; ////CHECK THIS -- not using in UI
 
+export const AGE_OF_PROPERTY_OPTIONS = [
+  "New",
+  "0-1 Years",
+  "1-5 Years",
+  "5-10 Years",
+  "10-15 Years",
+  "15+ Years",
+];
 
-export const BATHROOM_OPTIONS = ["1", "2", "3", "4", "5+"];  //NUMBERS?? CHECK THIS
+export const BATHROOM_OPTIONS = ["1", "2", "3", "4", "5+"];
 export const BALCONY_OPTIONS = ["0", "1", "2", "3", "4+"];
 
 export const FACING_OPTIONS = [
-  "East",
-  "West",
-  "North",
-  "South",
-  "North-East",
-  "North-West",
-  "South-East",
-  "South-West",
+  "East", "West", "North", "South",
+  "North-East", "North-West", "South-East", "South-West",
 ];
 
-export const PARKING_OPTIONS = [    //CHECK THIS
-  "Available",
-  "Not Available",
-  "2 Wheeler",
-  "4 Wheeler",
-  "2 Parking Slots",
-  "No Parking",
-  "Disabled",
-  "Basement Parking",
-  "Disabled Access Parking",
-  "Visitor Parking",
+export const PARKING_OPTIONS = [
+  "Available", "Not Available", "2 Wheeler", "4 Wheeler",
+  "2 Parking Slots", "No Parking", "Disabled",
+  "Basement Parking", "Disabled Access Parking", "Visitor Parking",
 ];
 
-export const FLOOR_OPTIONS = ["Ground", "1", "2", "3", "4", "5+"]; //CHECK THIS -- CHECK THE mongo scaped inputs
+export const FLOOR_OPTIONS = ["Ground", "1", "2", "3", "4", "5+"];
 
-// ---------------- Amenities / Facilities / Security ----------------
+// ─── Amenities / Facilities / Security ──────────────────────
+
 export const amenitiesList = [
   { name: "Swimming Pool", icon: <Waves size={16} /> },
   { name: "Gym", icon: <Dumbbell size={16} /> },
@@ -118,7 +111,7 @@ export const amenitiesList = [
   { name: "Library", icon: <BookOpen size={16} /> },
   { name: "Cafeteria", icon: <Coffee size={16} /> },
 ];
- 
+
 export const facilitiesList = [
   { name: "Parking", icon: <ParkingCircle size={16} /> },
   { name: "Water & Electricity Connections", icon: <Waves size={16} /> },
@@ -135,7 +128,8 @@ export const securityList = [
   { name: "Security Guard", icon: <Users size={16} /> },
 ];
 
-// ---------------- Amenity Lookup Map ----------------
+// ─── Amenity Icon Lookup ─────────────────────────────────────
+
 export const AMENITY_ICONS = {
   "Swimming Pool": Waves,
   "Gym": Dumbbell,

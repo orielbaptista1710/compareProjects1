@@ -1,4 +1,4 @@
- //frontend/src/shared/Popups/DeveloperPopup 
+ //frontend-vite/src/shared/Popups/DeveloperPopup.jsx
 import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Check } from "lucide-react";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
@@ -21,13 +21,19 @@ const INITIAL_FORM = {
 };
 
 const DeveloperPopup = ({ isOpen, onClose }) => {
-  const [formData, setFormData] = useState(INITIAL_FORM);
   const [submitting, setSubmitting] = useState(false);
+  const [formData, setFormData] = useState(INITIAL_FORM);
   const panelRef = useRef(null);
+
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+      setPrevIsOpen(isOpen);
+      if (!isOpen) setFormData(INITIAL_FORM);
+  }
 
   // Close on outside click
   useOutsideClick(isOpen, [panelRef], ()=>{
-    setFormData()
+    setFormData(INITIAL_FORM);
   });
 
   // Close on Escape
@@ -40,10 +46,6 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
-  // Reset form when closed
-  useEffect(() => {
-    if (!isOpen) setFormData(INITIAL_FORM);
-  }, [isOpen]);
 
   const handleChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;

@@ -1,17 +1,8 @@
 // sections/PricingSection.jsx
-// Price, EMI starts, price negotiable toggle, area value + unit.
 
 import React from "react";
 import { useFormContext, Controller } from "react-hook-form";
-
-//can use from propertyFormConstants
-// const AREA_UNITS = [
-//   { value: "sqft",     label: "sq.ft" },
-//   { value: "sqmts",    label: "sq.m" },
-//   { value: "guntas",   label: "Guntas" },
-//   { value: "hectares", label: "Hectares" },
-//   { value: "acres",    label: "Acres" },
-// ];
+import { AREA_UNITS } from "../../../../assests/constants/propertyFormConstants"; 
 
 /** Formats number as Indian currency string for display only */
 const formatINR = (val) => {
@@ -110,7 +101,7 @@ const PricingSection = () => {
       </div>
 
       {/* Area */}
-      {/* <div className="form-row">
+      <div className="form-row">
         <div className="form-col">
           <label htmlFor="areaValue">
             Property Area <span className="optional">(optional)</span>
@@ -139,7 +130,7 @@ const PricingSection = () => {
             <span className="field-error" role="alert">{errors.areaValue.message}</span>
           )}
         </div>
-      </div> */}
+      </div>
     </section>
   );
 };

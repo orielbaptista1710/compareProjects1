@@ -1,5 +1,5 @@
 // SellPropertyFormComponents/SellPropertyForm.jsx
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FormProvider } from "react-hook-form";
 import { usePropertyForm } from "./hooks/usePropertyForm";
 
@@ -10,7 +10,7 @@ import PropertyDetailsSection from "./property-form/PropertyDetailsSection";
 import BuildingSection from "./property-form/BuildingSection";
 import ReraSection from "./property-form/ReraSection";
 import PropertyAmenitiesSection from "./property-form/PropertyAmenitiesSection";
-import MediaUploadSection from "./property-form/MediaUploadSection";
+// import MediaUploadSection from "./property-form/MediaUploadSection";
 
 import "./SellPropertyForm.css";
 
@@ -121,10 +121,6 @@ const SellPropertyForm = ({
     return () => observers.forEach((o) => o.disconnect());
   }, []);
 
-  const sectionRef = (id) => (el) => {
-    sectionRefs.current[id] = el;
-  };
-
   return (
     <FormProvider {...methods}>
       <form
@@ -142,12 +138,12 @@ const SellPropertyForm = ({
         <div className="spf-sections">
 
           <Divider step={1} label="Basic Info" />
-          <div ref={sectionRef("info")}>
+          <div ref={(el) => { sectionRefs.current.info = el; }}>
             <PropertyInformationSection />
           </div>
 
           <Divider step={2} label="Location" />
-          <div ref={sectionRef("location")}>
+          <div ref={(el) => { sectionRefs.current.location = el; }}>
             <SellProLocationSection
               isMapsLoaded={isMapsLoaded}
               mapsLoadError={mapsLoadError}
@@ -161,33 +157,34 @@ const SellPropertyForm = ({
           </div>
 
           <Divider step={3} label="Pricing & Area" />
-          <div ref={sectionRef("pricing")}>
+          <div ref={(el) => { sectionRefs.current.pricing = el; }}>
             <PricingSection />
           </div>
 
           <Divider step={4} label="Property Details" />
-          <div ref={sectionRef("details")}>
+          <div ref={(el) => { sectionRefs.current.details = el; }}>
             <PropertyDetailsSection />
           </div>
 
           <Divider step={5} label="Building Info" />
-          <div ref={sectionRef("building")}>
+          <div ref={(el) => { sectionRefs.current.building = el; }}>
             <BuildingSection />
           </div>
 
           <Divider step={6} label="RERA" />
-          <div ref={sectionRef("rera")}>
+          <div ref={(el) => { sectionRefs.current.rera = el; }}>
             <ReraSection />
           </div>
 
           <Divider step={7} label="Amenities" />
-          <div ref={sectionRef("amenities")}>
+          <div ref={(el) => { sectionRefs.current.amenities = el; }}>
             <PropertyAmenitiesSection />
           </div>
 
           <Divider step={8} label="Media" />
-          <div ref={sectionRef("media")}>
-            <MediaUploadSection />
+          <div ref={(el) => { sectionRefs.current.media = el; }}>
+            {/* <MediaUploadSection /> */}
+            <h1>Media Upload Section (Coming Soon)</h1>
           </div>
 
           

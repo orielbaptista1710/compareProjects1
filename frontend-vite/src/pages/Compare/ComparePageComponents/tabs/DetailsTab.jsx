@@ -1,4 +1,5 @@
-import { Section, Row, safeText, fmtDate } from "./SharedUI";
+import { Section, Row } from "./SharedUI";
+import { safeText, fmtDate } from "../../../../utils/formatters";
 
 const DetailsTab = ({ property }) => (
   <div className="tab-content">

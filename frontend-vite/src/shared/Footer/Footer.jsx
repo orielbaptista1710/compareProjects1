@@ -123,7 +123,7 @@ const Footer = () => {
   useEffect(() => {
     controllerRef.current = new AbortController();
 
-    const fetchLocalities = async () => {
+    const fetchLocalitiesFooter = async () => {
       try {
         const res = await API.get("/api/discover/localities", {
           signal: controllerRef.current.signal,
@@ -143,7 +143,7 @@ const Footer = () => {
       }
     };
 
-    fetchLocalities();
+    fetchLocalitiesFooter(); //make change from fetchLocalities to fetchLocalitiesFooter
 
     return () => {
       controllerRef.current?.abort();

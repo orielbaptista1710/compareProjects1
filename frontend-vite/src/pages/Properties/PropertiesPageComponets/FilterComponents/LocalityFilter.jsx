@@ -1,4 +1,3 @@
-//frontend-vite\src\pages\Properties\PropertiesPageComponets\FilterComponents\LocalityFilter.jsx
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { Search } from "lucide-react";
 import CheckboxGroup from "./CheckboxGroup";
@@ -12,21 +11,23 @@ const LocalityFilter = ({ value = [], onChange }) => {
   const [allLocalities, setAllLocalities] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [prevCity, setPrevCity] = useState(city);
 
   const debouncedSearch = useDebounce(search, 250);
   const cache = useRef({});
 
-  /* ── Reset search when city changes ── */
-  useEffect(() => {
+  /* ── Reset search + localities synchronously during render when city changes ──
+     Uses useState (not a ref) to track the previous city, since refs can't be
+     read/written during render — only state can be adjusted this way. ── */
+  if (city !== prevCity) {
+    setPrevCity(city);
     setSearch("");
-  }, [city]);
+    setAllLocalities([]); // cache lookup happens in the effect below, not here
+  }
 
   /* ── Fetch localities (with per-city cache) ── */
   useEffect(() => {
-    if (!city) {
-      setAllLocalities([]);
-      return;
-    }
+    if (!city) return;
 
     if (cache.current[city]) {
       setAllLocalities(cache.current[city]);
@@ -35,7 +36,7 @@ const LocalityFilter = ({ value = [], onChange }) => {
 
     const controller = new AbortController();
 
-    const fetchLocalities = async () => {
+    const fetchLocalitiesFiltered = async () => {
       setLoading(true);
       try {
         const res = await API.get(`/api/properties/localities/${city}`, {
@@ -53,7 +54,7 @@ const LocalityFilter = ({ value = [], onChange }) => {
       }
     };
 
-    fetchLocalities();
+    fetchLocalitiesFiltered();
     return () => controller.abort();
   }, [city]);
 

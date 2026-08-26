@@ -1,4 +1,5 @@
-import { Section, Row, safeText, fmtArea } from "./SharedUI";
+import { Section, Row } from "./SharedUI";
+import { safeText, fmtArea } from "../../../../utils/formatters";
 import { formatCurrencyShort } from "../../../../utils/formatters";
 
 const OverviewTab = ({ property }) => (

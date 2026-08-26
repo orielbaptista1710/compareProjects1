@@ -117,8 +117,8 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
   const [searchInput,   setSearchInput  ] = useState('');
   const [page,          setPage         ] = useState(1);
   const [sortBy,        setSortBy       ] = useState('relevance');
-  const [isFilterOpen,  setIsFilterOpen ] = useState(false);  // filter drawer
-  const [isContactOpen, setIsContactOpen] = useState(false);  // contact bottom sheet
+  const [isFilterOpen,  setIsFilterOpen ] = useState(false); 
+  const [isContactOpen, setIsContactOpen] = useState(false);  
 
 
   // URL is the single source of truth for filter state
@@ -146,13 +146,26 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
   const totalPages   = data?.totalPages   ?? 1;
 
 
-  useEffect(() => {
-    setSearchInput(filters.search ?? '');
-  }, [filters.search]);
+  // after — replaces both effects above
 
-  useEffect(() => {
-    setPage(1);
-  }, [filters, sortBy]);
+const [prevSearchFilter, setPrevSearchFilter] = useState(filters.search);
+if (filters.search !== prevSearchFilter) {
+  setPrevSearchFilter(filters.search);
+  setSearchInput(filters.search ?? '');
+}
+
+const [prevFiltersAndSort, setPrevFiltersAndSort] = useState({ filters, sortBy });
+if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sortBy) {
+  setPrevFiltersAndSort({ filters, sortBy });
+  setPage(1);
+}
+  // useEffect(() => {
+    // setSearchInput(filters.search ?? '');
+  // }, [filters.search]);
+
+  // useEffect(() => {
+    // setPage(1);
+  // }, [filters, sortBy]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });

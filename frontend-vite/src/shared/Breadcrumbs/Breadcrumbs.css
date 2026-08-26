@@ -1,63 +1,230 @@
-:root {
-  --header-height: 70px;
-  --nav-height: 60px;
+/* frontend-vite/src/components/Breadcrumbs.css */
 
-  /* --primary-color: #D90429; */
-  --text-muted: #6b7280;
-  --text-dark: #111827;
-  --border-color: #e5e7eb;
+/* Optional positioning depending on navbar */
+.breadcrumbs--with-nav {
+  margin-top: 130px;
 }
 
-/* Base */
-.breadcrumbs {
-  position: relative;
+.breadcrumbs--no-nav {
+  margin-top: 70px;
+}
+/* --------------------------------
+   Breadcrumb list
+-------------------------------- */
+
+.breadcrumbs-list {
   width: 100%;
-  z-index: 1;
+  max-width: 1400px;
+  min-height: 52px;
 
-  padding: 10px 24px;
-  font-size: 13.5px;
+  margin: 0 auto;
+  padding: 0 24px;
 
-  background: linear-gradient(to right, #ffffff, #fafafa);
-  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0;
 
-  color: var(--text-muted);
+  list-style: none;
 
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  white-space: nowrap;
+
+  box-sizing: border-box;
+
+  scrollbar-width: none;
 }
 
-/*  WHEN NAVBAR EXISTS */
-.breadcrumbs.with-nav {
-  margin-top: calc(var(--header-height) + var(--nav-height));
+.breadcrumbs-list::-webkit-scrollbar {
+  display: none;
 }
 
-/*  WHEN NAVBAR IS HIDDEN */
-.breadcrumbs.no-nav {
-  margin-top: var(--header-height);
+/* --------------------------------
+   Individual item
+-------------------------------- */
+
+.breadcrumbs-item {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  flex-shrink: 0;
 }
 
-/* Links */
-.breadcrumbs a {
-  color: #6366f1;
-  text-decoration: none;
+/* --------------------------------
+   Links
+-------------------------------- */
+
+.breadcrumbs-link {
+  display: inline-flex;
+  align-items: center;
+
+  color: #374151;
+
+  font-size: 14px;
   font-weight: 500;
-  transition: all 0.2s ease;
-}
+  line-height: 1.4;
 
-.breadcrumbs a:hover {
-  color: #a1031f;
   text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+
+  transition:
+    color 0.15s ease,
+    text-decoration-color 0.15s ease;
+
+  cursor: pointer;
 }
 
-/* Active */
-.breadcrumbs .active {
-  color: var(--text-dark);
-  font-weight: 600;
+.breadcrumbs-link:hover {
+  color: #111827;
+  text-decoration-thickness: 1.5px;
 }
 
-/* Separator spacing */
-.breadcrumbs span {
-  margin: 0 4px;
+/* --------------------------------
+   Home
+-------------------------------- */
+
+.breadcrumbs-home {
+  gap: 7px;
+
+  text-decoration: none;
+
+  color: #4b5563;
 }
 
+.breadcrumbs-home:hover {
+  color: #111827;
+}
+
+.breadcrumbs-home svg {
+  flex-shrink: 0;
+}
+
+/*
+ * Hide "Home" text on smaller screens.
+ * This makes the breadcrumb behave more
+ * like the screenshot where the home icon
+ * is the primary home indicator.
+ */
+.breadcrumbs-home-text {
+  display: none;
+}
+
+/* --------------------------------
+   Chevron
+-------------------------------- */
+
+.breadcrumbs-chevron {
+  flex-shrink: 0;
+
+  margin: 0 11px;
+
+  color: #6b7280;
+}
+
+/* --------------------------------
+   Current / active breadcrumb
+-------------------------------- */
+
+.breadcrumbs-current {
+  display: block;
+
+  max-width: 420px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  color: #1f2937;
+
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+
+  cursor: default;
+}
+
+/* --------------------------------
+   Focus accessibility
+-------------------------------- */
+
+.breadcrumbs-link:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* --------------------------------
+   Tablet
+-------------------------------- */
+
+@media (min-width: 640px) {
+  .breadcrumbs-list {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+  .breadcrumbs-home-text {
+    display: inline;
+  }
+
+  .breadcrumbs-home {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .breadcrumbs-current {
+    max-width: 500px;
+  }
+}
+
+/* --------------------------------
+   Desktop
+-------------------------------- */
+
+@media (min-width: 1024px) {
+  .breadcrumbs-list {
+    min-height: 56px;
+
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  .breadcrumbs-link,
+  .breadcrumbs-current {
+    font-size: 15px;
+  }
+
+  .breadcrumbs-chevron {
+    margin-left: 13px;
+    margin-right: 13px;
+  }
+
+  .breadcrumbs-current {
+    max-width: 650px;
+  }
+}
+
+/* --------------------------------
+   Large desktop
+-------------------------------- */
+
+@media (min-width: 1440px) {
+  .breadcrumbs-list {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* --------------------------------
+   Reduced motion
+-------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .breadcrumbs-link {
+    transition: none;
+  }
+}

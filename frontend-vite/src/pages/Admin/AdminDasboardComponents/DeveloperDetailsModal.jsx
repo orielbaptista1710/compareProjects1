@@ -5,7 +5,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Typography,
+  Typography, 
   Box,
   Button,
   Stack,
@@ -17,26 +17,6 @@ import {
 import { formatCurrency } from "../../../utils/formatters";
 
 import PropertyMediaSection from "./PropertyMediaSection";
-
-
-/**
- * Production-ready DeveloperDetailsModal
- *
- * Props:
- *  - open (bool)
- *  - onClose (fn)
- *  - property (object) : full property document (or null while loading)
- *  - loading (bool) optional: show skeletons while loading
- *  - onApprove (fn) optional
- *  - onReject (fn) optional
- *  - isApproving (bool) optional
- *  - isRejecting (bool) optional
- *
- * Notes:
- *  - The parent should pass the *full* property object (not wrapped in { success, data })
- *  - Safe-url checks performed before rendering links
- *  - Images use a fallback onError
- */
 
 const FALLBACK_IMAGE = "https://placehold.co/600x400/EBEBEB/555/png?text=No+image";
 
@@ -55,8 +35,9 @@ function safeUrl(url) {
   try {
     const u = new URL(url, window.location.origin);
     // only allow http/https
-    if (u.protocol === "http:" || u.protocol === "https:") return u.toString();
-  } catch (e) {
+    if ( u.protocol === "https:") return u.toString();
+        //u.protocol === "http:" || why need to add is http not as secure
+  } catch {
     return null;
   }
   return null;

@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
+import { useState, useCallback, useMemo, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
 import "./Compare.css";
 
 import CompareSummary from "./ComparePageComponents/CompareSummary";
 import CompareEmptyState from "./ComparePageComponents/CompareEmptyState";
-import MascotGuide from "../../components/DevDashboardPageComponents/Mascot/MascotGuide";
+// import MascotGuide from "../../components/DevDashboardPageComponents/Mascot/MascotGuide";
 import HeaderCard from "./ComparePageComponents/HeaderCard";
 import AddSlot from "./ComparePageComponents/AddSlot";
 import CompareErrorBoundary from "./ComparePageComponents/CompareErrorBoundary";
@@ -24,11 +24,10 @@ const TabFallback = () => (
 function Compare({ compareList, setCompareList, removeFromCompare }) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
-  const [properties, setProperties] = useState([]);
 
-  useEffect(() => {
-    setProperties(compareList);
-  }, [compareList]);
+  // `properties` is derived directly from the compareList prop — no need
+  // for separate state + an effect to keep it in sync.
+  const properties = compareList;
 
   const clearAll = useCallback(() => setCompareList([]), [setCompareList]);
   const goToProperties = useCallback(() => navigate("/properties"), [navigate]);
@@ -106,13 +105,14 @@ function Compare({ compareList, setCompareList, removeFromCompare }) {
         </div>
       )}
 
-      <MascotGuide
+      {/* <MascotGuide
         steps={[
           "Welcome! Use filters to narrow properties.",
           "Click on Overview, Details, Amenities, or Location to compare properties Details.",
           "You can contact sellers directly."
         ]}
-      />
+      /> */}
+      
     </div>
   );
 }

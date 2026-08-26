@@ -9,23 +9,22 @@ import LocationSearchBar from "./LocationSearchBar";
 import PropertyTypePills from "../../Home/HomePageComponents/MainSeachBarComponets/PropertyTypePills";
 import ExpandableSearch from "./ExpandableSearch";
 
-import { DEFAULT_FILTERS, parseFiltersFromURL  } from "../../../utils/filters.schema";
-import { useCity } from "../../../contexts/CityContext"; 
+import { DEFAULT_FILTERS, parseFiltersFromURL } from "../../../utils/filters.schema";
+import { useCity } from "../../../contexts/CityContext";
 
-// import { useOutsideClick } from "../../../hooks/useOutsideClick";
-// import { useEscapeKey} from "../../../hooks/useEscapeKey";
 import "./MainSearchBar.css";
 
 const MainSearchBar = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { city } = useCity(); 
+  const { city } = useCity();
   const dropdownRef = useRef(null);
   const budgetRef = useRef(null);
 
   const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
   const [isPropertyOpen, setIsPropertyOpen] = useState(false);
   const [isBudgetOpen, setIsBudgetOpen] = useState(false);
+  const [prevCity, setPrevCity] = useState(city);
 
   /* -------------------- FETCH FILTER OPTIONS -------------------- */
   useQuery({
@@ -40,24 +39,19 @@ const MainSearchBar = () => {
     [searchParams]
   );
 
-  useEffect(() => {
-    setDraftFilters(filters);
-  }, [filters]);
-
-  /* -------------------- SYNC CITY FROM CONTEXT → draftFilters -------------------- */
-  useEffect(() => {
-  if (!city) return;
-  setDraftFilters((prev) => {
-    // Don't clobber if draftFilters already has this city
-    // (e.g. user picked it via LocationSearchBar)
-    if (prev.city === city) return prev;
-    return {
+  /* -------------------- SYNC CITY FROM CONTEXT → draftFilters (render-time) --------------------
+     Replaces the useEffect version. Tracking prevCity in state — not reading draftFilters.city
+     directly — is what lets us distinguish "the CityContext city actually changed" from "some
+     other field in draftFilters changed", so we don't stomp on locality/propertyType picks the
+     user just made via LocationSearchBar / PropertyTypePills on every unrelated render. */
+  if (city && city !== prevCity) {
+    setPrevCity(city);
+    setDraftFilters((prev) => ({
       ...prev,
       city,
-      locality: [], // stale locality belongs to the old city
-    };
-  });
-}, [city]);
+      locality: [],
+    }));
+  }
 
   /* -------------------- UPDATE URL -------------------- */
   const handleSearch = () => {
@@ -80,13 +74,13 @@ const MainSearchBar = () => {
   const getPropertyTypeLabel = () => {
     const source = isPropertyOpen ? draftFilters : filters;
     const types = Array.isArray(source.propertyType) ? source.propertyType : [];
-    const bhks  = Array.isArray(source.bhk)          ? source.bhk          : [];
+    const bhks = Array.isArray(source.bhk) ? source.bhk : [];
 
     if (types.length === 0 && bhks.length === 0) return "Property Type";
 
     const parts = [
       types.length === 1 ? types[0] : types.length > 1 ? `${types.length} Types` : null,
-      bhks.length  === 1 ? `${bhks[0]} BHK` : bhks.length > 1 ? `${bhks.length} BHKs` : null,
+      bhks.length === 1 ? `${bhks[0]} BHK` : bhks.length > 1 ? `${bhks.length} BHKs` : null,
     ].filter(Boolean);
 
     return parts.join(" + ") || "Property Type";
@@ -123,7 +117,6 @@ const MainSearchBar = () => {
     };
   }, [isBudgetOpen]);
 
-  // JSX unchanged — no edits below this line
   return (
     <div className="mainsearch-bar">
       <div className="main-search-container-section">

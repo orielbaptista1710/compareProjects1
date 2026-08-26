@@ -21,6 +21,7 @@ const ExpandableSearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [highlightIndex, setHighlightIndex] = useState(-1);
+  const [prevDebouncedQuery, setPrevDebouncedQuery] = useState("");
 
   const inputRef = useRef(null);
   const wrapperRef = useRef(null);
@@ -28,12 +29,18 @@ const ExpandableSearch = () => {
 
   const debouncedQuery = useDebounce(query, 350);
 
-  useEffect(() => {
+  /* ── Reset highlight synchronously during render when the debounced query
+     changes. This is the React-sanctioned "adjust state on a value change"
+     pattern (useState, not a ref — refs can't be read/written during render
+     either). Replaces the old useEffect(() => setHighlightIndex(-1), [debouncedQuery]) ── */
+  if (debouncedQuery !== prevDebouncedQuery) {
+    setPrevDebouncedQuery(debouncedQuery);
     setHighlightIndex(-1);
-  }, [debouncedQuery]);
+  }
 
+  const trimmedQuery = debouncedQuery.trim();
   const shouldShowDropdown =
-    debouncedQuery.trim().length >= 2 && (isLoading || error || results.length > 0);
+    trimmedQuery.length >= 2 && (isLoading || error || results.length > 0);
 
   useOutsideClick(shouldShowDropdown, [wrapperRef], () => {
     setResults([]);
@@ -48,12 +55,13 @@ const ExpandableSearch = () => {
   });
 
   useEffect(() => {
-    const trimmed = debouncedQuery.trim();
-
-    if (trimmed.length < 2) {
-      setResults([]);
-      setIsFuzzy(false);
-      setError("");
+    // Below 2 chars we simply don't fetch. We no longer clear results/error/
+    // isFuzzy here — shouldShowDropdown already gates on trimmedQuery.length
+    // >= 2, so stale state below that threshold is never rendered. Removing
+    // this also fixes the setState-in-effect lint error without changing
+    // behavior.
+    if (trimmedQuery.length < 2) {
+      abortRef.current?.abort();
       return;
     }
 
@@ -67,7 +75,7 @@ const ExpandableSearch = () => {
         setError("");
 
         const { data } = await API.get(
-          `/api/properties/search?query=${encodeURIComponent(trimmed)}&limit=3`,
+          `/api/properties/search?query=${encodeURIComponent(trimmedQuery)}&limit=3`,
           { signal: controller.signal }
         );
 
@@ -82,6 +90,10 @@ const ExpandableSearch = () => {
         if (err.name !== "CanceledError" && err.name !== "AbortError") {
           console.error("Search error:", err);
           setError("Unable to fetch results");
+          // Clear stale results so an old list doesn't render next to the
+          // error message (see audit item below — this was a real bug).
+          setResults([]);
+          setIsFuzzy(false);
         }
       } finally {
         setIsLoading(false);
@@ -89,7 +101,7 @@ const ExpandableSearch = () => {
     })();
 
     return () => controller.abort();
-  }, [debouncedQuery]);
+  }, [trimmedQuery]);
 
   const navigateToProperty = useCallback(
     (propertyId) => {
@@ -173,7 +185,10 @@ const ExpandableSearch = () => {
           {isFuzzy && !isLoading && results.length > 0 && (
             <div className="fuzzy-indicator" aria-live="polite">Showing best matches</div>
           )}
-          {results.map((property, i) => (
+          {/* Only render results when not loading/erroring — see audit: previously
+              this rendered unconditionally and could show a stale list underneath
+              the "Searching…" spinner or an error message. */}
+          {!isLoading && !error && results.map((property, i) => (
             <div
               key={property._id}
               id={`search-result-${i}`}

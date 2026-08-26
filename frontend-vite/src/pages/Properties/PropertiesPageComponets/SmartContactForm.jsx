@@ -39,21 +39,12 @@ const steps = [
     subtitle: "Choose your preferred budget",
     options: ["< ₹25L", "₹25L–₹50L", "₹50L–₹1Cr", "> ₹1Cr"],
   },
-
   {
     key: "propertyType",
     title: "Property Type",
     subtitle: "What are you looking for?",
-    options: [
-      "Apartment",
-      "Villa",
-      "Plot",
-      "Office",
-      "Shop",
-      "Industrial",
-    ],
+    options: ["Apartment", "Villa", "Plot", "Office", "Shop", "Industrial"],
   },
-
   {
     key: "locality",
     title: "Preferred Locality",
@@ -62,7 +53,6 @@ const steps = [
     type: "text",
     placeholder: "e.g. Bandra West",
   },
-
   {
     key: "customerName",
     title: "Your Name",
@@ -71,7 +61,6 @@ const steps = [
     type: "text",
     placeholder: "John Doe",
   },
-
   {
     key: "customerEmail",
     title: "Email Address",
@@ -80,7 +69,6 @@ const steps = [
     type: "email",
     placeholder: "name@example.com",
   },
-
   {
     key: "customerPhone",
     title: "Phone Number",
@@ -97,12 +85,8 @@ const steps = [
 
 const validators = {
   text: (v) => v.trim().length >= 2,
-
-  email: (v) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
-
-  tel: (v) =>
-    /^\+?[0-9]{10,15}$/.test(v.replace(/\s/g, "")),
+  email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+  tel: (v) => /^\+?[0-9]{10,15}$/.test(v.replace(/\s/g, "")),
 };
 
 const errorMessages = {
@@ -112,71 +96,70 @@ const errorMessages = {
 };
 
 /* ─────────────────────────────────────────────
+   DRAFT PERSISTENCE HELPERS
+───────────────────────────────────────────── */
+
+const DRAFT_KEY = "contactFormDraft";
+const DRAFT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+// Reads and validates the saved draft once, at module load time / initial
+// render — used only for the lazy useState initializers below. Returns null
+// if there's nothing usable, so callers don't need their own try/catch.
+function readValidDraft() {
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (Date.now() - parsed.timestamp < DRAFT_MAX_AGE_MS) {
+      return parsed;
+    }
+    return null;
+  } catch (err) {
+    // Corrupted/incompatible draft data (e.g. from an older app version) —
+    // don't crash the form over it, just drop it and log for diagnostics.
+    console.error("Failed to parse saved contact form draft:", err);
+    return null;
+  }
+}
+
+/* ─────────────────────────────────────────────
    STYLED COMPONENTS
 ───────────────────────────────────────────── */
 
 const StepCard = styled(Button)({
   borderRadius: 16,
-
   border: "1px solid #ececec",
-
   background: "#ffffff",
-
   color: "#1f2937",
-
   textTransform: "none",
-
   padding: "14px 16px",
-
   justifyContent: "flex-start",
-
   fontWeight: 600,
-
   fontSize: "13px",
-
   minHeight: 58,
-
   transition: "all 0.2s ease",
-
   boxShadow: "none",
-
   "&:hover": {
     borderColor: "#9417E2",
-
-    background:
-      "linear-gradient(135deg, #fcf7ff 0%, #f7efff 100%)",
-
+    background: "linear-gradient(135deg, #fcf7ff 0%, #f7efff 100%)",
     transform: "translateY(-1px)",
-
-    boxShadow:
-      "0 8px 20px rgba(148, 23, 226, 0.08)",
+    boxShadow: "0 8px 20px rgba(148, 23, 226, 0.08)",
   },
 });
 
 const ContinueButton = styled(Button)({
   height: 46,
-
   borderRadius: 14,
-
   fontWeight: 700,
-
   textTransform: "none",
-
   fontSize: "14px",
-
-  background:
-    "linear-gradient(135deg, #9417E2 0%, #7b2cbf 100%)",
-
+  background: "linear-gradient(135deg, #9417E2 0%, #7b2cbf 100%)",
   color: "#fff",
-
-  boxShadow:
-    "0 10px 24px rgba(148, 23, 226, 0.22)",
-
+  boxShadow: "0 10px 24px rgba(148, 23, 226, 0.22)",
   "&:hover": {
-    background:
-      "linear-gradient(135deg, #7b2cbf 0%, #6a1bb1 100%)",
+    background: "linear-gradient(135deg, #7b2cbf 0%, #6a1bb1 100%)",
   },
-
   "&:disabled": {
     background: "#e5e7eb",
     color: "#9ca3af",
@@ -186,26 +169,16 @@ const ContinueButton = styled(Button)({
 
 const SecondaryButton = styled(Button)({
   height: 46,
-
   borderRadius: 14,
-
   fontWeight: 600,
-
   textTransform: "none",
-
   fontSize: "13px",
-
   border: "1px solid #e5e7eb",
-
   color: "#6b7280",
-
   background: "#fff",
-
   "&:hover": {
     borderColor: "#9417E2",
-
     background: "#faf5ff",
-
     color: "#9417E2",
   },
 });
@@ -213,23 +186,11 @@ const SecondaryButton = styled(Button)({
 const StyledTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
     borderRadius: 16,
-
     background: "#ffffff",
-
-    "& fieldset": {
-      borderColor: "#e5e7eb",
-    },
-
-    "&:hover fieldset": {
-      borderColor: "#c084fc",
-    },
-
-    "&.Mui-focused fieldset": {
-      borderColor: "#9417E2",
-      borderWidth: "2px",
-    },
+    "& fieldset": { borderColor: "#e5e7eb" },
+    "&:hover fieldset": { borderColor: "#c084fc" },
+    "&.Mui-focused fieldset": { borderColor: "#9417E2", borderWidth: "2px" },
   },
-
   "& .MuiOutlinedInput-input": {
     padding: "14px",
     fontSize: "14px",
@@ -242,69 +203,50 @@ const StyledTextField = styled(TextField)({
 
 const SmartContactForm = ({ isInSheet = false }) => {
   const [isOpen, setIsOpen] = useState(isInSheet);
-  const [step, setStep] = useState(0);
-  const [formData, setFormData] = useState({});
+  const [prevIsInSheet, setPrevIsInSheet] = useState(isInSheet);
+
+  // Lazy initializers replace the old "load draft in a useEffect on mount"
+  // pattern. The draft is read once, synchronously, before first paint —
+  // no flash of empty state, no setState-in-effect lint violation, and no
+  // extra render pass.
+  const [formData, setFormData] = useState(() => readValidDraft()?.formData ?? {});
+  const [step, setStep] = useState(() => readValidDraft()?.step ?? 0);
+
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const inputRef = useRef(null);
 
-  const currentStep = useMemo(
-    () => steps[step],
-    [step]
-  );
+  const currentStep = useMemo(() => steps[step], [step]);
 
-  /* ───────────────────────────────────────── */
-
-  useEffect(() => {
+  /* ─────────────────────────────────────────
+     OPEN WHEN EMBEDDED IN A SHEET (render-time adjustment)
+     Replaces useEffect(() => { if (isInSheet) setIsOpen(true); }, [isInSheet]).
+     isOpen already initializes from isInSheet on mount; this only needs to
+     handle isInSheet flipping true *after* mount, which is why we compare
+     against prevIsInSheet rather than re-running unconditionally.
+  ───────────────────────────────────────── */
+  if (isInSheet !== prevIsInSheet) {
+    setPrevIsInSheet(isInSheet);
     if (isInSheet) {
       setIsOpen(true);
     }
-  }, [isInSheet]);
+  }
 
   /* ─────────────────────────────────────────
-     DRAFT SAVE
+     DRAFT SAVE (this one is a legitimate effect — it's syncing React
+     state OUT to an external system, localStorage, which is exactly
+     what useEffect is for)
   ───────────────────────────────────────── */
 
   useEffect(() => {
-    if (
-      Object.keys(formData).length > 0 &&
-      !isSubmitted
-    ) {
+    if (Object.keys(formData).length > 0 && !isSubmitted) {
       localStorage.setItem(
-        "contactFormDraft",
-        JSON.stringify({
-          formData,
-          step,
-          timestamp: Date.now(),
-        })
+        DRAFT_KEY,
+        JSON.stringify({ formData, step, timestamp: Date.now() })
       );
     }
   }, [formData, step, isSubmitted]);
-
-  useEffect(() => {
-    const draft =
-      localStorage.getItem("contactFormDraft");
-
-    if (!draft) return;
-
-    try {
-      const {
-        formData: savedData,
-        step: savedStep,
-        timestamp,
-      } = JSON.parse(draft);
-
-      if (
-        Date.now() - timestamp <
-        24 * 60 * 60 * 1000
-      ) {
-        setFormData(savedData);
-
-        setStep(savedStep);
-      }
-    } catch {}
-  }, []);
 
   /* ───────────────────────────────────────── */
 
@@ -321,23 +263,15 @@ const SmartContactForm = ({ isInSheet = false }) => {
   ───────────────────────────────────────── */
 
   const submitToAPI = useCallback(async (data) => {
-    const res = await fetch(
-      "/api/leads/customer",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          ...data,
-          source:
-            "smart_properties_page_form",
-          timestamp: new Date().toISOString(),
-        }),
-      }
-    );
+    const res = await fetch("/api/leads/customer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...data,
+        source: "smart_properties_page_form",
+        timestamp: new Date().toISOString(),
+      }),
+    });
 
     if (!res.ok) {
       throw new Error("Submission failed");
@@ -346,35 +280,22 @@ const SmartContactForm = ({ isInSheet = false }) => {
     return await res.json();
   }, []);
 
-  /* ───────────────────────────────────────── */
-
   const handleNext = useCallback(
     async (value) => {
       if (currentStep.input) {
         const trimmed = value?.trim() || "";
-
-        const type =
-          currentStep.type || "text";
+        const type = currentStep.type || "text";
 
         if (!validators[type](trimmed)) {
           setError(errorMessages[type]);
-
           return;
         }
       }
 
-      const sanitized =
-        typeof value === "string"
-          ? value.trim()
-          : value;
-
-      const updated = {
-        ...formData,
-        [currentStep.key]: sanitized,
-      };
+      const sanitized = typeof value === "string" ? value.trim() : value;
+      const updated = { ...formData, [currentStep.key]: sanitized };
 
       setFormData(updated);
-
       setError("");
 
       if (step < steps.length - 1) {
@@ -386,16 +307,10 @@ const SmartContactForm = ({ isInSheet = false }) => {
 
       try {
         await submitToAPI(updated);
-
         setIsSubmitted(true);
-
-        localStorage.removeItem(
-          "contactFormDraft"
-        );
+        localStorage.removeItem(DRAFT_KEY);
       } catch {
-        setError(
-          "Submission failed. Please try again."
-        );
+        setError("Submission failed. Please try again.");
       } finally {
         setIsSubmitting(false);
       }
@@ -406,7 +321,6 @@ const SmartContactForm = ({ isInSheet = false }) => {
   const handleBack = () => {
     if (step > 0) {
       setStep((p) => p - 1);
-
       setError("");
     }
   };
@@ -416,10 +330,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
     setFormData({});
     setError("");
     setIsSubmitted(false);
-
-    localStorage.removeItem(
-      "contactFormDraft"
-    );
+    localStorage.removeItem(DRAFT_KEY);
 
     if (!isInSheet) {
       setIsOpen(false);
@@ -431,57 +342,36 @@ const SmartContactForm = ({ isInSheet = false }) => {
   ───────────────────────────────────────── */
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        maxWidth: isInSheet
-          ? "100%"
-          : 380,
-        mx: "auto",
-      }}
-    >
-      {/* COLLAPSE HEADER */}
-
+    <Box sx={{ width: "100%", maxWidth: isInSheet ? "100%" : 380, mx: "auto" }}>
       {!isInSheet && (
         <Paper
           elevation={0}
           sx={{
-            borderRadius: isOpen
-              ? "22px 22px 0 0"
-              : "22px",
+            borderRadius: isOpen ? "22px 22px 0 0" : "22px",
             overflow: "hidden",
             border: "1px solid #ececec",
-            background:"linear-gradient(135deg, #9417E2 0%, #7b2cbf 100%)",
+            background: "linear-gradient(135deg, #9417E2 0%, #7b2cbf 100%)",
             color: "#fff",
           }}
         >
           <Box
-            onClick={() =>
-              setIsOpen((prev) => !prev)
-            }
+            onClick={() => setIsOpen((prev) => !prev)}
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent:"space-between",
+              justifyContent: "space-between",
               px: 2,
               py: 1.7,
               cursor: "pointer",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.2,
-              }}
-            >
-
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
               <Box
                 sx={{
                   width: 38,
                   height: 38,
                   borderRadius: "12px",
-                  background:"rgba(255,255,255,0.15)",
+                  background: "rgba(255,255,255,0.15)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -491,70 +381,42 @@ const SmartContactForm = ({ isInSheet = false }) => {
               </Box>
 
               <Box>
-                <Typography
-                  fontWeight={700}
-                  fontSize="14px"
-                >
+                <Typography fontWeight={700} fontSize="14px">
                   Get Expert Help
                 </Typography>
-
-                <Typography
-                  fontSize="11px"
-                  sx={{ opacity: 0.8 }}
-                >
+                <Typography fontSize="11px" sx={{ opacity: 0.8 }}>
                   Free consultation
                 </Typography>
               </Box>
             </Box>
 
-            <IconButton
-              sx={{
-                color: "#fff",
-              }}
-            >
-              {isOpen ? (
-                <X size={18} />
-              ) : (
-                <MessageCircle size={18} />
-              )}
+            <IconButton sx={{ color: "#fff" }}>
+              {isOpen ? <X size={18} /> : <MessageCircle size={18} />}
             </IconButton>
           </Box>
         </Paper>
       )}
-
-      {/* BODY */}
 
       {isOpen && (
         <Fade in timeout={250}>
           <Paper
             elevation={0}
             sx={{
-              borderRadius: isInSheet
-                ? "0px"
-                : "0 0 22px 22px",
-              border: isInSheet
-                ? "none"
-                : "1px solid #ececec",
+              borderRadius: isInSheet ? "0px" : "0 0 22px 22px",
+              border: isInSheet ? "none" : "1px solid #ececec",
               borderTop: "none",
               background: "#ffffff",
               overflow: "hidden",
             }}
           >
-            {/* SUCCESS */}
-
             {isSubmitted ? (
-              <Box
-                sx={{
-                  p: 3,
-                  textAlign: "center",
-                }}
-              >
+              <Box sx={{ p: 3, textAlign: "center" }}>
                 <Box
                   sx={{
                     width: 74,
                     height: 74,
                     borderRadius: "50%",
-                    background:"linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)",
+                    background: "linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -562,251 +424,126 @@ const SmartContactForm = ({ isInSheet = false }) => {
                     mb: 2,
                   }}
                 >
-                  <CheckCircle2
-                    size={36}
-                    color="#16a34a"
-                  />
+                  <CheckCircle2 size={36} color="#16a34a" />
                 </Box>
 
-                <Typography
-                  fontWeight={800}
-                  fontSize="20px"
-                  mb={1}
-                >
+                <Typography fontWeight={800} fontSize="20px" mb={1}>
                   Thank You!
                 </Typography>
 
-                <Typography
-                  fontSize="14px"
-                  color="#6b7280"
-                  mb={3}
-                >
-                  Our property expert will
-                  contact you shortly.
+                <Typography fontSize="14px" color="#6b7280" mb={3}>
+                  Our property expert will contact you shortly.
                 </Typography>
 
-                <Box
-                  display="flex"
-                  gap={1}
-                >
-                  <SecondaryButton
-                    fullWidth
-                    onClick={handleReset}
-                  >
+                <Box display="flex" gap={1}>
+                  <SecondaryButton fullWidth onClick={handleReset}>
                     Submit Another
                   </SecondaryButton>
 
-                  <ContinueButton
-                    fullWidth
-                    onClick={() =>
-                      !isInSheet &&
-                      setIsOpen(false)
-                    }
-                  >
+                  <ContinueButton fullWidth onClick={() => !isInSheet && setIsOpen(false)}>
                     Close
                   </ContinueButton>
                 </Box>
               </Box>
             ) : (
               <>
-                {/* TOP */}
-
-                <Box
-                  sx={{
-                    px: 2,
-                    pt: 2,
-                    pb: 1.5,
-
-                    borderBottom:
-                      "1px solid #f3f4f6",
-                  }}
-                >
-                    <Box
+                <Box sx={{ px: 2, pt: 2, pb: 1.5, borderBottom: "1px solid #f3f4f6" }}>
+                  <Box
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
                       mb: 1,
-                    }}>
-
-
-                    <Typography
-                      fontSize="12px"
-                      fontWeight={700}
-                      color="#6b7280"
-                    >
-                      STEP {step + 1} /{" "}
-                      {steps.length}
+                    }}
+                  >
+                    <Typography fontSize="12px" fontWeight={700} color="#6b7280">
+                      STEP {step + 1} / {steps.length}
                     </Typography>
 
-                    <Typography
-                      fontSize="12px"
-                      fontWeight={700}
-                      color="#9417E2"
-                    >
-                      {Math.round(
-                        ((step + 1) /
-                          steps.length) *
-                          100
-                      )}
-                      %
+                    <Typography fontSize="12px" fontWeight={700} color="#9417E2">
+                      {Math.round(((step + 1) / steps.length) * 100)}%
                     </Typography>
                   </Box>
 
                   <LinearProgress
                     variant="determinate"
-                    value={
-                      ((step + 1) /
-                        steps.length) *
-                      100
-                    }
+                    value={((step + 1) / steps.length) * 100}
                     sx={{
                       height: 7,
                       borderRadius: 999,
-                      background: "#f3e8ff","& .MuiLinearProgress-bar":
-                        {
-                          borderRadius: 999,
-                          background:
-                            "linear-gradient(90deg,#9417E2,#c026d3)",
-                        },
+                      background: "#f3e8ff",
+                      "& .MuiLinearProgress-bar": {
+                        borderRadius: 999,
+                        background: "linear-gradient(90deg,#9417E2,#c026d3)",
+                      },
                     }}
                   />
                 </Box>
 
-                {/* CONTENT */}
-
-                <Box
-                  sx={{
-                    p: 2,
-                  }}
-                >
-
-                    <Typography
-                      sx={{
-                        fontWeight: 800,
-                        fontSize: "20px",
-                        lineHeight: 1.2
-                      }}
-                    >
+                <Box sx={{ p: 2 }}>
+                  <Typography sx={{ fontWeight: 800, fontSize: "20px", lineHeight: 1.2 }}>
                     {currentStep.title}
                   </Typography>
 
-                  <Typography
-                    fontSize="13px"
-                    color="#6b7280"
-                    mb={2.2}
-                  >
+                  <Typography fontSize="13px" color="#6b7280" mb={2.2}>
                     {currentStep.subtitle}
                   </Typography>
-
-                  {/* OPTIONS */}
 
                   {currentStep.options && (
                     <Box
                       sx={{
                         display: "grid",
-
-                        gridTemplateColumns:
-                          isInSheet
-                            ? "repeat(2, minmax(0,1fr))"
-                            : "1fr",
-
+                        gridTemplateColumns: isInSheet
+                          ? "repeat(2, minmax(0,1fr))"
+                          : "1fr",
                         gap: 1.2,
                       }}
                     >
-                      {currentStep.options.map(
-                        (option) => (
-                          <StepCard
-                            key={option}
-                            fullWidth
-                            onClick={() =>
-                              handleNext(
-                                option
-                              )
-                            }
-                            disabled={
-                              isSubmitting
-                            }
-                          >
-                            {option}
-                          </StepCard>
-                        )
-                      )}
+                      {currentStep.options.map((option) => (
+                        <StepCard
+                          key={option}
+                          fullWidth
+                          onClick={() => handleNext(option)}
+                          disabled={isSubmitting}
+                        >
+                          {option}
+                        </StepCard>
+                      ))}
                     </Box>
                   )}
-
-                  {/* INPUT */}
 
                   {currentStep.input && (
                     <Box
                       component="form"
                       onSubmit={(e) => {
                         e.preventDefault();
-
-                        handleNext(
-                          inputRef.current
-                            ?.value || ""
-                        );
+                        handleNext(inputRef.current?.value || "");
                       }}
                     >
                       <StyledTextField
                         fullWidth
                         inputRef={inputRef}
                         type={currentStep.type}
-                        placeholder={
-                          currentStep.placeholder
-                        }
+                        placeholder={currentStep.placeholder}
                         error={!!error}
                         helperText={error}
-                        disabled={
-                          isSubmitting
-                        }
+                        disabled={isSubmitting}
                       />
 
-                      <Box
-                        display="flex"
-                        gap={1}
-                        mt={2}
-                      >
+                      <Box display="flex" gap={1} mt={2}>
                         {step > 0 && (
-                          <SecondaryButton
-                            onClick={
-                              handleBack
-                            }
-                            startIcon={
-                              <ArrowLeft
-                                size={16}
-                              />
-                            }
-                          >
+                          <SecondaryButton onClick={handleBack} startIcon={<ArrowLeft size={16} />}>
                             Back
                           </SecondaryButton>
                         )}
 
-                        <ContinueButton
-                          type="submit"
-                          fullWidth
-                          disabled={
-                            isSubmitting
-                          }
-                        >
+                        <ContinueButton type="submit" fullWidth disabled={isSubmitting}>
                           {isSubmitting ? (
                             <>
-                              <CircularProgress
-                                size={18}
-                                sx={{
-                                  color:
-                                    "#fff",
-
-                                  mr: 1,
-                                }}
-                              />
-
+                              <CircularProgress size={18} sx={{ color: "#fff", mr: 1 }} />
                               Submitting...
                             </>
-                          ) : step ===
-                            steps.length -
-                              1 ? (
+                          ) : step === steps.length - 1 ? (
                             "Submit Enquiry"
                           ) : (
                             "Continue"
@@ -815,8 +552,6 @@ const SmartContactForm = ({ isInSheet = false }) => {
                       </Box>
                     </Box>
                   )}
-
-                  {/* FOOTER */}
 
                   <Box
                     sx={{
@@ -827,20 +562,12 @@ const SmartContactForm = ({ isInSheet = false }) => {
                       px: 1.5,
                       py: 1.2,
                       borderRadius: 14,
-                      background:"#faf5ff",
+                      background: "#faf5ff",
                     }}
-                  > 
-                    <ShieldCheck
-                      size={16}
-                      color="#9417E2"
-                    />
-
-                    <Typography
-                      fontSize="11px"
-                      color="#6b7280"
-                    >
-                      Your information is secure
-                      and never shared.
+                  >
+                    <ShieldCheck size={16} color="#9417E2" />
+                    <Typography fontSize="11px" color="#6b7280">
+                      Your information is secure and never shared.
                     </Typography>
                   </Box>
                 </Box>

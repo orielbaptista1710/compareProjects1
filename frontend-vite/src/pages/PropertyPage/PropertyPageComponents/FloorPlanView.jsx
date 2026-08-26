@@ -73,20 +73,22 @@ const SummaryRow = ({ Icon, label, value }) => (
 // ─────────────────────────────────────────────────────────────
 const FloorPlanView = ({ floorPlans = [], property = {} }) => {
   const [selectedFloor, setSelectedFloor] = useState(0);
-  const [displayUnit,   setDisplayUnit]   = useState("sqft");
   const [lightboxSrc,   setLightboxSrc]   = useState(null);
+  const [displayUnit,   setDisplayUnit]   = useState("sqft");
+  
+// this is used to sync the displayUnit with the currentFloor.unitType when it changes
+const [prevUnitType, setPrevUnitType] = useState(currentFloor.unitType);
+if (currentFloor.unitType !== prevUnitType) {
+  setPrevUnitType(currentFloor.unitType);
+  if (currentFloor.unitType) {
+    setDisplayUnit(currentFloor.unitType === "sqm" ? "sqm" : "sqft");
+  }
+}  
 
   const currentFloor = useMemo(
     () => floorPlans[selectedFloor] || {},
     [floorPlans, selectedFloor]
   );
-
-  // Sync unit from floor data if present
-  useEffect(() => {
-    if (currentFloor.unitType) {
-      setDisplayUnit(currentFloor.unitType === "sqm" ? "sqm" : "sqft");
-    }
-  }, [currentFloor.unitType]);
 
   // Normalise gallery images: API returns [{url}] objects OR strings
   const galleryImages = useMemo(() => {

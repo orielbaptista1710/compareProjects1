@@ -228,11 +228,11 @@ export const fetchCities = async () => {
 /* --------------------------------------------------
  * Fetch distinct localities by city (Admin)
  * -------------------------------------------------- */
-export const fetchLocalities = async ({ city, q = "" }) => {
+export const fetchLocalities = async ({ city, q = "" }) => { 
   if (!city) return [];
 
   return await Property.distinct("locality", {
     city,
-    locality: { $regex: q, $options: "i" }
+    locality: { $regex: q, $options: "i" } 
   });
 };

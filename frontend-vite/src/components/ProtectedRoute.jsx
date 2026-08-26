@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 const ProtectedRoute = ({ children, roles }) => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [unauthorized, setUnauthorized] = useState(false);
+  // const [unauthorized, setUnauthorized] = useState(false);
 
 
   useEffect(() => {

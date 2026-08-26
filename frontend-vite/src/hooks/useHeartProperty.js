@@ -1,5 +1,6 @@
 //frontend-vite/src/hooks/useHeartProperty.js
 import { useMemo, useCallback, useContext } from "react";
+// import { toast } from "react-toastify";
 import { CustomerActivityContext } from "../contexts/CustomerActivityContext";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -28,13 +29,16 @@ function useHeartProperty(propertyId) {
 
     try {
       await toggleHeart(propertyId);
-      success(
-        isSaved ? "Removed from shortlist" : "Added to shortlist"
-      );
+      // toast.success(
+      //   isSaved ? "Removed from shortlist" : "Added to shortlist"
+      // );
     } catch (err) {
-      error("Something went wrong.");
+      console.error("Toggle heart error:", err);
+      // toast.error("Something went wrong.");
     }
-  }, [currentUser, toggleHeart, propertyId, isSaved, navigate]);
+  }, [currentUser, toggleHeart, propertyId, 
+    // isSaved, 
+    navigate]);
 
   return { isSaved, handleToggleHeart };
 }

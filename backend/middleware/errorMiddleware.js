@@ -6,6 +6,7 @@
 import logger from "../utils/logger.js";
 
 const errorHandler = (err, req, res, next) => {
+  void next(); // Ensure next is called to avoid unhandled promise rejections
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
 
   logger.error(`${req.method} ${req.originalUrl} → ERROR`, {

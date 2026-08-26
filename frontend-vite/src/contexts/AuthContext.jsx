@@ -1,19 +1,26 @@
 // frontend/src/contexts/AuthContext.jsx
 
-import { createContext, useState, useEffect } from "react";
+/* eslint-disable react-refresh/only-export-components */
+
+import { useState, useEffect } from "react";
 import { signOut } from "firebase/auth";
 import { CustomerAuth } from "../config/firebase";
+
+// import {AuthContext} from "./contextInstances/AuthContextInstance"; 
+
+
+import { createContext } from "react";
 import API from "../api";
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
-
   // loading = true means we haven't heard from Firebase yet at all.
   // We block rendering until this is false so ProtectedCustomerRoute
   // never checks currentUser before Firebase has had a chance to restore
   // the session from its local cache (this happens in <200ms, no network needed).
+
   const [loading, setLoading] = useState(true);
 
   // syncingProfile = true means Firebase says there IS a user, but we're
@@ -53,11 +60,9 @@ export function AuthProvider({ children }) {
         setCurrentUser(null);
         setSyncingProfile(false);
       }
-
       // First Firebase response received — safe to render the app now.
       setLoading(false);
     });
-
     // Cleanup: unsubscribe the listener when AuthProvider unmounts.
     return () => unsubscribe();
   }, []);
@@ -70,8 +75,11 @@ export function AuthProvider({ children }) {
   const refreshUser = async () => {
     try {
       const user = CustomerAuth.currentUser;
+
       if (!user) return;
+
       await user.getIdToken(true);
+
       const { data } = await API.get("/api/customers/me");
       setCurrentUser(data.customer);
     } catch (err) {
@@ -80,7 +88,15 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ currentUser, loading, syncingProfile, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        loading,
+        syncingProfile,
+        logout,
+        refreshUser,
+      }}
+    >
       {/* Block the entire app until Firebase restores its cached session.
           This is fast (<200ms) and prevents a flash of the login page on refresh. */}
       {!loading && children}

@@ -1,19 +1,16 @@
-import React, { useCallback, useId } from "react";
+// components/filters/AreaFilter.jsx (or wherever it lives)
+
+import React, { useId } from "react";
+import {
+  AREA_UNIT_KEYS,
+  AREA_UNIT_LABELS,
+} from "../../../../assests/constants/propertyFormConstants"; 
+import { resolveUnit } from "../../../../utils/areaFilterUtils";
 import "./AreaFilter.css";
 
 /* ================================
-   Constants
+   Constants (component‑specific)
 ================================ */
-
-export const AREA_UNITS = ["sqft", "sqmts", "guntas", "hectares", "acres"];
-
-export const AREA_UNIT_LABELS = {
-  sqft:     "Sq.ft",
-  sqmts:    "Sq.m",
-  guntas:   "Guntas",
-  hectares: "Hectares",
-  acres:    "Acres",
-};
 
 /** UI fallback bounds — overridden by areaBounds from the API */
 const DEFAULT_BOUNDS = {
@@ -66,20 +63,6 @@ const PRESETS = {
    Helpers
 ================================ */
 
-const UNIT_ALIASES = {
-  sqyard: "sqmts", "sq yard": "sqmts",
-  sqmeter: "sqmts", sqmetre: "sqmts",
-  "sq ft": "sqft", sqfeet: "sqft",
-  acre: "acres", hectare: "hectares", gunta: "guntas",
-};
-
-export const resolveUnit = (raw) => {
-  if (!raw) return "sqft";
-  const lower = String(raw).trim().toLowerCase();
-  if (DEFAULT_BOUNDS[lower]) return lower;
-  if (UNIT_ALIASES[lower]) return UNIT_ALIASES[lower];
-  return "sqft";
-};
 
 /** Merge API bounds with step values */
 const buildBounds = (unit, areaBoundsFromAPI) => {
@@ -143,17 +126,6 @@ const sanitizeValue = (raw, bounds) => {
    Component
 ================================ */
 
-/**
- * AreaFilter
- *
- * Props
- * ──────────────────────────────────────────
- * value         : { min, max, unit } | null
- * onChange      : (value | null) => void
- * areaBounds    : filterOptions.areaBounds — real min/max per unit from API
- *                 Shape: { sqft: { min, max }, sqmts: { min, max }, … }
- *                 Falls back to hardcoded defaults if not provided.
- */
 const AreaFilter = ({ value, onChange, areaBounds }) => {
   const uid = useId();
 
@@ -171,40 +143,60 @@ const AreaFilter = ({ value, onChange, areaBounds }) => {
 
   /* ── Handlers ── */
 
-  const handleMinChange = useCallback(
-    (e) => {
-      const newMin = Number(e.target.value);
-      if (newMin >= maxVal) return;
-      onChange({ min: newMin, max: maxVal, unit });
-    },
-    [maxVal, unit, onChange]
-  );
+  const handleMinChange = (e) => {
+  const newMin = Number(e.target.value);
 
-  const handleMaxChange = useCallback(
-    (e) => {
-      const newMax = Number(e.target.value);
-      if (newMax <= minVal) return;
-      onChange({ min: minVal, max: newMax, unit });
-    },
-    [minVal, unit, onChange]
-  );
+  if (newMin >= maxVal) {
+    return;
+  }
 
-  const handleUnitChange = useCallback(
-    (newUnit) => {
-      if (newUnit === unit) return;
-      const nb = buildBounds(newUnit, areaBounds);
-      onChange({ min: nb.min, max: nb.max, unit: newUnit });
-    },
-    [unit, areaBounds, onChange]
-  );
+  onChange({
+    min: newMin,
+    max: maxVal,
+    unit,
+  });
+};
 
-  const handlePreset = useCallback(
-    (preset) => onChange({ min: preset.min, max: preset.max, unit }),
-    [unit, onChange]
-  );
+  const handleMaxChange = (e) => {
+  const newMax = Number(e.target.value);
 
-  const handleClear = useCallback(() => onChange(null), [onChange]);
+  if (newMax <= minVal) {
+    return;
+  }
 
+  onChange({
+    min: minVal,
+    max: newMax,
+    unit,
+  });
+};
+
+  const handleUnitChange = (newUnit) => {
+  if (newUnit === unit) {
+    return;
+  }
+
+  const newBounds = buildBounds(newUnit, areaBounds);
+
+  onChange({
+    min: newBounds.min,
+    max: newBounds.max,
+    unit: newUnit,
+  });
+};
+
+  const handlePreset = (preset) => {
+  onChange({
+    min: preset.min,
+    max: preset.max,
+    unit,
+  });
+};
+
+ const handleClear = () => {
+  onChange(null);
+};
+  
   const isActive =
     safe != null && (safe.min > bounds.min || safe.max < bounds.max);
 
@@ -289,7 +281,7 @@ const AreaFilter = ({ value, onChange, areaBounds }) => {
       <div className="af-unit-row">
         <span className="af-unit-label">Unit</span>
         <div className="af-unit-btns" role="group" aria-label="Area unit">
-          {AREA_UNITS.map((u) => (
+          {AREA_UNIT_KEYS.map((u) => (
             <button
               key={u}
               type="button"

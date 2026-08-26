@@ -1,17 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./Disclaimer.css";
 
-const STORAGE_KEY = "cp_disclaimer_dismissed";
+const STORAGE_KEY = "cp_disclaimer_dismissed"; //CHECK THIS
 
 const Disclaimer = () => {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    // Only show if user hasn't dismissed it before
-    const dismissed = sessionStorage.getItem(STORAGE_KEY);
-    if (!dismissed) setVisible(true);
-  }, []);
-
+  const [visible, setVisible] = useState(
+    () => typeof window !== "undefined" && !sessionStorage.getItem(STORAGE_KEY)
+  );
+  
   const handleDismiss = () => {
     sessionStorage.setItem(STORAGE_KEY, "true");
     setVisible(false);

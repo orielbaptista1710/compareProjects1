@@ -1,8 +1,14 @@
-import { createContext, useContext, useState, useEffect } from "react";
+//frontend-vite/src/contexts/CustomerActivityContext.jsx
+
+/* eslint-disable react-refresh/only-export-components */
+
+import { useContext, useState, useEffect } from "react";
 import API from "../api";
 import { AuthContext } from "./AuthContext";
-
+// import { CustomerActivityContext } from "./contextInstances/CustomerActivityContextInstance";
+import {createContext} from "react";
 export const CustomerActivityContext = createContext();
+ 
 
 export const CustomerActivityProvider = ({ children }) => {
   const { currentUser } = useContext(AuthContext);
@@ -11,30 +17,35 @@ export const CustomerActivityProvider = ({ children }) => {
   const [savedCompareProperties, setSavedCompareProperties] = useState([]); // server-persisted compare list
   const [loading, setLoading] = useState(false);
 
-  const customerId = currentUser?._id;
-
   useEffect(() => {
-    if (!currentUser) {
-      setHeartProperties([]);
-      setSavedCompareProperties([]);
-      return;
-    }
+    let cancelled = false;
 
     const fetchActivity = async () => {
+      if (!currentUser) {
+        if (!cancelled) {
+          setHeartProperties([]);
+          setSavedCompareProperties([]);
+        }
+        return;
+      }
+
       try {
-        setLoading(true);
+        if (!cancelled) setLoading(true);
         const { data } = await API.get("/api/customerActivity/my-activity");
-        setHeartProperties(data.heartProperties || []);
-        setSavedCompareProperties(data.compareProperties || []);
+        if (!cancelled) {
+          setHeartProperties(data.heartProperties || []);
+          setSavedCompareProperties(data.compareProperties || []);
+        }
       } catch (err) {
         console.error("Activity fetch error:", err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchActivity();
-  }, [customerId]);
+    return () => { cancelled = true; };
+  }, [currentUser]);
 
   const toggleHeart = async (propertyId) => {
     const wasHearted = heartProperties.some((p) => (p._id || p) === propertyId);

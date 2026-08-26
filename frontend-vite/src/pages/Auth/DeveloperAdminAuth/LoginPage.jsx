@@ -7,7 +7,7 @@ import './LoginPage.css';
 import API from '../../../api'; 
 import { Eye, EyeOff } from 'lucide-react'; 
 import DeveloperPopup from '../../../shared/Popups/DeveloperPopup';
-import MascotGuide from '../../../components/DevDashboardPageComponents/Mascot/MascotGuide'
+// import MascotGuide from '../../../components/DevDashboardPageComponents/Mascot/MascotGuide'
 // import Seo from '../constants/Seo';
 import toast from 'react-hot-toast';
 
@@ -158,12 +158,12 @@ const LoginPage = () => {
         </form>
       </div>
 
-      <MascotGuide
+      {/* <MascotGuide
               steps={[
                 "Welcome Developer!.",
                 "If want to join our community please contact us",
               ]}
-            />  
+            />   */}
 
     </div>
   );

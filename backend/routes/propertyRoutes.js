@@ -1,9 +1,4 @@
 // routes/propertyRoutes.js
-//
-// Current order:
-//   1. Static named routes  (/filters, /featured, /recent, /search …)
-//   2. Protected CRUD       (/add, /my-properties, /update/:id, /delete/:id)
-//   3. Parameterised public (/localities/:city, /related/:id, /:id)
 
 import express from 'express';
 import protect from '../middleware/protect.js';

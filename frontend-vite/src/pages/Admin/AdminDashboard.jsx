@@ -18,7 +18,7 @@ import toast from "react-hot-toast";
 import toastError from "../../utils/toastError";
 
 // ─── API helpers (outside component — stable references) ────────────────────
- 
+
 const fetchProperties = async ({ queryKey }) => {
   const [, filters] = queryKey;
   const params = {
@@ -82,28 +82,39 @@ export default function AdminDashboard() {
   const [rejectModal, setRejectModal]             = useState({ open: false, propertyId: null, reason: "" });
   const [confirmApprove, setConfirmApprove]       = useState({ open: false, propertyId: null });
 
-  // ── Debounced search ────────────────────────────────────────────────────────
+  // ── Debounced search (legitimate effect — bridges React state to an
+  //    external timer/debounce mechanism, which is exactly what useEffect
+  //    is for) ──────────────────────────────────────────────────────────
   const debounceSearch = useMemo(
     () => debounce((val) => setDebouncedSearch(val), 500),
     []
   );
 
-  // Cancel debounce on unmount — prevents state update on unmounted component
   useEffect(() => () => debounceSearch.cancel(), [debounceSearch]);
 
   useEffect(() => {
     debounceSearch(filters.search);
   }, [filters.search, debounceSearch]);
 
-  // ── Reset locality when city changes ────────────────────────────────────────
-  useEffect(() => {
+  // ── Reset locality when city changes (render-time adjustment) ──────────────
+  // Replaces useEffect(() => setFilters(prev => ({...prev, locality: null})), [filters.city]).
+  // prevFilterCity (state, not a ref — refs can't be read/written during
+  // render) lets us detect "city just changed" and react to it in the same
+  // render pass, per React's documented "adjusting state when a prop
+  // changes" pattern. This avoids the extra render + flash of stale
+  // locality that the effect version caused.
+  const [prevFilterCity, setPrevFilterCity] = useState(filters.city);
+  if (filters.city !== prevFilterCity) {
+    setPrevFilterCity(filters.city);
     setFilters((prev) => ({ ...prev, locality: null }));
-  }, [filters.city]);
+  }
 
-  // ── Reset page on any filter change ─────────────────────────────────────────
-  useEffect(() => {
-    setPage(0);
-  }, [
+  // ── Reset page on any filter change (render-time adjustment) ───────────────
+  // Replaces useEffect(() => setPage(0), [debouncedSearch, filters.status, ...]).
+  // Same pattern: track a signature of "the filters that should reset
+  // pagination" and reset page synchronously when that signature changes,
+  // instead of doing it a render-cycle late inside an effect.
+  const pageResetKey = JSON.stringify([
     debouncedSearch,
     filters.status,
     filters.propertyType,
@@ -112,6 +123,11 @@ export default function AdminDashboard() {
     filters.sortBy,
     filters.imageFilter,
   ]);
+  const [prevPageResetKey, setPrevPageResetKey] = useState(pageResetKey);
+  if (pageResetKey !== prevPageResetKey) {
+    setPrevPageResetKey(pageResetKey);
+    setPage(0);
+  }
 
   // ── Queries ──────────────────────────────────────────────────────────────────
 
@@ -133,7 +149,6 @@ export default function AdminDashboard() {
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey,
     queryFn:        fetchProperties,
-    // v5 equivalent of keepPreviousData — prevents table flash on filter change
     placeholderData: (prev) => prev,
     staleTime:      30_000,
     retry:          2,
@@ -146,7 +161,7 @@ export default function AdminDashboard() {
       const { data } = await API.get("/api/admin/cities");
       return data;
     },
-    staleTime: 10 * 60 * 1000, // cities rarely change
+    staleTime: 10 * 60 * 1000,
   });
 
   const { data: localities = [], isFetching: loadingLocalities } = useQuery({
@@ -162,16 +177,14 @@ export default function AdminDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch logged-in admin info — used in header display
-  // staleTime: Infinity because identity doesn't change mid-session
   const { data: currentUser } = useQuery({
     queryKey: ["adminMe"],
     queryFn:  async () => {
       const { data } = await API.get("/api/auth/me");
-      return data.user; // { displayName, username, role }
+      return data.user;
     },
     staleTime: Infinity,
-    retry: false, // if /me fails, don't spam retries — just show nothing
+    retry: false,
   });
 
   // ── Mutations ────────────────────────────────────────────────────────────────
@@ -203,12 +216,10 @@ export default function AdminDashboard() {
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
     onSuccess: () => {
-      // Clear all cached queries — admin data shouldn't persist after logout
       queryClient.clear();
       window.location.href = "/login";
     },
     onError: () => {
-      // Cookie may already be gone — redirect anyway
       queryClient.clear();
       window.location.href = "/login";
     },
@@ -232,11 +243,10 @@ export default function AdminDashboard() {
 
   const handleCloseDetails = useCallback(() => {
     setDetailsModalOpen(false);
-    // Small delay so modal close animation finishes before clearing data
     setTimeout(() => setSelectedProperty(null), 300);
   }, []);
 
-  // ── Approve flow — MUI dialog instead of window.confirm ─────────────────────
+  // ── Approve flow ──────────────────────────────────────────────────────────
 
   const handleApprove = useCallback((id) => {
     setConfirmApprove({ open: true, propertyId: id });
@@ -255,7 +265,6 @@ export default function AdminDashboard() {
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
-  // Hard error state (first load only — not on filter change)
   if (isError && !data) {
     return (
       <Box p={4} pt={13}>
@@ -273,13 +282,12 @@ export default function AdminDashboard() {
     <Box
       sx={{
         px: { xs: 2, sm: 3, md: 4 },
-        pt: { xs: 11, md: 13 },   // extra top padding — clears fixed navbar
+        pt: { xs: 11, md: 13 },
         pb: 6,
         maxWidth: 1600,
         mx: "auto",
       }}
     >
-      {/* ── Header ── */}
       <Box
         sx={{
           display:        "flex",
@@ -298,8 +306,6 @@ export default function AdminDashboard() {
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-
-          {/* Property count pill */}
           {data?.total != null && (
             <Box
               sx={{
@@ -320,13 +326,10 @@ export default function AdminDashboard() {
             </Box>
           )}
 
-          {/* Divider */}
           <Box sx={{ width: "1px", height: 28, bgcolor: "divider" }} />
 
-          {/* Logged-in user */}
           {currentUser && (
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              {/* Avatar circle — initials */}
               <Box
                 sx={{
                   width: 30, height: 30,
@@ -347,7 +350,6 @@ export default function AdminDashboard() {
                 </Typography>
               </Box>
 
-              {/* Name + role — hide on small screens */}
               <Box sx={{ display: { xs: "none", sm: "flex" }, flexDirection: "column" }}>
                 <Typography variant="body2" fontWeight={600} lineHeight={1.2}>
                   {currentUser.displayName}
@@ -367,7 +369,6 @@ export default function AdminDashboard() {
             </Box>
           )}
 
-          {/* Sign out */}
           <Button
             size="small"
             variant="outlined"
@@ -386,7 +387,6 @@ export default function AdminDashboard() {
         </Box>
       </Box>
 
-      {/* ── Filters ── */}
       <AdminFilters
         filters={filters}
         setFilters={setFilters}
@@ -395,7 +395,6 @@ export default function AdminDashboard() {
         loadingLocalities={loadingLocalities}
       />
 
-      {/* ── Table — skeleton on first load only, table persists on filter change ── */}
       {isLoading && !data ? (
         <Box>
           {[...Array(8)].map((_, i) => (
@@ -405,7 +404,6 @@ export default function AdminDashboard() {
       ) : (
         <Box
           sx={{
-            // Dim slightly while fetching new page — no layout shift
             opacity:    isFetching ? 0.6 : 1,
             transition: "opacity 0.15s ease",
           }}
@@ -425,7 +423,6 @@ export default function AdminDashboard() {
         </Box>
       )}
 
-      {/* ── Detail modal ── */}
       <DeveloperDetailsModal
         open={detailsModalOpen}
         onClose={handleCloseDetails}
@@ -433,7 +430,6 @@ export default function AdminDashboard() {
         loading={detailsLoading}
       />
 
-      {/* ── Approve confirm dialog (replaces window.confirm) ── */}
       <Dialog
         open={confirmApprove.open}
         onClose={() => setConfirmApprove({ open: false, propertyId: null })}
@@ -461,7 +457,6 @@ export default function AdminDashboard() {
         </DialogActions>
       </Dialog>
 
-      {/* ── Reject dialog ── */}
       <Dialog
         open={rejectModal.open}
         onClose={() => setRejectModal({ open: false, propertyId: null, reason: "" })}

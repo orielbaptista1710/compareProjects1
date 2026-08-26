@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+//src/pages/SupportAndHelp/SupportHelp.jsx
+import { useState, useRef, useMemo } from "react";
 import {
   Home, Tag, HelpCircle, Phone, Mail,
-  ChevronDown, ChevronUp, CheckCircle, MessageCircle,
-  Building2, ShieldCheck, Globe, Search, ArrowRight,
-  Zap, Users, Lock, BarChart2, Star, ExternalLink,
+  ChevronDown, ChevronUp, CheckCircle, ShieldCheck, Globe, Search, ArrowRight,
+  Zap, Users, Lock, BarChart2, ExternalLink,
   AlertCircle, FileText, Headphones, Send,
 } from "lucide-react";
 import "./SupportHelp.css";
@@ -44,11 +44,6 @@ const FAQ_DATA = {
     { q: "How do I reach customer support quickly?", a: "Email support@compareprojects.com for priority response within 4 hours. For urgent issues, use the Live Chat option available from your dashboard." },
     { q: "Do you offer WhatsApp support?", a: "Yes, WhatsApp support is available for developers with active listings. The number is shared in your welcome email upon account activation." },
   ],
-  // billing: [
-  //   { q: "Do you offer premium listing plans?", a: "Yes — we offer Priority Listing, Homepage Spotlight, and Lead Boost packages. Visit the Pricing page from your dashboard for current rates and bundle offers." },
-  //   { q: "What payment methods are accepted?", a: "We accept all major debit/credit cards, UPI, net banking, and PayPal for international developers. GST invoices are generated automatically." },
-  //   { q: "Can I upgrade or downgrade plans anytime?", a: "Yes, plan changes activate instantly after payment. Downgrades take effect at the end of your current billing cycle with no penalty." },
-  // ],
   security: [
     { q: "How does developer verification work?", a: "We verify business registration documents, GST number, RERA certification, and office address through a combination of automated checks and manual review." },
     { q: "Are customer leads and data secure?", a: "All lead data is AES-256 encrypted at rest and in transit. We comply with Indian data protection regulations. No data is sold or shared with third parties.  CHECK THIS ABOUT THE SECURITY" },
@@ -74,14 +69,13 @@ export default function SupportHelp() {
   const [activeCategory, setActiveCategory] = useState("getting-started");
   const [expandedFaq, setExpandedFaq]       = useState(null);
   const [searchQuery, setSearchQuery]       = useState("");
-  const [searchResults, setSearchResults]   = useState([]);
-  const [showSearch, setShowSearch]         = useState(false);
   const searchRef = useRef(null);
 
-  /* search across all FAQs */
-  useEffect(() => {
-    if (!searchQuery.trim()) { setSearchResults([]); setShowSearch(false); return; }
-    const q = searchQuery.toLowerCase();
+  const trimmedQuery = searchQuery.trim();
+
+  const searchResults = useMemo(() => {
+    if (!trimmedQuery) return [];
+    const q = trimmedQuery.toLowerCase();
     const results = [];
     for (const [catId, items] of Object.entries(FAQ_DATA)) {
       const cat = CATEGORIES.find(c => c.id === catId);
@@ -91,22 +85,21 @@ export default function SupportHelp() {
         }
       });
     }
-    setSearchResults(results);
-    setShowSearch(true);
-  }, [searchQuery]);
+    return results;
+  }, [trimmedQuery]);
+
+  const showSearch = trimmedQuery.length > 0;
 
   const handleCategoryClick = (id) => {
     setActiveCategory(id);
     setExpandedFaq(null);
     setSearchQuery("");
-    setShowSearch(false);
   };
 
   const handleSearchResult = (catId, idx) => {
     setActiveCategory(catId);
     setExpandedFaq(idx);
     setSearchQuery("");
-    setShowSearch(false);
     setTimeout(() => searchRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
   };
 

@@ -1,71 +1,111 @@
-//src/components/QuickLinks 
-import { useState, useContext, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../../contexts/AuthContext";
-import { Phone, Mail, Download, Heart, X, AlertCircle, Check} from "lucide-react";
+// src/pages/PropertyPage/PropertyPageComponents/QuickLinks.jsx
 
+import { useState, useRef, useEffect } from "react";
+import {
+  Phone,
+  Mail,
+  Download,
+  Heart,
+  X,
+  AlertCircle,
+  Check,
+} from "lucide-react";
+
+import API from "../../../api";
 import useHeartProperty from "../../../hooks/useHeartProperty";
 import { useEscapeKey } from "../../../hooks/useEscapeKey";
 
 import "./QuickLinks.css";
 
+const INITIAL_FORM_DATA = {
+  customerName: "",
+  customerPhone: "",
+  customerEmail: "",
+};
+
+const getApiErrorMessage = (error) =>
+  error?.response?.data?.message ||
+  error?.response?.data?.error ||
+  "Something went wrong. Please try again.";
+
 function QuickLinks({ property }) {
-  const { currentUser } = useContext(AuthContext);
-  const [saved, setSaved] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null);
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+
+  const modalRef = useRef(null);
+  const closeTimeoutRef = useRef(null);
 
   const { isSaved, handleToggleHeart } = useHeartProperty(property?._id);
 
+  // Close modal on Escape.
+  useEscapeKey(showModal, () => setShowModal(false));
 
-  const [formData, setFormData] = useState({
-    customerName: "",
-    customerPhone: "",
-    customerEmail: "",
-  }); 
-
-  const navigate = useNavigate();
-  const modalRef = useRef(null);
-
-  // Close modal on Escape
-  useEscapeKey(
-  showModal,
-  () => setShowModal(false)
-);
-
-// Lock body scroll while modal is open
+  // Lock body scroll while modal is open.
   useEffect(() => {
-    document.body.style.overflow = showModal ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    if (!showModal) {
+      document.body.style.overflow = "";
+      return undefined;
+    }
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [showModal]);
 
-  // Focus trap
+  // Clean up delayed modal close.
   useEffect(() => {
-    if (!showModal || !modalRef.current) return;
+    return () => {
+      if (closeTimeoutRef.current) {
+        window.clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
 
-    const focusableElements = modalRef.current.querySelectorAll(
-      'a[href], button, textarea, input, select'
+  // Focus trap.
+  useEffect(() => {
+    if (!showModal || !modalRef.current) return undefined;
+
+    const modal = modalRef.current;
+
+    const focusableElements = modal.querySelectorAll(
+      'a[href], button:not([disabled]), textarea, input, select'
     );
 
-    const firstEl = focusableElements[0];
-    const lastEl = focusableElements[focusableElements.length - 1];
+    const firstElement = focusableElements[0];
+    const lastElement =
+      focusableElements[focusableElements.length - 1];
 
-    const handleTab = (e) => {
-      if (e.key !== "Tab") return;
+    const handleTab = (event) => {
+      if (event.key !== "Tab" || focusableElements.length === 0) {
+        return;
+      }
 
-      if (e.shiftKey && document.activeElement === firstEl) {
-        e.preventDefault();
-        lastEl.focus();
-      } else if (!e.shiftKey && document.activeElement === lastEl) {
-        e.preventDefault();
-        firstEl.focus();
+      if (
+        event.shiftKey &&
+        document.activeElement === firstElement
+      ) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (
+        !event.shiftKey &&
+        document.activeElement === lastElement
+      ) {
+        event.preventDefault();
+        firstElement.focus();
       }
     };
 
     window.addEventListener("keydown", handleTab);
-    firstEl?.focus();
 
-    return () => window.removeEventListener("keydown", handleTab);
+    firstElement?.focus();
+
+    return () => {
+      window.removeEventListener("keydown", handleTab);
+    };
   }, [showModal]);
 
   const handleCall = () => {
@@ -73,50 +113,84 @@ function QuickLinks({ property }) {
   };
 
   const handleEnquiry = () => {
+    setStatus(null);
     setShowModal(true);
   };
 
   const handleBrochure = () => {
-    if (!property?.brochure) return;
-    window.open(property.brochure, "_blank", "noopener,noreferrer");
+    const brochureUrl = property?.brochure;
+
+    if (!brochureUrl || typeof brochureUrl !== "string") {
+      setStatus({
+        type: "error",
+        message: "Brochure is currently unavailable.",
+      });
+      return;
+    }
+
+    window.open(
+      brochureUrl,
+      "_blank",
+      "noopener,noreferrer"
+    );
   };
 
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
 
-  //CHECK THIS -- CUSTOMER FORM API N BACKEND ZOD , RATE LIMITS NEEDS TO BE DONE
-  // const handleHeart = () => {
-  //   if (!currentUser) {
-  //     toast.warning("Please log in to save properties.");
-  //     setTimeout(() => navigate("/customer-login"), 1500);
-  //     return;
-  //   }
+    setFormData((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
 
-  //   setSaved((prev) => !prev);
-  //   toast.success(saved ? "Removed from saved." : "Property saved!");
-  // };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear an existing error once the user starts correcting the form.
+    if (status?.type === "error") {
+      setStatus(null);
+    }
   };
 
   const validateForm = () => {
-  const name = formData.customerName.trim();
-  const email = formData.customerEmail.trim();
-  const phone = formData.customerPhone.trim();
+    const name = formData.customerName.trim();
+    const email = formData.customerEmail.trim();
+    const phone = formData.customerPhone.trim();
 
-  if (name.length < 2) return "Enter your full name";
-    if (!/^[6-9]\d{9}$/.test(phone)) return "Enter a valid 10-digit mobile number";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "Enter a valid email address";
+    if (name.length < 2) {
+      return "Enter your full name";
+    }
+
+    if (name.length > 100) {
+      return "Name is too long";
+    }
+
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      return "Enter a valid 10-digit mobile number";
+    }
+
+    if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
+      return "Enter a valid email address";
+    }
+
+    if (email.length > 254) {
+      return "Email address is too long";
+    }
+
     return null;
   };
 
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    if (loading) return; 
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+
+    if (loading) return;
 
     const validationError = validateForm();
+
     if (validationError) {
-      setStatus({ type: "error", message: validationError });
+      setStatus({
+        type: "error",
+        message: validationError,
+      });
       return;
     }
 
@@ -124,36 +198,37 @@ function QuickLinks({ property }) {
       setLoading(true);
       setStatus(null);
 
+      await API.post("/api/leads/customer", {
+        customerName: formData.customerName.trim(),
+        customerPhone: `+91${formData.customerPhone.trim()}`,
+        customerEmail: formData.customerEmail.trim().toLowerCase(),
+        propertyId: property?._id || null,
+        propertyTitle: property?.title || "",
+        source: "quick_links_property_page_form",
+        pageUrl: window.location.href,
+      });
 
-      //CHECK THIS -- CUSTOMER FORM API N BACKEND ZOD , RATE LIMITS NEEDS TO BE DONE
-      //CHECK THIS URL -  y REACT_APP_API_URL WHEN VITE_API_BASE_URL/REACT_APP_API_BASE_URL process.
+      setStatus({
+        type: "success",
+        message: "Enquiry sent! We'll reach out shortly.",
+      });
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/api/leads/customer`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...formData,
-            propertyId: property?._id,
-            propertyTitle: property?.title,
-            source: "quick_links_property_page_form",
-            pageUrl: window.location.href, //this is use for track the page from where the lead is generated
-          }),
-        }
+      setFormData({ ...INITIAL_FORM_DATA });
+
+      closeTimeoutRef.current = window.setTimeout(() => {
+        setShowModal(false);
+        setStatus(null);
+      }, 1500);
+    } catch (error) {
+      console.error(
+        "Quick Links enquiry submission failed:",
+        error
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to submit enquiry");
-      }
-
-      setStatus({ type: "success", message: "Enquiry sent! We'll reach out shortly." });
-      setFormData({ customerName: "", customerPhone: "", customerEmail: "" });
-      setTimeout(() => setShowModal(false), 1500);
-    } catch (error) {
-      setStatus({ type: "error", message: "Something went wrong. Please try again." });
+      setStatus({
+        type: "error",
+        message: getApiErrorMessage(error),
+      });
     } finally {
       setLoading(false);
     }
@@ -162,27 +237,54 @@ function QuickLinks({ property }) {
   return (
     <>
       <div className="quick-action-bar">
-        <button type="button" className="quick-action-btn" onClick={handleCall}>
-          <Phone size={18} strokeWidth={1.5} />
+        <button
+          type="button"
+          className="quick-action-btn"
+          onClick={handleCall}
+          aria-label="Call developer"
+        >
+          <Phone size={18} strokeWidth={1.5} aria-hidden="true" />
           <span>Call Now</span>
         </button>
 
-        <button type="button" className="quick-action-btn" onClick={handleEnquiry}>
-          <Mail size={18} strokeWidth={1.5} />
+        <button
+          type="button"
+          className="quick-action-btn"
+          onClick={handleEnquiry}
+          aria-label="Send property enquiry"
+        >
+          <Mail size={18} strokeWidth={1.5} aria-hidden="true" />
           <span>Enquiry</span>
         </button>
 
-        <button type="button" className="quick-action-btn" onClick={handleBrochure}>
-          <Download size={18} strokeWidth={1.5} />
+        <button
+          type="button"
+          className="quick-action-btn"
+          onClick={handleBrochure}
+          aria-label="Download property brochure"
+          disabled={!property?.brochure}
+        >
+          <Download size={18} strokeWidth={1.5} aria-hidden="true" />
           <span>Brochure</span>
         </button>
 
-        <button type="button" className="quick-action-btn" onClick={handleToggleHeart}>
+        <button
+          type="button"
+          className="quick-action-btn"
+          onClick={handleToggleHeart}
+          aria-label={
+            isSaved
+              ? "Remove property from favorites"
+              : "Save property to favorites"
+          }
+          aria-pressed={isSaved}
+        >
           <Heart
             size={18}
             strokeWidth={1.5}
             color={isSaved ? "#D90429" : "#333"}
             fill={isSaved ? "#D90429" : "none"}
+            aria-hidden="true"
           />
           <span>{isSaved ? "Saved" : "Save"}</span>
         </button>
@@ -196,11 +298,30 @@ function QuickLinks({ property }) {
           aria-labelledby="quick-enquiry-modal-title"
           onClick={() => setShowModal(false)}
         >
-          <div className="quick-modal-content" ref={modalRef} onClick={(e) => e.stopPropagation()}>
-            <h3 id="quick-enquiry-modal-title" className="quick-modal-title">Enquiry Form</h3>
+          <div
+            className="quick-modal-content"
+            ref={modalRef}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h3
+              id="quick-enquiry-modal-title"
+              className="quick-modal-title"
+            >
+              Enquiry Form
+            </h3>
 
-            <form className="quick-enquiry-modal-form" onSubmit={handleFormSubmit}>
-              <label className="sr-only" htmlFor="quick-name">Full name</label>
+            <form
+              className="quick-enquiry-modal-form"
+              onSubmit={handleFormSubmit}
+              noValidate
+            >
+              <label
+                className="sr-only"
+                htmlFor="quick-name"
+              >
+                Full name
+              </label>
+
               <input
                 id="quick-name"
                 type="text"
@@ -208,21 +329,54 @@ function QuickLinks({ property }) {
                 placeholder="Your Name"
                 value={formData.customerName}
                 onChange={handleFormChange}
+                maxLength={100}
+                autoComplete="name"
+                disabled={loading}
                 required
               />
 
-              <label className="sr-only" htmlFor="quick-phone">Phone number</label>
+              <label
+                className="sr-only"
+                htmlFor="quick-phone"
+              >
+                Phone number
+              </label>
+
               <input
                 id="quick-phone"
                 type="tel"
                 name="customerPhone"
                 placeholder="Your Phone"
                 value={formData.customerPhone}
-                onChange={handleFormChange}
+                onChange={(event) => {
+                  const value = event.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, 10);
+
+                  setFormData((previous) => ({
+                    ...previous,
+                    customerPhone: value,
+                  }));
+
+                  if (status?.type === "error") {
+                    setStatus(null);
+                  }
+                }}
+                inputMode="numeric"
+                pattern="[6-9][0-9]{9}"
+                maxLength={10}
+                autoComplete="tel-national"
+                disabled={loading}
                 required
               />
 
-              <label className="sr-only" htmlFor="quick-email">Email address</label>
+              <label
+                className="sr-only"
+                htmlFor="quick-email"
+              >
+                Email address
+              </label>
+
               <input
                 id="quick-email"
                 type="email"
@@ -230,12 +384,27 @@ function QuickLinks({ property }) {
                 placeholder="Your Email"
                 value={formData.customerEmail}
                 onChange={handleFormChange}
+                maxLength={254}
+                autoComplete="email"
+                disabled={loading}
                 required
               />
 
               {status && (
-                <div className={`quick-form-status quick-form-status--${status.type}`}>
-                  {status.type === "success" ? <Check size={16} /> : <AlertCircle size={16} />}
+                <div
+                  className={`quick-form-status quick-form-status--${status.type}`}
+                  role="alert"
+                  aria-live="polite"
+                >
+                  {status.type === "success" ? (
+                    <Check size={16} aria-hidden="true" />
+                  ) : (
+                    <AlertCircle
+                      size={16}
+                      aria-hidden="true"
+                    />
+                  )}
+
                   <span>{status.message}</span>
                 </div>
               )}
@@ -244,6 +413,7 @@ function QuickLinks({ property }) {
                 className="quick-enquiry-modal-form-submit-btn"
                 type="submit"
                 disabled={loading}
+                aria-busy={loading}
               >
                 {loading ? "Submitting..." : "Submit"}
               </button>
@@ -253,9 +423,10 @@ function QuickLinks({ property }) {
               type="button"
               className="quick-modal-close-btn"
               onClick={() => setShowModal(false)}
-              aria-label="Close"
+              aria-label="Close enquiry form"
+              disabled={loading}
             >
-              <X size={18} strokeWidth={1.5} />
+              <X size={18} strokeWidth={1.5} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -265,4 +436,3 @@ function QuickLinks({ property }) {
 }
 
 export default QuickLinks;
-

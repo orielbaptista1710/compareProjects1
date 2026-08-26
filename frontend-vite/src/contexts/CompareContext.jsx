@@ -1,18 +1,24 @@
 //frontend-vite/src/contexts/CompareContext.jsx
-import { createContext, useContext } from "react";
-import useCompareList from "../hooks/useCompareList";
 
-const CompareContext = createContext();
+/* eslint-disable react-refresh/only-export-components */
+
+
+import useCompareList from "../hooks/useCompareList";
+// import { CompareContext } from "./contextInstances/CompareContextInstance";
+
+import { createContext, useContext } from "react";
+
+export const CompareContext = createContext();
+
+export const useCompare = () => useContext(CompareContext);
 
 export const CompareProvider = ({ children }) => {
-  const compareState = useCompareList(); // { compareList, addToCompare, removeFromCompare }
+  const compareState = useCompareList(); 
 
   return (
     <CompareContext.Provider value={compareState}>
       {children}
     </CompareContext.Provider>
   );
-};
-
-export const useCompare = () => useContext(CompareContext);
+}; 
  

@@ -1,5 +1,5 @@
 import NavigationBar from '../../shared/NavigationBar/NavigationBar';
-import AnnouncementStrip from './HomePageComponents/AnnouncementStrip';
+// import AnnouncementStrip from './HomePageComponents/AnnouncementStrip';
 import HeroSection from './HomePageComponents/HeroSection';
 // import RankedProjects from './HomePageComponents/RankedProjects'
 import Gallery from './HomePageComponents/Gallery'; 
@@ -36,7 +36,7 @@ function Home() {
  
        <NavigationBar />
 
-      <AnnouncementStrip />
+      {/* <AnnouncementStrip /> */}
 
      
       {/* <FullWidthSection> */}

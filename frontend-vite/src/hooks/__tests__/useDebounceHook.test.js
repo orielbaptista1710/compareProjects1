@@ -1,5 +1,5 @@
 // frontend-vite/src/hooks/__tests__/useDebounceHook.test.js
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach, global} from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useDebounce } from "../useDebounceHook";
 
