@@ -1,6 +1,6 @@
 //backend/models/Property.js
 import mongoose from 'mongoose';
-import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from '../models/propertyType.js';
+import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from './propertyType.js';
 import slugify from 'slugify';
 
 const propertySchema = new mongoose.Schema({

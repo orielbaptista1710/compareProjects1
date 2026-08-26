@@ -50,6 +50,7 @@ function PropertyCard({
       console.log("PROPERTY OBJECT:", property);
       console.log("_id:", property?._id);
       console.log("userId:", property?.userId);
+      console.log("title:", property?.title);
 
         if (property?._id) 
           console.log("Navigating to:", `/property/${property._id}`);

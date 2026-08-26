@@ -2,7 +2,7 @@
 // global error-handling middleware that:
 // Catches any errors thrown in your routes or controllers
 // Logs them to your server console (for developers)
-// Sends a consistent JSON response to the frontend
+// Sends a consistent JSON response to the frontend   backend/
 import logger from "../utils/logger.js";
 
 const errorHandler = (err, req, res, next) => {
