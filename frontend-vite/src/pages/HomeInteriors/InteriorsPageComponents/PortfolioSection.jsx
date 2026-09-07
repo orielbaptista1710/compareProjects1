@@ -1,4 +1,4 @@
-import OptimizedImage from "./OptimizedImage";
+// import OptimizedImage from "./OptimizedImage";
 import { portfolioFilters, portfolioItems } from "../../../database/interiorsData";
 import "./PortfolioSection.css"
 export default function PortfolioSection({ activeFilter, setActiveFilter }) {
@@ -30,12 +30,12 @@ export default function PortfolioSection({ activeFilter, setActiveFilter }) {
           )
           .map((item) => (
             <div key={item.id} className="interiors-portfolio-card">
-              <OptimizedImage
+              {/* <OptimizedImage
                 src={item.image}
                 width={500}
                 height={400}
                 alt={item.title}
-              />
+              /> */}
 
               <div className="interiors-portfolio-overlay">
                 <h3>{item.title}</h3>

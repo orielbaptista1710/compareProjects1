@@ -1,0 +1,43 @@
+/* src/styles/colors.css
+   Single source of truth for color/shadow tokens. Add to this file instead
+   of hardcoding hex values in component CSS going forward. */
+:root {
+  /* Brand */
+  --color-primary: #7c3aed;
+  --color-primary-dark: #6d28d9;
+  --color-primary-light: #a855f7;
+  --color-accent: #e12965;
+
+  --gradient-brand: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  --gradient-cta: linear-gradient(90deg, #7b2fff 0%, #e12965 100%);
+
+  /* Surfaces */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f9fafb;
+  --color-surface-active: #f3f4f6;
+  --color-surface-tint: #f5f3ff;
+  --color-surface-tint-strong: #ede9fe;
+
+  /* Borders */
+  --color-border: #e5e7eb;
+  --color-border-subtle: #f3f4f6;
+
+  /* Text */
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6b7280;
+  --color-text-placeholder: #9ca3af;
+  --color-text-disabled: #d1d5db;
+
+  /* Status */
+  --color-error-bg: #fef2f2;
+  --color-error-text: #dc2626;
+  --color-warning-bg: #fffbeb;
+  --color-warning-text: #92400e;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12);
+  --shadow-brand: 0 4px 12px rgba(124, 58, 237, 0.25);
+}

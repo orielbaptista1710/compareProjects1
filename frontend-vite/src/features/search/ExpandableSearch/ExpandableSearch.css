@@ -1,0 +1,255 @@
+/* frontend-vite/src/pages/Home/HomePageComponents/ExpandableSearch.css */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  isolation: isolate;
+  z-index: 50;
+}
+
+
+
+.ai-search-container {
+  width: 100%;
+  background: var(--color-surface);
+  border-radius: 50px;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md), 0 2px 6px rgba(124, 58, 237, 0.05);
+  transition: box-shadow 0.25s ease;
+}
+
+.ai-search-container:focus-within {
+  box-shadow: 0 8px 22px rgba(124, 58, 237, 0.15), 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.ai-search-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.ai-input-wrapper {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 50px;
+  background: var(--color-surface-muted);
+  transition: background 0.2s ease;
+}
+
+.ai-input-wrapper:focus-within {
+  background: var(--color-surface);
+}
+
+.ai-search-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.ai-search-input::placeholder {
+  color: var(--color-text-placeholder);
+  font-weight: 400;
+}
+
+.ai-search-submit {
+  all: unset;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-cta);
+  color: var(--color-surface);
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: var(--shadow-brand);
+}
+
+.ai-search-submit:hover {
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35);
+}
+
+.ai-search-submit:active {
+  transform: scale(0.96);
+}
+
+.ai-search-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ---------------- Quick Suggestions ---------------- */
+
+.quick-suggestions-container {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.suggestion-pill {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: #cab1f5a9;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.suggestion-pill:hover {
+  background: rgba(124, 58, 237, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(124, 58, 237, 0.15);
+}
+
+.suggestion-pill:active { transform: translateY(0); }
+.suggestion-pill svg { flex-shrink: 0; }
+
+/* ---------------- Dropdown Results ---------------- */
+
+.search-results-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  width: 100%;
+  background: var(--color-surface);
+  border-radius: 18px;
+  border: 1px solid var(--color-border-subtle);
+  padding: 12px;
+  max-height: 440px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #e9d5ff transparent;
+  box-shadow: var(--shadow-lg), 0 6px 16px rgba(124, 58, 237, 0.05);
+  z-index: 1000;
+  animation: dropdownFade 0.2s ease forwards;
+  /* Perf: this subtree repaints often (loading -> results); promote it to
+     its own layer so scrolling/animating it doesn't repaint the hero behind it. */
+  contain: layout style;
+}
+
+.search-results-dropdown::-webkit-scrollbar { width: 4px; }
+.search-results-dropdown::-webkit-scrollbar-track { background: transparent; }
+.search-results-dropdown::-webkit-scrollbar-thumb { background: #e9d5ff; border-radius: 2px; }
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.search-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2.5px solid var(--color-border-subtle);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.search-error {
+  padding: 18px;
+  text-align: center;
+  border-radius: 14px;
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px;
+  text-align: center;
+}
+
+.no-results svg { color: var(--color-text-disabled); }
+.no-results p { margin: 0; font-size: 14px; font-weight: 600; color: var(--color-text-muted); }
+
+.fuzzy-indicator {
+  padding: 5px 12px;
+  margin-bottom: 6px;
+  color: var(--color-warning-text);
+  font-size: 11px;
+  box-shadow: 0 1px 4px rgba(251, 191, 36, 0.15);
+}
+
+.property-result-item {
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 4px;
+  margin: -4px;
+  transition: background 0.15s ease;
+}
+
+.property-result-item:hover,
+.property-result-item.highlighted {
+  background: var(--color-surface-tint);
+}
+
+.property-result-item:active { background: var(--color-surface-tint-strong); }
+
+@media (max-width: 768px) {
+  .search-wrapper { max-width: 100%; }
+  .ai-search-container { border-radius: 40px; }
+  .search-results-dropdown { border-radius: 16px; max-height: 320px; }
+}
+
+@media (max-width: 480px) {
+  .ai-search-input { font-size: 13px; }
+  .ai-search-submit { width: 38px; height: 38px; }
+  .suggestion-pill { font-size: 11px; padding: 5px 12px; }
+}
+
+.ai-search-submit:focus-visible,
+.suggestion-pill:focus-visible,
+.property-result-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+@media print {
+  .search-wrapper { display: none !important; }
+}

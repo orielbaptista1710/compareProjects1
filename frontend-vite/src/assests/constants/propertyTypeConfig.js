@@ -2,7 +2,7 @@
 
 // constants/propertyTypeConfig.js
 import {
-  Home,
+  Home, 
   Building2,
   Map,
   Store,

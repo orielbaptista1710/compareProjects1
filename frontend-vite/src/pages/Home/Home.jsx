@@ -11,7 +11,7 @@ import About from './HomePageComponents/About';
 import ContactForm from './HomePageComponents/ContactForm';
 import TestimonialSection from './HomePageComponents/TestimonialSection';
 import HomeHero from './HomePageComponents/HomeHero';
-import CompareBar from './HomePageComponents/CompareBar';
+import CompareBar from '../../shared/CompareBar/CompareBar';
 
 // import BaseLayout from '../../layouts/BaseLayout';
 // import FullWidthSection from '../../layouts/FullWidthSection';

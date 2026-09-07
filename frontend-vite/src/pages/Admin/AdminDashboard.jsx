@@ -9,9 +9,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import API from "../../api";
 import debounce from "lodash.debounce";
 
-import AdminPropertyTable from "./AdminDasboardComponents/AdminPropertyTable";
-import DeveloperDetailsModal from "./AdminDasboardComponents/DeveloperDetailsModal";
-import AdminFilters from "./AdminDasboardComponents/AdminFilters";
+import AdminPropertyTable from "../../features/admin/AdminDasboardComponents/AdminPropertyTable";
+import DeveloperDetailsModal from "../../features/admin/AdminDasboardComponents/DeveloperDetailsModal";
+import AdminFilters from "../../features/admin/AdminDasboardComponents/AdminFilters";
 
 import { LogOut } from "lucide-react";
 import toast from "react-hot-toast";
@@ -67,7 +67,6 @@ const DEFAULT_FILTERS = {
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
 
-  // Pagination
   const [page, setPage]               = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(20);
 

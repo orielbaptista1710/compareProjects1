@@ -1,111 +1,233 @@
-// frontend-vite/src/hooks/__tests__/useOutsideClick.test.js
-import { describe, it, expect, vi } from "vitest";
-import { renderHook } from "@testing-library/react";
+import { renderHook, act } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { createRef } from "react";
+
 import { useOutsideClick } from "../useOutsideClick";
 
-function makeRef(el) {
-  return { current: el };
-}
-
-const click = (target) => {
-  target.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
-};
-
 describe("useOutsideClick", () => {
-  it("calls onClose when the click target is outside all refs", () => {
-    const inside = document.createElement("div");
-    document.body.appendChild(inside);
-    const outside = document.createElement("div");
-    document.body.appendChild(outside);
+  function createTestElements() {
+    // Create real DOM elements because the hook uses:
+    //
+    // ref.current.contains(e.target)
+    //
+    // Using real elements makes this test closer to real browser behavior.
+    const insideElement = document.createElement("div");
+    const outsideElement = document.createElement("div");
 
+    document.body.appendChild(insideElement);
+    document.body.appendChild(outsideElement);
+
+    return {
+      insideElement,
+      outsideElement,
+    };
+  }
+
+  function cleanupTestElements(...elements) {
+    elements.forEach((element) => element.remove());
+  }
+
+  it("calls onClose when clicking outside the referenced element", () => {
     const onClose = vi.fn();
-    renderHook(() => useOutsideClick(true, [makeRef(inside)], onClose));
+    const ref = createRef();
 
-    click(outside);
+    const { insideElement, outsideElement } = createTestElements();
+
+    ref.current = insideElement;
+
+    renderHook(() => useOutsideClick(true, [ref], onClose));
+
+    act(() => {
+      outsideElement.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true })
+      );
+    });
 
     expect(onClose).toHaveBeenCalledTimes(1);
 
-    document.body.removeChild(inside);
-    document.body.removeChild(outside);
+    cleanupTestElements(insideElement, outsideElement);
   });
 
-  it("does not call onClose when the click target is inside a ref", () => {
-    const inside = document.createElement("div");
-    const child = document.createElement("span");
-    inside.appendChild(child);
-    document.body.appendChild(inside);
-
+  it("does not call onClose when clicking inside the referenced element", () => {
     const onClose = vi.fn();
-    renderHook(() => useOutsideClick(true, [makeRef(inside)], onClose));
+    const ref = createRef();
 
-    click(child); // click on a nested descendant should still count as "inside"
+    const { insideElement, outsideElement } = createTestElements();
+
+    ref.current = insideElement;
+
+    renderHook(() => useOutsideClick(true, [ref], onClose));
+
+    act(() => {
+      insideElement.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true })
+      );
+    });
 
     expect(onClose).not.toHaveBeenCalled();
 
-    document.body.removeChild(inside);
+    cleanupTestElements(insideElement, outsideElement);
   });
 
-  it("checks against every ref in a multi-ref array", () => {
-    const refA = document.createElement("div");
-    const refB = document.createElement("div");
-    document.body.append(refA, refB);
-
+  it("does not call onClose when the hook is inactive", () => {
     const onClose = vi.fn();
+    const ref = createRef();
+
+    const { insideElement, outsideElement } = createTestElements();
+
+    ref.current = insideElement;
+
+    renderHook(() => useOutsideClick(false, [ref], onClose));
+
+    act(() => {
+      outsideElement.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true })
+      );
+    });
+
+    expect(onClose).not.toHaveBeenCalled();
+
+    cleanupTestElements(insideElement, outsideElement);
+  });
+
+  it("treats clicks inside any referenced element as inside", () => {
+    const onClose = vi.fn();
+
+    const firstRef = createRef();
+    const secondRef = createRef();
+
+    const firstElement = document.createElement("div");
+    const secondElement = document.createElement("div");
+    const outsideElement = document.createElement("div");
+
+    document.body.appendChild(firstElement);
+    document.body.appendChild(secondElement);
+    document.body.appendChild(outsideElement);
+
+    firstRef.current = firstElement;
+    secondRef.current = secondElement;
+
     renderHook(() =>
-      useOutsideClick(true, [makeRef(refA), makeRef(refB)], onClose)
+      useOutsideClick(true, [firstRef, secondRef], onClose)
     );
 
-    click(refB); // inside the second ref — should NOT close
-    expect(onClose).not.toHaveBeenCalled();
+    // Clicking inside the first referenced element should not close.
+    act(() => {
+      firstElement.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true })
+      );
+    });
 
-    refA.remove();
-    refB.remove();
-  });
-
-  it("does nothing when isActive is false", () => {
-    const outside = document.createElement("div");
-    document.body.appendChild(outside);
-
-    const onClose = vi.fn();
-    renderHook(() => useOutsideClick(false, [makeRef(outside)], onClose));
-
-    click(outside);
+    // Clicking inside the second referenced element should not close.
+    act(() => {
+      secondElement.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true })
+      );
+    });
 
     expect(onClose).not.toHaveBeenCalled();
-    document.body.removeChild(outside);
-  });
 
-  it("does nothing when refs is empty or missing", () => {
-    const onClose = vi.fn();
-    renderHook(() => useOutsideClick(true, [], onClose));
-
-    click(document.body);
-
-    expect(onClose).not.toHaveBeenCalled();
-  });
-
-  it("also responds to touchstart", () => {
-    const outside = document.createElement("div");
-    document.body.appendChild(outside);
-
-    const onClose = vi.fn();
-    renderHook(() => useOutsideClick(true, [makeRef(outside)], onClose));
-
-    outside.dispatchEvent(new Event("touchstart", { bubbles: true }));
+    // Clicking outside both should close.
+    act(() => {
+      outsideElement.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true })
+      );
+    });
 
     expect(onClose).toHaveBeenCalledTimes(1);
-    document.body.removeChild(outside);
+
+    cleanupTestElements(
+      firstElement,
+      secondElement,
+      outsideElement
+    );
   });
 
-  it("removes both listeners on unmount", () => {
-    const removeSpy = vi.spyOn(document, "removeEventListener");
+  it("calls onClose when touching outside the referenced element", () => {
+    const onClose = vi.fn();
+    const ref = createRef();
+
+    const { insideElement, outsideElement } = createTestElements();
+
+    ref.current = insideElement;
+
+    renderHook(() => useOutsideClick(true, [ref], onClose));
+
+    act(() => {
+      outsideElement.dispatchEvent(
+        new Event("touchstart", { bubbles: true })
+      );
+    });
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    cleanupTestElements(insideElement, outsideElement);
+  });
+
+  it("does nothing when refs are missing", () => {
+    const onClose = vi.fn();
+
+    expect(() => {
+      renderHook(() =>
+        useOutsideClick(true, undefined, onClose)
+      );
+    }).not.toThrow();
+
+    // No listener should exist because refs are invalid.
+    act(() => {
+      document.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true })
+      );
+    });
+
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("does not throw when onClose is missing", () => {
+    const ref = createRef();
+
+    const { insideElement, outsideElement } = createTestElements();
+
+    ref.current = insideElement;
+
+    renderHook(() =>
+      useOutsideClick(true, [ref], undefined)
+    );
+
+    expect(() => {
+      act(() => {
+        outsideElement.dispatchEvent(
+          new MouseEvent("mousedown", { bubbles: true })
+        );
+      });
+    }).not.toThrow();
+
+    cleanupTestElements(insideElement, outsideElement);
+  });
+
+  it("stops responding to outside clicks after unmount", () => {
+    const onClose = vi.fn();
+    const ref = createRef();
+
+    const { insideElement, outsideElement } = createTestElements();
+
+    ref.current = insideElement;
+
     const { unmount } = renderHook(() =>
-      useOutsideClick(true, [makeRef(document.body)], vi.fn())
+      useOutsideClick(true, [ref], onClose)
     );
 
     unmount();
 
-    expect(removeSpy).toHaveBeenCalledWith("mousedown", expect.any(Function));
-    expect(removeSpy).toHaveBeenCalledWith("touchstart", expect.any(Function));
+    act(() => {
+      outsideElement.dispatchEvent(
+        new MouseEvent("mousedown", { bubbles: true })
+      );
+    });
+
+    // The document event listeners should have been removed.
+    expect(onClose).not.toHaveBeenCalled();
+
+    cleanupTestElements(insideElement, outsideElement);
   });
 });

@@ -19,22 +19,22 @@ import {
   MapPin, BadgeCheck, Scale,
 } from 'lucide-react';
 
-import PropertyGallery  from './PropertyPageComponents/PropertyGallery/PropertyGallery';
-import PropertyDetails  from './PropertyPageComponents/PropertyDetails';
-import ContactFormm     from './PropertyPageComponents/ContactFormm';
-import QuickLinks       from './PropertyPageComponents/QuickLinks';
-import CompareBar       from '../Home/HomePageComponents/CompareBar';
-import Card             from './PropertyPageComponents/Card';
-import SectionFallback  from './PropertyPageComponents/SectionFallback';
-import StickyTabBar     from './PropertyPageComponents/StickyTabBar';
+import PropertyGallery  from '../../features/properties/components/PropertyGallery/PropertyGallery';
+import PropertyDetails  from '../../features/properties/components/PropertyDetails/PropertyDetails';
+import ContactFormm     from '../../features/property-details/components/section/PropertyPgContactFormm/ContactFormm';
+import QuickLinks       from '../../features/property-details/components/section/QuickLinks/QuickLinks';
+import CompareBar       from '../../shared/CompareBar/CompareBar';
+import Card             from '../../features/property-details/components/PropertyPageComponents/Card';
+import SectionFallback  from '../../features/property-details/components/PropertyPageComponents/SectionFallback';
+import StickyTabBar     from '../../features/property-details/components/PropertyPageComponents/StickyTabBar';
 
-const PageLocationSection   = lazy(() => import('./PropertyPageComponents/PageLocationSection'));
-const FloorPlanView     = lazy(() => import('./PropertyPageComponents/FloorPlanView'));
-const FAQSection        = lazy(() => import('./PropertyPageComponents/FAQSection'));
-const IconTabContent    = lazy(() => import('./PropertyPageComponents/IconTabContent'));
-const BrochurePreview   = lazy(() => import('./PropertyPageComponents/BrochurePreview'));
+const PageLocationSection   = lazy(() => import('../../features/property-details/components/section/PropertyLocation/PageLocationSection'));
+const FloorPlanView     = lazy(() => import('../../features/property-details/components/section/FloorPlans/FloorPlanView'));
+const FAQSection        = lazy(() => import('../../features/property-details/components/section/FAQSection/FAQSection'));
+const IconTabContent    = lazy(() => import('../../features/property-details/components/section/IconTabContent/IconTabContent'));
+const BrochurePreview   = lazy(() => import('../../features/property-details/components/section/Brochure/BrochurePreview'));
 const NewsReview        = lazy(() => import('../../components/NewsReview'));
-const RelatedProperties = lazy(() => import('./PropertyPageComponents/RelatedProperties'));
+const RelatedProperties = lazy(() => import('../../features/property-details/components/section/RelatedProperties/RelatedProperties'));
 
 
 const ALL_TABS = [

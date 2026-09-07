@@ -9,9 +9,11 @@ import useCompareList from "../hooks/useCompareList";
 import { createContext, useContext } from "react";
 
 export const CompareContext = createContext();
-
-export const useCompare = () => useContext(CompareContext);
-
+export const useCompare = () => {
+  const ctx = useContext(CompareContext);
+  if (!ctx) throw new Error("useCompare must be used inside CompareProvider");
+  return ctx;
+};
 export const CompareProvider = ({ children }) => {
   const compareState = useCompareList(); 
 

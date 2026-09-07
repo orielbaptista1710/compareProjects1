@@ -4,16 +4,17 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import debounce from 'lodash.debounce';
 import Skeleton from 'react-loading-skeleton';
+
 import { X, SlidersHorizontal, ChevronLeft, MessageCircle } from 'lucide-react';
 
-import PropertyCard       from './PropertiesPageComponets/PropertyCard';
-import SmartContactForm   from './PropertiesPageComponets/SmartContactForm';
-import PropertyMap        from './PropertiesPageComponets/PropertyMap';
-import FilterPanel        from './PropertiesPageComponets/FilterComponents/FilterPanel';
+import PropertyCard       from '../../features/properties/components/PropertyCard/PropertyCard';
+import SmartContactForm   from '../../features/property-details/components/section/SmartContactForm/SmartContactForm';
+// import PropertyMap        from '../../features/properties/components/PropertyMap/PropertyMap';
+import FilterPanel        from '../../features/property-filters/components/FilterPanel/FilterPanel';
 import ProjectViewSideBar from '../../components/ProjectViewSideBar';
-import CompareTray        from './PropertiesPageComponets/CompareTray';
-import ResultsHeader      from './PropertiesPageComponets/FilterComponents/ResultsHeader';
-import Pagination         from './PropertiesPageComponets/Pagination';
+import CompareTray        from './PropertiesComponents/CompareTray/CompareTray';
+import ResultsHeader      from '../../features/property-filters/components/ResultsHeader/ResultsHeader';
+import Pagination         from '../../features/properties/components/PropertyPagination/Pagination';
 import Seo                from '../../database/Seo';
 
 import API from '../../api';
@@ -159,13 +160,7 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
   setPrevFiltersAndSort({ filters, sortBy });
   setPage(1);
 }
-  // useEffect(() => {
-    // setSearchInput(filters.search ?? '');
-  // }, [filters.search]);
 
-  // useEffect(() => {
-    // setPage(1);
-  // }, [filters, sortBy]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -521,11 +516,11 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
         ─────────────────────────────────────────────────────────────── */}
         <div className="contact-and-sideview">
           <SmartContactForm />
-          <PropertyMap
+          {/* <PropertyMap
             properties={properties}
             city={filters.city}
             locality={filters.locality}
-          />
+          /> */}
           <div className="side-projects-view">
             <ProjectViewSideBar />
           </div>
@@ -536,4 +531,4 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
   );
 };
 
-export default Properties;
+export default Properties; 

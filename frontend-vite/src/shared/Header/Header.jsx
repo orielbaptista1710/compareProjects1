@@ -15,7 +15,7 @@ import { useOutsideClick } from "../../hooks/useOutsideClick";
 
 import { useCompare } from "../../contexts/CompareContext";
 
-import CompareBar from "../../pages/Home/HomePageComponents/CompareBar";
+import CompareBar from "../CompareBar/CompareBar";
 const DeveloperPopup = lazy(() =>import("../Popups/DeveloperPopup"));
 
 function Header() { 

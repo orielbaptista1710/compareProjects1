@@ -6,7 +6,7 @@ import { searchProperties } from '../controllers/searchController.js';
 import { searchLimiter,addPropertyLimiter, readLimiter,} from '../middleware/rateLimiters.js';
 import {
   getFilterOptions,
-  getPropertiesByType,
+  getPropertiesByType, 
   getLocalitiesByCity,
   getLocationOptions,
   getFeaturedProperties,

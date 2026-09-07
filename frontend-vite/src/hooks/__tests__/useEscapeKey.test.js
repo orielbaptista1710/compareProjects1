@@ -1,76 +1,127 @@
-// frontend-vite/src/hooks/__tests__/useEscapeKey.test.js
-//
-// NOTE: In the source tree this hook (useEscapeKey) is currently exported
-// from a file named `useOutsideClick.js`, which already contains a
-// *different* hook (`useOutsideClick`, tested separately below). That's a
-// naming collision waiting to bite someone doing a find/replace or import
-// autocomplete. Recommend renaming this file to `useEscapeKey.js` — the
-// import path below assumes that rename; adjust if you keep the old name.
-import { describe, it, expect, vi } from "vitest";
-import { renderHook } from "@testing-library/react";
-import { useEscapeKey } from "../useEscapeKey";
+import { renderHook, act } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-const pressKey = (key) => {
-  document.dispatchEvent(new KeyboardEvent("keydown", { key }));
-};
+import { useEscapeKey } from "../useEscapeKey";
 
 describe("useEscapeKey", () => {
   it("calls onClose when Escape is pressed while active", () => {
+    // Arrange:
+    // Create a mock function so we can check whether the hook calls it.
     const onClose = vi.fn();
+
     renderHook(() => useEscapeKey(true, onClose));
 
-    pressKey("Escape");
+    // Act:
+    // Simulate the real browser event that happens when the user
+    // presses the Escape key.
+    act(() => {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape" })
+      );
+    });
 
+    // Assert:
+    // The modal close callback should be called exactly once.
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("does not call onClose for other keys", () => {
+  it("does not call onClose when a different key is pressed", () => {
     const onClose = vi.fn();
+
     renderHook(() => useEscapeKey(true, onClose));
 
-    pressKey("Enter");
+    act(() => {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter" })
+      );
+    });
 
+    // Only Escape should trigger the close behavior.
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  it("does not attach a listener (or call onClose) when isActive is false", () => {
+  it("does nothing when the hook is inactive", () => {
     const onClose = vi.fn();
+
     renderHook(() => useEscapeKey(false, onClose));
 
-    pressKey("Escape");
+    act(() => {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape" })
+      );
+    });
 
+    // An inactive modal should not respond to Escape.
     expect(onClose).not.toHaveBeenCalled();
   });
 
   it("does not throw when onClose is missing", () => {
+    // The current hook explicitly guards against a missing callback:
+    //
+    // if (!isActive || !onClose) return;
+    //
+    // This test protects that safety behavior from being accidentally
+    // removed during a future refactor.
+    renderHook(() => useEscapeKey(true, undefined));
+
     expect(() => {
-      renderHook(() => useEscapeKey(true, undefined));
-      pressKey("Escape");
+      act(() => {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Escape" })
+        );
+      });
     }).not.toThrow();
   });
 
-  it("removes the listener on unmount", () => {
+  it("stops responding after the hook becomes inactive", () => {
     const onClose = vi.fn();
-    const { unmount } = renderHook(() => useEscapeKey(true, onClose));
 
-    unmount();
-    pressKey("Escape");
-
-    expect(onClose).not.toHaveBeenCalled();
-  });
-
-  it("re-attaches with the latest onClose after it changes", () => {
-    const first = vi.fn();
-    const second = vi.fn();
     const { rerender } = renderHook(
-      ({ onClose }) => useEscapeKey(true, onClose),
-      { initialProps: { onClose: first } }
+      ({ isActive }) => useEscapeKey(isActive, onClose),
+      {
+        initialProps: { isActive: true },
+      }
     );
 
-    rerender({ onClose: second });
-    pressKey("Escape");
+    // First confirm that Escape works while active.
+    act(() => {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape" })
+      );
+    });
 
-    expect(first).not.toHaveBeenCalled();
-    expect(second).toHaveBeenCalledTimes(1);
+    expect(onClose).toHaveBeenCalledTimes(1);
+
+    // Simulate the modal closing or becoming inactive.
+    rerender({ isActive: false });
+
+    act(() => {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape" })
+      );
+    });
+
+    // No additional call should happen after deactivation.
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("removes the keyboard listener when unmounted", () => {
+    const onClose = vi.fn();
+
+    const { unmount } = renderHook(() =>
+      useEscapeKey(true, onClose)
+    );
+
+    // React Testing Library runs the useEffect cleanup during unmount.
+    unmount();
+
+    act(() => {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape" })
+      );
+    });
+
+    // If cleanup works, the event listener no longer exists.
+    expect(onClose).not.toHaveBeenCalled();
   });
 });

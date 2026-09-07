@@ -5,17 +5,17 @@ import { Home, User, Heart, Scale, Gift, Settings } from "lucide-react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useCompare } from "../../contexts/CompareContext";
 import toast from "react-hot-toast";
-import ProfileSidebar from "../CustomerProfileDashboard/CustomerProfileDashComponents/ProfileSidebar";
-import TabErrorBoundary from "../CustomerProfileDashboard/CustomerProfileDashComponents/TabErrorBoundary";
-import TabLoader from "../CustomerProfileDashboard/CustomerProfileDashComponents/TabLoader";
+import ProfileSidebar from "../../features/customer-dashboard/CustomerProfileDashComponents/ProfileSidebar";
+import TabErrorBoundary from "../../features/customer-dashboard/CustomerProfileDashComponents/TabErrorBoundary";
+import TabLoader from "../../features/customer-dashboard/CustomerProfileDashComponents/TabLoader";
 import "./CustomerProfilePage.css";
 
 // Each tab is its own chunk — only the active one is fetched.
-const ProfileTab = lazy(() => import("./CustomerProfileDashComponents/tabs/ProfileTab"));
-const ShortlistTab = lazy(() => import("./CustomerProfileDashComponents/tabs/ShortlistTab"));
-const CompareTab = lazy(() => import("./CustomerProfileDashComponents/tabs/CompareTab"));
-const OffersTab = lazy(() => import("./CustomerProfileDashComponents/tabs/OffersTab"));
-const SettingsTab = lazy(() => import("./CustomerProfileDashComponents/tabs/SettingsTab"));
+const ProfileTab = lazy(() => import("../../features/customer-dashboard/CustomerProfileDashComponents/tabs/ProfileTab"));
+const ShortlistTab = lazy(() => import("../../features/customer-dashboard/CustomerProfileDashComponents/tabs/ShortlistTab"));
+const CompareTab = lazy(() => import("../../features/customer-dashboard/CustomerProfileDashComponents/tabs/CompareTab"));
+const OffersTab = lazy(() => import("../../features/customer-dashboard/CustomerProfileDashComponents/tabs/OffersTab"));
+const SettingsTab = lazy(() => import("../../features/customer-dashboard/CustomerProfileDashComponents/tabs/SettingsTab"));
 
 const TAB_COMPONENTS = {
   profile: ProfileTab,

@@ -18,17 +18,41 @@ const propertySchema = new mongoose.Schema({
     unique: true,
   },
 
+  //contact but only for brokers - resale
+
   featured: { type: Boolean, default: false }, 
   
   listingType: { type: String, enum: ['sale', 'resale'] },
-  sourceUrl: { type: String },// original source if scraped/imported CHECK THIS delly delly babe
-  tierType: { type: String, enum: ['tier1', 'tier2'] }, 
 
-  // Contact Information 
+  // used in sale and resale
   developerName : { type: String, required: true},
   developerAvatar: {
     url: { type: String, default: null },
     thumbnail: { type: String, default: null },
+
+
+  //resale properties broker details -- may be needeed
+  broker: {
+  name: {
+    type: String,
+    trim: true,
+  },
+
+  phone: {
+    type: String,
+    trim: true,
+  },
+
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+  },
+},
+
+  sourceUrl: { type: String },// original source if scraped/imported CHECK THIS delly delly babe
+  tierType: { type: String, enum: ['tier1', 'tier2'] }, 
+
 },
   // Property Information
   title: { type: String, required: true, trim: true },
@@ -95,7 +119,7 @@ geo: {
   }
 },
 
-  //secondary locations- fix this
+  //secondary locationss- fix this
   //landmarks u can keep blank for now im still working on this
   landmarks: {    
   type: [
@@ -128,7 +152,7 @@ geo: {
 
   possessionStatus: { 
     type: String,
-    enum: ["Ready to Move", "Under Construction"],
+    enum: ["Ready to Move", "Under Construction", "Immediate"],
    },
   //possessionStatus of the property depends on reraDate- classify into Immediate n UnderConstruction
   //ADD ENUM TO THIS ONCE RERA IS SETTLED

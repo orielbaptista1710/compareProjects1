@@ -1,6 +1,6 @@
 // backend/services/searchService.js
 //
-// ATLAS-READY ABSTRACTION
+// ATLAS-READY ABSTRACTION 
 // ─────────────────────────────────────────────────────────────────────────────
 // When you move to Atlas Search on M10+, you only touch this file.
 // Future migration to Altas Search/ElasticSearch
