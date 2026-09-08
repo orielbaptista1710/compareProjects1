@@ -26,6 +26,7 @@ const rankResults = (results, query) => {
       return { ...r, _score: score };
     })
     .sort((a, b) => b._score - a._score)
+        // eslint-disable-next-line no-unused-vars -- destructuring to strip _score off before returning CHECK THIS 
     .map(({ _score, ...r }) => r);
 };
 

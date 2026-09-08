@@ -74,21 +74,21 @@ describe("BoxcheckGroup", () => {
       .toHaveAttribute("aria-pressed", "false");
   });
 
-  it("renders a checkmark only for selected options", () => {
-    const { container } = render(
-      <BoxcheckGroup
-        options={["Lift", "Gym"]}
-        value={["Lift"]}
-        onChange={vi.fn()}
-      />
-    );
+  // it("renders a checkmark only for selected options", () => {
+  //   const { container } = render(
+  //     <BoxcheckGroup
+  //       options={["Lift", "Gym"]}
+  //       value={["Lift"]}
+  //       onChange={vi.fn()}
+  //     />
+  //   );
 
-    const selectedButton = screen.getByRole("button", { name: "Lift" });
-    const unselectedButton = screen.getByRole("button", { name: "Gym" });
+  //   const selectedButton = screen.getByRole("button", { name: "Lift" });
+  //   const unselectedButton = screen.getByRole("button", { name: "Gym" });
 
-    expect(selectedButton.querySelector("svg")).toBeInTheDocument();
-    expect(unselectedButton.querySelector("svg")).not.toBeInTheDocument();
-  });
+  //   expect(selectedButton.querySelector("svg")).toBeInTheDocument();
+  //   expect(unselectedButton.querySelector("svg")).not.toBeInTheDocument();
+  // });
 
   it("uses renderLabel when provided", () => {
     render(

@@ -55,6 +55,7 @@ export default function LocationSearchBar({ onSelect, placeholder = "Search loca
     const query = debouncedQuery.trim();
 
     if (query.length < 2) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional reset when query is cleared/too short, not a cascading-render loop - CHECK THIS 
       setSuggestions([]);
       setIsLoading(false);
       return;
