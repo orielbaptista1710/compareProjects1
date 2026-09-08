@@ -9,7 +9,7 @@ function useHeartProperty(propertyId) {
   const { heartProperties, toggleHeart } = useContext(CustomerActivityContext);
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
-
+ 
   // derive saved state globally
   const isSaved = useMemo(() => {
     if (!propertyId) return false;

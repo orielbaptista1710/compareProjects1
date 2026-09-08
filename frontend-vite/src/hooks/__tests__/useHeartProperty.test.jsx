@@ -1,15 +1,22 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
-import useHeartProperty from "../useHeartProperty";
-import { CustomerActivityContext } from "../../contexts/CustomerActivityContext";
-import { AuthContext } from "../../contexts/AuthContext";
+vi.mock("../../config/firebase.js", () => ({
+  CustomerAuth: {},
+  default: {},
+}));
 
 const navigateMock = vi.fn();
 
 vi.mock("react-router-dom", () => ({
-  useNavigate: () => navigateMock,
+  useNavigate: () => navigateMock, 
 }));
+
+
+import useHeartProperty from "../useHeartProperty";
+import { CustomerActivityContext } from "../../contexts/CustomerActivityContext";
+import { AuthContext } from "../../contexts/AuthContext";
+
 
 function createWrapper({ heartProperties = [], toggleHeart, currentUser }) {
   return function Wrapper({ children }) {
