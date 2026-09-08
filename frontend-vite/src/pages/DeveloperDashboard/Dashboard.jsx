@@ -3,12 +3,12 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import './Dashboard.css';
-import SellPropertyForm from '../../components/DevDashboardPageComponents/SellPropertyFormComponents/SellPropertyForm';
-import DeveloperSupport from "./DeveloperDashboardComponents/DeveloperSupport";
-import DashboardNav from './DeveloperDashboardComponents/DashboardNav';
+import SellPropertyForm from '../../features/developer-dashboard/property-form/SellPropertyForm';
+import DeveloperSupport from "../../features/developer-dashboard/components/DeveloperSupport/DeveloperSupport";
+import DashboardNav from '../../features/developer-dashboard/components/DashboardNav/DashboardNav';
 import API from '../../api';
-import DevPropertyList from './DeveloperDashboardComponents/DevPropertyList/DevPropertyList';
-import './DeveloperDashboardComponents/DevPropertyList/DevPropertyList.css';
+import DevPropertyList from '../../features/developer-dashboard/components/DevPropertyList/DevPropertyList';
+import '../../features/developer-dashboard/components/DevPropertyList/DevPropertyList.css';
 
 import toast from 'react-hot-toast';
 import toastError from '../../utils/toastError';
@@ -17,7 +17,7 @@ import {
   initialFormData,
   normalizePropertyData,
   REQUIRED_FIELDS,
-} from "./utils/developerDashPropertyHelpers";
+} from "../../features/developer-dashboard/utils/developerDashPropertyHelpers";
 import { formatCurrency } from "../../utils/formatters";
 
 const Dashboard = () => {

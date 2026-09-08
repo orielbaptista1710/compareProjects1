@@ -1,5 +1,5 @@
 import "./HomeHero.css";
-import MainSearchBar from "../HomePageComponents/MainSearchBar";
+import MainSearchBar from "../../../features/search/MainSearchBar/MainSearchBar";
 import { useCity } from "../../../contexts/CityContext";
 // import MascotGuide from "../../../components/DevDashboardPageComponents/Mascot/MascotGuide";
 

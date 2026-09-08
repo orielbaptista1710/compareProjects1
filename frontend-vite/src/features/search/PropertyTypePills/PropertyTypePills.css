@@ -1,0 +1,100 @@
+.ptp-wrapper {
+  position: relative;
+}
+
+.ptp-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #26202e;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ptp-trigger-icon {
+  color: #7c3aed;
+  flex-shrink: 0;
+}
+
+.ptp-trigger-chevron {
+  color: #9a94a8;
+  flex-shrink: 0;
+}
+
+.ptp-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  width: 340px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  padding: 16px;
+  z-index: 60;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ptp-section + .ptp-section {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0ecf7;
+}
+
+.ptp-group-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #26202e;
+  cursor: pointer;
+}
+
+.ptp-group-label svg {
+  color: #9a94a8;
+}
+
+.ptp-pills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.ptp-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3ecfd;
+  color: #5b21b6;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.ptp-pill:hover {
+  background: #e9dcfb;
+}
+
+.ptp-pill-active {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.ptp-icon {
+  flex-shrink: 0;
+}

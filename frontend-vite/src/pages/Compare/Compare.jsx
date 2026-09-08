@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
 import "./Compare.css";
 
-import CompareSummary from "./ComparePageComponents/CompareSummary";
-import CompareEmptyState from "./ComparePageComponents/CompareEmptyState";
+import CompareSummary from "../../features/compare/components/CompareSummary/CompareSummary";
+import CompareEmptyState from "../../features/compare/components/CompareEmptyState/CompareEmptyState";
 // import MascotGuide from "../../components/DevDashboardPageComponents/Mascot/MascotGuide";
-import HeaderCard from "./ComparePageComponents/HeaderCard";
-import AddSlot from "./ComparePageComponents/AddSlot";
-import CompareErrorBoundary from "./ComparePageComponents/CompareErrorBoundary";
-import { TABS, TAB_MAP } from "./ComparePageComponents/tabs";
+import HeaderCard from "../../features/compare/components/HeaderCard/HeaderCard";
+import AddSlot from "../../features/compare/components/AddSlot/AddSlot";
+import CompareErrorBoundary from "../../features/compare/components/CompareErrorBoundary/CompareErrorBoundary";
+import { TABS, TAB_MAP } from "../../features/compare/components/tabs";
 
 const MAX_SLOTS = 4;
 

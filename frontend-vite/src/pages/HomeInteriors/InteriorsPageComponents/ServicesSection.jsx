@@ -1,5 +1,5 @@
 // src/pages/Interiors/components/ServicesSection  
-import OptimizedImage from "./OptimizedImage";
+// import OptimizedImage from "./OptimizedImage";
 import { ArrowRight } from "lucide-react";
 import { homeServices, commercialServices, serviceTabs } from "../../../database/interiorsData";
 import './ServicesSection.css';
@@ -32,12 +32,12 @@ export default function ServicesSection({ activeTab, setActiveTab }) {
         {services.map((service) => (
           <div key={service.id} className="interiors-service-card">
             <div className="interiors-service-image">
-              <OptimizedImage
-                src={service.image}
-                width={600}
-                height={400}
-                alt={service.title}
-              />
+              {/* {/* <OptimizedImage */}
+                {/* src={service.image} */}
+                {/* width={600} */}
+                {/* height={400} */}
+                {/* alt={service.title} */}
+              {/* /> */}
               <div className="interiors-service-icon">{service.icon}</div>
             </div>
 

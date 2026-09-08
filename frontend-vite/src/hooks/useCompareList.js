@@ -26,14 +26,11 @@ export default function useCompareList() {
 
   // Add property (max 4)
   const addToCompare = (property) => {
-    if (compareList.find((p) => p._id === property._id)) return;
-
-    if (compareList.length >= 4) {
-      return;
-    }
-
-    setCompareList((prev) => [...prev, property]);
-  };
+  if (compareList.find((p) => p._id === property._id)) return "duplicate";
+  if (compareList.length >= 4) return "limit";
+  setCompareList((prev) => [...prev, property]);
+  return "added";
+};
 
   // Remove property
   const removeFromCompare = (id) => {

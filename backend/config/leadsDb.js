@@ -6,7 +6,7 @@ let leadsConnection;
 
 export const connectLeadsDB = async () => {
   try {
-    leadsConnection = mongoose.createConnection(
+    leadsConnection = mongoose.createConnection( 
       process.env.LEADS_MONGO_URI
     );
 

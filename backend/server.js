@@ -18,6 +18,7 @@ import customerActivityRoutes from './routes/customerActivityRoutes.js';
 import discoverRoutes from './routes/discoverRoutes.js';
 import leadRoutes from './routes/leadRoutes.js';
 import newsRoutes from "./routes/newsRoutes.js";
+import locationRoutes from "./routes/locationRoutes.js";
 
 import { connectLeadsDB } from "./config/leadsDb.js";
 
@@ -42,6 +43,8 @@ app.use('/api/customerActivity', customerActivityRoutes);
 app.use('/api/discover', discoverRoutes);  //have to fix this 
 app.use('/api/leads', leadRoutes);
 app.use('/api/news', newsRoutes);
+app.use("/api/locations", locationRoutes);
+
 
 
 // TEST ROUTES

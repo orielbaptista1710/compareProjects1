@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# /// ingore certain files for now 
+tests/Breadcrumbs.test.js
+tests/LocationSearchBar.test.js

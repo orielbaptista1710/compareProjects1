@@ -1,14 +1,11 @@
-// src/utils/formatters.js
-
 /**
  * Format a number using the Indian numbering system.
  *
  * Examples:
  * 12500000 -> ₹1,25,00,000
- * 750000   -> ₹7,50,000
+ * 750000 -> ₹7,50,000
  *
- * Used for full currency/number displays where the complete value
- * should remain visible.
+ * Used when the complete currency value should remain visible.
  */
 export const formatCurrency = (value, options = {}) => {
   const {
@@ -30,16 +27,23 @@ export const formatCurrency = (value, options = {}) => {
 };
 
 /**
- * Format currency into a shorter, more readable Indian real-estate format.
+ * Remove unnecessary trailing decimal zeros.
+ *
+ * Examples:
+ * "7.50" -> "7.5"
+ * "7.00" -> "7"
+ */
+const trimTrailingZeros = (value) =>
+  value.replace(/\.?0+$/, "");
+
+/**
+ * Format currency into a shorter Indian real-estate format.
  *
  * Examples:
  * 12500000 -> ₹1.25 Cr
- * 750000   -> ₹7.5 L
- * 50000    -> ₹50 K
- * 500      -> ₹500
- *
- * `decimals` controls the maximum number of decimal places shown
- * for Cr/L/K values.
+ * 750000 -> ₹7.5 L
+ * 50000 -> ₹50 K
+ * 500 -> ₹500
  */
 export const formatCurrencyShort = (value, options = {}) => {
   const {
@@ -54,7 +58,6 @@ export const formatCurrencyShort = (value, options = {}) => {
     return fallback;
   }
 
-  // Prevent invalid decimal settings from causing unexpected output.
   const safeDecimals = Math.max(
     0,
     Math.min(20, Number.isInteger(decimals) ? decimals : 2)
@@ -63,17 +66,17 @@ export const formatCurrencyShort = (value, options = {}) => {
   let formatted;
 
   if (num >= 10000000) {
-    formatted = `${(num / 10000000)
-      .toFixed(safeDecimals)
-      .replace(/\.00$/, "")} Cr`;
+    formatted = `${trimTrailingZeros(
+      (num / 10000000).toFixed(safeDecimals)
+    )} Cr`;
   } else if (num >= 100000) {
-    formatted = `${(num / 100000)
-      .toFixed(safeDecimals)
-      .replace(/\.00$/, "")} L`;
+    formatted = `${trimTrailingZeros(
+      (num / 100000).toFixed(safeDecimals)
+    )} L`;
   } else if (num >= 1000) {
-    formatted = `${(num / 1000)
-      .toFixed(safeDecimals)
-      .replace(/\.00$/, "")} K`;
+    formatted = `${trimTrailingZeros(
+      (num / 1000).toFixed(safeDecimals)
+    )} K`;
   } else {
     formatted = num.toString();
   }
@@ -88,9 +91,8 @@ export const formatCurrencyShort = (value, options = {}) => {
  * 12345 -> "12,345"
  * 1234567 -> "12,34,567"
  *
- * Returns null when no value is provided or the value is invalid.
+ * Returns null when the value is missing or invalid.
  */
-//formateIndianNumber not used anywhere in codebase 
 export const formatIndianNumber = (value) => {
   if (value == null || value === "") {
     return null;
@@ -106,58 +108,72 @@ export const formatIndianNumber = (value) => {
 };
 
 /**
- * Format property area for plain text displays.
+ * Format property area for text displays.
  *
- * Examples:
- * { value: 1250, unit: "sqft" } -> "1,250 sqft"
- * { value: 1250 }                -> "1,250 sqft"
- *
- * Used by the Key Details grid and sidebar price/area summary.
+ * Returns the configured fallback when the area is missing or invalid.
  */
+export const formatAreaText = (area, options = {}) => {
+  const {
+    fallback = null,
+    defaultUnit = "sqft",
+  } = options;
 
-//might be able to use in AreaFilter.jsx and etx CHECK THIS
-export const formatAreaText = (area) =>
-  area?.value != null
-    ? `${formatIndianNumber(area.value)} ${area.unit || "sqft"}`
-    : null;
+  if (area?.value == null) {
+    return fallback;
+  }
+
+  const formattedValue = formatIndianNumber(area.value);
+
+  if (formattedValue == null) {
+    return fallback;
+  }
+
+  return `${formattedValue} ${area.unit || defaultUnit}`;
+};
 
 /**
  * Return a safe display value when a field is empty.
- *
- * Used by overview/property-detail UI where an em dash should be shown
- * instead of an empty or missing value.
  */
-export const safeText = (val) =>
-  val != null && val !== "" ? val : "—";
+export const safeText = (value) => {
+  if (value == null) {
+    return "—";
+  }
+
+  if (typeof value === "string" && value.trim() === "") {
+    return "—";
+  }
+
+  return value;
+};
 
 /**
  * Format property area for overview/detail sections.
- *
- * Example:
- * { value: 1250, unit: "sq.ft" } -> "1,250 sq.ft"
- *
- * Returns "—" when the area value is missing.
  */
 export const fmtArea = (area) =>
-  area?.value != null
-    ? `${formatIndianNumber(area.value)} ${area.unit || "sq.ft"}`
-    : "—";
+  formatAreaText(area, {
+    fallback: "—",
+    defaultUnit: "sq.ft",
+  });
 
 /**
  * Format a date for display using the Indian locale.
  *
  * Returns "—" when the date is missing or invalid.
  */
-export const fmtDate = (d) => {
-  if (!d) {
+export const fmtDate = (value) => {
+  if (!value) {
     return "—";
   }
 
-  const date = new Date(d);
+  const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
     return "—";
   }
 
-  return date.toLocaleDateString("en-IN");
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(date);
 };

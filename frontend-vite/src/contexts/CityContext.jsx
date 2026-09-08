@@ -2,10 +2,8 @@
 
 /* eslint-disable react-refresh/only-export-components */
 import { useEffect, useState } from "react";
-// import { CityContext } from "./contextInstances/cityContextInstance";
 
 import { createContext, useContext } from "react";
-
 export const CityContext = createContext();
 
 export const useCity = () => {
@@ -35,6 +33,6 @@ export const CityProvider = ({ children }) => {
       {children}
     </CityContext.Provider>
   );
-};
+}; 
 
 

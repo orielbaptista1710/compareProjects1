@@ -1,69 +1,27 @@
 // frontend-vite/src/hooks/useProperty.js
+import { useQuery } from "@tanstack/react-query";
 
-import { useState, useEffect } from "react";
+const fetchProperty = async (id) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_BASE_URL}/api/properties/${id}`
+  );
+  if (!response.ok) {
+    throw new Error("Failed to load property");
+  }
+  return response.json();
+};
 
 export const useProperty = (id) => {
-  const [property, setProperty] = useState(null);
-  const [loading, setLoading] = useState(Boolean(id));
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const fetchProperty = async () => {
-      if (!id) {
-        if (!cancelled) {
-          setProperty(null);
-          setError("Invalid property ID");
-          setLoading(false);
-        }
-        return;
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/api/properties/${id}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to load property");
-        }
-
-        const data = await response.json();
-
-        if (!cancelled) {
-          setProperty(data);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          console.error("useProperty error:", err);
-          setProperty(null);
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Failed to load property"
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchProperty();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [id]);
+  const { data, isPending, error } = useQuery({
+    queryKey: ["property", id],
+    queryFn: () => fetchProperty(id),
+    enabled: Boolean(id),
+    staleTime: 5 * 60 * 1000, // property details don't change every second
+  });
 
   return {
-    property,
-    loading,
-    error,
+    property: data ?? null,
+    loading: isPending && Boolean(id),
+    error: id ? error?.message : "Invalid property ID",
   };
 };

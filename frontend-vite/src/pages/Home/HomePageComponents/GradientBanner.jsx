@@ -12,31 +12,34 @@ const GradientBanner = ({
 }) => {
   const sectionStyle = backgroundImage
     ? {
-        background: `
+        backgroundImage: `
           linear-gradient(
             rgba(88, 0, 135, 0.65),
             rgba(45, 0, 80, 0.75)
           ),
           url(${backgroundImage})
         `,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
       }
     : undefined;
 
   return (
     <section
       id={id}
-      className={`gradient-banner ${backgroundImage ? "has-bg-image" : ""}`}
+      className="gradient-banner"
       style={sectionStyle}
       aria-labelledby={ariaLabelledBy}
     >
       <div className="gradient-banner-content">
-        <h2 id={ariaLabelledBy} className="gradient-banner-title">
+        <h2
+          id={ariaLabelledBy}
+          className="gradient-banner-title"
+        >
           {title}
         </h2>
 
-        <p className="gradient-banner-subtitle">{subtitle}</p>
+        <p className="gradient-banner-subtitle">
+          {subtitle}
+        </p>
 
         <button
           type="button"
