@@ -37,30 +37,11 @@ export default defineConfig({
   },
 
   build: {
-    chunkSizeWarningLimit: 700, //raise the warning if too large default is 500kb
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (!id.includes("node_modules")) return;
-
-          if (id.includes("@mui/x-data-grid")) return "vendor-datagrid";
-          if (id.includes("@mui/material") || id.includes("@mui/system") || id.includes("@emotion")) return "vendor-mui";
-          if (id.includes("@mui/icons-material")) return "vendor-mui-icons";
-          if (id.includes("react-dom") || id.includes("/react/") || id.includes("react-router")) return "vendor-react";
-          if (id.includes("@tanstack/react-query")) return "vendor-query";
-          if (id.includes("lodash")) return "vendor-lodash";
-
-          if (id.includes("firebase")) return "vendor-firebase";
-          // if (id.includes("/zod/")) return "vendor-zod";
-          // if (id.includes("axios")) return "vendor-axios";
-          // if (id.includes("slick-carousel") || id.includes("react-slick")) return "vendor-slick";
-
-          return "vendor";
-
-        },
-      },
-    },
+    chunkSizeWarningLimit: 700,
+    // manualChunks removed — Rollup's automatic chunking correctly
+    // resolves the dependency graph and load order. Manual splitting
+    // caused repeated "cannot access before initialization" /
+    // "cannot read properties of undefined" errors from circular
+    // chunk dependencies (MUI icons, then React itself).
   },
-
-  
-});  
+});
