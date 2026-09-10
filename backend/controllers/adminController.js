@@ -1,6 +1,9 @@
-//controllers/adminController.js 
+//controllers/adminController.js
+import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
 import * as propertyService from '../services/propertyAdminService.js';
+
+const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 // import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from '../models/propertyType.js';
 
@@ -60,7 +63,17 @@ export const getLocalities = asyncHandler(async (req, res) => {
 
 // GET /api/admin/property/:id
 export const getDeveloperDetails = asyncHandler(async (req, res) => {
+  if (!isValidId(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid property id');
+  }
+
   const property = await propertyService.fetchPropertyById(req.params.id);
+
+  if (!property) {
+    res.status(404);
+    throw new Error('Property not found');
+  }
 
   res.json({
     success: true,
@@ -68,15 +81,64 @@ export const getDeveloperDetails = asyncHandler(async (req, res) => {
   });
 });
 
-// PUT /api/admin/approve/:id - this approves the individual property via AdminDashboard - makes status = approved - CHECK THIS when large no of approvals what to do? - needed security for this?
+// PUT /api/admin/approve/:id - this approves the individual property via AdminDashboard - makes status = approved
 export const approveProperty = asyncHandler(async (req, res) => {
+  if (!isValidId(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid property id');
+  }
+
   const property = await propertyService.updatePropertyStatus(req.params.id, 'approved', req.user._id);
+
+  if (!property) {
+    res.status(404);
+    throw new Error('Property not found');
+  }
+
   res.json({ success: true, message: 'Property approved successfully', property });
 });
 
 // PUT /api/admin/reject/:id - this rejects the individual property via AdminDashboard
 export const rejectProperty = asyncHandler(async (req, res) => {
-  const reason = req.body.rejectionReason || 'No reason provided';
+  if (!isValidId(req.params.id)) {
+    res.status(400);
+    throw new Error('Invalid property id');
+  }
+
+  const reason = req.body?.rejectionReason || 'No reason provided'; //
   const property = await propertyService.updatePropertyStatus(req.params.id, 'rejected', req.user._id, reason);
+
+  if (!property) {
+    res.status(404);
+    throw new Error('Property not found');
+  }
+
   res.json({ success: true, message: 'Property rejected successfully', property });
+});
+
+// PUT /api/admin/bulk-approve - approve many properties at once (checkbox selection in AdminDashboard)
+export const bulkApproveProperties = asyncHandler(async (req, res) => {
+  const { ids } = req.body || {};
+
+  if (!Array.isArray(ids) || !ids.length) {
+    res.status(400);
+    throw new Error('ids must be a non-empty array');
+  }
+
+  const result = await propertyService.bulkUpdatePropertyStatus(ids, 'approved', req.user._id);
+  res.json({ success: true, message: 'Properties approved successfully', ...result });
+});
+
+// PUT /api/admin/bulk-reject - reject many properties at once (checkbox selection in AdminDashboard)
+export const bulkRejectProperties = asyncHandler(async (req, res) => {
+  const { ids, rejectionReason } = req.body || {};
+
+  if (!Array.isArray(ids) || !ids.length) {
+    res.status(400);
+    throw new Error('ids must be a non-empty array');
+  }
+
+  const reason = rejectionReason || 'No reason provided';
+  const result = await propertyService.bulkUpdatePropertyStatus(ids, 'rejected', req.user._id, reason);
+  res.json({ success: true, message: 'Properties rejected successfully', ...result });
 });

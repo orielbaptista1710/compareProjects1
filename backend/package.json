@@ -8,6 +8,7 @@
     "lint": "eslint .",
     "create-user": "node scripts/createUser.js",
     "deactivate-user": "node scripts/deactivateUser.js",
+    "reset-password": "node scripts/resetPassword.js",
     "brokenimg-urls": "node scripts/findBrokenImageUrls.js"
   },
   "keywords": [],
@@ -43,6 +44,8 @@
     "@eslint/js": "^10.0.1",
     "eslint": "^10.8.0",
     "globals": "^17.8.0",
+    "mongodb-memory-server": "^11.2.0",
+    "supertest": "^7.2.2",
     "vitest": "^4.1.11"
   }
 }

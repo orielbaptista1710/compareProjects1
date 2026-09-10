@@ -1,5 +1,6 @@
 // frontend-vite/src/pages/Admin/AdminDashboard.jsx
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Box, Typography, Button, CircularProgress,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
@@ -46,40 +47,86 @@ const rejectPropertyApi = async ({ id, reason }) => {
   return data;
 };
 
+const bulkApprovePropertiesApi = async (ids) => {
+  const { data } = await API.put("/api/admin/bulk-approve", { ids });
+  return data;
+};
+
+const bulkRejectPropertiesApi = async ({ ids, reason }) => {
+  const { data } = await API.put("/api/admin/bulk-reject", { ids, rejectionReason: reason });
+  return data;
+};
+
 const logoutApi = async () => {
   await API.post("/api/auth/logout");
 };
 
 // ─── Default filter state (stable reference — avoids inline object recreation) ─
+// Keep in sync with AdminFilters.jsx's DEFAULT_FILTERS
 
 const DEFAULT_FILTERS = {
   search:       "",
   propertyType: "",
-  status:       "",
+  status:       "pending",
   city:         "",
   locality:     null,
   imageFilter:  "",
   sortBy:       "latest",
 };
 
+// ─── URL <-> filters helpers ──────────────────────────────────────────────────
+// "status" is the one field whose "not set" value ("all"/"") differs from the
+// default ("pending"), so it needs an explicit sentinel to round-trip through
+// the URL correctly (an empty string can't just mean "omit the param").
+
+function readInitialFiltersFromParams(params) {
+  const rawStatus = params.get("status");
+  return {
+    search:       params.get("search") || DEFAULT_FILTERS.search,
+    propertyType: params.get("propertyType") || DEFAULT_FILTERS.propertyType,
+    status:       rawStatus == null ? DEFAULT_FILTERS.status : (rawStatus === "all" ? "" : rawStatus),
+    city:         params.get("city") || DEFAULT_FILTERS.city,
+    locality:     params.get("locality") || DEFAULT_FILTERS.locality,
+    imageFilter:  params.get("imageFilter") || DEFAULT_FILTERS.imageFilter,
+    sortBy:       params.get("sortBy") || DEFAULT_FILTERS.sortBy,
+  };
+}
+
+function readInitialPageFromParams(params) {
+  const page = Number(params.get("page"));
+  return Number.isInteger(page) && page > 0 ? page : 0;
+}
+
+function readInitialRowsPerPageFromParams(params) {
+  const limit = Number(params.get("limit"));
+  return [10, 20, 50, 100].includes(limit) ? limit : 20;
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [page, setPage]               = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [page, setPage]               = useState(() => readInitialPageFromParams(searchParams));
+  const [rowsPerPage, setRowsPerPage] = useState(() => readInitialRowsPerPageFromParams(searchParams));
 
   // Filters
-  const [filters, setFilters]               = useState(DEFAULT_FILTERS);
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [filters, setFilters]               = useState(() => readInitialFiltersFromParams(searchParams));
+  const [debouncedSearch, setDebouncedSearch] = useState(() => readInitialFiltersFromParams(searchParams).search);
 
-  // Modals
+  // Modals — propertyId can be a single id (string) or an array of ids (bulk action)
   const [selectedProperty, setSelectedProperty]   = useState(null);
   const [detailsModalOpen, setDetailsModalOpen]   = useState(false);
   const [detailsLoading, setDetailsLoading]       = useState(false);
   const [rejectModal, setRejectModal]             = useState({ open: false, propertyId: null, reason: "" });
   const [confirmApprove, setConfirmApprove]       = useState({ open: false, propertyId: null });
+
+  // Bulk selection (checkbox column in AdminPropertyTable).
+  // MUI X Data Grid v8+ controlled rowSelectionModel is { type, ids: Set<GridRowId> },
+  // not a plain array — see https://mui.com/x/react-data-grid/row-selection/
+  const [selectionModel, setSelectionModel] = useState({ type: "include", ids: new Set() });
+  const clearSelection = useCallback(() => setSelectionModel({ type: "include", ids: new Set() }), []);
 
   // ── Debounced search (legitimate effect — bridges React state to an
   //    external timer/debounce mechanism, which is exactly what useEffect
@@ -94,6 +141,35 @@ export default function AdminDashboard() {
   useEffect(() => {
     debounceSearch(filters.search);
   }, [filters.search, debounceSearch]);
+
+  // ── Sync current filters/page to the URL (after the search debounce) ───────
+  // One-directional (state -> URL) plus the one-time hydration above on
+  // mount: covers "refresh keeps my filters" and "share this link" without
+  // making the URL the single source of truth for every render.
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set("search", debouncedSearch);
+    if (filters.propertyType) params.set("propertyType", filters.propertyType);
+    if (filters.status !== DEFAULT_FILTERS.status) params.set("status", filters.status || "all");
+    if (filters.city) params.set("city", filters.city);
+    if (filters.locality) params.set("locality", filters.locality);
+    if (filters.imageFilter) params.set("imageFilter", filters.imageFilter);
+    if (filters.sortBy !== DEFAULT_FILTERS.sortBy) params.set("sortBy", filters.sortBy);
+    if (page) params.set("page", String(page));
+    if (rowsPerPage !== 20) params.set("limit", String(rowsPerPage));
+    setSearchParams(params, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    debouncedSearch,
+    filters.propertyType,
+    filters.status,
+    filters.city,
+    filters.locality,
+    filters.imageFilter,
+    filters.sortBy,
+    page,
+    rowsPerPage,
+  ]);
 
   // ── Reset locality when city changes (render-time adjustment) ──────────────
   // Replaces useEffect(() => setFilters(prev => ({...prev, locality: null})), [filters.city]).
@@ -212,6 +288,28 @@ export default function AdminDashboard() {
     onError: (err) => toastError(err, "Failed to reject property"),
   });
 
+  const bulkApproveMutation = useMutation({
+    mutationFn: bulkApprovePropertiesApi,
+    onSuccess:  (result) => {
+      invalidateProperties();
+      toast.success(`${result.modified} propert${result.modified === 1 ? "y" : "ies"} approved`);
+      setConfirmApprove({ open: false, propertyId: null });
+      clearSelection();
+    },
+    onError: (err) => toastError(err, "Failed to approve properties"),
+  });
+
+  const bulkRejectMutation = useMutation({
+    mutationFn: bulkRejectPropertiesApi,
+    onSuccess:  (result) => {
+      invalidateProperties();
+      toast.success(`${result.modified} propert${result.modified === 1 ? "y" : "ies"} rejected`);
+      setRejectModal({ open: false, propertyId: null, reason: "" });
+      clearSelection();
+    },
+    onError: (err) => toastError(err, "Failed to reject properties"),
+  });
+
   const logoutMutation = useMutation({
     mutationFn: logoutApi,
     onSuccess: () => {
@@ -245,22 +343,47 @@ export default function AdminDashboard() {
     setTimeout(() => setSelectedProperty(null), 300);
   }, []);
 
-  // ── Approve flow ──────────────────────────────────────────────────────────
+  // ── Approve flow (single row or bulk — propertyId can be an id or an array) ──
 
   const handleApprove = useCallback((id) => {
     setConfirmApprove({ open: true, propertyId: id });
   }, []);
 
+  const handleBulkApproveClick = useCallback(() => {
+    setConfirmApprove({ open: true, propertyId: Array.from(selectionModel.ids) });
+  }, [selectionModel]);
+
   const handleApproveConfirm = useCallback(() => {
-    approveMutation.mutate(confirmApprove.propertyId);
-  }, [approveMutation, confirmApprove.propertyId]);
+    if (Array.isArray(confirmApprove.propertyId)) {
+      bulkApproveMutation.mutate(confirmApprove.propertyId);
+    } else {
+      approveMutation.mutate(confirmApprove.propertyId);
+    }
+  }, [approveMutation, bulkApproveMutation, confirmApprove.propertyId]);
 
-  // ── Reject flow ──────────────────────────────────────────────────────────────
+  // ── Reject flow (single row or bulk) ──────────────────────────────────────────
 
-  const handleOpenReject  = useCallback((id) => setRejectModal({ open: true, propertyId: id, reason: "" }), []);
+  const handleOpenReject = useCallback((id) => setRejectModal({ open: true, propertyId: id, reason: "" }), []);
+
+  const handleBulkRejectClick = useCallback(() => {
+    setRejectModal({ open: true, propertyId: Array.from(selectionModel.ids), reason: "" });
+  }, [selectionModel]);
+
   const handleRejectConfirm = useCallback(() => {
-    rejectMutation.mutate({ id: rejectModal.propertyId, reason: rejectModal.reason });
-  }, [rejectMutation, rejectModal]);
+    if (Array.isArray(rejectModal.propertyId)) {
+      bulkRejectMutation.mutate({ ids: rejectModal.propertyId, reason: rejectModal.reason });
+    } else {
+      rejectMutation.mutate({ id: rejectModal.propertyId, reason: rejectModal.reason });
+    }
+  }, [rejectMutation, bulkRejectMutation, rejectModal]);
+
+  const isApprovePending = Array.isArray(confirmApprove.propertyId)
+    ? bulkApproveMutation.isPending
+    : approveMutation.isPending;
+
+  const isRejectPending = Array.isArray(rejectModal.propertyId)
+    ? bulkRejectMutation.isPending
+    : rejectMutation.isPending;
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
@@ -394,6 +517,36 @@ export default function AdminDashboard() {
         loadingLocalities={loadingLocalities}
       />
 
+      {selectionModel.ids.size > 0 && (
+        <Box
+          sx={{
+            mb: 2, p: 1.5,
+            borderRadius: 2,
+            bgcolor: "action.selected",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 1,
+          }}
+        >
+          <Typography variant="body2" fontWeight={600}>
+            {selectionModel.ids.size} selected
+          </Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button size="small" variant="contained" color="success" onClick={handleBulkApproveClick}>
+              Approve
+            </Button>
+            <Button size="small" variant="contained" color="error" onClick={handleBulkRejectClick}>
+              Reject
+            </Button>
+            <Button size="small" variant="text" color="inherit" onClick={clearSelection}>
+              Clear
+            </Button>
+          </Box>
+        </Box>
+      )}
+
       {isLoading && !data ? (
         <Box>
           {[...Array(8)].map((_, i) => (
@@ -418,6 +571,8 @@ export default function AdminDashboard() {
             approveMutation={approveMutation}
             rejectMutation={rejectMutation}
             onRowClick={handleRowClick}
+            selectionModel={selectionModel}
+            onSelectionModelChange={setSelectionModel}
           />
         </Box>
       )}
@@ -427,6 +582,10 @@ export default function AdminDashboard() {
         onClose={handleCloseDetails}
         property={selectedProperty}
         loading={detailsLoading}
+        onApprove={selectedProperty ? () => handleApprove(selectedProperty._id) : undefined}
+        onReject={selectedProperty ? () => handleOpenReject(selectedProperty._id) : undefined}
+        isApproving={approveMutation.isPending && approveMutation.variables === selectedProperty?._id}
+        isRejecting={rejectMutation.isPending && rejectMutation.variables?.id === selectedProperty?._id}
       />
 
       <Dialog
@@ -435,10 +594,16 @@ export default function AdminDashboard() {
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle>Approve property?</DialogTitle>
+        <DialogTitle>
+          {Array.isArray(confirmApprove.propertyId)
+            ? `Approve ${confirmApprove.propertyId.length} properties?`
+            : "Approve property?"}
+        </DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary">
-            This will mark the listing as approved and make it visible to customers.
+            {Array.isArray(confirmApprove.propertyId)
+              ? "This will mark the selected listings as approved and make them visible to customers."
+              : "This will mark the listing as approved and make it visible to customers."}
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -449,9 +614,9 @@ export default function AdminDashboard() {
             variant="contained"
             color="success"
             onClick={handleApproveConfirm}
-            disabled={approveMutation.isPending}
+            disabled={isApprovePending}
           >
-            {approveMutation.isPending ? "Approving…" : "Approve"}
+            {isApprovePending ? "Approving…" : "Approve"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -462,7 +627,11 @@ export default function AdminDashboard() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Reject property</DialogTitle>
+        <DialogTitle>
+          {Array.isArray(rejectModal.propertyId)
+            ? `Reject ${rejectModal.propertyId.length} properties`
+            : "Reject property"}
+        </DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           <TextField
             label="Reason for rejection"
@@ -473,6 +642,7 @@ export default function AdminDashboard() {
             value={rejectModal.reason}
             onChange={(e) => setRejectModal((prev) => ({ ...prev, reason: e.target.value }))}
             autoFocus
+            slotProps={{ htmlInput: { maxLength: 500 } }}
           />
         </DialogContent>
         <DialogActions>
@@ -483,9 +653,9 @@ export default function AdminDashboard() {
             variant="contained"
             color="error"
             onClick={handleRejectConfirm}
-            disabled={rejectMutation.isPending}
+            disabled={isRejectPending}
           >
-            {rejectMutation.isPending ? "Rejecting…" : "Reject"}
+            {isRejectPending ? "Rejecting…" : "Reject"}
           </Button>
         </DialogActions>
       </Dialog>

@@ -19,6 +19,7 @@ import discoverRoutes from './routes/discoverRoutes.js';
 import leadRoutes from './routes/leadRoutes.js';
 import newsRoutes from "./routes/newsRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
+// import passwordResetRequestRoutes from './routes/passwordResetRequestRoutes.js';
 
 import { connectLeadsDB } from "./config/leadsDb.js";
 
@@ -44,7 +45,7 @@ app.use('/api/discover', discoverRoutes);  //have to fix this
 app.use('/api/leads', leadRoutes);
 app.use('/api/news', newsRoutes);
 app.use("/api/locations", locationRoutes);
-
+// app.use('/api/password-reset-requests', passwordResetRequestRoutes);
 
 
 // TEST ROUTES

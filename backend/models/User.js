@@ -34,8 +34,7 @@ const userSchema = new mongoose.Schema({
     },
 
 
-      password: { type: String, required: true },
-
+      password: { type: String, required: true },  // select:false i might add CHECK THIS 
 
   // --- Role & Permissions ---
     // role is source of truth here for your app logic
