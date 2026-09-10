@@ -5,4 +5,4 @@ const isAdmin = (req, res, next) => {
     }
     return res.status(403).json({ message: 'Admin access required' });
   }; 
-export default isAdmin; 
+export default isAdmin;  

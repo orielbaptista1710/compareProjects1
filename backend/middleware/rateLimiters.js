@@ -91,4 +91,18 @@ export const geocodeLimiter = rateLimit({
   windowMs: 60_000,
   max: 20,
   message: { error: 'Too many geocode requests — please slow down.' },
-}); 
+});
+
+// ---------------------------------------------------------------------------
+// Admin actions (list / approve / reject / bulk)  —  60 req / 60 s
+// ---------------------------------------------------------------------------
+// Admin routes are already auth-gated (protect + isAdmin), so this is a
+// backstop against a buggy client loop or a compromised admin token rather
+// than a primary defense.
+// Applied to: all of /api/admin/*
+export const adminActionLimiter = rateLimit({
+  ...sharedOptions,
+  windowMs: 60_000,
+  max: 60,
+  message: { error: 'Too many admin requests — please slow down.' },
+});

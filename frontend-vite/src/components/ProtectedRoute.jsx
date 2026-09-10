@@ -1,7 +1,7 @@
 //components/ProtectedRoute.js
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import API from '../api'; 
+import API from '../api';  
 import toast from 'react-hot-toast';
 
  
@@ -16,14 +16,21 @@ const ProtectedRoute = ({ children, roles }) => {
       try {
         const { data } = await API.get('/api/auth/me', { withCredentials: true });
         setUser(data.user);
+
       } catch (err) {
-        if (err.response?.status === 403) {
+        const status = err.response?.status;
+        if (status === 403) {
           toast.error('Your account has been deactivated. Contact admin.');
+        } else if (!status || status >= 500) {
+          toast.error('Server unreachable — please try again.');
+          setLoading(false);
+          return; 
         }
         setUser(null);
       } finally {
         setLoading(false);
       }
+
     };
     fetchUser();
   }, []);

@@ -1,5 +1,6 @@
 //backend/services/propertyAdminService.js
 
+import mongoose from 'mongoose';
 import Property from '../models/Property.js';
 /**
  * Fetch paginated properties for Admin Dashboard
@@ -174,11 +175,7 @@ export const fetchPropertyById = async (id) => {
     // .populate("reviewedBy", "displayName")
     .lean();
 
-  if (!property) {
-    throw new Error("Property not found");
-  }
-
-  return property;
+  return property; // null if not found — caller decides the response
 };
 
 /* --------------------------------------------------
@@ -203,16 +200,53 @@ export const updatePropertyStatus = async (
   };
 
   if (status === "rejected") {
-    update.rejectionReason = rejectionReason;
+    update.rejectionReason = (rejectionReason || "").trim().slice(0, 500);
   }
 
   const property = await Property.findByIdAndUpdate(id, update, { new: true });
 
-  if (!property) {
-    throw new Error("Property not found");
+  return property; // null if not found — caller decides the response
+};
+
+/* --------------------------------------------------
+ * Bulk update property status (approve / reject many)
+ * -------------------------------------------------- */
+export const bulkUpdatePropertyStatus = async (
+  ids,
+  status,
+  adminId,
+  rejectionReason = null
+) => {
+  const allowedStatuses = ["approved", "rejected", "pending"];
+
+  if (!allowedStatuses.includes(status)) {
+    throw new Error("Invalid status");
   }
 
-  return property;
+  const validIds = [...new Set(ids)]
+    .filter((id) => mongoose.Types.ObjectId.isValid(id))
+    .slice(0, 100);
+
+  if (!validIds.length) {
+    return { matched: 0, modified: 0 };
+  }
+
+  const update = {
+    status,
+    reviewedBy: adminId,
+    reviewedAt: new Date(),
+  };
+
+  if (status === "rejected") {
+    update.rejectionReason = (rejectionReason || "").trim().slice(0, 500);
+  }
+
+  const result = await Property.updateMany(
+    { _id: { $in: validIds } },
+    update
+  );
+
+  return { matched: result.matchedCount, modified: result.modifiedCount };
 };
 
 
@@ -228,11 +262,11 @@ export const fetchCities = async () => {
 /* --------------------------------------------------
  * Fetch distinct localities by city (Admin)
  * -------------------------------------------------- */
-export const fetchLocalities = async ({ city, q = "" }) => { 
+export const fetchLocalities = async ({ city, q = "" }) => {
   if (!city) return [];
 
   return await Property.distinct("locality", {
     city,
-    locality: { $regex: q, $options: "i" } 
+    locality: { $regex: escapeRegex(q), $options: "i" }
   });
 };

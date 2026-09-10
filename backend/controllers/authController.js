@@ -25,31 +25,30 @@ export const getMe = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
     
   const username = req.body.username?.trim().toLowerCase().slice(0, 50);
-const password = req.body.password?.trim().slice(0, 128);
+  const password = req.body.password?.trim().slice(0, 128);
 
   if (!username || !password) {
     res.status(400);
     throw new Error('Username and password are required');
   }
 
-  console.log('Searching for user: ', username);
-  const user = await User.findOne({ username });
-  console.log('User found: ', user);
-  console.log(`Username length: ${username.length}`);
+  // console.log('Searching for user: ', username);
+  const user = await User.findOne({ username }); 
+  // console.log('User found: ', user);
+  // console.log(`Username length: ${username.length}`);
   if (!user) {
-    res.status(400);
-    throw new Error('User not found: Invalid credentials');
+    res.status(401); 
+    throw new Error('Invalid username or password');
   }
-  console.log(user.password, user.username)          //REMOVE THIS CHECK THIS 
-  console.log(`Password length: ${password.length}`);//REMOVE THIS 
-
+  // console.log(user.password, user.username)          //REMOVE THIS CHECK THIS 
+  // console.log(`Password length: ${password.length}`);//REMOVE THIS 
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
-    res.status(400);
-    throw new Error('Password mismatch: Invalid credentials');
+    res.status(401);
+    throw new Error('Invalid username or password');
   }
-  if (!user.isActive=='true') {
+  if (!user.isActive) {
   res.status(403);
   throw new Error('Your account has been deactivated. Please contact admin.');
 }

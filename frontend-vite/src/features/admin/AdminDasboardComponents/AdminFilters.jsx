@@ -47,10 +47,11 @@ const SORT_OPTIONS = [
   { value: "mostViewed", label: "Most viewed" },
 ];
 
+// Keep in sync with AdminDashboard.jsx's DEFAULT_FILTERS
 const DEFAULT_FILTERS = {
   search:       "",
   propertyType: "",
-  status:       "",
+  status:       "pending",
   city:         "",
   locality:     null,
   imageFilter:  "",
@@ -115,7 +116,7 @@ export default function AdminFilters({
           onChange={(e) => handleChange("search", e.target.value)}
           placeholder="Title, developer, description…"
           sx={{ minWidth: 220, flexGrow: 1 }}
-          inputProps={{ maxLength: 50 }}
+          slotProps={{ htmlInput: { maxLength: 50 } }}
         />
 
         {/* Status */}

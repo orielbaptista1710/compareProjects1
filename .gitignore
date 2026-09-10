@@ -5,6 +5,10 @@ frontend/node_modules/
 backend/node_modules/
 property-validator/node_modules/
 
+# Local claude-code CLI install artifact (root-level only — not backend/frontend-vite package.json)
+/package.json
+/package-lock.json
+
 # Ignore environment variables
 .env
 .env.local
@@ -14,8 +18,13 @@ property-validator/node_modules/
 
 .env.*    
 
-# ── OS / editor ────── Remove if have vscode extensition or configs u want to share 
+# ── OS / editor ────── Remove if have vscode extensition or configs u want to share
 .vscode/
+
+# Local Claude Code settings (personal, not shared with the team)
+.claude/
+
+/CLAUDE.md
 
 #ignore validation files
 property-validator/data

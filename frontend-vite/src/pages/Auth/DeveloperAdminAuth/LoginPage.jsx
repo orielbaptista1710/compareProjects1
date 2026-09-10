@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import './LoginPage.css';
-import API from '../../../api'; 
+import API from '../../../api';  
 import { Eye, EyeOff } from 'lucide-react'; 
 import DeveloperPopup from '../../../shared/Popups/DeveloperPopup';
+import ForgotPasswordPopup from '../../../shared/Popups/ForgotPasswordPopup';
 // import MascotGuide from '../../../components/DevDashboardPageComponents/Mascot/MascotGuide'
 // import Seo from '../constants/Seo';
 import toast from 'react-hot-toast';
@@ -18,6 +19,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showForgotPasswordPopup, setShowForgotPasswordPopup] = useState(false);
   const [showDeveloperPopup, setShowDeveloperPopup] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -43,13 +45,11 @@ const LoginPage = () => {
         withCredentials: true, 
       });
 
-      if (data.user || data.user.isActive=='true') {
         await queryClient.invalidateQueries(['current-user']);
         navigate(data.user.role === 'admin' ? '/admin' : '/dashboard');
         toast.success(`Welcome back, ${data.user.displayName}!`);
-
-
-      }
+      
+        
     } catch (err) {
       const status = err.response?.status;
       const serverMsg = err.response?.data?.message;
@@ -129,6 +129,7 @@ const LoginPage = () => {
             <button
               type="button"
               className="dev-forgot-password"
+              onClick={() => setShowForgotPasswordPopup(true)}
             >
               Forgot password?
             </button>
@@ -157,6 +158,12 @@ const LoginPage = () => {
           </p>
         </form>
       </div>
+
+
+      <ForgotPasswordPopup
+        isOpen={showForgotPasswordPopup}
+        onClose={() => setShowForgotPasswordPopup(false)}
+      />
 
       {/* <MascotGuide
               steps={[

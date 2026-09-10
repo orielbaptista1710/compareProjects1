@@ -23,9 +23,9 @@ const protect = asyncHandler(async (req, res, next) => {
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    console.log("Decoded JWT:", decoded);
-    console.log("decoded.id:", decoded.id);
-    console.log("Length:", decoded.id?.length);
+    // console.log("Decoded JWT:", decoded);
+    // console.log("decoded.id:", decoded.id);
+    // console.log("Length:", decoded.id?.length);
 
   } catch (err) {
     res.status(401);
