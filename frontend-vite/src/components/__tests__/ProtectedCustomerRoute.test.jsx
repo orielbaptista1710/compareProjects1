@@ -2,8 +2,11 @@ import { describe, it, expect , vi} from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 
-import ProtectedCustomerRoute from "../ProtectedCustomerRoute";
-import { AuthContext } from "../../contexts/AuthContext";
+
+vi.mock("../../config/firebase.js", () => ({
+  CustomerAuth: {},
+  default: {},
+}));
 
 /*
  * Mock the spinner so these tests focus only on
@@ -14,6 +17,11 @@ vi.mock("../../shared/LoadingSpinners/LoadingSpinner", () => ({
     <div data-testid="loading-spinner">{text}</div>
   ),
 }));
+
+import ProtectedCustomerRoute from "../ProtectedCustomerRoute";
+import { AuthContext } from "../../contexts/AuthContext";
+
+
 
 /*
  * Helper component used to verify redirects.

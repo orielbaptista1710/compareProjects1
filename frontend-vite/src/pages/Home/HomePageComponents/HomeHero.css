@@ -8,7 +8,7 @@
       rgba(0, 0, 0, 0.3) 0%,
       rgba(0, 0, 0, 0.5) 50%,
       rgba(0, 0, 0, 0.7) 100%),
-    url("../../../assests/images/bg_image.jpg") no-repeat center center / cover;
+    url("../../../assests/images/bg_image.webp") no-repeat center center / cover;
   display: flex;
   align-items: flex-start;
   justify-content: center;

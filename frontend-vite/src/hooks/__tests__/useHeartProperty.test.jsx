@@ -1,15 +1,22 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 
-import useHeartProperty from "../useHeartProperty";
-import { CustomerActivityContext } from "../../contexts/CustomerActivityContext";
-import { AuthContext } from "../../contexts/AuthContext";
+vi.mock("../../config/firebase.js", () => ({
+  CustomerAuth: {},
+  default: {},
+}));
 
 const navigateMock = vi.fn();
 
 vi.mock("react-router-dom", () => ({
-  useNavigate: () => navigateMock,
+  useNavigate: () => navigateMock, 
 }));
+
+
+import useHeartProperty from "../useHeartProperty";
+import { CustomerActivityContext } from "../../contexts/CustomerActivityContext";
+import { AuthContext } from "../../contexts/AuthContext";
+
 
 // heartedIds is always the full, unpopulated list of id strings (unlike the
 // paginated heartProperties array), which is what makes it safe for "is this

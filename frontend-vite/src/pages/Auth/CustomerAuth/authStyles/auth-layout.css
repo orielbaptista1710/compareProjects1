@@ -45,7 +45,7 @@
   padding: clamp(2.5rem, 5vw, 5rem) clamp(2rem, 4vw, 4.5rem);
   overflow: hidden;
 
-    background: url(/src/assests/images/landingpage.png) no-repeat center center / cover;
+    background: url(/src/assests/images/landingpage.webp) no-repeat center center / cover;
 
   color: #ffffff;
 }

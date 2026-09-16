@@ -1,9 +1,9 @@
 import { memo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Gallery.css';
-import galleryimg1 from '../../../assests/images/image1.jpg';
-import galleryimg2 from '../../../assests/images/image2.jpg';
-import galleryimg3 from '../../../assests/images/image3.jpg';
+import galleryimg1 from '../../../assests/images/image1.webp';
+import galleryimg2 from '../../../assests/images/image2.webp';
+import galleryimg3 from '../../../assests/images/image3.webp';
 
 const LOCATIONS = [
   {

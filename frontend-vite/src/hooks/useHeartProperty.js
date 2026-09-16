@@ -8,9 +8,9 @@ import { useNavigate } from "react-router-dom";
 function useHeartProperty(propertyId) {
   const { heartedIds, toggleHeart } = useContext(CustomerActivityContext);
   const { currentUser } = useContext(AuthContext);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
-  // derive saved state globally — heartedIds is always the full, unpopulated
+  // derive saved state globally  — heartedIds is always the full, unpopulated
   // list (not paginated like heartProperties), so this is accurate regardless
   // of which page of the Shortlist tab happens to be loaded.
   const isSaved = useMemo(() => {
