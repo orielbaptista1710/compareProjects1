@@ -2,6 +2,7 @@
 
 import express from 'express';
 import protect from '../middleware/protect.js';
+import isDeveloper from '../middleware/isDeveloper.js';
 import { searchProperties } from '../controllers/searchController.js';
 import { searchLimiter,addPropertyLimiter, readLimiter,} from '../middleware/rateLimiters.js';
 import {
@@ -32,11 +33,12 @@ router.get('/featured', readLimiter, getFeaturedProperties);//homepage hero
 router.get('/recent', readLimiter, getRecentProperties);//Recently added  homepage 
 router.get('/search', searchLimiter, searchProperties);//Full-text search — used by ExpandableSearchBar.same limiter can be reused* on any search surface; it's keyed per-IP.
 
-// ── Protected – developer CRUD ────────────────────────────────
-router.post('/add', protect, addPropertyLimiter, addProperty);
-router.get('/my-properties', protect, getMyProperties);//Fetch the logged-in developer's own properties
-router.put('/update/:id', protect, updateProperty);
-router.delete('/delete/:id', protect, deleteProperty);
+// ── Protected – developer CRUD (admin tokens are deliberately excluded here —
+// admins review listings via /api/admin/*, they don't submit their own) ─────
+router.post('/add', protect, isDeveloper, addPropertyLimiter, addProperty);
+router.get('/my-properties', protect, isDeveloper, getMyProperties);//Fetch the logged-in developer's own properties
+router.put('/update/:id', protect, isDeveloper, updateProperty);
+router.delete('/delete/:id', protect, isDeveloper, deleteProperty);
 
 // ── Public – parameterised routes ─────────────────────────────
 //parameterised routes are

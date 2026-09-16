@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { MapPin, Search, Loader2 } from "lucide-react";
 
-import API from "../../../api";
+import API from "../../../api/api";
 import { useDebounce } from "../../../hooks/useDebounceHook";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import "./LocationSearchBar.css";

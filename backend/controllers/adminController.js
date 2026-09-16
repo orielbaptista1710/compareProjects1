@@ -81,11 +81,35 @@ export const getDeveloperDetails = asyncHandler(async (req, res) => {
   });
 });
 
+// A reviewer can't approve/reject their own submission — no self-review.
+async function assertNotSelfReview(propertyId, reviewerId) {
+  const existing = await propertyService.fetchPropertyOwner(propertyId);
+
+  if (!existing) {
+    const err = new Error('Property not found');
+    err.statusCode = 404;
+    throw err;
+  }
+
+  if (existing.userId.toString() === reviewerId.toString()) {
+    const err = new Error('You cannot review a property you submitted yourself');
+    err.statusCode = 403;
+    throw err;
+  }
+}
+
 // PUT /api/admin/approve/:id - this approves the individual property via AdminDashboard - makes status = approved
 export const approveProperty = asyncHandler(async (req, res) => {
   if (!isValidId(req.params.id)) {
     res.status(400);
     throw new Error('Invalid property id');
+  }
+
+  try {
+    await assertNotSelfReview(req.params.id, req.user._id);
+  } catch (err) {
+    res.status(err.statusCode);
+    throw err;
   }
 
   const property = await propertyService.updatePropertyStatus(req.params.id, 'approved', req.user._id);
@@ -103,6 +127,13 @@ export const rejectProperty = asyncHandler(async (req, res) => {
   if (!isValidId(req.params.id)) {
     res.status(400);
     throw new Error('Invalid property id');
+  }
+
+  try {
+    await assertNotSelfReview(req.params.id, req.user._id);
+  } catch (err) {
+    res.status(err.statusCode);
+    throw err;
   }
 
   const reason = req.body?.rejectionReason || 'No reason provided'; //

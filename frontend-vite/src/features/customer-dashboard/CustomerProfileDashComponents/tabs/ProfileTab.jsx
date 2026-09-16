@@ -1,14 +1,51 @@
 // src/pages/<CustomerFolder>/CustomerProfilePage/tabs/ProfileTab.jsx
-import { useContext } from "react";
-import { CheckCircle2, Heart, Shield } from "lucide-react";
+import { useContext, useState } from "react";
+import { CheckCircle2, Heart, Shield, AlertCircle } from "lucide-react";
+import toast from "react-hot-toast";
+import { sendEmailVerification } from "firebase/auth";
 import { AuthContext } from "../../../../contexts/AuthContext";
+// CustomerAuth is the raw Firebase Auth SDK instance — imported directly
+// (not through AuthContext) because AuthContext only exposes the *backend*
+// Customer document as `currentUser`, not the live Firebase user object that
+// sendEmailVerification() needs. AuthContext.jsx's own refreshUser() uses
+// this exact same pattern (CustomerAuth.currentUser) for the same reason.
+import { CustomerAuth } from "../../../../config/firebase";
+
+// Only the Firebase error codes worth a specific message for this action —
+// everything else falls back to a generic "couldn't send" toast.
+const VERIFICATION_ERROR_MESSAGES = {
+  "auth/too-many-requests": "Too many attempts — please wait a bit before trying again.",
+  "auth/network-request-failed": "Network error. Check your connection and try again.",
+};
 
 const ProfileTab = () => {
   const { currentUser } = useContext(AuthContext);
+  // Tracks the in-flight resend request so the button can disable itself and
+  // avoid the user firing off several requests while one is already pending.
+  const [resendingVerification, setResendingVerification] = useState(false);
 
   const initials = currentUser?.customerName
     ? currentUser.customerName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "?";
+
+  const handleResendVerification = async () => {
+    // Guards against a stale click racing a logout, and against double-firing
+    // while a previous request is still in flight.
+    if (!CustomerAuth.currentUser || resendingVerification) return;
+
+    setResendingVerification(true);
+    try {
+      await sendEmailVerification(CustomerAuth.currentUser);
+      toast.success("Verification email sent — check your inbox!");
+    } catch (err) {
+      console.error("Resend verification email error:", err);
+      toast.error(
+        VERIFICATION_ERROR_MESSAGES[err.code] || "Couldn't send the email. Please try again."
+      );
+    } finally {
+      setResendingVerification(false);
+    }
+  };
 
   return (
     <div className="tab-panel">
@@ -22,10 +59,27 @@ const ProfileTab = () => {
         <div className="avatar-meta">
           <h3>{currentUser?.customerName || "Customer"}</h3>
           <p>{currentUser?.customerEmail || "No email"}</p>
-          <span className="badge badge-verified">
-            <CheckCircle2 size={12} />
-            Verified Account
-          </span>
+          {currentUser?.emailVerified ? (
+            <span className="badge badge-verified">
+              <CheckCircle2 size={12} />
+              Verified Account
+            </span>
+          ) : (
+            <div className="unverified-notice">
+              <span className="badge badge-unverified">
+                <AlertCircle size={12} />
+                Email not verified
+              </span>
+              <button
+                type="button"
+                className="btn-secondary btn-sm"
+                onClick={handleResendVerification}
+                disabled={resendingVerification}
+              >
+                {resendingVerification ? "Sending…" : "Resend verification email"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

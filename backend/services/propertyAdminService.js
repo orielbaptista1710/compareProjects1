@@ -167,6 +167,13 @@ export const fetchProperties = async ({
 };
 
 /* --------------------------------------------------
+ * Fetch just a property's owner (Admin self-review check)
+ * -------------------------------------------------- */
+export const fetchPropertyOwner = async (id) => {
+  return await Property.findById(id).select('userId').lean();
+};
+
+/* --------------------------------------------------
  * Fetch full property details (Admin view)
  * -------------------------------------------------- */
 export const fetchPropertyById = async (id) => {
@@ -241,8 +248,22 @@ export const bulkUpdatePropertyStatus = async (
     update.rejectionReason = (rejectionReason || "").trim().slice(0, 500);
   }
 
+  // Exclude properties the reviewer submitted themselves — no self-approval/
+  // rejection, same as the single approve/reject path. Silently dropped from
+  // the batch rather than failing it, consistent with how malformed/duplicate/
+  // nonexistent ids are already handled above.
+  const reviewableIds = (
+    await Property.find({ _id: { $in: validIds }, userId: { $ne: adminId } })
+      .select("_id")
+      .lean()
+  ).map((p) => p._id);
+
+  if (!reviewableIds.length) {
+    return { matched: 0, modified: 0 };
+  }
+
   const result = await Property.updateMany(
-    { _id: { $in: validIds } },
+    { _id: { $in: reviewableIds } },
     update
   );
 

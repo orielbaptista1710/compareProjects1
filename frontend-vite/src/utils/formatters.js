@@ -7,6 +7,7 @@
  *
  * Used when the complete currency value should remain visible.
  */
+//frontend-vite/src/utils/formatters.js
 export const formatCurrency = (value, options = {}) => {
   const {
     showSymbol = true,

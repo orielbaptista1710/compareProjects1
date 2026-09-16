@@ -34,6 +34,10 @@ const customerSchema = new mongoose.Schema({
       message: 'Invalid phone number',
     },
   },
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
   heartProperties: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Property' }],
   compareProperties: [{ type: mongoose.Schema.Types.ObjectId, ref: "Property"}],
 

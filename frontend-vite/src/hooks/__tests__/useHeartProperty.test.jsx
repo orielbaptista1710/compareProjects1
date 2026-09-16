@@ -11,13 +11,16 @@ vi.mock("react-router-dom", () => ({
   useNavigate: () => navigateMock,
 }));
 
-function createWrapper({ heartProperties = [], toggleHeart, currentUser }) {
+// heartedIds is always the full, unpopulated list of id strings (unlike the
+// paginated heartProperties array), which is what makes it safe for "is this
+// property saved?" checks anywhere in the app.
+function createWrapper({ heartedIds = [], toggleHeart, currentUser }) {
   return function Wrapper({ children }) {
     return (
       <AuthContext.Provider value={{ currentUser }}>
         <CustomerActivityContext.Provider
           value={{
-            heartProperties,
+            heartedIds,
             toggleHeart,
           }}
         >
@@ -39,35 +42,13 @@ describe("useHeartProperty", () => {
     vi.restoreAllMocks();
   });
 
-  it("returns true when the property object exists in heartProperties", () => {
+  it("returns true when the property ID exists in heartedIds", () => {
     const toggleHeart = vi.fn();
 
     const wrapper = createWrapper({
       currentUser: { uid: "user-123" },
       toggleHeart,
-      heartProperties: [
-        {
-          _id: "property-123",
-          title: "Mumbai Apartment",
-        },
-      ],
-    });
-
-    const { result } = renderHook(
-      () => useHeartProperty("property-123"),
-      { wrapper }
-    );
-
-    expect(result.current.isSaved).toBe(true);
-  });
-
-  it("returns true when the property ID exists directly in heartProperties", () => {
-    const toggleHeart = vi.fn();
-
-    const wrapper = createWrapper({
-      currentUser: { uid: "user-123" },
-      toggleHeart,
-      heartProperties: ["property-123"],
+      heartedIds: ["property-123"],
     });
 
     const { result } = renderHook(
@@ -84,7 +65,7 @@ describe("useHeartProperty", () => {
     const wrapper = createWrapper({
       currentUser: { uid: "user-123" },
       toggleHeart,
-      heartProperties: ["different-property"],
+      heartedIds: ["different-property"],
     });
 
     const { result } = renderHook(
@@ -101,7 +82,7 @@ describe("useHeartProperty", () => {
     const wrapper = createWrapper({
       currentUser: { uid: "user-123" },
       toggleHeart,
-      heartProperties: ["property-123"],
+      heartedIds: ["property-123"],
     });
 
     const { result } = renderHook(
@@ -112,13 +93,33 @@ describe("useHeartProperty", () => {
     expect(result.current.isSaved).toBe(false);
   });
 
+  it("stays accurate for a property not on the currently-loaded Shortlist page", () => {
+    // Regression guard: this is exactly the scenario the heartedIds/heartProperties
+    // split exists for — a property can be hearted (present in heartedIds) without
+    // being part of whatever page of heartProperties the Shortlist tab has loaded.
+    const toggleHeart = vi.fn();
+
+    const wrapper = createWrapper({
+      currentUser: { uid: "user-123" },
+      toggleHeart,
+      heartedIds: ["property-on-page-3"],
+    });
+
+    const { result } = renderHook(
+      () => useHeartProperty("property-on-page-3"),
+      { wrapper }
+    );
+
+    expect(result.current.isSaved).toBe(true);
+  });
+
   it("calls toggleHeart when an authenticated user toggles a property", async () => {
     const toggleHeart = vi.fn().mockResolvedValue(undefined);
 
     const wrapper = createWrapper({
       currentUser: { uid: "user-123" },
       toggleHeart,
-      heartProperties: [],
+      heartedIds: [],
     });
 
     const { result } = renderHook(
@@ -143,7 +144,7 @@ describe("useHeartProperty", () => {
     const wrapper = createWrapper({
       currentUser: null,
       toggleHeart,
-      heartProperties: [],
+      heartedIds: [],
     });
 
     const { result } = renderHook(
@@ -181,7 +182,7 @@ describe("useHeartProperty", () => {
     const wrapper = createWrapper({
       currentUser: { uid: "user-123" },
       toggleHeart,
-      heartProperties: [],
+      heartedIds: [],
     });
 
     const { result } = renderHook(

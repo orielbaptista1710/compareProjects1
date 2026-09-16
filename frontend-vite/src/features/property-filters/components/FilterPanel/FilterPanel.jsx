@@ -5,15 +5,17 @@ import {
   Search,
   Home,
   Building2,
-  BedDouble, 
-  Layers, 
+  BedDouble,
+  Layers,
   Compass,
   Car,
   MapPin,
   Clock,
   Maximize2,
+  IndianRupee,
 } from "lucide-react";
- 
+
+import BudgetFilter from "../BudgetFilter/BudgetFilter";
 import AreaFilter from "../AreaFilter/AreaFilter";
 import FilterSection from "../FilterSection/FilterSection";
 import CheckboxGroup from "../CheckboxGroup/CheckboxGroup";
@@ -72,6 +74,15 @@ const FilterPanel = ({
               aria-label="Search properties"
             />
           </div>
+        </FilterSection>
+
+        {/* Budget — {min,max} filter value, same shape/wiring as Area below.
+            No areaBounds-style prop needed: BudgetFilter uses its own fixed ₹ ladder. */}
+        <FilterSection title="Budget" icon={IndianRupee}>
+          <BudgetFilter
+            value={filters.budget ?? null}
+            onChange={(budgetValue) => onFilterChange("budget", budgetValue ?? null)}
+          />
         </FilterSection>
 
         {/* Area — passes real bounds from API so the slider max matches actual data */}

@@ -6,7 +6,7 @@ import './Dashboard.css';
 import SellPropertyForm from '../../features/developer-dashboard/property-form/SellPropertyForm';
 import DeveloperSupport from "../../features/developer-dashboard/components/DeveloperSupport/DeveloperSupport";
 import DashboardNav from '../../features/developer-dashboard/components/DashboardNav/DashboardNav';
-import API from '../../api';
+import API from '../../api/api';
 import DevPropertyList from '../../features/developer-dashboard/components/DevPropertyList/DevPropertyList';
 import '../../features/developer-dashboard/components/DevPropertyList/DevPropertyList.css';
 

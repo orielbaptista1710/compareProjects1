@@ -5,7 +5,7 @@ import { createContext } from "react";
 import { signOut } from "firebase/auth";
 
 import { CustomerAuth } from "../config/firebase";
-import API from "../api";
+import API from "../api/api";
 
 export const AuthContext = createContext();
 

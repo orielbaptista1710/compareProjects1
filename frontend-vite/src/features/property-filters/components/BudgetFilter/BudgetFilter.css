@@ -1,172 +1,152 @@
-/* src/components/PropertiesPageComponents/FilterComponents/BudgetFilter.css */
+/* BudgetFilter.css — uses the --fp-* tokens already defined in FilterPanel.css */
 
 .budget-filter {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 2px;
 }
 
-.budget-inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+/* ── Min / Max dropdowns ── */
+.bf-selects {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.budget-dropdown {
-  position: relative;
-}
-
-.budget-select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: white;
+.bf-select {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 26px 7px 10px;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
+  border-radius: var(--fp-radius-md);
+  background: #fff;
+  font-size: 12.5px;
+  color: var(--fp-text-primary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.bf-select:hover {
+  border-color: #c4b5fd;
+}
+
+.bf-select:focus {
+  border-color: var(--fp-purple-mid);
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.15);
+}
+
+.bf-to {
+  font-size: 12px;
+  color: var(--fp-text-muted);
+  flex-shrink: 0;
+}
+
+/* ── Dual range slider ── */
+.bf-slider {
+  position: relative;
+  height: 18px;
+  padding: 0 2px;
+}
+
+.bf-track,
+.bf-track-fill {
+  position: absolute;
+  top: 50%;
+  height: 3px;
+  border-radius: 3px;
+  transform: translateY(-50%);
+}
+
+.bf-track {
+  left: 2px;
+  right: 2px;
+  background: #ececec;
+}
+
+.bf-track-fill {
+  background: var(--fp-purple);
+}
+
+/* Native inputs sit transparently on top; only the thumbs are clickable */
+.bf-range {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  background: none;
+  appearance: none;
+  pointer-events: none;
+}
+
+.bf-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid var(--fp-purple);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: box-shadow 0.15s;
+}
+
+.bf-range::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2.5px solid var(--fp-purple);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.bf-range:focus-visible::-webkit-slider-thumb,
+.bf-range::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.22);
+}
+
+/* Keeps the min thumb reachable when both sit at the same spot */
+.bf-range--min {
+  z-index: 2;
+}
+
+.bf-range--max {
+  z-index: 1;
+}
+
+/* ── Footer ── */
+.bf-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  text-align: left;
+  gap: 8px;
 }
 
-.budget-select:hover {
-  border-color: #d1d5db;
-  background: #f9fafb;
+.bf-readout {
+  font-size: 11.5px;
+  color: var(--fp-text-muted);
 }
 
-.budget-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.budget-select .placeholder {
-  color: #9ca3af;
-  font-weight: 400;
-}
-
-.budget-select .selected {
-  color: #111827;
-  font-weight: 500;
-}
-
-.budget-select .dropdown-icon {
-  color: #6b7280;
-  transition: transform 0.2s ease;
-}
-
-.budget-dropdown.open .dropdown-icon {
-  transform: rotate(180deg);
-}
-
-/* Dropdown Menu */
-.budget-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  overflow: hidden;
-  animation: dropdownSlideIn 0.2s ease;
-}
-
-@keyframes dropdownSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.budget-dropdown-scroll {
-  max-height: 280px;
-  overflow-y: auto;
-  padding: 0.5rem;
-}
-
-/* Custom scrollbar */
-.budget-dropdown-scroll::-webkit-scrollbar {
-  width: 6px;
-}
-
-.budget-dropdown-scroll::-webkit-scrollbar-track {
-  background: #f9fafb;
-  border-radius: 3px;
-}
-
-.budget-dropdown-scroll::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
-}
-
-.budget-dropdown-scroll::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-.budget-option {
-  padding: 0.75rem 1rem;
-  font-size: 0.95rem;
-  color: #374151;
+.bf-done {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fp-purple);
+  background: none;
+  border: none;
+  padding: 2px 0;
   cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-  font-weight: 400;
 }
 
-.budget-option:hover {
-  background: #f3f4f6;
-  color: #111827;
-}
-
-.budget-option.selected {
-  background: #eff6ff;
-  color: #3b82f6;
-  font-weight: 500;
-}
-
-.budget-option.clear-option {
-  color: #ef4444;
-  font-weight: 500;
-  border-bottom: 1px solid #fee2e2;
-  margin-bottom: 0.5rem;
-}
-
-.budget-option.clear-option:hover {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .budget-inputs {
-    gap: 0.5rem;
-  }
-
-  .budget-select {
-    padding: 0.625rem 0.875rem;
-    font-size: 0.9rem;
-  }
-
-  .budget-dropdown-scroll {
-    max-height: 240px;
-  }
-
-  .budget-option {
-    padding: 0.625rem 0.875rem;
-    font-size: 0.9rem;
-  }
-}
-
-/* Loading state (optional) */
-.budget-filter.loading .budget-select {
-  opacity: 0.6;
-  pointer-events: none;
+.bf-done:hover {
+  color: var(--fp-purple-dark);
+  text-decoration: underline;
 }

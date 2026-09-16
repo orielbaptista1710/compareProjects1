@@ -2,16 +2,10 @@
 import express from 'express';
 const router = express.Router();
 
-import rateLimit from 'express-rate-limit';
 import Customer from '../models/Customer.js';
 import protectCustomer from '../middleware/protectCustomer.js';
 import customerAdminFire from '../config/firebaseAdmin.js';
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
-  message: { message: 'Too many requests, slow down' },
-});
+import { authLimiter, customerActionLimiter } from '../middleware/rateLimiters.js';
 
 // ─── SIGNUP ──────────────────────────────────────────────────
 router.post('/firebase-signup', authLimiter, async (req, res) => {
@@ -31,6 +25,7 @@ router.post('/firebase-signup', authLimiter, async (req, res) => {
     const updateData = {
       firebaseUid: decoded.uid,
       customerName: customerName.trim(),
+      emailVerified: decoded.email_verified === true,
       // only set these if they exist in the token
       ...(decoded.email && { customerEmail: decoded.email }),
       ...(resolvedPhone && { customerPhone: resolvedPhone })
@@ -83,6 +78,9 @@ router.post('/firebase-login', authLimiter, async (req, res) => {
     const customer = await Customer.findOneAndUpdate(
       { firebaseUid: decoded.uid },
       {
+        // Refreshed on every login, not just creation — verification status
+        // can change after signup (user clicks the email link later).
+        $set: { emailVerified: decoded.email_verified === true },
         $setOnInsert: {                          // only set these on creation
           firebaseUid: decoded.uid,
           customerName: decoded.name || decoded.email?.split('@')[0] || 'Customer',
@@ -105,7 +103,7 @@ router.post('/firebase-login', authLimiter, async (req, res) => {
 });
 
 // ─── ME (protected) ──────────────────────────────────────────
-router.get('/me', protectCustomer, async (req, res) => {
+router.get('/me', customerActionLimiter, protectCustomer, async (req, res) => {
   try {
     const c = req.customer;
     res.json({
@@ -115,6 +113,8 @@ router.get('/me', protectCustomer, async (req, res) => {
         customerName: c.customerName,
         customerEmail: c.customerEmail,
         customerPhone: c.customerPhone,
+        emailVerified: c.emailVerified,
+        createdAt: c.createdAt,
       },
     });
   } catch (err) {

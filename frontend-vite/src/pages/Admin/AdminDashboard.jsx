@@ -7,7 +7,7 @@ import {
   Alert, Skeleton,
 } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import API from "../../api";
+import API from "../../api/api";
 import debounce from "lodash.debounce";
 
 import AdminPropertyTable from "../../features/admin/AdminDasboardComponents/AdminPropertyTable";

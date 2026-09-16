@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import './LoginPage.css';
-import API from '../../../api';  
+import API from '../../../api/api';  
 import { Eye, EyeOff } from 'lucide-react'; 
 import DeveloperPopup from '../../../shared/Popups/DeveloperPopup';
 import ForgotPasswordPopup from '../../../shared/Popups/ForgotPasswordPopup';
@@ -12,7 +12,7 @@ import ForgotPasswordPopup from '../../../shared/Popups/ForgotPasswordPopup';
 // import Seo from '../constants/Seo';
 import toast from 'react-hot-toast';
 
-
+ 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   // const [rememberMe, setRememberMe] = useState(false);
@@ -45,7 +45,11 @@ const LoginPage = () => {
         withCredentials: true, 
       });
 
-        await queryClient.invalidateQueries(['current-user']);
+        // Wipe the whole cache, not just current-user — otherwise switching
+        // accounts without logging out first can leave a previous session's
+        // cached data (e.g. my-properties, adminProperties) showing under the
+        // new account until it happens to go stale on its own.
+        queryClient.clear();
         navigate(data.user.role === 'admin' ? '/admin' : '/dashboard');
         toast.success(`Welcome back, ${data.user.displayName}!`);
       

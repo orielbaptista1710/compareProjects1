@@ -6,18 +6,18 @@ import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
  
 function useHeartProperty(propertyId) {
-  const { heartProperties, toggleHeart } = useContext(CustomerActivityContext);
+  const { heartedIds, toggleHeart } = useContext(CustomerActivityContext);
   const { currentUser } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
-  // derive saved state globally
+  // derive saved state globally — heartedIds is always the full, unpopulated
+  // list (not paginated like heartProperties), so this is accurate regardless
+  // of which page of the Shortlist tab happens to be loaded.
   const isSaved = useMemo(() => {
     if (!propertyId) return false;
 
-    return heartProperties.some(
-      (p) => (p._id || p).toString() === propertyId.toString()
-    );
-  }, [heartProperties, propertyId]);
+    return heartedIds.includes(propertyId.toString());
+  }, [heartedIds, propertyId]);
 
   // unified toggle
   const handleToggleHeart = useCallback(async () => {

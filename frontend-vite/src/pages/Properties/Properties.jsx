@@ -17,7 +17,7 @@ import ResultsHeader      from '../../features/property-filters/components/Resul
 import Pagination         from '../../features/properties/components/PropertyPagination/Pagination';
 import Seo                from '../../database/Seo';
 
-import API from '../../api';
+import API from '../../api/api';
 import { DEFAULT_FILTERS, formatFilterValue, parseFiltersFromURL } from '../../utils/filters.schema';
 import { FILTER_LABELS } from '../../assests/constants/propertyTypeConfig';
 
@@ -64,6 +64,15 @@ const normalizeFiltersForAPI = (filters) => {
         if (value.min != null && value.min > 0) api.areaMin = value.min;
         if (value.max != null)                  api.areaMax = value.max;
         if (value.unit)                         api.areaUnit = value.unit;
+      }
+      return;
+    }
+    // Budget is a {min,max} object like area — map it to the priceMin/priceMax params
+    // the backend's property-list endpoint already reads (propertyController.js).
+    if (key === 'budget') {
+      if (value != null) {
+        if (value.min != null) api.priceMin = value.min;
+        if (value.max != null) api.priceMax = value.max;
       }
       return;
     }
@@ -192,6 +201,15 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
           if (value.max != null) params.set('areaMax', String(value.max));
           if (value.unit)        params.set('areaUnit', value.unit);
         }
+      } else if (key === 'budget') {
+        // Same treatment as area: budget is a {min,max} object, written to
+        // priceMin/priceMax so it round-trips through parseFiltersFromURL.
+        params.delete('priceMin');
+        params.delete('priceMax');
+        if (value != null) {
+          if (value.min != null) params.set('priceMin', String(value.min));
+          if (value.max != null) params.set('priceMax', String(value.max));
+        }
       } else if (Array.isArray(value)) {
         params.delete(key);
         value.forEach((v) => v && params.append(key, v));
@@ -246,7 +264,7 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
     const chips = [];
 
     Object.entries(filters)
-      .filter(([key]) => key !== 'area')
+      .filter(([key]) => key !== 'area' && key !== 'budget')
       .filter(([, v]) => isFilterActive(v))
       .forEach(([key, value]) => {
         const label = FILTER_LABELS[key];
@@ -262,6 +280,17 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
         value:   filters.area,
         label:   'Area',
         display: formatFilterValue('area', filters.area),
+      });
+    }
+
+    // Same treatment as the area chip above — budget has its own object shape,
+    // so it can't go through the generic FILTER_LABELS-driven loop.
+    if (filters.budget != null) {
+      chips.push({
+        key:     'budget',
+        value:   filters.budget,
+        label:   'Budget',
+        display: formatFilterValue('budget', filters.budget),
       });
     }
 

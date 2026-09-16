@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
-import API from "../../../api";
+import API from "../../../api/api";
 import { useCity } from "../../../contexts/CityContext";
 
 import "./RecentlyAdded.css";

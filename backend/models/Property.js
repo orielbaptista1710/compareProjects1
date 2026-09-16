@@ -22,14 +22,15 @@ const propertySchema = new mongoose.Schema({
 
   featured: { type: Boolean, default: false }, 
   
-  listingType: { type: String, enum: ['sale', 'resale'] },
+  listingType: { type: String, enum: ['sale', 'resale'] }, //add rent later
+  listedBy: { type: String, enum: ['owner', 'broker', 'developer'] }, //add rent later
 
   // used in sale and resale
   developerName : { type: String, required: true},
   developerAvatar: {
     url: { type: String, default: null },
     thumbnail: { type: String, default: null },
-
+    },
 
   //resale properties broker details -- may be needeed
   broker: {
@@ -53,7 +54,6 @@ const propertySchema = new mongoose.Schema({
   sourceUrl: { type: String },// original source if scraped/imported CHECK THIS delly delly babe
   tierType: { type: String, enum: ['tier1', 'tier2'] }, 
 
-},
   // Property Information
   title: { type: String, required: true, trim: true },
   description: { type: String, required: true},
