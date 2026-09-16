@@ -173,8 +173,12 @@ describe("PUT /api/customerActivity/compare", () => {
   });
 
   it("caps the compare list at 4 server-side even if the client sends more (don't trust the client)", async () => {
+    // Share one developer across properties instead of letting createProperty mint a
+    // fresh User (and bcrypt-hash a password) per call — 6 parallel bcrypt hashes was
+    // slow enough to blow past the default test timeout.
+    const developer = await createUser();
     const props = await Promise.all(
-      Array.from({ length: 6 }, () => createProperty())
+      Array.from({ length: 6 }, () => createProperty({ userId: developer._id }))
     );
     const customer = await createCustomer();
     const token = tokenFor(customer.firebaseUid);

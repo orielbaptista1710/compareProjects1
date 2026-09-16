@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import {
   Box, Typography, Button, CircularProgress,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  Alert, Skeleton,
+  Alert, Skeleton, 
 } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import API from "../../api/api";
@@ -439,10 +439,10 @@ export default function AdminDashboard() {
                 gap: 0.75,
               }}
             >
-              <Typography variant="body2" fontWeight={600} lineHeight={1}>
+              <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1 }}>
                 {data.total.toLocaleString()}
               </Typography>
-              <Typography variant="body2" color="text.secondary" lineHeight={1}>
+              <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1 }}>
                 {data.total === 1 ? "property" : "properties"}
               </Typography>
             </Box>
@@ -473,16 +473,16 @@ export default function AdminDashboard() {
               </Box>
 
               <Box sx={{ display: { xs: "none", sm: "flex" }, flexDirection: "column" }}>
-                <Typography variant="body2" fontWeight={600} lineHeight={1.2}>
+                <Typography variant="body2" fontWeight={600} sx={{ lineHeight: 1.2 }}>
                   {currentUser.displayName}
                 </Typography>
                 <Typography
                   variant="caption"
-                  lineHeight={1.2}
                   sx={{
                     color: "primary.main",
                     textTransform: "capitalize",
                     fontWeight: 500,
+                    lineHeight: 1.2,
                   }}
                 >
                   {currentUser.role}
