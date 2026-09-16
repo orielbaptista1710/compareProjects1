@@ -6,7 +6,8 @@ import { CustomerActivityContext } from "../../../../contexts/CustomerActivityCo
 import PropertyCard from "../../../properties/components/PropertyCard/PropertyCard";
 
 const ShortlistTab = () => {
-  const { heartProperties, loading } = useContext(CustomerActivityContext);
+  const { heartProperties, heartPagination, loadingMoreHearts, loadMoreHearts, loading } =
+    useContext(CustomerActivityContext);
   const navigate = useNavigate();
 
   if (loading) {
@@ -31,8 +32,8 @@ const ShortlistTab = () => {
       <div className="panel-header">
         <h2>Shortlisted Properties</h2>
         <p className="panel-subtitle">
-          {heartProperties.length > 0
-            ? `${heartProperties.length} propert${heartProperties.length === 1 ? "y" : "ies"} saved`
+          {heartPagination.total > 0
+            ? `${heartPagination.total} propert${heartPagination.total === 1 ? "y" : "ies"} saved`
             : "Properties you've saved for later"}
         </p>
       </div>
@@ -49,11 +50,25 @@ const ShortlistTab = () => {
           </button>
         </div>
       ) : (
-        <div className="property-list-grid">
-          {heartProperties.map((p) => (
-            <PropertyCard key={p._id} property={p} showCompareBtn={false} />
-          ))}
-        </div>
+        <>
+          <div className="property-list-grid">
+            {heartProperties.map((p) => (
+              <PropertyCard key={p._id} property={p} showCompareBtn={false} />
+            ))}
+          </div>
+
+          {heartPagination.hasMore && (
+            <div className="panel-cta">
+              <button
+                className="btn-primary"
+                onClick={loadMoreHearts}
+                disabled={loadingMoreHearts}
+              >
+                {loadingMoreHearts ? "Loading…" : "Load More"}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

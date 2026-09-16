@@ -2,6 +2,7 @@
 import jwt from "jsonwebtoken";
 import User from "../../models/User.js";
 import Property from "../../models/Property.js";
+import Customer from "../../models/Customer.js";
 
 process.env.JWT_SECRET ||= "test-jwt-secret-key";
 
@@ -24,6 +25,14 @@ export async function createAdminUser(overrides = {}) {
 
 export function signToken(user, options = {}) {
   return jwt.sign({ id: user._id.toString() }, process.env.JWT_SECRET, options);
+}
+
+export async function createCustomer(overrides = {}) {
+  return Customer.create({
+    firebaseUid: unique("firebase-uid-"),
+    customerName: unique("Customer"),
+    ...overrides,
+  });
 }
 
 export async function createProperty(overrides = {}) {

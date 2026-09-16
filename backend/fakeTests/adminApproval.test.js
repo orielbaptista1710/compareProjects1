@@ -14,7 +14,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await stopTestDb();
 });
-
+ 
 afterEach(async () => {
   await clearTestDb();
 });
@@ -180,6 +180,68 @@ describe("admin approval workflow - correctness", () => {
       expect(res.body.matched).toBe(100);
       expect(res.body.modified).toBe(100);
     }, 20000);
+  });
+
+  describe("self-review guard (an admin cannot approve/reject their own submitted property)", () => {
+    it("403s when approving a property the admin submitted themselves, and leaves it unchanged", async () => {
+      const admin = await createAdminUser();
+      const token = signToken(admin);
+      const own = await createProperty({ status: "pending", userId: admin._id });
+
+      const res = await request(app)
+        .put(`/api/admin/approve/${own._id}`)
+        .set("Authorization", `Bearer ${token}`);
+
+      expect(res.status).toBe(403);
+      const unchanged = await Property.findById(own._id);
+      expect(unchanged.status).toBe("pending");
+    });
+
+    it("403s when rejecting a property the admin submitted themselves", async () => {
+      const admin = await createAdminUser();
+      const token = signToken(admin);
+      const own = await createProperty({ status: "pending", userId: admin._id });
+
+      const res = await request(app)
+        .put(`/api/admin/reject/${own._id}`)
+        .set("Authorization", `Bearer ${token}`)
+        .send({ rejectionReason: "test" });
+
+      expect(res.status).toBe(403);
+    });
+
+    it("still allows approving someone else's property normally", async () => {
+      const admin = await createAdminUser();
+      const token = signToken(admin);
+      const someoneElses = await createProperty({ status: "pending" });
+
+      const res = await request(app)
+        .put(`/api/admin/approve/${someoneElses._id}`)
+        .set("Authorization", `Bearer ${token}`);
+
+      expect(res.status).toBe(200);
+    });
+
+    it("bulk-approve silently excludes the admin's own submission from the batch, same as malformed/nonexistent ids", async () => {
+      const admin = await createAdminUser();
+      const token = signToken(admin);
+      const ownProperty = await createProperty({ status: "pending", userId: admin._id });
+      const othersProperty = await createProperty({ status: "pending" });
+
+      const res = await request(app)
+        .put("/api/admin/bulk-approve")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ ids: [ownProperty._id.toString(), othersProperty._id.toString()] });
+
+      expect(res.status).toBe(200);
+      expect(res.body.matched).toBe(1);
+      expect(res.body.modified).toBe(1);
+
+      const own = await Property.findById(ownProperty._id);
+      const others = await Property.findById(othersProperty._id);
+      expect(own.status).toBe("pending");
+      expect(others.status).toBe("approved");
+    });
   });
 
   describe("regex-escaping on search and locality filters", () => {

@@ -163,7 +163,7 @@ const showBreadcrumbs = !hideBreadcrumbRoutes.some((path) =>
         
         {/*  Protected  */}
         <Route path="/dashboard" element={
-          <ProtectedRoute roles={['user', 'admin']}>
+          <ProtectedRoute roles={['user']}>
             <Dashboard />
           </ProtectedRoute>
         } />

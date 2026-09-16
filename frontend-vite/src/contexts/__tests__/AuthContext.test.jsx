@@ -22,7 +22,7 @@ import {
   AuthContext,
 } from "../AuthContext";
 
-import API from "../../api";
+import API from "../../api/api";
 
 import { CustomerAuth } from "../../config/firebase";
 
@@ -33,7 +33,7 @@ import { signOut } from "firebase/auth";
 // MOCKS
 // --------------------------------------------------
 
-vi.mock("../../api", () => ({
+vi.mock("../../api/api", () => ({
   default: {
     get: vi.fn(),
   },

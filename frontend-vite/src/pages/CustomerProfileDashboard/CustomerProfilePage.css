@@ -392,6 +392,18 @@
   color: #166534;
 }
 
+.badge-unverified {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.unverified-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 /* Info grid */
 .info-grid {
   display: grid;

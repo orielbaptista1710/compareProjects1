@@ -1,6 +1,9 @@
-// src/utils/filters.schema 
+// src/utils/filters.schema
 import { FILTER_LABELS } from "../assests/constants/propertyTypeConfig";
-
+// Reuse the shared ₹ formatter (already used elsewhere for price display) instead of
+// duplicating lakh/crore formatting logic here
+import { formatCurrencyShort } from "./formatters";
+ 
 /* ================================
    Default filter state
    — single source of truth shared by
@@ -11,6 +14,7 @@ export const DEFAULT_FILTERS = {
   locality:         [],
   search:           "",
   area:             null,
+  budget:           null, // { min, max } in rupees — mirrors `area`'s shape, see below
   bhk:              [],
   propertyType:     [],
   furnishing:       [], 
@@ -37,12 +41,26 @@ export const parseFiltersFromURL = (search) => {
         }
       : null;
 
+  // Budget: same {min,max} shape as area, but reads priceMin/priceMax (the param names the
+  // backend's GET /api/properties already expects) and keeps null bounds as null — BudgetFilter
+  // treats a null min/max as "no minimum"/"no maximum", so there's no ceiling to default to.
+  const priceMin = p.get('priceMin');
+  const priceMax = p.get('priceMax');
+  const budget =
+    priceMin != null || priceMax != null
+      ? {
+          min: priceMin != null ? Number(priceMin) : null,
+          max: priceMax != null ? Number(priceMax) : null,
+        }
+      : null;
+
   return {
     city:             p.get('city')              ?? '',
     locality:         p.getAll('locality'),
     search:           p.get('search')            ?? '',
     propertyType:     p.getAll('propertyType'),
     area,
+    budget,
     bhk:              p.getAll('bhk'),
     furnishing:       p.getAll('furnishing'),
     facing:           p.getAll('facing'),
@@ -82,6 +100,16 @@ export const formatFilterValue = (key, value) => {
     const isMaxed = max >= 10_000 && unit === "sqft";
     if (isMaxed) return `${fmtNum(min)}+ ${u}`;
     return `${fmtNum(min)}–${fmtNum(max)} ${u}`;
+  }
+
+  // Budget is an object { min, max } — handled specially, same as area above.
+  // min/max are null when that bound is unset (BudgetFilter's "Min"/"Max" ladder ends).
+  if (key === "budget" && typeof value === "object") {
+    const { min, max } = value;
+    if (min == null && max == null) return "";
+    if (min == null) return `Up to ${formatCurrencyShort(max)}`;
+    if (max == null) return `${formatCurrencyShort(min)}+`;
+    return `${formatCurrencyShort(min)} – ${formatCurrencyShort(max)}`;
   }
 
   const stringValue = String(value).trim();

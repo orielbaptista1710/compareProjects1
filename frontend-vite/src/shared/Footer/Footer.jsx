@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { POPULAR_SEARCHES } from "../../database/popularSearchFooter";
 import "./Footer.css";
-import API from "../../api";
+import API from "../../api/api";
 
 // ─── Static data at module level — never recreated on render ──────────────────
 

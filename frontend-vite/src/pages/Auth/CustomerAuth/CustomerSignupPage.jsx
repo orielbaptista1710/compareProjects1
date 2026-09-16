@@ -1,14 +1,15 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../../../api";
+import API from "../../../api/api";
 import "./authStyles/auth-form.css";
 import "./authStyles/auth-layout.css";
 import "./authStyles/auth-responsive.css";
 
 import AuthMarketingPanel from "./AuthMarketingPanel";
 
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { CustomerAuth } from "../../../config/firebase";
+import toast from "react-hot-toast";
 
 import { Check, X, Eye, EyeOff } from "lucide-react";
 
@@ -94,6 +95,21 @@ const CustomerSignupPage = () => {
         customerName:  form.customerName.trim(),
         customerPhone: `+91${form.customerPhone.trim()}`,
       });
+
+      // Sent only after the backend record is confirmed created — if the
+      // backend call above had failed instead, the catch block below deletes
+      // the freshly-created Firebase account, and we don't want to have
+      // emailed a verification link for an account that no longer exists.
+      // Deliberately non-blocking: a failure here (network blip, Firebase
+      // rate limit) shouldn't stop the user from reaching their new account —
+      // they can resend it later from the Profile tab.
+      try {
+        await sendEmailVerification(userCredential.user);
+        toast.success("Verification email sent — check your inbox!");
+      } catch (verificationErr) {
+        console.error("Failed to send verification email:", verificationErr);
+      }
+
       navigate("/customer-profile");
     } catch (err) {
       const message =

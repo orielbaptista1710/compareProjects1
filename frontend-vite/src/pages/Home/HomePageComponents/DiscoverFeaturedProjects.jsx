@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 import "./DiscoverFeaturedProjects.css";
 
-import API from "../../../api";
+import API from "../../../api/api";
 import { useCity } from "../../../contexts/CityContext";
 
 import {

@@ -1,19 +1,27 @@
 // frontend-vite/src/api.js
 import axios from "axios";
-import { CustomerAuth } from "./config/firebase";
+import { CustomerAuth } from "../config/firebase";
 
-import toast from 'react-hot-toast';
+import toast from 'react-hot-toast'; 
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL, 
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
 });
- 
-//auto attach firebase token for customer
+
+// Developer/admin auth (JWT cookie via protect.js) and customer auth (Firebase)
+// are separate, non-interchangeable systems — see CLAUDE.md. Used to decide
+// which requests should carry a Firebase bearer token vs the auth cookie only.
+export const isDeveloperRoute = (url = '') =>
+  url.includes('/api/auth/') ||
+  url.includes('/api/properties/') ||
+  url.includes('/api/admin/');
+
+//auto attach firebase token for customer requests only
 // Firebase returns cached token if valid, fetches new one if expired
 API.interceptors.request.use(async (config) => {
   const user = CustomerAuth.currentUser;
-  if (user) {
+  if (user && !isDeveloperRoute(config.url)) {
     const token = await user.getIdToken();
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -26,12 +34,7 @@ API.interceptors.response.use(
   (error) => {
     // only redirect on 401 if it's a developer/admin route
     // don't redirect customer firebase auth routes
-    const url = error.config?.url || '';
-    const isDeveloperRoute = url.includes('/api/auth/') || 
-                             url.includes('/api/properties/') || 
-                             url.includes('/api/admin/');
-
-    if (error.response?.status === 401 && isDeveloperRoute) {
+    if (error.response?.status === 401 && isDeveloperRoute(error.config?.url)) {
       // avoid showing toast on login page itself
       if (!window.location.pathname.includes('/login')) {
         toast.error('Session expired. Please log in again.');

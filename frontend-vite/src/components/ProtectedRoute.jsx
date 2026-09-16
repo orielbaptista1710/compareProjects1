@@ -1,14 +1,14 @@
 //components/ProtectedRoute.js
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import API from '../api';  
+import API from '../api/api';  
 import toast from 'react-hot-toast';
 
  
 const ProtectedRoute = ({ children, roles }) => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  // const [unauthorized, setUnauthorized] = useState(false);
+  const [serverUnreachable, setServerUnreachable] = useState(false);
 
 
   useEffect(() => {
@@ -23,8 +23,7 @@ const ProtectedRoute = ({ children, roles }) => {
           toast.error('Your account has been deactivated. Contact admin.');
         } else if (!status || status >= 500) {
           toast.error('Server unreachable — please try again.');
-          setLoading(false);
-          return; 
+          setServerUnreachable(true);
         }
         setUser(null);
       } finally {
@@ -37,6 +36,9 @@ const ProtectedRoute = ({ children, roles }) => {
 
 
   if (loading) return <div>Loading...</div>;
+  // Don't redirect to /login on a server outage — re-entering credentials won't fix it,
+  // and it would misleadingly imply the problem is the user's session.
+  if (serverUnreachable) return <div>Server unreachable — please try again later.</div>;
   if (!user) return <Navigate to="/login" replace />; // if user is not logged in, redirect to login page
   if (roles && !roles.includes(user.role)) { // if user does not have the required role, redirect to home page
     toast.error("You don't have permission to access that page.");

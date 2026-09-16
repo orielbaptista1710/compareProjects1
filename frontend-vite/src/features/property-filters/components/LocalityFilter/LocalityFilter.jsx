@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { Search } from "lucide-react";
 import CheckboxGroup from "../CheckboxGroup/CheckboxGroup";
-import API from "../../../../api";
+import API from "../../../../api/api";
 import { useCity } from "../../../../contexts/CityContext";
 import { useDebounce } from "../../../../hooks/useDebounceHook";
 

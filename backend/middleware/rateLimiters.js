@@ -106,3 +106,17 @@ export const adminActionLimiter = rateLimit({
   max: 60,
   message: { error: 'Too many admin requests — please slow down.' },
 });
+
+// ---------------------------------------------------------------------------
+// Customer account actions (me / heart / compare)  —  60 req / 60 s
+// ---------------------------------------------------------------------------
+// These routes are already auth-gated (protectCustomer), so — like
+// adminActionLimiter — this is a backstop against a buggy client loop or a
+// leaked/stolen customer token rather than a primary defense.
+// Applied to: GET /api/customers/me, all of /api/customerActivity/*
+export const customerActionLimiter = rateLimit({
+  ...sharedOptions,
+  windowMs: 60_000,
+  max: 60,
+  message: { error: 'Too many requests — please slow down.' },
+});

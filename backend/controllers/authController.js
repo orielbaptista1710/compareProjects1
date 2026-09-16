@@ -1,12 +1,22 @@
 //controllers/authController.js
 // import express from 'express'; 
 // const router = express.Router();
-
+ 
 import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken'; 
+import jwt from 'jsonwebtoken';
 // import protect from '../middleware/protect.js';
 import asyncHandler from 'express-async-handler';
+
+// Must be identical between the cookie set on login and the cookie cleared on
+// logout — a mismatch (e.g. SameSite=None without Secure) makes the browser
+// silently drop the clearCookie's Set-Cookie header, so logout stops working.
+const isProd = process.env.NODE_ENV === 'production';
+const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: isProd,           // HTTPS only in prod; SameSite=None below requires this be true whenever sameSite is 'none'
+  sameSite: isProd ? 'none' : 'lax', // 'none' needed cross-site in prod; 'lax' works over plain HTTP in local dev
+};
 
 //Get logged in user info
 export const getMe = asyncHandler(async (req, res) => {
@@ -62,10 +72,8 @@ export const login = asyncHandler(async (req, res) => {
 
   // Send JWT as HTTP-only cookie
   res.cookie('token', token, {
-    httpOnly: true,
-    secure: true,                //secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
-    sameSite: "none",              //sameSite: 'strict', Lax??? prevents sending cookies cross-site
-    maxAge: 8 * 60 * 60 * 1000 
+    ...AUTH_COOKIE_OPTIONS,
+    maxAge: 8 * 60 * 60 * 1000
   });
 
   const userData = {
@@ -79,19 +87,6 @@ export const login = asyncHandler(async (req, res) => {
 })
 
 export const logout = asyncHandler(async (req, res) => {
-    res.clearCookie('token', {
-    httpOnly: true,
-    sameSite: "none",
-    // sameSite: 'Lax'
-  });
+  res.clearCookie('token', AUTH_COOKIE_OPTIONS);
   res.json({ message: 'Logged out successfully' });
 })
-
-// router.post('/logout', (req, res) => {
-//   res.clearCookie('token', {
-//     httpOnly: true,
-//     sameSite: "none",
-//     // sameSite: 'Lax'
-//   });
-//   res.json({ message: 'Logged out successfully' });
-// });

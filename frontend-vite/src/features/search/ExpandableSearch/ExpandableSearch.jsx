@@ -9,7 +9,7 @@ import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { useEscapeKey } from "../../../hooks/useEscapeKey";
 import { useDebounce } from "../../../hooks/useDebounceHook";
 
-import API from "../../../api";
+import API from "../../../api/api";
 import "./ExpandableSearch.css";
 
 const MemoizedPropertyCard = React.memo(PropertyCardSmall);

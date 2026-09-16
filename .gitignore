@@ -25,6 +25,7 @@ property-validator/node_modules/
 .claude/
 
 /CLAUDE.md
+/TODO_BEFORE_COMMIT.md
 
 #ignore validation files
 property-validator/data

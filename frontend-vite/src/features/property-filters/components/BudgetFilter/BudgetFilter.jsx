@@ -1,182 +1,128 @@
-// src/components/PropertiesPageComponents/FilterComponents/BudgetFilter 
-import React, { useState, useRef } from "react";
-import { ChevronDown } from "lucide-react";
-import { useOutsideClick } from "../../../hooks/useOutsideClick"
+// frontend-vite/src/pages/Properties/PropertiesPageComponets/BudgetFilter/BudgetFilter.jsx
+import React from "react";
+// Shared ₹ formatter (also used by filters.schema.js for the Budget chip text) — using it
+// here too instead of a local formatPrice avoids duplicate lakh/crore logic and the
+// react-refresh lint error that came from exporting a non-component helper from this file.
+import { formatCurrencyShort } from "../../../../utils/formatters";
 import "./BudgetFilter.css";
 
-const BudgetFilter = ({ minBudget, maxBudget, onChange, priceRange }) => {
-  const [showMinDropdown, setShowMinDropdown] = useState(false);
-  const [showMaxDropdown, setShowMaxDropdown] = useState(false);
-  
-  const minDropdownRef = useRef(null);
-  const maxDropdownRef = useRef(null);
+/**
+ * Price ladder in ₹ (shared by both the dropdowns and the slider).
+ * index 0        -> no minimum ("Min")
+ * last index     -> no maximum ("Max")
+ * 5L steps up to 95L, then 25L steps up to 5Cr.
+ */
+const STEPS = (() => {
+  const out = [0];
+  for (let v = 500000; v < 10000000; v += 500000) out.push(v);
+  for (let v = 10000000; v <= 50000000; v += 2500000) out.push(v);
+  out.push(Infinity);
+  return out;
+})();
 
-  // Generate price options based on backend range
-  const generatePriceOptions = () => {
-    if (!priceRange?.min || !priceRange?.max) {
-      // Fallback options if backend doesn't provide range
-      return [
-        5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 90, 100,
-        125, 150, 175, 200, 250, 300, 400, 500
-      ];
-    }
+const LAST = STEPS.length - 1;
 
-    const options = [];
-    // const minLakhs = Math.floor(priceRange.min / 100000);
-    const maxLakhs = Math.ceil(priceRange.max / 100000);
-    
-    // Generate options in 5 lakh increments up to 50L
-    for (let i = 5; i <= Math.min(50, maxLakhs); i += 5) {
-      options.push(i);
-    }
-    
-    // Add larger increments for higher values
-    if (maxLakhs > 50) {
-      for (let i = 60; i <= Math.min(100, maxLakhs); i += 10) {
-        options.push(i);
-      }
-    }
-    
-    if (maxLakhs > 100) {
-      for (let i = 125; i <= Math.min(500, maxLakhs); i += 25) {
-        options.push(i);
-      }
-    }
+const labelFor = (i) =>
+  i === 0 ? "Min" : i === LAST ? "Max" : formatCurrencyShort(STEPS[i]);
 
-    return [...new Set(options)].sort((a, b) => a - b);
+// price -> ladder index (falls back when the value isn't on the ladder)
+const indexOf = (price, fallback) => {
+  if (price == null) return fallback;
+  const i = STEPS.indexOf(price);
+  return i === -1 ? fallback : i;
+};
+
+const BudgetFilter = ({ value, onChange, onDone }) => {
+  const minIdx = indexOf(value?.min, 0);
+  const maxIdx = indexOf(value?.max, LAST);
+
+  // Emit null when nothing is constrained, so the parent can treat it as "no filter"
+  const emit = (lo, hi) => {
+    const min = lo === 0 ? null : STEPS[lo];
+    const max = hi === LAST ? null : STEPS[hi];
+    onChange(min == null && max == null ? null : { min, max });
   };
 
-  const priceOptions = generatePriceOptions();
+  const setMin = (i) => emit(Math.min(i, maxIdx), maxIdx);
+  const setMax = (i) => emit(minIdx, Math.max(i, minIdx));
 
-  // Format price for display
-  const formatPrice = (lakhs) => {
-    if (!lakhs) return "";
-    if (lakhs >= 100) {
-      return `₹ ${lakhs / 100} Cr`;
-    }
-    return `₹ ${lakhs} Lakhs`;
-  };
-
-  // Get filtered options for dropdowns
-  const getMinOptions = () => {
-    if (!maxBudget) return priceOptions;
-    const maxValue = parseInt(maxBudget);
-    return priceOptions.filter(opt => opt < maxValue);
-  };
-
-  const getMaxOptions = () => {
-    if (!minBudget) return priceOptions;
-    const minValue = parseInt(minBudget);
-    return priceOptions.filter(opt => opt > minValue);
-  };
-
-  // Handle selection
-  const handleMinSelect = (value) => {
-    onChange("minBudget", value.toString());
-    setShowMinDropdown(false);
-  };
-
-  const handleMaxSelect = (value) => {
-    onChange("maxBudget", value.toString());
-    setShowMaxDropdown(false);
-  };
-
-  // Close dropdowns when clicking outside
-  useOutsideClick(
-    showMinDropdown || showMaxDropdown,
-    [minDropdownRef, maxDropdownRef],
-    () => {
-        setShowMinDropdown(false);
-        setShowMaxDropdown(false);
-    }
-);
+  const pct = (i) => (i / LAST) * 100;
 
   return (
     <div className="budget-filter">
-      <div className="budget-inputs">
-        {/* Min Budget Dropdown */}
-        <div className="budget-dropdown" ref={minDropdownRef}>
-          <button
-            className="budget-select"
-            onClick={() => {
-              setShowMinDropdown(!showMinDropdown);
-              setShowMaxDropdown(false);
-            }}
-          >
-            <span className={minBudget ? "selected" : "placeholder"}>
-              {minBudget ? formatPrice(parseInt(minBudget)) : "Min"}
-            </span>
-            <ChevronDown size={16} className="dropdown-icon" />
-          </button>
+      {/* Dropdowns */}
+      <div className="bf-selects">
+        <select
+          className="bf-select"
+          value={minIdx}
+          onChange={(e) => setMin(Number(e.target.value))}
+          aria-label="Minimum budget"
+        >
+          {STEPS.slice(0, LAST).map((_, i) => (
+            <option key={i} value={i}>
+              {labelFor(i)}
+            </option>
+          ))}
+        </select>
 
-          {showMinDropdown && (
-            <div className="budget-dropdown-menu">
-              <div className="budget-dropdown-scroll">
-                {minBudget && (
-                  <div
-                    className="budget-option clear-option"
-                    onClick={() => handleMinSelect("")}
-                  >
-                    Clear Min
-                  </div>
-                )}
-                {getMinOptions().map((value) => (
-                  <div
-                    key={value}
-                    className={`budget-option ${
-                      minBudget === value.toString() ? "selected" : ""
-                    }`}
-                    onClick={() => handleMinSelect(value)}
-                  >
-                    {formatPrice(value)}
-                  </div>
-                ))}
-              </div>
-            </div>
+        <span className="bf-to">to</span>
+
+        <select
+          className="bf-select"
+          value={maxIdx}
+          onChange={(e) => setMax(Number(e.target.value))}
+          aria-label="Maximum budget"
+        >
+          {STEPS.map((_, i) =>
+            i === 0 ? null : (
+              <option key={i} value={i}>
+                {labelFor(i)}
+              </option>
+            )
           )}
-        </div>
+        </select>
+      </div>
 
-        {/* Max Budget Dropdown */}
-        <div className="budget-dropdown" ref={maxDropdownRef}>
-          <button
-            className="budget-select"
-            onClick={() => {
-              setShowMaxDropdown(!showMaxDropdown);
-              setShowMinDropdown(false);
-            }}
-          >
-            <span className={maxBudget ? "selected" : "placeholder"}>
-              {maxBudget ? formatPrice(parseInt(maxBudget)) : "Max"}
-            </span>
-            <ChevronDown size={16} className="dropdown-icon" />
+      {/* Dual slider — two native ranges stacked on one track */}
+      <div className="bf-slider">
+        <div className="bf-track" />
+        <div
+          className="bf-track-fill"
+          style={{ left: `${pct(minIdx)}%`, right: `${100 - pct(maxIdx)}%` }}
+        />
+        <input
+          type="range"
+          className="bf-range bf-range--min"
+          min={0}
+          max={LAST}
+          step={1}
+          value={minIdx}
+          onChange={(e) => setMin(Number(e.target.value))}
+          aria-label="Minimum budget slider"
+        />
+        <input
+          type="range"
+          className="bf-range bf-range--max"
+          min={0}
+          max={LAST}
+          step={1}
+          value={maxIdx}
+          onChange={(e) => setMax(Number(e.target.value))}
+          aria-label="Maximum budget slider"
+        />
+      </div>
+
+      <div className="bf-footer">
+        <span className="bf-readout">
+          {minIdx === 0 && maxIdx === LAST
+            ? "Any budget"
+            : `${labelFor(minIdx)} – ${labelFor(maxIdx)}`}
+        </span>
+        {onDone && (
+          <button type="button" className="bf-done" onClick={onDone}>
+            Done
           </button>
-
-          {showMaxDropdown && (
-            <div className="budget-dropdown-menu">
-              <div className="budget-dropdown-scroll">
-                {maxBudget && (
-                  <div
-                    className="budget-option clear-option"
-                    onClick={() => handleMaxSelect("")}
-                  >
-                    Clear Max
-                  </div>
-                )}
-                {getMaxOptions().map((value) => (
-                  <div
-                    key={value}
-                    className={`budget-option ${
-                      maxBudget === value.toString() ? "selected" : ""
-                    }`}
-                    onClick={() => handleMaxSelect(value)}
-                  >
-                    {formatPrice(value)}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
