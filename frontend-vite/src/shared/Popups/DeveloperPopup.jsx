@@ -23,12 +23,16 @@ const INITIAL_FORM = {
 const DeveloperPopup = ({ isOpen, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM);
+  const [errorMsg, setErrorMsg] = useState("");
   const panelRef = useRef(null);
 
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   if (isOpen !== prevIsOpen) {
       setPrevIsOpen(isOpen);
-      if (!isOpen) setFormData(INITIAL_FORM);
+      if (!isOpen) {
+        setFormData(INITIAL_FORM);
+        setErrorMsg("");
+      }
   }
 
   // Close on outside click
@@ -49,6 +53,13 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
 
   const handleChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === "developerPhone") {
+      const digitsOnly = value.replace(/\D/g, "").slice(0, 10);
+      setFormData((prev) => ({ ...prev, developerPhone: digitsOnly }));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -57,23 +68,26 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg("");
 
     if (!formData.developerFullName.trim() || !formData.developerEmail.trim() || !formData.developerPhone.trim()) {
-      // toast.error("Please fill in all required fields.");
+      setErrorMsg("Please fill in all required fields.");
+      return;
+    }
+
+    if (!/^[6-9]\d{9}$/.test(formData.developerPhone)) {
+      setErrorMsg("Enter a valid 10-digit mobile number.");
       return;
     }
 
     if (!formData.developerContactConsent) {
-      // toast.error("Please consent to being contacted.");
+      setErrorMsg("Please consent to being contacted.");
       return;
     }
 
     setSubmitting(true);
     try {
-            
-      //CHECK THIS URL -  y REACT_APP_API_URL WHEN VITE_API_BASE_URL/REACT_APP_API_BASE_URL process.
-      // await fetch(`${process.env.REACT_APP_API_URL}/api/leads/developer`, {
-      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/leads/developer`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/leads/developer`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -84,10 +98,13 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
         }),
       });
 
-      // toast.success("Thanks! We'll reach out to you shortly.");
+      if (!res.ok) {
+        throw new Error("Submission failed");
+      }
+
       setTimeout(onClose, 1500);
     } catch {
-      // toast.error("Something went wrong. Please try again.");
+      setErrorMsg("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -169,10 +186,13 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
                   id="developerPhone"
                   type="tel"
                   name="developerPhone"
-                  placeholder="+91 98765 43210"
+                  placeholder="10-digit mobile number"
                   value={formData.developerPhone}
                   onChange={handleChange}
-                  autoComplete="tel"
+                  autoComplete="tel-national"
+                  inputMode="numeric"
+                  pattern="[6-9][0-9]{9}"
+                  maxLength={10}
                   required
                 />
               </div>
@@ -188,6 +208,8 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
               <span className="dp-consent-box" aria-hidden="true" />
               I consent to being contacted using the details above
             </label>
+
+            {errorMsg && <p className="dp-error-text">{errorMsg}</p>}
 
             <button
               type="submit"

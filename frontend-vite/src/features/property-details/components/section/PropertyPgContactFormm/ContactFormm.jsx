@@ -132,7 +132,7 @@ const ContactFormm = ({ property }) => {
       await API.post("/api/leads/customer", {
         ...data,
         customerName: data.customerName.trim(),
-        customerPhone: `+91${data.customerPhone.trim()}`,
+        customerPhone: data.customerPhone.trim(),
         customerEmail: data.customerEmail.trim().toLowerCase(),
         message: data.message?.trim() || "",
         source: "property_page_contact",

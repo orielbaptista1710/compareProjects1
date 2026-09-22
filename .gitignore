@@ -26,6 +26,8 @@ property-validator/node_modules/
 
 /CLAUDE.md
 /TODO_BEFORE_COMMIT.md
+/NEON_PRISMA_CICD_CRASHCOURSE.md
+/compareprojects-crm/
 
 #ignore validation files
 property-validator/data

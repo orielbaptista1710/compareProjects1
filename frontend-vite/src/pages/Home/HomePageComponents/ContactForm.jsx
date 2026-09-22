@@ -258,6 +258,21 @@ const ContactForm = () => {
                       )}
                     </div>
 
+                    <div className="contact-fm-home-form-group">
+                      <label htmlFor="userType">I am a *</label>
+                      <select id="userType" name="userType" value={formData.userType} onChange={handleChange}
+                        className={errors.userType ? "error" : ""}>
+                        <option value="">Select one</option>
+                        <option value="buyer">Buyer</option>
+                        <option value="investor">Investor</option>
+                      </select>
+                      {errors.userType && (
+                        <span className="contact-fm-home-error-text">
+                          {errors.userType}
+                        </span>
+                      )}
+                    </div>
+
                     <div className="contact-fm-home-form-group full-width">
   <label className="contact-fm-home-checkbox">
     <input

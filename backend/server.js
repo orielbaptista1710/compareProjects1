@@ -16,12 +16,15 @@ import propertyRoutes from './routes/propertyRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import customerActivityRoutes from './routes/customerActivityRoutes.js';
 import discoverRoutes from './routes/discoverRoutes.js';
+
 import leadRoutes from './routes/leadRoutes.js';
+import crmRoutes from './routes/crmRoutes.js';
+
 import newsRoutes from "./routes/newsRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
 // import passwordResetRequestRoutes from './routes/passwordResetRequestRoutes.js';
 
-import { connectLeadsDB } from "./config/leadsDb.js";
+import prisma from "./config/prisma.js";
 
 const app = express();
 
@@ -42,7 +45,10 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/customerActivity', customerActivityRoutes);
 app.use('/api/discover', discoverRoutes);  //have to fix this 
+
 app.use('/api/leads', leadRoutes);
+app.use('/api/crm', crmRoutes);
+
 app.use('/api/news', newsRoutes);
 app.use("/api/locations", locationRoutes);
 // app.use('/api/password-reset-requests', passwordResetRequestRoutes);
@@ -93,10 +99,20 @@ app.use(errorHandler);
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGO_URI);
-    logger.info("Main DB connected ✅"); 
+    logger.info("Main DB connected ✅");
     return conn;
   } catch (error) {
     logger.error("MongoDB error ❌", error.message);
+    process.exit(1);
+  }
+};
+
+const connectPrisma = async () => {
+  try {
+    await prisma.$connect();
+    logger.info("Postgres (Prisma) connected ✅");
+  } catch (error) {
+    logger.error("Postgres (Prisma) error ❌", error.message);
     process.exit(1);
   }
 };
@@ -108,8 +124,7 @@ const startServer = async () => {
     dbName: mongoose.connection.name
     });
 
-    await connectLeadsDB();   // Leads DB (leadsdb)
-
+    await connectPrisma();    // Postgres (leads, via Prisma)
 
     app.listen(process.env.PORT, () => {
       logger.info(`Server running on port ${process.env.PORT}`);
@@ -122,3 +137,19 @@ const startServer = async () => {
 };
 
 startServer();
+
+const shutdown = async (signal) => {
+  logger.info(`${signal} received, shutting down gracefully`);
+  try {
+    await prisma.$disconnect();
+    await mongoose.connection.close();
+    logger.info("All database connections closed, exiting");
+    process.exit(0);
+  } catch (error) {
+    logger.error("Error during shutdown ❌", error);
+    process.exit(1);
+  }
+};
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
