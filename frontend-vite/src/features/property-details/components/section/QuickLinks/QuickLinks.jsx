@@ -200,7 +200,7 @@ function QuickLinks({ property }) {
 
       await API.post("/api/leads/customer", {
         customerName: formData.customerName.trim(),
-        customerPhone: `+91${formData.customerPhone.trim()}`,
+        customerPhone: formData.customerPhone.trim(),
         customerEmail: formData.customerEmail.trim().toLowerCase(),
         propertyId: property?._id || null,
         propertyTitle: property?.title || "",

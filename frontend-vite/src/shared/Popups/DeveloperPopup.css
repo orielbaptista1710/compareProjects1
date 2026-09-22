@@ -193,6 +193,12 @@
   box-shadow: 0 0 0 3px rgba(148, 23, 226, 0.1);
 }
 
+.dp-error-text {
+  font-size: 0.8rem;
+  color: #dc2626;
+  margin: -0.5rem 0 1rem;
+}
+
 /* ── Consent ── */
 .dp-consent {
   display: flex;

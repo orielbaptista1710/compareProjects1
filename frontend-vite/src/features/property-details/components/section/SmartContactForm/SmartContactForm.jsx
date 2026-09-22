@@ -75,7 +75,7 @@ const steps = [
     subtitle: "Our expert will contact you shortly",
     input: true,
     type: "tel",
-    placeholder: "+91 98765 43210",
+    placeholder: "10-digit mobile number",
   },
 ];
 
@@ -86,7 +86,7 @@ const steps = [
 const validators = {
   text: (v) => v.trim().length >= 2,
   email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
-  tel: (v) => /^\+?[0-9]{10,15}$/.test(v.replace(/\s/g, "")),
+  tel: (v) => /^[6-9]\d{9}$/.test(v.replace(/\D/g, "")),
 };
 
 const errorMessages = {
@@ -292,7 +292,12 @@ const SmartContactForm = ({ isInSheet = false }) => {
         }
       }
 
-      const sanitized = typeof value === "string" ? value.trim() : value;
+      const sanitized =
+        currentStep.key === "customerPhone"
+          ? value.replace(/\D/g, "")
+          : typeof value === "string"
+          ? value.trim()
+          : value;
       const updated = { ...formData, [currentStep.key]: sanitized };
 
       setFormData(updated);

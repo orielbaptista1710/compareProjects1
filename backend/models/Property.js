@@ -18,38 +18,48 @@ const propertySchema = new mongoose.Schema({
     unique: true,
   },
 
-  //contact but only for brokers - resale
-
   featured: { type: Boolean, default: false }, 
   
+  //new feature added to differentiate between sale and resale properties and differnt authentication for owner, broker and developer(based on new auth system) 
   listingType: { type: String, enum: ['sale', 'resale'] }, //add rent later
   listedBy: { type: String, enum: ['owner', 'broker', 'developer'] }, //add rent later
 
-  // used in sale and resale
+  //new added needs to be generated from title and developerName 
+  projectName: { type: String, trim: true }, //used in sale and resale - NEW
+
+  // used in sale only
   developerName : { type: String, required: true},
   developerAvatar: {
     url: { type: String, default: null },
     thumbnail: { type: String, default: null },
     },
 
-  //resale properties broker details -- may be needeed
-  broker: {
-  name: {
-    type: String,
-    trim: true,
+    //broker used for sale and resale - NEW
+    //in scrapped db used for resale ony for now
+// broker:{
+  brokerName: { type: String, trim: true },
+  brokerPhone: { type: String, trim: true },
+  brokerEmail: { type: String, trim: true, lowercase: true },
+  brokerAvatar: {
+    url: { type: String, default: null },
+    thumbnail: { type: String, default: null },
   },
+// },
 
-  phone: {
-    type: String,
-    trim: true,
+//owner is a customer that can psot properties for sale or rent --have to fix it based on auth modifications
+// owner: {
+  ownerName: { type: String, trim: true },
+  ownerPhone: { type: String, trim: true },
+  ownerEmail: { type: String, trim: true, lowercase: true },
+  ownerAvatar: {
+    url: { type: String, default: null },
+    thumbnail: { type: String, default: null },
   },
+// },
 
-  email: {
-    type: String,
-    trim: true,
-    lowercase: true,
-  },
-},
+  // Property Type
+  // propertyType: { type: String, enum: [...RESIDENTIAL_TYPES, ...COMMERCIAL_TYPES], required: true },
+  subType: { type: String }, //add enum later
 
   sourceUrl: { type: String },// original source if scraped/imported CHECK THIS delly delly babe
   tierType: { type: String, enum: ['tier1', 'tier2'] }, 
