@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
+    "postinstall": "prisma generate",
     "test": "vitest run",
     "start": "node server.js",
     "lint": "eslint .",
