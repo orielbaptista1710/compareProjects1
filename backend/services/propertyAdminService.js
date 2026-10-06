@@ -2,6 +2,7 @@
 
 import mongoose from 'mongoose';
 import Property from '../models/Property.js';
+import { invalidatePropertyCaches } from '../utils/propertyCache.js';
 /**
  * Fetch paginated properties for Admin Dashboard
  * - Safe pagination
@@ -211,6 +212,7 @@ export const updatePropertyStatus = async (
   }
 
   const property = await Property.findByIdAndUpdate(id, update, { new: true });
+  if (property) invalidatePropertyCaches();
 
   return property; // null if not found — caller decides the response
 };
@@ -266,6 +268,7 @@ export const bulkUpdatePropertyStatus = async (
     { _id: { $in: reviewableIds } },
     update
   );
+  if (result.modifiedCount) invalidatePropertyCaches();
 
   return { matched: result.matchedCount, modified: result.modifiedCount };
 };

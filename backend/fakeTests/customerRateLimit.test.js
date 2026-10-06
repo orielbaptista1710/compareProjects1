@@ -17,7 +17,9 @@ vi.mock("../config/firebaseAdmin.js", () => ({
 
 const { default: customerRoutes } = await import("../routes/customerRoutes.js");
 const { default: customerActivityRoutes } = await import("../routes/customerActivityRoutes.js");
-const { authLimiter, customerActionLimiter } = await import("../middleware/rateLimiters.js");
+const { authLimiter, customerAuthLimiter, customerActionLimiter } = await import(
+  "../middleware/rateLimiters.js"
+);
 
 function findRouteLayer(router, path, method) {
   return router.stack.find(
@@ -30,14 +32,18 @@ function middlewareOf(layer) {
 }
 
 describe("customer route rate limiting", () => {
-  it("uses the shared authLimiter for signup and login, not a local duplicate", () => {
+  // Customers get their own shared limiter (from rateLimiters.js, not a local
+  // duplicate) so they don't share a counter with developer login.
+  it("uses the shared customerAuthLimiter for signup and login, separate from developer authLimiter", () => {
     const signupLayer = findRouteLayer(customerRoutes, "/firebase-signup", "post");
     const loginLayer = findRouteLayer(customerRoutes, "/firebase-login", "post");
 
     expect(signupLayer).toBeTruthy();
     expect(loginLayer).toBeTruthy();
-    expect(middlewareOf(signupLayer)).toContain(authLimiter);
-    expect(middlewareOf(loginLayer)).toContain(authLimiter);
+    expect(middlewareOf(signupLayer)).toContain(customerAuthLimiter);
+    expect(middlewareOf(loginLayer)).toContain(customerAuthLimiter);
+    expect(middlewareOf(signupLayer)).not.toContain(authLimiter);
+    expect(middlewareOf(loginLayer)).not.toContain(authLimiter);
   });
 
   it("applies customerActionLimiter to GET /me", () => {

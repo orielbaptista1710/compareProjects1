@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import adminRoutes from "../../routes/adminRoutes.js";
 import authRoutes from "../../routes/authRoutes.js";
 import propertyRoutes from "../../routes/propertyRoutes.js";
+import discoverRoutes from "../../routes/discoverRoutes.js";
 import errorHandler from "../../middleware/errorMiddleware.js";
 
 const app = express();
@@ -13,6 +14,7 @@ app.use(cookieParser());
 app.use("/api/admin", adminRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/properties", propertyRoutes);
+app.use("/api/discover", discoverRoutes);
 app.use(errorHandler);
 
 export default app;

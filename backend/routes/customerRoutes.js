@@ -5,10 +5,10 @@ const router = express.Router();
 import Customer from '../models/Customer.js';
 import protectCustomer from '../middleware/protectCustomer.js';
 import customerAdminFire from '../config/firebaseAdmin.js';
-import { authLimiter, customerActionLimiter } from '../middleware/rateLimiters.js';
+import { customerAuthLimiter, customerActionLimiter } from '../middleware/rateLimiters.js';
 
 // ─── SIGNUP ──────────────────────────────────────────────────
-router.post('/firebase-signup', authLimiter, async (req, res) => {
+router.post('/firebase-signup', customerAuthLimiter, async (req, res) => {
   try {
     const { token, customerName, customerPhone } = req.body;
 
@@ -66,7 +66,7 @@ router.post('/firebase-signup', authLimiter, async (req, res) => {
 
 
 // ─── LOGIN ───────────────────────────────────────────────────
-router.post('/firebase-login', authLimiter, async (req, res) => {
+router.post('/firebase-login', customerAuthLimiter, async (req, res) => {
   try {
     const { token } = req.body;
     if (!token) return res.status(400).json({ message: 'Token is required' });

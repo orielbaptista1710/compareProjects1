@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import logger from './utils/logger.js';
 import requestLogger from './middleware/requestLogger.js';
 
@@ -28,17 +29,33 @@ import prisma from "./config/prisma.js";
 
 const app = express();
 
-app.set('trust proxy', 1);  // the the api differnce 
-app.use(cors({ 
-  origin: process.env.REACT_APP_FRONTEND_URL || 'http://localhost:5173',
+app.set('trust proxy', 1);  // the the api differnce
+
+// Security headers (HSTS, nosniff, frameguard, etc.). JSON-only API, so helmet's
+// default CSP is harmless; CORP is relaxed so the SPA on its own origin can read responses.
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+// Comma-separated list, e.g. "http://localhost:5173,http://localhost:5174"
+const allowedOrigins = (process.env.REACT_APP_FRONTEND_URL || 'http://localhost:5173,http://localhost:5174')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin: allowedOrigins,
   credentials: true
 }));
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(requestLogger);
- 
-// Routes 
+
+// Health check for Render / uptime monitors — 503 if MongoDB is not connected
+app.get('/api/health', (req, res) => {
+  const mongoUp = mongoose.connection.readyState === 1;
+  res.status(mongoUp ? 200 : 503).json({ status: mongoUp ? 'ok' : 'degraded', mongo: mongoUp });
+});
+
+// Routes
 app.use('/api/customers', customerRoutes); 
 app.use('/api/auth', authRoutes);          
 app.use('/api/properties', propertyRoutes);

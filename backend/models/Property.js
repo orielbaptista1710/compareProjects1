@@ -112,20 +112,20 @@ coordinates: {
 
 
 // MongoDB-native geolocation (for geo queries)
-//used for queries, searching, mapping , filters 
+//used for queries, searching, mapping , filters
 //derived from coordinates
+// Not `immutable`: that made Mongoose silently drop the recomputed point when a
+// saved listing's coordinates were edited (docs/review DATA-01). The
+// pre('validate') hook below is what keeps geo in sync with coordinates.
 geo: {
   type: {
     type: String,
     enum: ['Point'],
     default: 'Point',
-    immutable: true
-
   },
   coordinates: {
     type: [Number], // [lng, lat]
     index: '2dsphere',
-    immutable: true
   }
 },
 

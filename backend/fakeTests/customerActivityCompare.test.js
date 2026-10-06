@@ -70,8 +70,13 @@ describe("GET /api/customerActivity/my-activity", () => {
   });
 
   it("returns the customer's saved heart and compare properties", async () => {
-    const propA = await createProperty({ title: "Prop A" });
-    const propB = await createProperty({ title: "Prop B" });
+    const propA = await createProperty({ title: "Prop A", amenities: ["Gym"] });
+    const propB = await createProperty({
+      title: "Prop B",
+      amenities: ["Gym", "Pool"],
+      possessionStatus: "Ready to Move",
+      area: { value: 1200, unit: "sqft" },
+    });
     const customer = await createCustomer({
       heartProperties: [propA._id],
       compareProperties: [propB._id],
@@ -88,6 +93,16 @@ describe("GET /api/customerActivity/my-activity", () => {
     expect(res.body.heartProperties[0].title).toBe("Prop A");
     expect(res.body.compareProperties).toHaveLength(1);
     expect(res.body.compareProperties[0].title).toBe("Prop B");
+
+    // Compare entries carry what the /compare page renders and scores...
+    expect(res.body.compareProperties[0]).toMatchObject({
+      amenities: ["Gym", "Pool"],
+      possessionStatus: "Ready to Move",
+      area: { value: 1200, unit: "sqft" },
+      state: "Maharashtra",
+    });
+    // ...while the shortlist keeps its small card-only payload.
+    expect(res.body.heartProperties[0]).not.toHaveProperty("amenities");
   });
 
   it("paginates heartProperties (default page size 20) while heartedIds stays the full list", async () => {
@@ -170,6 +185,31 @@ describe("PUT /api/customerActivity/compare", () => {
     expect(res.status).toBe(200);
     expect(res.body.compareProperties).toHaveLength(1);
     expect(res.body.compareProperties[0]._id).toBe(prop._id.toString());
+  });
+
+  it("returns full compare-page fields for the saved properties", async () => {
+    const prop = await createProperty({
+      amenities: ["Clubhouse"],
+      possessionStatus: "Immediate",
+      reraApproved: true,
+      reraNumber: "P51800012345",
+    });
+    const customer = await createCustomer();
+    const token = tokenFor(customer.firebaseUid);
+
+    const res = await request(app)
+      .put("/api/customerActivity/compare")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ propertyIds: [prop._id.toString()] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.compareProperties[0]).toMatchObject({
+      amenities: ["Clubhouse"],
+      possessionStatus: "Immediate",
+      reraApproved: true,
+      reraNumber: "P51800012345",
+      address: "123 Test Street",
+    });
   });
 
   it("caps the compare list at 4 server-side even if the client sends more (don't trust the client)", async () => {
