@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - master
-      - testing-setup
+      - feature/testing-setup
+      # - feature/** -- when u add future feature branches, uncomment this line to run CI/CD on them too
 
   pull_request:
     branches:

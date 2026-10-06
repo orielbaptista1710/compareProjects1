@@ -99,6 +99,37 @@ describe("CompareSync", () => {
     );
   });
 
+  it("keeps the fresh server copy when a property is in both the local and server lists", () => {
+    // Local copy is stale (old price) and thin (no amenities); server copy is current.
+    const staleLocal = { _id: "shared-1", price: 10000000 };
+    const freshServer = { _id: "shared-1", price: 9000000, amenities: ["Gym"] };
+
+    render( 
+      <Harness
+        currentUser={null}
+        savedCompareProperties={[]}
+        activityReady={false}
+        syncCompareList={syncCompareList}
+        compareList={[staleLocal, guestProp]}
+        setCompareList={setCompareList}
+      />
+    ).rerender(
+      <Harness
+        currentUser={{ uid: "u1" }}
+        savedCompareProperties={[freshServer]}
+        activityReady={true}
+        syncCompareList={syncCompareList}
+        compareList={[staleLocal, guestProp]}
+        setCompareList={setCompareList}
+      />
+    );
+
+    const mergedList = setCompareList.mock.calls[0][0];
+    expect(mergedList.find((p) => p._id === "shared-1")).toBe(freshServer);
+    // Guest-only picks are still kept.
+    expect(mergedList.find((p) => p._id === "guest-1")).toBe(guestProp);
+  });
+
   it("merges only once per login, even if savedCompareProperties changes again afterwards", () => {
     const { rerender } = render(
       <Harness

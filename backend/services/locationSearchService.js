@@ -79,9 +79,9 @@ const searchLocationsRaw = async (query) => {
   // TODO(scale): once city/locality counts grow, replace distinct/aggregate
   // with a dedicated Location collection + text index.
   const [cityMatches, localityDocs] = await Promise.all([
-    Property.distinct("city", { city: pattern }),
+    Property.distinct("city", { status: "approved", city: pattern }),
     Property.aggregate([
-      { $match: { locality: pattern } },
+      { $match: { status: "approved", locality: pattern } },
       { $group: { _id: { locality: "$locality", city: "$city" }, count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 30 }, // wider net than MAX_RESULTS since grouping can collapse entries

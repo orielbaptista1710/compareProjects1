@@ -4,7 +4,13 @@ import express from 'express';
 import protect from '../middleware/protect.js';
 import isDeveloper from '../middleware/isDeveloper.js';
 import { searchProperties } from '../controllers/searchController.js';
-import { searchLimiter,addPropertyLimiter, readLimiter,} from '../middleware/rateLimiters.js';
+import {
+  searchLimiter,
+  addPropertyLimiter,
+  readLimiter,
+  publicLimiter,
+  developerActionLimiter,
+} from '../middleware/rateLimiters.js';
 import {
   getFilterOptions,
   getPropertiesByType, 
@@ -24,8 +30,8 @@ import {
 const router = express.Router();
 
 // ── Public – filter meta / dropdowns ──────────────────────────
-router.get('/filters', getFilterOptions); //filtervalues for filterpanel dropdowns
-router.get('/localities-by-type', getPropertiesByType); // footer
+router.get('/filters', publicLimiter, getFilterOptions); //filtervalues for filterpanel dropdowns
+router.get('/localities-by-type', publicLimiter, getPropertiesByType); // footer
 router.get('/location-options', searchLimiter, getLocationOptions);//used in locationSearchBar in MainSerchBar
 
 // ── Public – curated / discovery ──────────────────────────────
@@ -36,16 +42,16 @@ router.get('/search', searchLimiter, searchProperties);//Full-text search — us
 // ── Protected – developer CRUD (admin tokens are deliberately excluded here —
 // admins review listings via /api/admin/*, they don't submit their own) ─────
 router.post('/add', protect, isDeveloper, addPropertyLimiter, addProperty);
-router.get('/my-properties', protect, isDeveloper, getMyProperties);//Fetch the logged-in developer's own properties
-router.put('/update/:id', protect, isDeveloper, updateProperty);
-router.delete('/delete/:id', protect, isDeveloper, deleteProperty);
+router.get('/my-properties', protect, isDeveloper, developerActionLimiter, getMyProperties);//Fetch the logged-in developer's own properties
+router.put('/update/:id', protect, isDeveloper, developerActionLimiter, updateProperty);
+router.delete('/delete/:id', protect, isDeveloper, developerActionLimiter, deleteProperty);
 
 // ── Public – parameterised routes ─────────────────────────────
 //parameterised routes are
 router.get('/', readLimiter, getAllApprovedProperties);//Paginated + filtered approved listings — properties page
-router.get('/localities/:city', getLocalitiesByCity);//FiltePanel dropdowns
-router.get('/related/:id', getRelatedProperties);//Related properties in the Property page
-router.get('/:id', getPropertyById);//used in propertyPage to show singular property
+router.get('/localities/:city', publicLimiter, getLocalitiesByCity);//FiltePanel dropdowns
+router.get('/related/:id', publicLimiter, getRelatedProperties);//Related properties in the Property page
+router.get('/:id', publicLimiter, getPropertyById);//used in propertyPage to show singular property
 
 export default router;
 

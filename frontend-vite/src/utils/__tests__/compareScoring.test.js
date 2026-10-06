@@ -157,6 +157,17 @@ describe("scoreProperties", () => {
   });
 
 
+  it("treats Immediate possession the same as Ready to Move", () => {
+    const [immediate, ready] = scoreProperties([
+      { ...baseProperty, title: "Immediate", possessionStatus: "Immediate" },
+      { ...baseProperty, title: "Ready", possessionStatus: "Ready to Move" },
+    ]);
+
+    expect(immediate.comparisonScore).toBe(ready.comparisonScore);
+    expect(immediate.comparisonReasons).toContain("ready to move");
+  });
+
+
   it("adds a reason for RERA-approved properties", () => {
     const properties = [
       {

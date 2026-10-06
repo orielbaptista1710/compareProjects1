@@ -11,6 +11,18 @@ import { customerActionLimiter } from '../middleware/rateLimiters.js';
 router.use(customerActionLimiter);
 
 const PROPERTY_CARD_FIELDS = 'title price coverImage locality city propertyType bhk';
+// Everything the /compare page tabs and frontend compareScoring.js read. Safe to be
+// wide: the compare list is capped at 4 docs, fetched by _id.
+const COMPARE_PROPERTY_FIELDS = [
+  'title developerName featured coverImage galleryImages',
+  'price emiStarts propertyType propertyGroup bhk area',
+  'possessionStatus reraApproved reraNumber reraDate',
+  'amenities facilities security',
+  'bathrooms balconies parkings floor totalFloors wing tower phase',
+  'furnishing facing ageOfProperty unitsAvailable',
+  'state city locality pincode address landmarks mapLink',
+  'metadata.analytics.popularityScore',
+].join(' ');
 const DEFAULT_HEART_PAGE_SIZE = 20;
 const MAX_HEART_PAGE_SIZE = 50; // don't trust the client's ?heartLimit either
 
@@ -44,7 +56,7 @@ router.get('/my-activity', protectCustomer, async (req, res) => {
 
     const [heartDocs, compareDocs] = await Promise.all([
       Property.find({ _id: { $in: heartPageIds } }).select(PROPERTY_CARD_FIELDS).lean(),
-      Property.find({ _id: { $in: customer.compareProperties } }).select(PROPERTY_CARD_FIELDS).lean(),
+      Property.find({ _id: { $in: customer.compareProperties } }).select(COMPARE_PROPERTY_FIELDS).lean(),
     ]);
 
     res.json({
@@ -87,7 +99,7 @@ router.post('/toggle-heart/:propertyId', protectCustomer, async (req, res) => {
       _id: req.customer._id,
       heartProperties: propertyId,
     });
-
+ 
     const update = existing
       ? { $pull: { heartProperties: propertyId } }
       : { $addToSet: { heartProperties: propertyId } };  // $addToSet prevents duplicates
@@ -148,7 +160,7 @@ router.put('/compare', protectCustomer, async (req, res) => {
       { new: true, runValidators: true }
     ).populate({
       path: 'compareProperties',
-      select: PROPERTY_CARD_FIELDS,
+      select: COMPARE_PROPERTY_FIELDS,
     });
 
     res.json({

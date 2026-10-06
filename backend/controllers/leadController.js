@@ -37,11 +37,12 @@ export const createCustomerLead = async (req, res, next) => {
       customerContactConsent,
     } = cleanData;
 
-    //    DUPLICATE CHECK (24H)
+    //    DUPLICATE CHECK (24H) — same phone OR email, so rotating emails
+    //    doesn't get round it (docs/review SEC-08)
     const existingLead = await prisma.lead.findFirst({
       where: {
         leadType: "customer",
-        email: customerEmail,
+        OR: [{ email: customerEmail }, { phone: customerPhone }],
         propertyId: propertyId || null,
         createdAt: { gte: new Date(Date.now() - ONE_DAY_MS) },
       },
@@ -63,7 +64,7 @@ export const createCustomerLead = async (req, res, next) => {
         source,
         propertyId: propertyId || null,
         propertyTitle: propertyTitle || null,
-        contactConsent: customerContactConsent ?? true,
+        contactConsent: customerContactConsent,
         metadata: { userType, budget, propertyType, locality, city, message, loanInterest },
         ipAddress: req.ip, //req.ip depends on trust proxy in server.js CHECK THIS
         userAgent: req.headers["user-agent"] || "",
@@ -71,10 +72,8 @@ export const createCustomerLead = async (req, res, next) => {
       },
     });
 
-    return res.status(201).json({
-      success: true,
-      data: lead,
-    });
+    // Only the id: echoing the row leaked ipAddress, userAgent and CRM fields.
+    return res.status(201).json({ success: true, id: lead.id });
 
   } catch (error) {
     next(error);
@@ -110,7 +109,7 @@ export const createDeveloperLead = async (req, res, next) => {
     const existingLead = await prisma.lead.findFirst({
       where: {
         leadType: "developer",
-        email: developerEmail,
+        OR: [{ email: developerEmail }, { phone: developerPhone }],
         createdAt: { gte: new Date(Date.now() - ONE_DAY_MS) },
       },
     });
@@ -137,10 +136,7 @@ export const createDeveloperLead = async (req, res, next) => {
       },
     });
 
-    return res.status(201).json({
-      success: true,
-      data: lead,
-    });
+    return res.status(201).json({ success: true, id: lead.id });
 
   } catch (error) {
     next(error);

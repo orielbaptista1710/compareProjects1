@@ -35,7 +35,7 @@ const ContactForm = () => {
   customerName: "",
   customerEmail: "",
   customerPhone: "",
-  customerContactConsent: true,
+  customerContactConsent: false, // must be an explicit tick (DPDP)
   userType: "",
   city: "Mumbai",
   locality: "",
@@ -114,6 +114,8 @@ const ContactForm = () => {
         },
         body: JSON.stringify({
           ...formData,
+          // the backend field is "message"; "requirements" was being dropped
+          message: formData.requirements,
           source: "home_page_contact",
         }),
       }
@@ -128,7 +130,7 @@ const ContactForm = () => {
       customerName: "",
       customerEmail: "",
       customerPhone: "",
-      customerContactConsent: true,
+      customerContactConsent: false,
       userType: "",
       city: "Mumbai",
       locality: "",
@@ -351,7 +353,8 @@ const ContactForm = () => {
                     <div className="contact-fm-home-form-group full-width">
                       <label htmlFor="requirements">Additional Requirements</label>
                       <textarea id="requirements" name="requirements" value={formData.requirements}
-                        onChange={handleChange} placeholder="Any specific needs? (e.g., 2BHK, amenities, etc.)" rows="4" />
+                        onChange={handleChange} placeholder="Any specific needs? (e.g., 2BHK, amenities, etc.)" rows="4"
+                        maxLength={1000} /* server caps "message" at 1000 */ />
                     </div>
                   </div>
 

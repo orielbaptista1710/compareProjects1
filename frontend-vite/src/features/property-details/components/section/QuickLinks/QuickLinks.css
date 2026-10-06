@@ -106,6 +106,21 @@
   border-color: none;
 }
 
+.quick-enquiry-modal-form .quick-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #555;
+  cursor: pointer;
+}
+
+.quick-enquiry-modal-form .quick-consent input {
+  width: auto;
+  padding: 0;
+  margin-top: 0.15rem;
+}
+
 .quick-form-status {
   display: flex;
   align-items: center;

@@ -9,6 +9,8 @@ import {
 import {
   Box,
   Button,
+  Checkbox,
+  FormControlLabel,
   TextField,
   Typography,
   Fade,
@@ -28,6 +30,8 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
+import API from "../../../../../api/api";
+
 /* ─────────────────────────────────────────────
    FORM STEPS
 ───────────────────────────────────────────── */
@@ -37,7 +41,8 @@ const steps = [
     key: "budget",
     title: "Budget Range",
     subtitle: "Choose your preferred budget",
-    options: ["< ₹25L", "₹25L–₹50L", "₹50L–₹1Cr", "> ₹1Cr"],
+    // Words, not "<" / ">": the backend's HTML sanitiser stores those as &lt; / &gt;.
+    options: ["Under ₹25L", "₹25L–₹50L", "₹50L–₹1Cr", "Above ₹1Cr"],
   },
   {
     key: "propertyType",
@@ -212,6 +217,10 @@ const SmartContactForm = ({ isInSheet = false }) => {
   const [formData, setFormData] = useState(() => readValidDraft()?.formData ?? {});
   const [step, setStep] = useState(() => readValidDraft()?.step ?? 0);
 
+  // Consent is never restored from the draft: it has to be a fresh, explicit
+  // tick each time (docs/review SEC-07, DPDP).
+  const [consent, setConsent] = useState(false);
+  const [consentError, setConsentError] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -263,21 +272,17 @@ const SmartContactForm = ({ isInSheet = false }) => {
   ───────────────────────────────────────── */
 
   const submitToAPI = useCallback(async (data) => {
-    const res = await fetch("/api/leads/customer", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...data,
-        source: "smart_properties_page_form",
-        timestamp: new Date().toISOString(),
-      }),
+    // Shared API client: a relative fetch("/api/...") only works through the
+    // Vite dev proxy; in production it hits the static site, not the backend.
+    // Non-2xx responses reject, which the caller already handles as a failure.
+    const res = await API.post("/api/leads/customer", {
+      ...data,
+      customerContactConsent: true, // only reached once the box is ticked
+      source: "smart_properties_page_form",
+      timestamp: new Date().toISOString(),
     });
 
-    if (!res.ok) {
-      throw new Error("Submission failed");
-    }
-
-    return await res.json();
+    return res.data;
   }, []);
 
   const handleNext = useCallback(
@@ -308,6 +313,11 @@ const SmartContactForm = ({ isInSheet = false }) => {
         return;
       }
 
+      if (!consent) {
+        setConsentError(true);
+        return;
+      }
+
       setIsSubmitting(true);
 
       try {
@@ -320,7 +330,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
         setIsSubmitting(false);
       }
     },
-    [step, formData, currentStep, submitToAPI]
+    [step, formData, currentStep, consent, submitToAPI]
   );
 
   const handleBack = () => {
@@ -334,6 +344,8 @@ const SmartContactForm = ({ isInSheet = false }) => {
     setStep(0);
     setFormData({});
     setError("");
+    setConsent(false);
+    setConsentError(false);
     setIsSubmitted(false);
     localStorage.removeItem(DRAFT_KEY);
 
@@ -534,6 +546,36 @@ const SmartContactForm = ({ isInSheet = false }) => {
                         helperText={error}
                         disabled={isSubmitting}
                       />
+
+                      {step === steps.length - 1 && (
+                        <Box mt={1.5}>
+                          <FormControlLabel
+                            sx={{ alignItems: "flex-start", mx: 0 }}
+                            control={
+                              <Checkbox
+                                size="small"
+                                checked={consent}
+                                onChange={(e) => {
+                                  setConsent(e.target.checked);
+                                  setConsentError(false);
+                                }}
+                                disabled={isSubmitting}
+                                sx={{ p: 0.5, mr: 1, "&.Mui-checked": { color: "#9417E2" } }}
+                              />
+                            }
+                            label={
+                              <Typography fontSize="12px" color="#6b7280">
+                                I agree to be contacted via phone, WhatsApp, SMS or email.
+                              </Typography>
+                            }
+                          />
+                          {consentError && (
+                            <Typography fontSize="12px" color="error" role="alert">
+                              Please agree to be contacted
+                            </Typography>
+                          )}
+                        </Box>
+                      )}
 
                       <Box display="flex" gap={1} mt={2}>
                         {step > 0 && (

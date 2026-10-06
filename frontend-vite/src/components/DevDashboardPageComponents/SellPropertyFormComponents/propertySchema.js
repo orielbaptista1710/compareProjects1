@@ -10,7 +10,20 @@ const optionalNum = (schema) =>
 const optionalInt      = optionalNum(z.coerce.number().int().optional());
 const optionalPosInt   = optionalNum(z.coerce.number().int().min(1).optional());
 const optionalPosFloat = optionalNum(z.coerce.number().positive().optional());
- 
+
+// Same rule as the backend (validators/propertyInputValidator.js,
+// ALLOWED_URL_HOSTS.map): https Google Maps links only, so the developer sees
+// the problem here instead of a rejected save.
+const MAP_HOSTS = ["google.com", "google.co.in", "goo.gl"];
+const isGoogleMapsLink = (value) => {
+  try {
+    const { protocol, hostname } = new URL(value);
+    return protocol === "https:" && MAP_HOSTS.some((h) => hostname === h || hostname.endsWith(`.${h}`));
+  } catch {
+    return false;
+  }
+};
+
 export const propertySchema = z
   .object({
     // ── Basic Info ────────────────────────────────────────────────
@@ -25,7 +38,11 @@ export const propertySchema = z
     locality: z.string().min(1, "Locality is required"),
     address:  z.string().min(5, "Address is required").max(300).trim(),
     pincode:  z.string().regex(/^\d{6}$/, "Pincode must be exactly 6 digits"),
-    mapLink:  z.string().url("Enter a valid URL").optional().or(z.literal("")),
+    mapLink:  z
+      .string()
+      .refine(isGoogleMapsLink, "Paste a Google Maps link (https://maps.google.com/… or https://maps.app.goo.gl/…)")
+      .optional()
+      .or(z.literal("")),
  
     // Set by map handlers via setValue — user never types these directly
     lat: z.coerce.number().min(-90).max(90).optional(),
