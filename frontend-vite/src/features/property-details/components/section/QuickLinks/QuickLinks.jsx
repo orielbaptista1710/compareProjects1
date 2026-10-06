@@ -21,6 +21,7 @@ const INITIAL_FORM_DATA = {
   customerName: "",
   customerPhone: "",
   customerEmail: "",
+  customerContactConsent: false, // must be an explicit tick (DPDP)
 };
 
 const getApiErrorMessage = (error) =>
@@ -176,6 +177,10 @@ function QuickLinks({ property }) {
       return "Email address is too long";
     }
 
+    if (!formData.customerContactConsent) {
+      return "Please agree to be contacted";
+    }
+
     return null;
   };
 
@@ -202,6 +207,7 @@ function QuickLinks({ property }) {
         customerName: formData.customerName.trim(),
         customerPhone: formData.customerPhone.trim(),
         customerEmail: formData.customerEmail.trim().toLowerCase(),
+        customerContactConsent: formData.customerContactConsent,
         propertyId: property?._id || null,
         propertyTitle: property?.title || "",
         source: "quick_links_property_page_form",
@@ -389,6 +395,28 @@ function QuickLinks({ property }) {
                 disabled={loading}
                 required
               />
+
+              <label className="quick-consent">
+                <input
+                  type="checkbox"
+                  name="customerContactConsent"
+                  checked={formData.customerContactConsent}
+                  onChange={(event) => {
+                    const { checked } = event.target;
+
+                    setFormData((previous) => ({
+                      ...previous,
+                      customerContactConsent: checked,
+                    }));
+
+                    if (status?.type === "error") {
+                      setStatus(null);
+                    }
+                  }}
+                  disabled={loading}
+                />
+                I agree to be contacted via phone, WhatsApp, SMS or email.
+              </label>
 
               {status && (
                 <div

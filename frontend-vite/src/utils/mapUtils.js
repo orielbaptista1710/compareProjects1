@@ -20,6 +20,16 @@
 const EMBED_BASE = "https://www.google.com/maps/embed/v1";
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 
+/** True only for https://www.google.com/maps/embed… — safe to use as an iframe src. */
+export function isGoogleEmbedUrl(link) {
+  try {
+    const { protocol, hostname, pathname } = new URL(link);
+    return protocol === "https:" && hostname === "www.google.com" && pathname.startsWith("/maps/embed");
+  } catch {
+    return false;
+  }
+}
+
 /**
  * @param {Object} property - the property document from your API
  * @returns {string|null}   - a valid iframe src, or null if nothing usable
@@ -45,8 +55,10 @@ export function getMapEmbedUrl(property) {
   // ── 2. Parse stored mapLink ───────────────────────────────────
   const link = property.mapLink;
   if (link) {
-    // Already an embed URL — use as-is
-    if (link.includes("/maps/embed")) return link;
+    // Already an embed URL — use as-is, but only if it really is Google's.
+    // A substring check let any site containing "/maps/embed" be framed on
+    // the property page (docs/review SEC-09).
+    if (isGoogleEmbedUrl(link)) return link;
 
     // Extract coords from common URL patterns:
     //   ?q=lat,lng

@@ -47,10 +47,9 @@ const schema = z.object({
     .max(1000, "Message is too long")
     .optional(),
 
+  // zod 4 ignores `errorMap`; `error` is the option that sets the message.
   customerContactConsent: z.literal(true, {
-    errorMap: () => ({
-      message: "Please agree to be contacted",
-    }),
+    error: "Please agree to be contacted",
   }),
 
   loanInterest: z.boolean(),
@@ -120,7 +119,7 @@ const ContactFormm = ({ property }) => {
       customerPhone: "",
       customerEmail: "",
       message: "",
-      customerContactConsent: true,
+      customerContactConsent: false, // must be an explicit tick (DPDP)
       loanInterest: false,
     },
   });
@@ -407,7 +406,7 @@ const ContactFormm = ({ property }) => {
         <div className="cf-footer-nudge">
           <Heart size={14} strokeWidth={2} aria-hidden="true" />
           <span>
-            Still deciding? Save this property to your favorites
+            Still deciding? Shortlist this property to your favorites
           </span>
         </div>
       </form>
