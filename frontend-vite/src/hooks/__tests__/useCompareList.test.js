@@ -65,6 +65,17 @@ describe("useCompareList", () => {
     });
   });
 
+  it.each(['{"_id":"p1"}', '"a string"', "42"])(
+    "falls back to an empty list when stored JSON is not an array (%s)",
+    (stored) => {
+      localStorage.setItem("compareList", stored);
+
+      const { result } = renderHook(() => useCompareList());
+
+      expect(result.current.compareList).toEqual([]);
+    }
+  );
+
   describe("addToCompare", () => {
     it("adds a property and returns added", () => {
       const property = {

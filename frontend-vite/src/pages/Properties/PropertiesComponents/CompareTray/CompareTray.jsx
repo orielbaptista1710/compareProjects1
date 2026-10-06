@@ -56,9 +56,11 @@ const CompareTray = ({ compareList = [], removeFromCompare}) => {
 
                   <button
                     className="compare-remove"
-                    onClick={() =>
-                      removeFromCompare(property._id)
-                    }
+                    aria-label={`Remove ${title} from compare`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFromCompare(property._id);
+                    }}
                   >
                     <X size={16} />
                   </button>

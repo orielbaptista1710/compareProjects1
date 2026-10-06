@@ -69,7 +69,10 @@ const getAmenityCount = (property) => {
 };
 
 const getPossessionScore = (property) => {
-  if (property.possessionStatus === "Ready to Move") {
+  if (
+    property.possessionStatus === "Ready to Move" ||
+    property.possessionStatus === "Immediate"
+  ) {
     return 1;
   }
 

@@ -8,7 +8,8 @@ export default function useCompareList() {
   const [compareList, setCompareList] = useState(() => {
     try {
       const saved = localStorage.getItem("compareList");
-      return saved ? JSON.parse(saved) : [];
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
       console.error("Failed to parse compare list:", error);
       return [];

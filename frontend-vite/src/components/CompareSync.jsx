@@ -60,8 +60,9 @@ const CompareSync = () => {
 
     if (mergedIds.length === 0) return;
 
-    // Build merged property objects (prefer full server objects, fall back to guest ones)
-    const byId = new Map([...serverProps, ...compareList].map((p) => [p._id, p]));
+    // Build merged property objects (prefer fresh server objects, fall back to guest ones).
+    // Map keeps the last entry per key, so server objects must come last to win.
+    const byId = new Map([...compareList, ...serverProps].map((p) => [p._id, p]));
     const mergedList = mergedIds.map((id) => byId.get(id)).filter(Boolean);
 
     setCompareList(mergedList);

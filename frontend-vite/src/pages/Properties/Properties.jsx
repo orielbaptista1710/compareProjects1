@@ -20,6 +20,7 @@ import Seo                from '../../database/Seo';
 import API from '../../api/api';
 import { DEFAULT_FILTERS, formatFilterValue, parseFiltersFromURL } from '../../utils/filters.schema';
 import { FILTER_LABELS } from '../../assests/constants/propertyTypeConfig';
+import { useCity } from '../../contexts/CityContext';
 
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 
@@ -136,6 +137,17 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
     () => ({ ...DEFAULT_FILTERS, ...parseFiltersFromURL(location.search) }),
     [location.search]
   );
+
+  // Keep CityContext (read by the header CitySelector + several Home-page sections)
+  // in sync with this page's URL, one direction only (URL -> context). Without this,
+  // the header can keep showing a previously-selected city after a shared link,
+  // browser back/forward, or clearing the location search — none of which currently
+  // clear CityContext themselves.
+  const { city: contextCity, setCity } = useCity();
+  useEffect(() => {
+    const urlCity = filters.city || null;
+    if (urlCity !== contextCity) setCity(urlCity);
+  }, [filters.city, contextCity, setCity]);
 
   // ── Data fetching ──────────────────────────
   const { data, isLoading, isFetching } = useQuery({

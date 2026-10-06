@@ -2,6 +2,7 @@ import React, { useMemo, useCallback, useState, useRef } from "react";
 import { Home, ChevronDown, ChevronUp } from "lucide-react";
 import { PROPERTY_TYPE_CONFIG } from "../../../assests/constants/propertyTypeConfig";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
+import { useEscapeKey } from "../../../hooks/useEscapeKey";
 import "./PropertyTypePills.css";
 
 const PropertyTypePills = ({ valueMap, onChange }) => {
@@ -11,6 +12,7 @@ const PropertyTypePills = ({ valueMap, onChange }) => {
   const wrapperRef = useRef(null);
 
   useOutsideClick(open, [wrapperRef], () => setOpen(false));
+  useEscapeKey(open, () => setOpen(false));
 
   const handleToggle = useCallback((target, itemValue, currentValue) => {
     const active = currentValue.includes(itemValue);
@@ -40,7 +42,7 @@ const PropertyTypePills = ({ valueMap, onChange }) => {
 
   return (
     <div className="ptp-wrapper" ref={wrapperRef}>
-      <button type="button" className="ptp-trigger" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+      <button type="button" className="ptp-trigger" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="true">
         <Home size={18} className="ptp-trigger-icon" />
         <span className="ptp-trigger-label">{summaryLabel}</span>
         {open ? <ChevronUp size={16} className="ptp-trigger-chevron" /> : <ChevronDown size={16} className="ptp-trigger-chevron" />}
