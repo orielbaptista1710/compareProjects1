@@ -1,9 +1,9 @@
 import express from 'express';
 import { createPasswordResetRequest } from '../controllers/passwordResetRequestController.js';
-import { leadRateLimit } from '../middleware/leadRateLimit.js'; // reuse — check the actual export name in that file
+import { authLimiter } from '../middleware/rateLimiters.js';
 
 const router = express.Router();
 
-router.post('/', leadRateLimit, createPasswordResetRequest);
+router.post('/', authLimiter, createPasswordResetRequest);
 
 export default router;
