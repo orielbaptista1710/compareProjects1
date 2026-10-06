@@ -135,11 +135,11 @@ backend/
 
 ### Starting a new task
 
-Never work directly on `main` or `develop`. Always branch off `develop`:
+Never work directly on `master`. Always branch off `master`:
 
 ```bash
 # 1. Pull latest
-git checkout develop && git pull origin develop
+git checkout master && git pull origin master
 
 # 2. Create your feature branch
 git checkout -b feature/your-feature-name
@@ -147,7 +147,7 @@ git checkout -b feature/your-feature-name
 # 3. Commit regularly
 git add . && git commit -m "feat(scope): what you did"
 
-# 4. Push and open a PR to develop
+# 4. Push and open a PR to master
 git push origin feature/your-feature-name
 ```
 
