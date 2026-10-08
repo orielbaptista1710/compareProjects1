@@ -2,6 +2,7 @@
 import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
 import * as propertyService from '../services/propertyAdminService.js';
+import logger from '../utils/logger.js';
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -28,8 +29,9 @@ export const getProperties = asyncHandler(async (req, res) => {
   return res.status(400).json({ message: "Invalid property type" });
   }
 
-  console.log("✅ getProperties hit");
-  console.log("📦 query params:", req.query);
+  // Debug level: printed locally, dropped in production (logger level is info there).
+  logger.debug("✅ getProperties hit");
+  logger.debug("📦 query params", { query: req.query });
 
   const result = await propertyService.fetchProperties({
     page,
@@ -42,7 +44,6 @@ export const getProperties = asyncHandler(async (req, res) => {
     sortBy,
     imageFilter,
   });
-  // console.error("ADMIN FETCH ERROR:", error);   ///////????????
 
   res.json(result);
 });

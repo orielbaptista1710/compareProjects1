@@ -5,13 +5,13 @@
 // Sends a consistent JSON response to the frontend   backend/
 import { Prisma } from "@prisma/client";
 import logger from "../utils/logger.js";
+import { safeErrorMeta } from "../utils/safeError.js";
 
 const errorHandler = (err, req, res, next) => {
   void next(); // Ensure next is called to avoid unhandled promise rejections
 
   logger.error(`${req.method} ${req.originalUrl} → ERROR`, {
-    message: err.message,
-    stack: err.stack,
+    ...safeErrorMeta(err),
     requestId: req.requestId
   });
 

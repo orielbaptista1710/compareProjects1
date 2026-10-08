@@ -1,6 +1,8 @@
 // controllers/discoverController.js
 import Property from "../models/Property.js";
 import { withCache } from "../utils/withCache.js";
+import logger from "../utils/logger.js";
+import { safeErrorMeta } from "../utils/safeError.js";
 import {
   RESIDENTIAL_TYPES,
   COMMERCIAL_TYPES,
@@ -83,7 +85,7 @@ export const getDiscover = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("discover error:", err);
+    logger.error("discover error", safeErrorMeta(err));
 
     res.status(500).json({
       success: false,

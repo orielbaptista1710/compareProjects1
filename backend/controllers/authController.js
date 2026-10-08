@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 // import protect from '../middleware/protect.js';
 import asyncHandler from 'express-async-handler';
+import { randomUUID } from 'crypto';
 
 // Must be identical between the cookie set on login and the cookie cleared on
 // logout — a mismatch (e.g. SameSite=None without Secure) makes the browser
@@ -17,6 +18,12 @@ const AUTH_COOKIE_OPTIONS = {
   secure: isProd,           // HTTPS only in prod; SameSite=None below requires this be true whenever sameSite is 'none'
   sameSite: isProd ? 'none' : 'lax', // 'none' needed cross-site in prod; 'lax' works over plain HTTP in local dev
 };
+
+// Compared against when the username doesn't exist, so unknown and real
+// usernames both pay the bcrypt cost and take the same time (no username
+// enumeration via response timing). Cost must match User.js. Built from a
+// random value at startup, so no password can ever match it.
+const DUMMY_HASH = bcrypt.hashSync(randomUUID(), 12);
 
 //Get logged in user info
 export const getMe = asyncHandler(async (req, res) => {
@@ -34,27 +41,21 @@ export const getMe = asyncHandler(async (req, res) => {
 //Login user - developer and admin
 export const login = asyncHandler(async (req, res) => {
     
-  const username = req.body.username?.trim().toLowerCase().slice(0, 50);
-  const password = req.body.password?.trim().slice(0, 128);
+  // Non-string values (objects, numbers) become '' and get a 400 below,
+  // instead of crashing .trim() into a 500 or reaching the Mongo query.
+  const rawUsername = req.body?.username;
+  const rawPassword = req.body?.password;
+  const username = typeof rawUsername === 'string' ? rawUsername.trim().toLowerCase().slice(0, 50) : '';
+  const password = typeof rawPassword === 'string' ? rawPassword.trim().slice(0, 128) : '';
 
   if (!username || !password) {
     res.status(400);
     throw new Error('Username and password are required');
   }
 
-  // console.log('Searching for user: ', username);
-  const user = await User.findOne({ username }); 
-  // console.log('User found: ', user);
-  // console.log(`Username length: ${username.length}`);
-  if (!user) {
-    res.status(401); 
-    throw new Error('Invalid username or password');
-  }
-  // console.log(user.password, user.username)          //REMOVE THIS CHECK THIS 
-  // console.log(`Password length: ${password.length}`);//REMOVE THIS 
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
+  const user = await User.findOne({ username });
+  const isMatch = await bcrypt.compare(password, user?.password ?? DUMMY_HASH);
+  if (!user || !isMatch) {
     res.status(401);
     throw new Error('Invalid username or password');
   }
