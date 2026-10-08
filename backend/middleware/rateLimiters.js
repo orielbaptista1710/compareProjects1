@@ -112,6 +112,37 @@ export const authLimiter = rateLimit({
 });
 
 // ---------------------------------------------------------------------------
+// Developer/admin login  —  5 failed req / 15 min per username
+// ---------------------------------------------------------------------------
+// authLimiter is per IP, so an attacker rotating IPs could keep guessing one
+// account's password. This caps failures per username however many IPs are
+// used. skipSuccessfulRequests: a correct login doesn't use up the quota.
+// Trade-off: anyone who knows a username can lock it out for 15 minutes.
+// Requests without a string username are skipped; the controller 400s them.
+// Applied to: POST /api/auth/login
+export const loginUsernameKey = (req) => {
+  const username = req.body?.username;
+  return typeof username === 'string' && username.trim()
+    ? `login-user:${username.trim().toLowerCase().slice(0, 50)}`
+    : null;
+};
+
+// Exported so a test can build the limiter without the test-mode skip.
+export const LOGIN_USERNAME_LIMIT = {
+  windowMs: 15 * 60_000,
+  max: 5,
+  skipSuccessfulRequests: true,
+  keyGenerator: loginUsernameKey,
+  message: { error: 'Too many failed logins for this account — please wait 15 minutes.' },
+};
+
+export const loginUsernameLimiter = rateLimit({
+  ...sharedOptions,
+  ...LOGIN_USERNAME_LIMIT,
+  skip: (req) => IS_TEST || !loginUsernameKey(req),
+});
+
+// ---------------------------------------------------------------------------
 // Customer auth sync (Firebase signup / login)  —  30 req / 15 min
 // ---------------------------------------------------------------------------
 // Separate counter from authLimiter so customers sharing a carrier IP can't lock

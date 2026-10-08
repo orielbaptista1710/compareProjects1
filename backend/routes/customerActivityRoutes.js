@@ -7,6 +7,8 @@ import protectCustomer from '../middleware/protectCustomer.js';
 import Customer from '../models/Customer.js';
 import Property from '../models/Property.js';
 import { customerActionLimiter } from '../middleware/rateLimiters.js';
+import logger from '../utils/logger.js';
+import { safeErrorMeta } from '../utils/safeError.js';
 
 router.use(customerActionLimiter);
 
@@ -76,7 +78,8 @@ router.get('/my-activity', protectCustomer, async (req, res) => {
       compareProperties: reorderByIds(customer.compareProperties, compareDocs),
     });
   } catch (err) {
-    res.status(500).json({ message: 'Server error-', error: err.message });
+    logger.error('My activity error', safeErrorMeta(err));
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -134,7 +137,7 @@ router.post('/toggle-heart/:propertyId', protectCustomer, async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Toggle heart error:', err);
+    logger.error('Toggle heart error', safeErrorMeta(err));
     res.status(500).json({ message: 'Server error' });
   }
 });
@@ -168,7 +171,7 @@ router.put('/compare', protectCustomer, async (req, res) => {
       compareProperties: updated.compareProperties,
     });
   } catch (err) {
-    console.error('Compare sync error:', err);
+    logger.error('Compare sync error', safeErrorMeta(err));
     res.status(500).json({ message: 'Server error' });
   }
 });

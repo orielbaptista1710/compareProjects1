@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import logger from './utils/logger.js';
 import requestLogger from './middleware/requestLogger.js';
+import originCheck from './middleware/originCheck.js';
 
 import errorHandler from './middleware/errorMiddleware.js';
 
@@ -44,6 +45,7 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true
 }));
+app.use(originCheck(allowedOrigins));  // CSRF: refuse cross-site writes (SEC-06)
 
 app.use(express.json());
 app.use(cookieParser());

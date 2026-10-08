@@ -6,6 +6,8 @@ import Customer from '../models/Customer.js';
 import protectCustomer from '../middleware/protectCustomer.js';
 import customerAdminFire from '../config/firebaseAdmin.js';
 import { customerAuthLimiter, customerActionLimiter } from '../middleware/rateLimiters.js';
+import logger from '../utils/logger.js';
+import { safeErrorMeta } from '../utils/safeError.js';
 
 // ─── SIGNUP ──────────────────────────────────────────────────
 router.post('/firebase-signup', customerAuthLimiter, async (req, res) => {
@@ -41,7 +43,7 @@ router.post('/firebase-signup', customerAuthLimiter, async (req, res) => {
     res.status(200).json({ customer });
 
   } catch (err) {
-    console.error('firebase-signup error:', err);
+    logger.error('firebase-signup error', safeErrorMeta(err));
 
     if (err.code === 'auth/argument-error' || err.code === 'auth/id-token-expired') {
       return res.status(401).json({ message: 'Invalid or expired Firebase token' });
@@ -94,7 +96,7 @@ router.post('/firebase-login', customerAuthLimiter, async (req, res) => {
     res.json({ customer });
 
   } catch (err) {
-    console.error('firebase-login error:', err);
+    logger.error('firebase-login error', safeErrorMeta(err));
     if (err.code === 'auth/argument-error' || err.code === 'auth/id-token-expired') {
       return res.status(401).json({ message: 'Invalid or expired Firebase token' });
     }
@@ -118,7 +120,7 @@ router.get('/me', customerActionLimiter, protectCustomer, async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('Customer /me error', err);
+    logger.error('Customer /me error', safeErrorMeta(err));
     res.status(500).json({ message: 'Server error' });
   }
 });

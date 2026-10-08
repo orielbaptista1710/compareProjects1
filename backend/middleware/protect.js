@@ -22,11 +22,6 @@ const protect = asyncHandler(async (req, res, next) => {
   let decoded;
   try {
     decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // console.log("Decoded JWT:", decoded);
-    // console.log("decoded.id:", decoded.id);
-    // console.log("Length:", decoded.id?.length);
-
   } catch (err) {
     res.status(401);
     const errorMessage =  err.name === 'TokenExpiredError' ? 'Not authorised — token expired.' : 'Not authorised — invalid token.';

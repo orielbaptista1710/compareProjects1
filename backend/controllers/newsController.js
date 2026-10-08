@@ -2,6 +2,7 @@
 //used in PropertyGuide -- check performace 
 import axios from "axios";
 import NodeCache from "node-cache";
+import logger from "../utils/logger.js";
 
 const cache = new NodeCache({ stdTTL: 10800 }); // 3-hour cache
 
@@ -41,7 +42,9 @@ export const getRealEstateNews = async (req, res) => {
 
     res.json(articles);
   } catch (error) {
-    console.error("News API error:", error.message);
+    // Message and status only: the full axios error includes the request URL,
+    // which carries the GNews API key.
+    logger.error("News API error", { message: error.message, status: error.response?.status });
     res.status(500).json({ message: "Failed to fetch news" });
   }
 };
