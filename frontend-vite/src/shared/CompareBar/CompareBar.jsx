@@ -11,7 +11,11 @@ const CompareBar = ({ compareList, removeFromCompare, setCompareList, isOpen, on
   const navigate = useNavigate();
 
   const clearAll = useCallback(() => setCompareList([]), [setCompareList]);
-  const goToComparePage = () => navigate("/compare");
+  // Close the bar too, so it doesn't sit over the compare page
+  const goToComparePage = () => {
+    navigate("/compare");
+    onClose?.();
+  };
 
   if (!isOpen || compareList.length === 0) return null;
 

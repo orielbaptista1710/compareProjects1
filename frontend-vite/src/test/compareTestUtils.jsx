@@ -1,6 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
 import { render } from "@testing-library/react";
 import { MemoryRouter, Routes, Route, useLocation } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Fresh client per render so cached query results never leak between tests.
+export const makeTestQueryClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
 export const makeProperty = (overrides = {}) => ({
   _id: "p1",
@@ -41,12 +46,15 @@ const LocationDisplay = () => {
 
 // Renders `ui` at `initialPath` inside a real router, with a probe that
 // exposes the current pathname so tests can assert on navigation.
-export const renderWithRouter = (ui, { initialPath = "/" } = {}) =>
+// Pass `initialEntries` to start with in-app history behind the page.
+export const renderWithRouter = (ui, { initialPath = "/", initialEntries = [initialPath] } = {}) =>
   render(
-    <MemoryRouter initialEntries={[initialPath]}>
-      <Routes>
-        <Route path="*" element={ui} />
-      </Routes>
-      <LocationDisplay />
-    </MemoryRouter>
+    <QueryClientProvider client={makeTestQueryClient()}>
+      <MemoryRouter initialEntries={initialEntries} initialIndex={initialEntries.length - 1}>
+        <Routes>
+          <Route path="*" element={ui} />
+        </Routes>
+        <LocationDisplay />
+      </MemoryRouter>
+    </QueryClientProvider>
   );

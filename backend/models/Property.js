@@ -2,6 +2,7 @@
 import mongoose from 'mongoose';
 import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from './propertyType.js';
 import slugify from 'slugify';
+import { buildProjectKey } from '../utils/projectKey.js';
 
 const propertySchema = new mongoose.Schema({
 
@@ -24,8 +25,16 @@ const propertySchema = new mongoose.Schema({
   listingType: { type: String, enum: ['sale', 'resale'] }, //add rent later
   listedBy: { type: String, enum: ['owner', 'broker', 'developer'] }, //add rent later
 
-  //new added needs to be generated from title and developerName 
+  //new added needs to be generated from title and developerName
   projectName: { type: String, trim: true }, //used in sale and resale - NEW
+
+  // Groups BHK variants of the same project onto one listing card. Derived
+  // from developerName + projectName + locality/city by buildProjectKey() in
+  // the pre('validate') hook below — null when projectName isn't set, which
+  // means this listing is never grouped with anything (see propertyController
+  // getAllApprovedProperties). NEVER set this directly; bulk writes
+  // (insertMany) bypass hooks, so they must call buildProjectKey() themselves.
+  projectKey: { type: String, default: null },
 
   // used in sale only
   developerName : { type: String, required: true},
@@ -34,6 +43,8 @@ const propertySchema = new mongoose.Schema({
     thumbnail: { type: String, default: null },
     },
 
+
+    ///DONT USE THIS FORGET THIS 
     //broker used for sale and resale - NEW
     //in scrapped db used for resale ony for now
 // broker:{
@@ -58,7 +69,8 @@ const propertySchema = new mongoose.Schema({
 // },
 
   // Property Type
-  // propertyType: { type: String, enum: [...RESIDENTIAL_TYPES, ...COMMERCIAL_TYPES], required: true },
+  // propertyType: { type: String, enum: [...RESIDENTIAL_TYPES, ...COMMERCIAL_TYPES], required: true },'
+  //DONT USE
   subType: { type: String }, //add enum later
 
   sourceUrl: { type: String },// original source if scraped/imported CHECK THIS delly delly babe
@@ -346,6 +358,11 @@ propertySchema.pre("validate", function (next) {
 }
 
 
+  // Recompute on every validate (not just when source fields change) so a
+  // historical doc re-saved for any reason picks up a projectKey once
+  // projectName is backfilled, same way propertyGroup self-heals above.
+  this.projectKey = buildProjectKey(this);
+
   if (this.coordinates?.lat != null && this.coordinates?.lng != null) {
   const { lat, lng } = this.coordinates;
 
@@ -471,6 +488,12 @@ propertySchema.index({
 propertySchema.index({
   userId: 1,
   status: 1,
+});
+
+// BHK-variant grouping for the listing page ($group by projectKey)
+propertySchema.index({
+  status: 1,
+  projectKey: 1,
 });
 
 // Recent properties

@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import PasswordResetRequest from '../models/PasswordResetRequest.js';
 import User from '../models/User.js';
 import { passwordResetRequestSchema } from '../validators/passwordResetRequestValidator.js';
+import logger from '../utils/logger.js';
 
 export const createPasswordResetRequest = asyncHandler(async (req, res) => {
   const parsed = passwordResetRequestSchema.safeParse(req.body);
@@ -20,7 +21,7 @@ export const createPasswordResetRequest = asyncHandler(async (req, res) => {
   // used to check which usernames exist (same enumeration issue as login).
   const userExists = await User.exists({ username: normalizedUsername });
   if (!userExists) {
-    console.warn(`Password reset request for unknown username: ${normalizedUsername}`);
+    logger.warn('Password reset request for an unknown username'); // username not logged
   }
 
   // TODO: call your existing notificationService (Resend/MSG91) here so this

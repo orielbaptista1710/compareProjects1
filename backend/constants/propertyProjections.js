@@ -9,7 +9,7 @@
 // stores these list objects, so it must cover what the /compare tabs and
 // frontend compareScoring.js read.
 export const PUBLIC_LIST_FIELDS = [
-  'title slug developerName featured description createdAt',
+  'title slug developerName developerAvatar projectName projectKey featured description createdAt',
   'coverImage galleryImages',
   'price emiStarts priceNegotiable propertyType propertyGroup bhk area',
   'possessionStatus reraApproved reraNumber reraDate',
@@ -23,7 +23,7 @@ export const PUBLIC_LIST_FIELDS = [
 // GET /api/properties/:id — the property page.
 export const PUBLIC_DETAIL_FIELDS = [
   PUBLIC_LIST_FIELDS,
-  'long_description sub_locality projectName listingType listedBy subType',
-  'developerAvatar floorPlans mediaFiles virtualTours brochure reraQR',
+  'long_description sub_locality listingType listedBy subType',
+  'floorPlans mediaFiles virtualTours brochure reraQR',
 ].join(' ');
 

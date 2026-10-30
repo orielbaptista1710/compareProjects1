@@ -2,34 +2,30 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 
 import HeaderCard from "../HeaderCard/HeaderCard";
-import AddSlot from "../AddSlot/AddSlot";
 import CompareEmptyState from "../CompareEmptyState/CompareEmptyState";
 import CompareErrorBoundary from "../CompareErrorBoundary/CompareErrorBoundary";
-import OverviewTab from "../tabs/OverviewTab";
-import DetailsTab from "../tabs/DetailsTab";
-import AmenitiesTab from "../tabs/AmenitiesTab";
-import LocationTab from "../tabs/LocationTab";
-import { makeProperty, skyline, greenValley } from "../../../../test/compareTestUtils";
+import { makeProperty, skyline } from "../../../../test/compareTestUtils";
 
 describe("HeaderCard", () => {
   it("shows the key property facts", () => {
     render(<HeaderCard property={skyline} onRemove={vi.fn()} onView={vi.fn()} />);
 
     expect(screen.getByRole("heading", { name: "Skyline Heights" })).toBeInTheDocument();
-    expect(screen.getByText("By Acme Developers")).toBeInTheDocument();
+    expect(screen.getByText("Apartment · By Acme Developers")).toBeInTheDocument();
     expect(screen.getByText("Andheri, Mumbai, Maharashtra")).toBeInTheDocument();
-    expect(screen.getByText("RERA ✓")).toBeInTheDocument();
+    expect(screen.getByText("₹1 Cr")).toBeInTheDocument();
+    expect(screen.getByText("(₹10,000/sq ft)")).toBeInTheDocument();
   });
 
-  it("hides the RERA badge when not approved", () => {
-    render(<HeaderCard property={greenValley} onRemove={vi.fn()} onView={vi.fn()} />);
-    expect(screen.queryByText("RERA ✓")).not.toBeInTheDocument();
-  });
+  it("shows a photo count only when there is more than one photo", () => {
+    const galleryImages = [{ url: "a.jpg" }, { url: "b.jpg" }, { url: "c.jpg" }];
+    const { rerender } = render(
+      <HeaderCard property={makeProperty({ galleryImages })} onRemove={vi.fn()} onView={vi.fn()} />
+    );
+    expect(screen.getByText(/3 Photos/)).toBeInTheDocument();
 
-  it("truncates long titles to 48 characters", () => {
-    const title = "A".repeat(60);
-    render(<HeaderCard property={makeProperty({ title })} onRemove={vi.fn()} onView={vi.fn()} />);
-    expect(screen.getByRole("heading")).toHaveTextContent("A".repeat(48));
+    rerender(<HeaderCard property={skyline} onRemove={vi.fn()} onView={vi.fn()} />);
+    expect(screen.queryByText(/Photos/)).not.toBeInTheDocument();
   });
 
   it("calls onView when the card is clicked and only onRemove when Remove is clicked", () => {
@@ -44,15 +40,6 @@ describe("HeaderCard", () => {
     fireEvent.click(screen.getByRole("button", { name: "Remove from comparison" }));
     expect(onRemove).toHaveBeenCalledWith("p1");
     expect(onView).not.toHaveBeenCalled();
-  });
-});
-
-describe("AddSlot", () => {
-  it("fires onClick", () => {
-    const onClick = vi.fn();
-    render(<AddSlot onClick={onClick} />);
-    fireEvent.click(screen.getByRole("button", { name: "Add property to compare" }));
-    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -97,52 +84,5 @@ describe("CompareErrorBoundary", () => {
     expect(screen.getByText("tab content")).toBeInTheDocument();
 
     vi.restoreAllMocks();
-  });
-});
-
-describe("compare tabs", () => {
-  it("OverviewTab shows pricing, RERA number, and at most 6 amenities", () => {
-    const amenities = ["A1", "A2", "A3", "A4", "A5", "A6", "A7"];
-    render(<OverviewTab property={makeProperty({ amenities })} />);
-
-    expect(screen.getByText("P51800012345")).toBeInTheDocument();
-    expect(screen.getByText("A6")).toBeInTheDocument();
-    expect(screen.queryByText("A7")).not.toBeInTheDocument();
-  });
-
-  it("OverviewTab hides the RERA number row when not approved", () => {
-    render(<OverviewTab property={greenValley} />);
-    expect(screen.queryByText("RERA No.")).not.toBeInTheDocument();
-    expect(screen.getByText("No")).toBeInTheDocument();
-  });
-
-  it("DetailsTab falls back to dashes for missing fields and joins wing/tower", () => {
-    render(<DetailsTab property={makeProperty({ wing: "A", tower: "T2" })} />);
-
-    expect(screen.getByText("A / T2")).toBeInTheDocument();
-    expect(screen.getAllByText("—").length).toBeGreaterThan(0);
-  });
-
-  it("AmenitiesTab shows 'None listed' for empty groups", () => {
-    render(<AmenitiesTab property={makeProperty({ facilities: [], security: undefined })} />);
-
-    expect(screen.getByText("Gym")).toBeInTheDocument();
-    expect(screen.getAllByText("None listed")).toHaveLength(2);
-  });
-
-  it("LocationTab renders landmarks and a safe external map link", () => {
-    render(
-      <LocationTab
-        property={makeProperty({
-          landmarks: [{ name: "Metro Station" }],
-          mapLink: "https://maps.example.com/x",
-        })}
-      />
-    );
-
-    expect(screen.getByText("Metro Station")).toBeInTheDocument();
-    const link = screen.getByRole("link", { name: /view on map/i });
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 });

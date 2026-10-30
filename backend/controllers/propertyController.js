@@ -7,6 +7,8 @@ import { COMMON_AMENITIES, COMMON_SECURITY } from '../constants/amenities.js';
 import { invalidatePropertyCaches } from '../utils/propertyCache.js';
 import { PUBLIC_LIST_FIELDS, PUBLIC_DETAIL_FIELDS } from '../constants/propertyProjections.js';
 import { parsePropertyInput } from '../validators/propertyInputValidator.js';
+import logger from '../utils/logger.js';
+import { safeErrorMeta } from '../utils/safeError.js';
 
 // ─────────────────────────────────────────────
 // Constants
@@ -20,12 +22,27 @@ const AREA_BOUNDS = {
   acres:    { min: 0, max: 50     },
 };
 
-const SORT_MAP = {
-  relevance:        { featured: -1, createdAt: -1 },
-  'price-low-high': { price: 1 },
-  'price-high-low': { price: -1 },
-  newest:           { createdAt: -1 },
-  oldest:           { createdAt: 1  },
+// Sort order for grouped project cards (getAllApprovedProperties). Operates
+// on group-level fields produced by the $group stage there — minPrice for
+// the two price sorts (a project's "Starting From" price), $max(createdAt)
+// for newest/oldest (the most recently added unit in the project).
+//
+// noPrice (0 if any unit has a price) comes first in the price sorts so
+// unpriced projects sort last both ways — Mongo would otherwise put a null
+// minPrice ahead of every real price in ascending order.
+//
+// Every sort ends with lastId ($max(_id) of the group — unique per group),
+// so the order is total. Without it, ties (bulk scraper imports share one
+// createdAt; many projects share a price) let each page request order the
+// tied projects differently, and $skip/$limit then shows a project on two
+// pages or on none. ObjectIds grow with insertion, so lastId also keeps
+// "newest" meaningful inside a same-timestamp batch.
+const GROUP_SORT_MAP = {
+  relevance:        { featured: -1, createdAt: -1, lastId: -1 },
+  'price-low-high': { noPrice: 1, minPrice: 1,  lastId: -1 },
+  'price-high-low': { noPrice: 1, minPrice: -1, lastId: -1 },
+  newest:           { createdAt: -1, lastId: -1 },
+  oldest:           { createdAt: 1,  lastId: 1 },
 };
 
 const DEFAULT_PAGE_LIMIT = 12;
@@ -34,6 +51,60 @@ const MAX_PAGE_NUMBER     = 1_000;
 const MAX_LIMIT_FEATURED  = 20;
 const MAX_LIMIT_RECENT    = 20;
 const LOCATION_RESULT_CAP = 8;
+
+// ─────────────────────────────────────────────
+// Listing aggregation — BHK-variant grouping
+// ─────────────────────────────────────────────
+
+// Same allowlist the flat listing used (.select(PUBLIC_LIST_FIELDS)), plus
+// listingType, which is only needed to decide groupability below and is
+// never copied into the final per-group output (only fields explicitly named
+// in $first/$push make it there), so this doesn't widen what's public.
+const AGGREGATION_PROJECTION = {
+  ...Object.fromEntries(PUBLIC_LIST_FIELDS.split(' ').filter(Boolean).map((f) => [f, 1])),
+  listingType: 1,
+};
+
+// A doc only joins a project group when it has a projectKey (i.e. projectName
+// is set), isn't a resale listing, and has a real BHK count (plots/commercial
+// use bhk 0 or no bhk at all). Everything else is grouped under its own _id,
+// i.e. it renders as its own single-unit card — it's never dropped.
+const GROUP_KEY_EXPR = {
+  $cond: [
+    {
+      $and: [
+        { $ifNull: ['$projectKey', false] },
+        { $ne: ['$listingType', 'resale'] },
+        { $gt: ['$bhk', 0] },
+      ],
+    },
+    '$projectKey',
+    '$_id',
+  ],
+};
+
+// Per-unit fields shown in a project card's BHK selector. Also carries the
+// fields that genuinely vary unit-to-unit within the same project (floor,
+// wing, tower, phase, balconies) so the Compare page's DetailsTab still has
+// them for whichever unit the shopper added to compare.
+const UNIT_PROJECTION = {
+  _id:        '$_id',
+  slug:       '$slug',
+  bhk:        '$bhk',
+  area:       '$area',
+  price:      '$price',
+  bathrooms:  '$bathrooms',
+  parkings:   '$parkings',
+  facing:     '$facing',
+  balconies:  '$balconies',
+  floor:      '$floor',
+  totalFloors:'$totalFloors',
+  floorLabel: '$floorLabel',
+  wing:       '$wing',
+  tower:      '$tower',
+  phase:      '$phase',
+  image:      { $ifNull: ['$coverImage.thumbnail', '$coverImage.url'] },
+};
 
 // ─────────────────────────────────────────────
 // Internal helpers
@@ -275,10 +346,52 @@ const getRelatedProperties = asyncHandler(async (req, res) => {
   })
     .sort({ createdAt: -1 })
     .limit(10)
-    .select('title price bhk area coverImage createdAt developerName slug propertyType locality')
+    // Full public list fields: /compare recommends these and adds them to the
+    // compare list, so they must carry everything the compare table reads.
+    .select(PUBLIC_LIST_FIELDS)
     .lean();
 
   res.json(related);
+});
+
+/**
+ * GET /api/properties/project-units/:id
+ *
+ * Sibling units of the same project (matched by projectKey, the same key
+ * getAllApprovedProperties groups listings by) — powers the "other
+ * configurations in this project" switcher on the property detail page.
+ * Returns every approved unit sharing that key, INCLUDING the current one
+ * (so the frontend can render one consistent tile row with the current
+ * unit marked active), sorted cheapest-first. A property with no projectKey
+ * (ungrouped — no projectName set, a resale listing, or bhk 0) has no
+ * siblings by definition, so this returns an empty array rather than 404ing;
+ * the frontend simply doesn't render the switcher in that case.
+ */
+const getProjectUnits = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!isValidObjectId(id)) {
+    res.status(400);
+    throw new Error('Invalid property ID.');
+  }
+
+  const current = await Property.findOne({ _id: id, status: 'approved' }).select('projectKey').lean();
+  if (!current) {
+    res.status(404);
+    throw new Error('Property not found.');
+  }
+
+  if (!current.projectKey) {
+    return res.json({ units: [] });
+  }
+
+  const units = await Property.find({ projectKey: current.projectKey, status: 'approved' })
+    .select('bhk area price slug')
+    .sort({ price: 1 })
+    .limit(30)
+    .lean();
+
+  res.json({ units });
 });
 
 // ─────────────────────────────────────────────
@@ -293,7 +406,7 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
   const limit = clampInt(req.query.limit, DEFAULT_PAGE_LIMIT, 1, MAX_PAGE_LIMIT);
   const skip  = (page - 1) * limit;
 
-  const sortBy = SORT_MAP[req.query.sortBy] ?? SORT_MAP.relevance;
+  const groupSort = GROUP_SORT_MAP[req.query.sortBy] ?? GROUP_SORT_MAP.relevance;
 
   // ── Base query ──────────────────────────────
   const query = { status: 'approved' };
@@ -402,17 +515,99 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
     }
   }
 
-  // ── Execute in parallel ──────────────────────
-  const [totalMatched, properties] = await Promise.all([
+  // ── Execute ──────────────────────────────────
+  // totalProperties: count of individual matching Property documents, exactly
+  // the same `Property.countDocuments(query)` call this endpoint has always
+  // used (see the git history prior to BHK-variant grouping). It runs
+  // independently of the grouping aggregation below, so grouping multiple
+  // BHK variants onto one card can never change what the page header shows —
+  // this count doesn't know grouping exists.
+  const [totalProperties, [facetResult]] = await Promise.all([
     Property.countDocuments(query),
-    Property.find(query).select(PUBLIC_LIST_FIELDS).sort(sortBy).skip(skip).limit(limit).lean(),
+    Property.aggregate([
+      { $match: query },
+      { $project: AGGREGATION_PROJECTION },
+      { $addFields: { noPrice: { $cond: [{ $gt: ['$price', 0] }, 0, 1] } } },
+      // Sort by price before grouping so the $first-based fields below
+      // (title, coverImage, slug…) consistently come from the cheapest unit
+      // in the project — the frontend defaults to that unit too. noPrice keeps
+      // an unpriced unit from being picked as "cheapest". _id breaks price
+      // ties so a card can't switch to a different unit between requests.
+      { $sort: { noPrice: 1, price: 1, _id: 1 } },
+      {
+        $group: {
+          _id:              GROUP_KEY_EXPR,
+          projectKey:       { $first: '$projectKey' },
+          title:            { $first: '$title' },
+          projectName:      { $first: '$projectName' },
+          slug:             { $first: '$slug' },
+          developerName:    { $first: '$developerName' },
+          developerAvatar:  { $first: '$developerAvatar' },
+          description:      { $first: '$description' },
+          state:            { $first: '$state' },
+          city:             { $first: '$city' },
+          locality:         { $first: '$locality' },
+          pincode:          { $first: '$pincode' },
+          address:          { $first: '$address' },
+          landmarks:        { $first: '$landmarks' },
+          mapLink:          { $first: '$mapLink' },
+          coordinates:      { $first: '$coordinates' },
+          coverImage:       { $first: '$coverImage' },
+          galleryImages:    { $first: '$galleryImages' },
+          possessionStatus: { $first: '$possessionStatus' },
+          reraApproved:     { $first: '$reraApproved' },
+          reraNumber:       { $first: '$reraNumber' },
+          reraDate:         { $first: '$reraDate' },
+          amenities:        { $first: '$amenities' },
+          facilities:       { $first: '$facilities' },
+          security:         { $first: '$security' },
+          unitsAvailable:   { $first: '$unitsAvailable' },
+          propertyType:     { $first: '$propertyType' },
+          propertyGroup:    { $first: '$propertyGroup' },
+          emiStarts:        { $first: '$emiStarts' },
+          priceNegotiable:  { $first: '$priceNegotiable' },
+          furnishing:       { $first: '$furnishing' },
+          ageOfProperty:    { $first: '$ageOfProperty' },
+          popularityScore:  { $first: '$metadata.analytics.popularityScore' },
+          featured:         { $max: '$featured' },
+          createdAt:        { $max: '$createdAt' },
+          lastId:           { $max: '$_id' }, // tiebreaker for GROUP_SORT_MAP; not returned
+          noPrice:          { $min: '$noPrice' }, // price-sort key for GROUP_SORT_MAP; not returned
+          minPrice:         { $min: '$price' },
+          maxPrice:         { $max: '$price' },
+          bhkList:          { $addToSet: '$bhk' },
+          units:            { $push: UNIT_PROJECTION },
+        },
+      },
+      // Grouping happens once above; $facet reuses that single grouped set
+      // for both the paginated card data and the project-count branch below,
+      // rather than grouping twice.
+      {
+        $facet: {
+          data:  [{ $sort: groupSort }, { $skip: skip }, { $limit: limit }],
+          count: [{ $count: 'n' }],
+        },
+      },
+    ]),
   ]);
 
+  const totalProjects = facetResult?.count?.[0]?.n ?? 0;
+  // eslint-disable-next-line no-unused-vars -- lastId/noPrice are only sort keys, dropped here
+  const data = (facetResult?.data ?? []).map(({ bhkList, units, popularityScore, lastId, noPrice, ...group }) => ({
+    ...group,
+    bhkList: [...new Set(bhkList)].filter((v) => v != null).sort((a, b) => a - b),
+    units: [...units].sort((a, b) => (a.price ?? Infinity) - (b.price ?? Infinity)),
+    // Reshaped back into metadata.analytics.* — frontend/src/utils/compareScoring.js
+    // and the card's "popularity" signal both read it from that nested path.
+    metadata: { analytics: { popularityScore: popularityScore ?? 0 } },
+  }));
+
   res.json({
-    properties,
-    totalMatched,
+    data,
+    totalProperties,
+    totalProjects,
     page,
-    totalPages: Math.ceil(totalMatched / limit),
+    totalPages: Math.ceil(totalProjects / limit),
   });
 });
 
@@ -546,7 +741,7 @@ const addProperty = asyncHandler(async (req, res) => {
     status: 'pending',
   }).catch((err) => {
     // Field names only — values can be personal data (SEC-14).
-    console.error('[addProperty] Mongoose ValidationError:', Object.keys(err.errors ?? {}).join(', ') || err.message);
+    logger.warn('[addProperty] create failed', safeErrorMeta(err));
     throw err;
   })
 
@@ -676,6 +871,7 @@ export {
   getFeaturedProperties,
   getRecentProperties,
   getRelatedProperties,
+  getProjectUnits,
   getAllApprovedProperties,
   getPropertyById,
   addProperty,

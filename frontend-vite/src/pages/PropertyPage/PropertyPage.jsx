@@ -2,21 +2,22 @@
 import React, {
   useState, useRef, useCallback, useMemo, lazy, Suspense,
 } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 
 import useHeartProperty from '../../hooks/useHeartProperty';
 import { useCompare } from '../../contexts/CompareContext';
 import Seo from '../../database/Seo';
-import { formatCurrencyShort } from '../../utils/formatters';
+import { formatCurrencyShort, formatParkingText } from '../../utils/formatters';
 
 import { useProperty } from '../../hooks/useProperty';
-import { getDownloadUrl } from '../../utils/propertyHelpers';
+import { useProjectUnits } from '../../hooks/useProjectUnits';
+import { getDownloadUrl, getOptimizedImageUrl } from '../../utils/propertyHelpers';
 
 import './PropertyPage.css';
 
 import {
   Heart, Share2, Download,
-  MapPin, BadgeCheck, Scale,
+  MapPin, BadgeCheck, Scale, ChevronDown,
 } from 'lucide-react';
 
 import PropertyGallery  from '../../features/properties/components/PropertyGallery/PropertyGallery';
@@ -51,6 +52,9 @@ function PropertyPage() {
   const { id } = useParams();
 
   const { property, loading, error } = useProperty(id);
+  // Sibling units of the same project (empty for ungrouped listings) —
+  // powers the "other configurations" switcher below the hero.
+  const { units: projectUnits } = useProjectUnits(property?._id);
 
   const [showFull,  setShowFull]  = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -205,6 +209,23 @@ function PropertyPage() {
   if (error)     return <div className="pp-state pp-state--error">⚠ {error}</div>;
   if (!property) return <div className="pp-state">Property not found</div>;
 
+  const developerAvatarSrc = property.developerAvatar?.thumbnail || property.developerAvatar?.url;
+  const possessionDate = property.reraDate
+    ? new Date(property.reraDate).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+    : null;
+
+  // One compact line at a glance in the hero — the same fields the listing
+  // card's meta-row shows — the fuller breakdown further down (Key Details /
+  // Project Information cards) is unaffected.
+  const heroMetaText = [
+    property.possessionStatus && (possessionDate ? `${property.possessionStatus} · ${possessionDate}` : property.possessionStatus),
+    property.unitsAvailable && `${property.unitsAvailable} Units`,
+    formatParkingText(property.parkings),
+    property.bathrooms && `${property.bathrooms} Bath`,
+    property.facing && `${property.facing} Facing`,
+    property.furnishing,
+  ].filter(Boolean).join(' · ');
+
   // ── Render ───────────────────────────────────────────────────
   return (
     <div className="pp-root">
@@ -224,12 +245,26 @@ function PropertyPage() {
           <div className="pp-hero">
             <div className="pp-hero__row">
               <div className="pp-hero__meta">
-                {(property.bhk || property.propertyType) && (
-                  <span className="pp-hero__chip">
-                    {[property.bhk && `${property.bhk} BHK`, property.propertyType].filter(Boolean).join(' · ')}
-                  </span>
-                )}
-                <h1 className="pp-hero__title">{property.title}</h1>
+                <div className="pp-hero__title-row">
+                  {developerAvatarSrc && (
+                    <div className="pp-dev-avatar">
+                      <img
+                        src={getOptimizedImageUrl(developerAvatarSrc, { width: 72, height: 72, crop: 'fit' })}
+                        alt={property.developerName || 'Developer'}
+                        width={36}
+                        height={36}
+                      />
+                    </div>
+                  )}
+                  <div className="pp-hero__title-col">
+                    {(property.bhk || property.propertyType) && (
+                      <span className="pp-hero__chip">
+                        {[property.bhk && `${property.bhk} BHK`, property.propertyType].filter(Boolean).join(' · ')}
+                      </span>
+                    )}
+                    <h1 className="pp-hero__title">{property.title}</h1>
+                  </div>
+                </div>
                 {(property.locality || property.city) && (
                   <p className="pp-hero__loc">
                     <MapPin size={13} strokeWidth={2} />
@@ -274,7 +309,41 @@ function PropertyPage() {
                 )}
               </div>
             )}
+
+            {heroMetaText && <div className="pp-hero__meta-line">{heroMetaText}</div>}
           </div>
+
+          {/* Other configurations in this project — only when siblings exist */}
+          {projectUnits.length > 1 && (
+            <div className="pp-config-card">
+              <div className="pp-config-label">Other Configurations in this Project</div>
+              <div className="pp-config-row">
+                {projectUnits.map((unit) => {
+                  const isActive = unit._id === property._id;
+                  return (
+                    <Link
+                      key={unit._id}
+                      to={`/property/${unit._id}`}
+                      className={`pp-config-tile ${isActive ? 'pp-config-tile--active' : ''}`}
+                      aria-current={isActive ? 'page' : undefined}
+                      onClick={(e) => { if (isActive) e.preventDefault(); }}
+                    >
+                      <span className="pp-config-tile__top">
+                        {unit.bhk ? `${unit.bhk} BHK` : 'Unit'}
+                        {unit.price != null && ` · ${formatCurrencyShort(unit.price)}`}
+                      </span>
+                      {unit.area?.value && (
+                        <span className="pp-config-tile__sub">
+                          {unit.area.value} {unit.area.unit || 'Sq.Ft.'}
+                          <ChevronDown size={12} strokeWidth={2} />
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <section>
             {compareList.length > 0 && (

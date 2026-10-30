@@ -57,6 +57,7 @@ import multer        from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import streamifier   from "streamifier";
 import crypto        from "crypto";
+import logger        from "../utils/logger.js";
 // import protect       from "../middleware/protect"
 
 const router = express.Router();
@@ -229,7 +230,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     });
 
   } catch (err) {
-    console.error("[MediaUpload] Error:", err.message);
+    logger.error("[MediaUpload] Error", { message: err.message });
     if (err.http_code) {
       return res.status(502).json({ error: "Media service error. Please try again." });
     }
@@ -251,7 +252,7 @@ router.delete("/delete", async (req, res) => {
     return res.status(200).json({ success: true });
 
   } catch (err) {
-    console.error("[MediaDelete] Error:", err.message);
+    logger.error("[MediaDelete] Error", { message: err.message });
     return res.status(500).json({ error: "Delete failed." });
   }
 });

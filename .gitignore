@@ -49,8 +49,10 @@ property-validator/propertySchema.js
 # Ignore Firebase configuration file
 backend/config/firebase-service-account.json
 
-# SCRIPTS
-backend/scripts/
+# SCRIPTS — local-only, except the backfills package.json runs on deploy
+backend/scripts/*
+!backend/scripts/backfillProjectKey.js
+!backend/scripts/backfillProjectNameFromTitle.js
 
 # Ignore dependencies, testing, production, and misc files in the frontend
 # frontend specific

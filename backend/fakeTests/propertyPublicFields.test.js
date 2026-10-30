@@ -73,14 +73,19 @@ describe("public property endpoints hide private fields (SEC-01)", () => {
     const res = await request(app).get("/api/properties");
 
     expect(res.status).toBe(200);
-    expect(res.body.properties).toHaveLength(1);
-    const [property] = res.body.properties;
-    expectNoPrivateData(property);
+    // Listing now returns grouped project cards (data), not a flat properties
+    // array — see backend/fakeTests/propertyGrouping.test.js for grouping
+    // behavior itself. This test only re-checks the private-field leak.
+    expect(res.body.data).toHaveLength(1);
+    const [project] = res.body.data;
+    expectNoPrivateData(project);
 
     // Still returns what the cards and the guest compare tray render.
-    expect(property).toMatchObject({ title: "Sunrise Heights Andheri", city: "Mumbai", price: 5000000 });
-    expect(property._id).toBeDefined();
-    expect(property.metadata.analytics.popularityScore).toBe(42);
+    expect(project).toMatchObject({ title: "Sunrise Heights Andheri", city: "Mumbai" });
+    expect(project.units).toHaveLength(1);
+    expect(project.units[0].price).toBe(5000000);
+    expect(project.units[0]._id).toBeDefined();
+    expect(project.metadata.analytics.popularityScore).toBe(42);
   });
 
   it("GET /api/properties/:id (detail) returns page fields but no contact or internal fields", async () => {
@@ -115,5 +120,25 @@ describe("public property endpoints hide private fields (SEC-01)", () => {
     const all = [...featured.body, ...recent.body, ...related.body, ...search.body.properties];
     expect(all.length).toBeGreaterThan(0);
     all.forEach(expectNoPrivateData);
+  });
+
+  it("/related returns the full list fields the compare page needs", async () => {
+    const created = await createSensitiveProperty();
+    await createSensitiveProperty({
+      title: "Sunrise Heights Tower B",
+      possessionStatus: "Ready to Move",
+      furnishing: "Semi Furnished",
+    });
+
+    const res = await request(app).get(`/api/properties/related/${created._id}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0]).toMatchObject({
+      possessionStatus: "Ready to Move",
+      furnishing: "Semi Furnished",
+    });
+    expect(res.body[0]).toHaveProperty("amenities");
+    expectNoPrivateData(res.body[0]);
   });
 });

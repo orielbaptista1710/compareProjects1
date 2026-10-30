@@ -1,7 +1,7 @@
 // pages/Properties/Properties
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import debounce from 'lodash.debounce';
 import Skeleton from 'react-loading-skeleton';
 
@@ -153,7 +153,8 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
   const { data, isLoading, isFetching } = useQuery({
     queryKey:         ['properties', { filters, page, sortBy }],
     queryFn:          fetchProperties,
-    keepPreviousData: true,
+    // v5: keep the current page's cards visible while the next page loads
+    placeholderData:  keepPreviousData,
     staleTime:        30_000,
   });
 
@@ -163,9 +164,13 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
     staleTime: 5 * 60_000,
   });
 
-  const properties   = data?.properties  ?? [];
-  const totalMatched = data?.totalMatched ?? 0;
-  const totalPages   = data?.totalPages   ?? 1;
+  // `data.data` holds grouped project cards (1+ BHK units each); totalProperties
+  // is the count of individual matching Property documents — unaffected by how
+  // many cards they get grouped into — and is what the page header must show.
+  // totalProjects/totalPages (card count) drive pagination instead.
+  const projects        = data?.data ?? [];
+  const totalProperties = data?.totalProperties ?? 0;
+  const totalPages      = data?.totalPages ?? 1;
 
 
   // after — replaces both effects above
@@ -265,11 +270,6 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
     [compareList]
   );
 
-  const isInCompareList = useCallback(
-    (id) => compareIdSet.has(id?.toString()),
-    [compareIdSet]
-  );
-
   // ── Active filter chips (derived) ─────────
 
   const activeChips = useMemo(() => {
@@ -314,11 +314,11 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
   const seoData = useMemo(
     () => ({
       title: `${filters.city || 'India'} Properties for Sale | CompareProjects`,
-      description: `Browse ${totalMatched} verified properties ${
+      description: `Browse ${totalProperties} verified properties ${
         filters.city ? `in ${filters.city}` : 'across India'
       }.`,
     }),
-    [filters.city, totalMatched]
+    [filters.city, totalProperties]
   );
 
   const closeAllOverlays = useCallback(() => {
@@ -464,7 +464,7 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
           </div>
 
           <ResultsHeader
-            totalMatched={totalMatched}
+            totalMatched={totalProperties}
             filters={filters}
             sortBy={sortBy}
             setSortBy={setSortBy}
@@ -511,21 +511,21 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
           <div className="property-list">
             {isLoading ? (
               <PropertySkeletons />
-            ) : properties.length === 0 ? (
+            ) : projects.length === 0 ? (
               <EmptyState onReset={clearFilters} />
             ) : (
               <>
-                {properties.map((property, index) => {
+                {projects.map((project, index) => {
                   const isSecond        = index === 1;
                   const isSixthMultiple = (index + 1) % 6 === 0 && !isSecond;
                   const showTray        = compareList.length > 0 && (isSecond || isSixthMultiple);
 
                   return (
-                    <React.Fragment key={property._id}>
+                    <React.Fragment key={project._id}>
                       <PropertyCard
-                        property={property}
+                        property={project}
                         addToCompare={addToCompare}
-                        isInCompare={isInCompareList(property._id)}
+                        compareIds={compareIdSet}
                       />
                       {showTray && (
                         <CompareTray

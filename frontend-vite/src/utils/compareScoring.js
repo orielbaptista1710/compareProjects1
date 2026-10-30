@@ -24,7 +24,7 @@ const normalize = (value, min, max, fallback = 0.5) => {
   return clamp((value - min) / (max - min));
 };
 
-const getAreaInSqft = (area) => {
+export const getAreaInSqft = (area) => {
   if (!area || !isValidNumber(area.value) || area.value <= 0) {
     return null;
   }

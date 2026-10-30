@@ -16,7 +16,9 @@ const logger = winston.createLogger({
   level: isProduction ? "info" : "debug",
 
   format: winston.format.combine(
-    winston.format.timestamp({ format: "HH:mm:ss" }),
+    // Production: full ISO date-time (UTC), so exported/shipped logs say which
+    // day. Locally: short HH:mm:ss for a readable terminal.
+    isProduction ? winston.format.timestamp() : winston.format.timestamp({ format: "HH:mm:ss" }),
     winston.format.errors({ stack: true }),
     isProduction ? winston.format.json() : devFormat
   ),

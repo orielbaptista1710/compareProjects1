@@ -19,6 +19,7 @@ import {
   getFeaturedProperties,
   getRecentProperties,
   getRelatedProperties,
+  getProjectUnits,
   getAllApprovedProperties,
   getPropertyById,
   addProperty,
@@ -51,6 +52,7 @@ router.delete('/delete/:id', protect, isDeveloper, developerActionLimiter, delet
 router.get('/', readLimiter, getAllApprovedProperties);//Paginated + filtered approved listings — properties page
 router.get('/localities/:city', publicLimiter, getLocalitiesByCity);//FiltePanel dropdowns
 router.get('/related/:id', publicLimiter, getRelatedProperties);//Related properties in the Property page
+router.get('/project-units/:id', publicLimiter, getProjectUnits);//Other BHK/area configs of the same project, for the Property page's config switcher
 router.get('/:id', publicLimiter, getPropertyById);//used in propertyPage to show singular property
 
 export default router;
