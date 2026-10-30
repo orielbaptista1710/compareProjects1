@@ -7,7 +7,7 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
   credential = customerAdminFire.credential.cert(serviceAccount);
 } else {
-  const { default: serviceAccount } = await import("./firebase-service-account.json", { assert: { type: "json" } });
+  const { default: serviceAccount } = await import("./firebase-service-account.json", { with: { type: "json" } });
   credential = customerAdminFire.credential.cert(serviceAccount);
 }
 
