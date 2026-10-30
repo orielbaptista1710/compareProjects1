@@ -11,7 +11,7 @@ import { formatCurrencyShort, formatParkingText } from '../../utils/formatters';
 
 import { useProperty } from '../../hooks/useProperty';
 import { useProjectUnits } from '../../hooks/useProjectUnits';
-import { getDownloadUrl } from '../../utils/propertyHelpers';
+import { getDownloadUrl, getOptimizedImageUrl } from '../../utils/propertyHelpers';
 
 import './PropertyPage.css';
 
@@ -248,7 +248,12 @@ function PropertyPage() {
                 <div className="pp-hero__title-row">
                   {developerAvatarSrc && (
                     <div className="pp-dev-avatar">
-                      <img src={developerAvatarSrc} alt={property.developerName || 'Developer'} />
+                      <img
+                        src={getOptimizedImageUrl(developerAvatarSrc, { width: 72, height: 72, crop: 'fit' })}
+                        alt={property.developerName || 'Developer'}
+                        width={36}
+                        height={36}
+                      />
                     </div>
                   )}
                   <div className="pp-hero__title-col">

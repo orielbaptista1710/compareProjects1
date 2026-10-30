@@ -12,7 +12,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 
-import { getPropertyImage } from "../../../../utils/propertyHelpers";
+import { getPropertyImage, getOptimizedImageUrl } from "../../../../utils/propertyHelpers";
 import { formatCurrencyShort, formatParkingText } from "../../../../utils/formatters";
 import { getPropertyLocation } from "../../../../utils/propertyHelpers";
 import useHeartProperty from "../../../../hooks/useHeartProperty";
@@ -269,7 +269,14 @@ function PropertyCard({
         <div className="pc-header-row">
           {developerAvatarSrc && (
             <div className="pc-dev-avatar">
-              <img src={developerAvatarSrc} alt={property.developerName || 'Developer'} />
+              <img
+                src={getOptimizedImageUrl(developerAvatarSrc, { width: 80, height: 80, crop: 'fit' })}
+                alt={property.developerName || 'Developer'}
+                width={40}
+                height={40}
+                loading="lazy"
+                decoding="async"
+              />
             </div>
           )}
           <div className="pc-header-text">
