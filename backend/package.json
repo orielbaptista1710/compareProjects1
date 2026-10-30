@@ -10,7 +10,9 @@
     "create-user": "node scripts/createUser.js",
     "deactivate-user": "node scripts/deactivateUser.js",
     "reset-password": "node scripts/resetPassword.js",
-    "brokenimg-urls": "node scripts/findBrokenImageUrls.js"
+    "brokenimg-urls": "node scripts/findBrokenImageUrls.js",
+    "backfill-project-key": "node scripts/backfillProjectKey.js",
+    "backfill-project-name": "node scripts/backfillProjectNameFromTitle.js"
   },
   "keywords": [],
   "author": "",
