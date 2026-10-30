@@ -56,12 +56,13 @@ describe("CompareBar", () => {
     expect(props.setCompareList).toHaveBeenCalledWith([]);
   });
 
-  it("navigates to /compare on Compare Now", () => {
-    renderBar();
+  it("navigates to /compare on Compare Now and closes itself", () => {
+    const { props } = renderBar();
 
     fireEvent.click(screen.getByRole("button", { name: /compare now/i }));
 
     expect(screen.getByTestId("location")).toHaveTextContent("/compare");
+    expect(props.onClose).toHaveBeenCalledTimes(1);
   });
 
   it("calls onClose from the hide button", () => {

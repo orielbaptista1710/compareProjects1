@@ -1,0 +1,109 @@
+/* Small screens: one sticky row of chips under the site header.
+   Height is var(--nav-h) so the sticky property bar can sit right below. */
+.csn {
+  position: sticky;
+  top: var(--chrome-h);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: var(--nav-h);
+  margin: 0 -1rem 0.75rem;
+  padding: 0 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.csn__list {
+  display: flex;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.csn__list::-webkit-scrollbar { display: none; }
+
+.csn__link {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink-2);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background var(--transition), color var(--transition);
+}
+
+.csn__link:hover { color: var(--brand); }
+
+.csn__link.is-active {
+  background: var(--brand-light);
+  border-color: var(--brand-mid);
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.csn__diff {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 40px;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.csn__diff input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--brand);
+}
+
+.csn__diff:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Wide screens: sticky sidebar */
+@media (min-width: 1100px) {
+  .csn {
+    top: calc(var(--chrome-h) + 1rem);
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    margin: 0;
+    padding: 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .csn__list {
+    flex-direction: column;
+    gap: 0.15rem;
+    overflow: visible;
+  }
+
+  .csn__link {
+    width: 100%;
+    padding: 0 0.75rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+  }
+
+  .csn__diff {
+    margin-top: 0.35rem;
+    padding: 0.5rem 0.75rem 0.25rem;
+    border-top: 1px solid var(--line);
+  }
+}

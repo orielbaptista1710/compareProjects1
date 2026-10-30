@@ -142,6 +142,7 @@ const showBreadcrumbs = !hideBreadcrumbRoutes.some((path) =>
             compareList={compareList}
             setCompareList={setCompareList}   // now works
             removeFromCompare={removeFromCompare}
+            addToCompare={addToCompare}
           />
         } />
         <Route path="/property/:id" element={<PropertyPage 

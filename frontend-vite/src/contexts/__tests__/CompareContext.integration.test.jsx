@@ -2,11 +2,17 @@ import { useState } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, renderHook, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 import { CompareProvider, useCompare } from "../CompareContext";
 import CompareBar from "../../shared/CompareBar/CompareBar";
 import Compare from "../../pages/Compare/Compare";
-import { makeProperty, skyline, greenValley } from "../../test/compareTestUtils";
+import { makeProperty, makeTestQueryClient, skyline, greenValley } from "../../test/compareTestUtils";
+
+// The compare page fetches slot recommendations; no suggestions here.
+vi.mock("../../api/api", () => ({
+  default: { get: vi.fn().mockResolvedValue({ data: [] }) },
+}));
 
 const extra = [3, 4, 5].map((n) => makeProperty({ _id: `p${n}`, title: `Property ${n}` }));
 
@@ -60,11 +66,13 @@ const Shell = () => {
 
 const renderApp = (initialPath = "/properties") =>
   render(
-    <CompareProvider>
-      <MemoryRouter initialEntries={[initialPath]}>
-        <Shell />
-      </MemoryRouter>
-    </CompareProvider>
+    <QueryClientProvider client={makeTestQueryClient()}>
+      <CompareProvider>
+        <MemoryRouter initialEntries={[initialPath]}>
+          <Shell />
+        </MemoryRouter>
+      </CompareProvider>
+    </QueryClientProvider>
   );
 
 const stored = () => JSON.parse(localStorage.getItem("compareList"));

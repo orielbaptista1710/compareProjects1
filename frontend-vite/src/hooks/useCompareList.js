@@ -2,9 +2,11 @@
 // it also saves the state to localStorage
 
 //frontend-vite/src/hooks/useCompareList.js
-import { useState, useEffect } from "react"; 
+import { useState, useEffect, useCallback } from "react";
 
-export default function useCompareList() { 
+export const MAX_COMPARE = 4;
+
+export default function useCompareList() {
   const [compareList, setCompareList] = useState(() => {
     try {
       const saved = localStorage.getItem("compareList");
@@ -25,18 +27,19 @@ export default function useCompareList() {
     }
   }, [compareList]);
 
-  // Add property (max 4)
+  // Add property (max MAX_COMPARE)
   const addToCompare = (property) => {
   if (compareList.find((p) => p._id === property._id)) return "duplicate";
-  if (compareList.length >= 4) return "limit";
+  if (compareList.length >= MAX_COMPARE) return "limit";
   setCompareList((prev) => [...prev, property]);
   return "added";
 };
 
   // Remove property
-  const removeFromCompare = (id) => {
+  // Stable reference so memoised consumers (CompareTable) don't re-render
+  const removeFromCompare = useCallback((id) => {
     setCompareList((prev) => prev.filter((p) => p._id !== id));
-  };
+  }, []);
 
   //  now also returning setCompareList
   return { compareList, setCompareList, addToCompare, removeFromCompare };

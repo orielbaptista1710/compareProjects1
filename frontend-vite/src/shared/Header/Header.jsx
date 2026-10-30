@@ -34,12 +34,14 @@ function Header() {
 
   useOutsideClick(isMenuOpen, [menuRef, menuButtonRef], closeMenu);
 
+  // Pop the compare bar open when something is added — except on /compare
+  // itself (e.g. adding a recommended property), where it would cover the page.
   useEffect(() => {
-  if (compareList.length > prevCompareLengthRef.current) {
+  if (compareList.length > prevCompareLengthRef.current && location.pathname !== "/compare") {
     setShowCompareBar(true);
   }
   prevCompareLengthRef.current = compareList.length;
-}, [compareList.length]);
+}, [compareList.length]); // eslint-disable-line react-hooks/exhaustive-deps -- pathname is only read, not a trigger
 
   // Scroll to section handler
   const handleScrollToSection = useCallback((section) => {

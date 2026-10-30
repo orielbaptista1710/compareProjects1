@@ -1,0 +1,162 @@
+/* Empty compare slots: suggestion card, loading placeholder, plain Add slot. */
+
+.rec-slot {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1.5px dashed var(--brand-mid);
+  border-radius: 8px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.rec-slot--loading {
+  min-height: 240px;
+  border-style: solid;
+  border-color: var(--surface-3);
+  background: linear-gradient(90deg, var(--surface-3) 25%, var(--surface-2) 50%, var(--surface-3) 75%);
+  background-size: 200% 100%;
+  animation: rec-slot-shimmer 1.2s linear infinite;
+}
+
+@keyframes rec-slot-shimmer {
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rec-slot--loading { animation: none; }
+}
+
+.rec-slot__media {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: none;
+  background: var(--surface-3);
+  cursor: pointer;
+}
+
+.rec-slot__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+
+.rec-slot__badge {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.rec-slot__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.6rem 0.6rem;
+}
+
+.rec-slot__title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rec-slot__loc {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rec-slot__price {
+  margin: 0.1rem 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+.rec-slot__add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  min-height: 36px;
+  margin-top: 0.4rem;
+  border: 1.5px solid var(--brand);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--brand);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+
+.rec-slot__add:hover {
+  background: var(--brand);
+  color: #fff;
+}
+
+/* Plain "Add Property" slot (AddSlot.jsx) */
+.add-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  padding: 1.5rem;
+  border: 1.5px dashed var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.add-slot:hover { background: var(--brand-light); }
+
+.add-slot:hover .add-slot__icon {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.add-slot__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1.5px dashed #d1d5db;
+  border-radius: 50%;
+  color: var(--ink-3);
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.add-slot__label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-3);
+}
