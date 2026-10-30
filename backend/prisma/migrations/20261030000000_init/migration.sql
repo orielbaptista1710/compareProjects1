@@ -1,5 +1,8 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
+
 -- CreateEnum
-CREATE TYPE "LeadType" AS ENUM ('customer', 'developer', 'broker', 'builder');
+CREATE TYPE "LeadType" AS ENUM ('customer', 'developer', 'agent', 'owner');
 
 -- CreateEnum
 CREATE TYPE "LeadStage" AS ENUM ('new', 'contacted', 'qualified', 'converted', 'rejected');
@@ -54,6 +57,18 @@ CREATE TABLE "lead_activities" (
     CONSTRAINT "lead_activities_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "site_visits" (
+    "id" TEXT NOT NULL,
+    "lead_id" TEXT NOT NULL,
+    "crm_user_id" TEXT NOT NULL,
+    "scheduled_at" TIMESTAMP(3) NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'scheduled',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "site_visits_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "crm_users_email_key" ON "crm_users"("email");
 
@@ -80,3 +95,9 @@ ALTER TABLE "lead_activities" ADD CONSTRAINT "lead_activities_lead_id_fkey" FORE
 
 -- AddForeignKey
 ALTER TABLE "lead_activities" ADD CONSTRAINT "lead_activities_crm_user_id_fkey" FOREIGN KEY ("crm_user_id") REFERENCES "crm_users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "site_visits" ADD CONSTRAINT "site_visits_lead_id_fkey" FOREIGN KEY ("lead_id") REFERENCES "leads"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "site_visits" ADD CONSTRAINT "site_visits_crm_user_id_fkey" FOREIGN KEY ("crm_user_id") REFERENCES "crm_users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
