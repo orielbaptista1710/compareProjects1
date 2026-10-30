@@ -148,6 +148,24 @@ export const safeText = (value) => {
 };
 
 /**
+ * Format parking for one-line meta text (listing card, property page hero).
+ *
+ * Examples:
+ * ["2 Wheeler", "4 Wheeler"] -> "Parking: 2 Wheeler, 4 Wheeler"
+ * 2 -> "2 Parking"
+ * [] -> null
+ */
+export const formatParkingText = (parkings) => {
+  if (Array.isArray(parkings)) {
+    const labels = parkings.filter(Boolean);
+    return labels.length ? `Parking: ${labels.join(", ")}` : null;
+  }
+
+  const num = Number(parkings);
+  return Number.isFinite(num) && num > 0 ? `${num} Parking` : null;
+};
+
+/**
  * Format property area for overview/detail sections.
  */
 export const fmtArea = (area) =>
