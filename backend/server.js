@@ -1,14 +1,16 @@
-import dotenv from 'dotenv'; 
-dotenv.config();
+import './config/env.js'; // must stay first: loads .env and validates it before any module reads process.env
 
 import mongoose from "mongoose";
 import express from 'express';
+import { inspect } from 'node:util';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import logger from './utils/logger.js';
 import requestLogger from './middleware/requestLogger.js';
 import originCheck from './middleware/originCheck.js';
+import { createShutdown } from './utils/gracefulShutdown.js';
+import { safeErrorMeta } from './utils/safeError.js';
 
 import errorHandler from './middleware/errorMiddleware.js';
 
@@ -136,6 +138,8 @@ const connectPrisma = async () => {
   }
 };
 
+let server; // set once app.listen runs; graceful shutdown waits on it
+
 const startServer = async () => {
   try {
     await connectDB();        // Main DB (comparedb)
@@ -145,30 +149,40 @@ const startServer = async () => {
 
     await connectPrisma();    // Postgres (leads, via Prisma)
 
-    app.listen(process.env.PORT, () => {
+    server = app.listen(process.env.PORT, () => {
       logger.info(`Server running on port ${process.env.PORT}`);
     });
 
   } catch (error) {
-    logger.error("Server startup failed ❌", error);
+    logger.error("Server startup failed ❌", safeErrorMeta(error));
     process.exit(1);
   }
 };
 
 startServer();
 
-const shutdown = async (signal) => {
-  logger.info(`${signal} received, shutting down gracefully`);
-  try {
+// In-flight requests finish before the databases close (see utils/gracefulShutdown.js).
+const shutdown = createShutdown({
+  getServer: () => server,
+  closeResources: async () => {
     await prisma.$disconnect();
     await mongoose.connection.close();
-    logger.info("All database connections closed, exiting");
-    process.exit(0);
-  } catch (error) {
-    logger.error("Error during shutdown ❌", error);
-    process.exit(1);
-  }
-};
+  },
+});
 
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
+
+// A bug that escapes every try/catch: log it through the logger (not a raw
+// stack on stderr), then restart cleanly. Render restarts the process; the
+// app's state after an unexpected error can't be trusted.
+process.on("unhandledRejection", (reason) => {
+  // Rejections aren't always Errors (Promise.reject('timeout')); inspect keeps them readable
+  const meta = reason instanceof Error ? safeErrorMeta(reason) : { reason: inspect(reason, { depth: 2 }) };
+  logger.error("Unhandled promise rejection ❌", meta);
+  shutdown("unhandledRejection", 1);
+});
+process.on("uncaughtException", (error) => {
+  logger.error("Uncaught exception ❌", safeErrorMeta(error));
+  shutdown("uncaughtException", 1);
+});
