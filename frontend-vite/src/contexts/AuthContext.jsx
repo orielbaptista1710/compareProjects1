@@ -108,6 +108,15 @@ export function AuthProvider({ children }) {
     setSyncingProfile(false);
     setCurrentUser(null);
 
+    // The contact-form draft holds name/phone/email in plain text; don't leave
+    // it for the next person on this browser (AUTH-16). The compare list is
+    // cleared by CompareSync on the same logout.
+    try {
+      localStorage.removeItem("contactFormDraft");
+    } catch {
+      // storage unavailable (private mode) — nothing to clear
+    }
+
     try {
       await signOut(CustomerAuth);
     } catch (error) {

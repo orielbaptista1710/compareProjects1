@@ -11,7 +11,9 @@ export default function useCompareList() {
     try {
       const saved = localStorage.getItem("compareList");
       const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      // Drop anything that isn't a property (e.g. a stray null) so one bad
+      // saved entry can't crash every component that reads p._id.
+      return Array.isArray(parsed) ? parsed.filter((p) => p?._id) : [];
     } catch (error) {
       console.error("Failed to parse compare list:", error);
       return [];

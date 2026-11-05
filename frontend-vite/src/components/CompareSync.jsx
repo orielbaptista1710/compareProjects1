@@ -4,6 +4,10 @@ import { AuthContext } from "../contexts/AuthContext";
 import { CustomerActivityContext } from "../contexts/CustomerActivityContext";
 import { useCompare } from "../contexts/CompareContext";
 
+// Ids of the real properties in a list, skipping broken entries (e.g. a null
+// left in localStorage) instead of crashing on p._id.
+const toIds = (list) => list.filter((p) => p?._id).map((p) => p._id);
+
 const CompareSync = () => {
   const { currentUser } = useContext(AuthContext);
   const { savedCompareProperties, syncCompareList, activityReady } = useContext(CustomerActivityContext);
@@ -20,6 +24,9 @@ const CompareSync = () => {
   // actually fires. Lets the unmount-flush effect know whether there's an
   // un-sent change to push immediately instead of losing it.
   const pendingSyncRef = useRef(false);
+  // True while a customer is logged in, so the logout effect below can tell a
+  // real logout apart from the initial logged-out render.
+  const wasLoggedInRef = useRef(false);
   // Kept current every render so the unmount-only effect (empty deps, so its
   // closure would otherwise be stuck on the first render's values) can read
   // the latest compareList when flushing.
@@ -52,8 +59,10 @@ const CompareSync = () => {
     pendingMergeRef.current = false;
     mergedRef.current = true;
 
-    const guestIds = compareList.map((p) => p._id);
-    const serverProps = savedCompareProperties || [];
+    // Skip broken entries (e.g. a null left in localStorage) instead of crashing.
+    const guestProps = compareList.filter((p) => p?._id);
+    const serverProps = (savedCompareProperties || []).filter((p) => p?._id);
+    const guestIds = guestProps.map((p) => p._id);
     const serverIds = serverProps.map((p) => p._id);
 
     const mergedIds = Array.from(new Set([...serverIds, ...guestIds])).slice(0, 4);
@@ -62,7 +71,7 @@ const CompareSync = () => {
 
     // Build merged property objects (prefer fresh server objects, fall back to guest ones).
     // Map keeps the last entry per key, so server objects must come last to win.
-    const byId = new Map([...compareList, ...serverProps].map((p) => [p._id, p]));
+    const byId = new Map([...guestProps, ...serverProps].map((p) => [p._id, p]));
     const mergedList = mergedIds.map((id) => byId.get(id)).filter(Boolean);
 
     setCompareList(mergedList);
@@ -73,11 +82,23 @@ const CompareSync = () => {
 
   // Reset both guards on logout so the merge sequence runs again on next login
   useEffect(() => {
-    if (!currentUser) {
-      mergedRef.current = false;
-      pendingMergeRef.current = false;
+    if (currentUser) {
+      wasLoggedInRef.current = true;
+      return;
     }
-  }, [currentUser]);
+    mergedRef.current = false;
+    pendingMergeRef.current = false;
+
+    // A real logout: drop this account's compare list from the device. It's
+    // still saved server-side and comes back on the next login; leaving it
+    // would merge it into whoever logs in next on this browser (AUTH-16).
+    if (wasLoggedInRef.current) {
+      wasLoggedInRef.current = false;
+      pendingSyncRef.current = false;
+      clearTimeout(debounceRef.current);
+      setCompareList([]);
+    }
+  }, [currentUser]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     latestCompareListRef.current = compareList;
@@ -98,7 +119,7 @@ const CompareSync = () => {
     pendingSyncRef.current = true;
     debounceRef.current = setTimeout(() => {
       pendingSyncRef.current = false;
-      pushSync(compareList.map((p) => p._id));
+      pushSync(toIds(compareList));
     }, 800);
 
     return () => clearTimeout(debounceRef.current);
@@ -114,7 +135,7 @@ const CompareSync = () => {
       if (!pendingSyncRef.current) return;
       pendingSyncRef.current = false;
       clearTimeout(debounceRef.current);
-      pushSync(latestCompareListRef.current.map((p) => p._id));
+      pushSync(toIds(latestCompareListRef.current));
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

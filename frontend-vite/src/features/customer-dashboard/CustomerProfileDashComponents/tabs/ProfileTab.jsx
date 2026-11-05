@@ -1,9 +1,11 @@
 // src/pages/<CustomerFolder>/CustomerProfilePage/tabs/ProfileTab.jsx
 import { useContext, useState } from "react";
-import { CheckCircle2, Heart, Shield, AlertCircle } from "lucide-react";
+import { CheckCircle2, Heart, Shield, AlertCircle, Briefcase } from "lucide-react";
 import toast from "react-hot-toast";
 import { sendEmailVerification } from "firebase/auth";
 import { AuthContext } from "../../../../contexts/AuthContext";
+import { AGENT_STATUS } from "../../../../constants/roles";
+import { CUSTOMER_LISTINGS_ENABLED } from "../../../../config/features";
 // CustomerAuth is the raw Firebase Auth SDK instance — imported directly
 // (not through AuthContext) because AuthContext only exposes the *backend*
 // Customer document as `currentUser`, not the live Firebase user object that
@@ -16,6 +18,20 @@ import { CustomerAuth } from "../../../../config/firebase";
 const VERIFICATION_ERROR_MESSAGES = {
   "auth/too-many-requests": "Too many attempts — please wait a bit before trying again.",
   "auth/network-request-failed": "Network error. Check your connection and try again.",
+};
+
+// What the "Account Type" card says for each Customer.agent.status.
+const ACCOUNT_TYPE = {
+  [AGENT_STATUS.NONE]: {
+    title: "Customer",
+    text: CUSTOMER_LISTINGS_ENABLED
+      ? "Browse, shortlist and post your own property"
+      : "Browse and shortlist properties. Posting your own property opens soon.",
+  },
+  [AGENT_STATUS.PENDING]: { title: "Agent — pending approval", text: "We're verifying your RERA registration. Verify your email if you haven't — you can post listings once you're approved." },
+  [AGENT_STATUS.APPROVED]: { title: "Agent", text: "Your listings are shown as posted by an agent" },
+  [AGENT_STATUS.REJECTED]: { title: "Agent application not approved", text: null },
+  [AGENT_STATUS.SUSPENDED]: { title: "Agent account suspended", text: "Contact support to restore agent access" },
 };
 
 const ProfileTab = () => {
@@ -46,6 +62,8 @@ const ProfileTab = () => {
       setResendingVerification(false);
     }
   };
+
+  const accountType = ACCOUNT_TYPE[currentUser?.agent?.status] ?? ACCOUNT_TYPE[AGENT_STATUS.NONE];
 
   return (
     <div className="tab-panel">
@@ -110,6 +128,13 @@ const ProfileTab = () => {
               <div>
                 <strong>Account Active</strong>
                 <p>Your account is in good standing</p>
+              </div>
+            </div>
+            <div className="status-card">
+              <Briefcase size={18} />
+              <div>
+                <strong>{accountType.title}</strong>
+                <p>{accountType.text ?? currentUser?.agent?.rejectionReason ?? "Contact support for details"}</p>
               </div>
             </div>
             <div className="status-card">

@@ -158,6 +158,64 @@ describe("CompareSync", () => {
     expect(syncCompareList).toHaveBeenCalledTimes(1);
   });
 
+  it("ignores a null entry in the saved compare list instead of crashing on login", () => {
+    render(
+      <Harness
+        currentUser={{ uid: "u1" }}
+        savedCompareProperties={[serverProp, null]}
+        activityReady={true}
+        syncCompareList={syncCompareList}
+        compareList={[null, guestProp]}
+        setCompareList={setCompareList}
+      />
+    );
+
+    const mergedList = setCompareList.mock.calls[0][0];
+    expect(mergedList.map((p) => p._id)).toEqual([serverProp._id, guestProp._id]);
+  });
+
+  it("clears the compare list on logout so the next account doesn't inherit it", () => {
+    const { rerender } = render(
+      <Harness
+        currentUser={{ uid: "u1" }}
+        savedCompareProperties={[serverProp]}
+        activityReady={true}
+        syncCompareList={syncCompareList}
+        compareList={[guestProp]}
+        setCompareList={setCompareList}
+      />
+    );
+    setCompareList.mockClear();
+
+    rerender(
+      <Harness
+        currentUser={null}
+        savedCompareProperties={[]}
+        activityReady={false}
+        syncCompareList={syncCompareList}
+        compareList={[guestProp]}
+        setCompareList={setCompareList}
+      />
+    );
+
+    expect(setCompareList).toHaveBeenCalledWith([]);
+  });
+
+  it("does not clear a guest's compare list when nobody was logged in", () => {
+    render(
+      <Harness
+        currentUser={null}
+        savedCompareProperties={[]}
+        activityReady={false}
+        syncCompareList={syncCompareList}
+        compareList={[guestProp]}
+        setCompareList={setCompareList}
+      />
+    );
+
+    expect(setCompareList).not.toHaveBeenCalled();
+  });
+
   it("re-arms the merge on the next login after a logout", () => {
     const { rerender } = render(
       <Harness
