@@ -163,3 +163,28 @@ describe("AdminDashboard - URL param hydration", () => {
     expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
   }, 15000);
 });
+
+describe("AdminDashboard - tabs", () => {
+  it("opens the Agents tab from ?tab=agents without loading listings", async () => {
+    setupApiMocks();
+    renderDashboard({ initialEntries: ["/admin?tab=agents"] });
+
+    expect(await screen.findByRole("tab", { name: "Agents", selected: true })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(API.get).toHaveBeenCalledWith("/api/admin/agents", expect.objectContaining({ params: expect.anything() }))
+    );
+    expect(API.get).not.toHaveBeenCalledWith("/api/admin/properties", expect.anything());
+  });
+
+  it("switches from Listings to Agents", async () => {
+    setupApiMocks();
+    renderDashboard();
+
+    await userEvent.setup({ delay: null }).click(await screen.findByRole("tab", { name: "Agents" }));
+
+    expect(await screen.findByRole("tab", { name: "Agents", selected: true })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(API.get).toHaveBeenCalledWith("/api/admin/agents", expect.objectContaining({ params: expect.anything() }))
+    );
+  });
+});
