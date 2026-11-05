@@ -1,7 +1,7 @@
 // backend/fakeTests/propertyPublicFields.test.js
 //
 // Regression test for SEC-01 (docs/review/01-security.md): public property
-// endpoints must never return owner/broker contact details or internal fields.
+// endpoints must never return owner/agent contact details or internal fields.
 import { describe, it, expect, beforeAll, afterAll, afterEach } from "vitest";
 import request from "supertest";
 import app from "./helpers/testApp.js";
@@ -24,7 +24,7 @@ afterEach(async () => {
 
 const PRIVATE_FIELDS = [
   "ownerName", "ownerPhone", "ownerEmail",
-  "brokerName", "brokerPhone", "brokerEmail",
+  "agentName", "agentPhone", "agentEmail",
   "userId", "sourceUrl", "dataSource", "importedAt",
   "reviewedBy", "reviewedAt", "rejectionReason", "submittedAt", "tierType",
 ];
@@ -40,9 +40,9 @@ const createSensitiveProperty = (overrides = {}) =>
     ownerName: "Private Owner",
     ownerPhone: SECRET_PHONE,
     ownerEmail: SECRET_EMAIL,
-    brokerName: "Private Broker",
-    brokerPhone: "9988776655",
-    brokerEmail: "broker-private@example.com",
+    agentName: "Private Agent",
+    agentPhone: "9988776655",
+    agentEmail: "agent-private@example.com",
     sourceUrl: "https://some-scraped-site.example/listing/1",
     dataSource: "scraper",
     metadata: {
@@ -68,11 +68,13 @@ function expectNoPrivateData(property) {
 
 describe("public property endpoints hide private fields (SEC-01)", () => {
   it("GET /api/properties (listing) returns card fields but no contact or internal fields", async () => {
-    await createSensitiveProperty();
+    await createSensitiveProperty({ listedBy: "developer" });
 
     const res = await request(app).get("/api/properties");
 
     expect(res.status).toBe(200);
+    // Cards say "Contact Builder/Owner/Agent" from this.
+    expect(res.body.data[0].listedBy).toBe("developer");
     // Listing now returns grouped project cards (data), not a flat properties
     // array — see backend/fakeTests/propertyGrouping.test.js for grouping
     // behavior itself. This test only re-checks the private-field leak.

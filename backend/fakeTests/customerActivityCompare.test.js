@@ -19,6 +19,9 @@ const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js")
 const { createCustomer, createProperty, createUser } = await import("./helpers/fixtures.js");
 const { default: Customer } = await import("../models/Customer.js");
 
+// Buyers can only find (and so save) live listings.
+const createLiveProperty = (overrides = {}) => createProperty({ status: "approved", ...overrides });
+
 beforeAll(async () => {
   await startTestDb();
 });
@@ -70,8 +73,8 @@ describe("GET /api/customerActivity/my-activity", () => {
   });
 
   it("returns the customer's saved heart and compare properties", async () => {
-    const propA = await createProperty({ title: "Prop A", amenities: ["Gym"] });
-    const propB = await createProperty({
+    const propA = await createLiveProperty({ title: "Prop A", amenities: ["Gym"] });
+    const propB = await createLiveProperty({
       title: "Prop B",
       amenities: ["Gym", "Pool"],
       possessionStatus: "Ready to Move",
@@ -109,7 +112,7 @@ describe("GET /api/customerActivity/my-activity", () => {
     const developer = await createUser();
     const props = await Promise.all(
       Array.from({ length: 25 }, (_, i) =>
-        createProperty({ title: `Prop ${i}`, userId: developer._id })
+        createLiveProperty({ title: `Prop ${i}`, userId: developer._id })
       )
     );
     const customer = await createCustomer({ heartProperties: props.map((p) => p._id) });
@@ -173,7 +176,7 @@ describe("PUT /api/customerActivity/compare", () => {
   });
 
   it("silently drops ids that aren't valid ObjectIds instead of erroring", async () => {
-    const prop = await createProperty();
+    const prop = await createLiveProperty();
     const customer = await createCustomer();
     const token = tokenFor(customer.firebaseUid);
 
@@ -188,7 +191,7 @@ describe("PUT /api/customerActivity/compare", () => {
   });
 
   it("returns full compare-page fields for the saved properties", async () => {
-    const prop = await createProperty({
+    const prop = await createLiveProperty({
       amenities: ["Clubhouse"],
       possessionStatus: "Immediate",
       reraApproved: true,
@@ -218,7 +221,7 @@ describe("PUT /api/customerActivity/compare", () => {
     // slow enough to blow past the default test timeout.
     const developer = await createUser();
     const props = await Promise.all(
-      Array.from({ length: 6 }, () => createProperty({ userId: developer._id }))
+      Array.from({ length: 6 }, () => createLiveProperty({ userId: developer._id }))
     );
     const customer = await createCustomer();
     const token = tokenFor(customer.firebaseUid);
@@ -239,8 +242,8 @@ describe("PUT /api/customerActivity/compare", () => {
     // This is exactly the semantics the frontend's CompareSync login-merge race
     // depended on getting right: PUT overwrites wholesale, so a merge sent before
     // the real server list has loaded silently discards whatever was there before.
-    const oldProp = await createProperty({ title: "Old" });
-    const newProp = await createProperty({ title: "New" });
+    const oldProp = await createLiveProperty({ title: "Old" });
+    const newProp = await createLiveProperty({ title: "New" });
     const customer = await createCustomer({ compareProperties: [oldProp._id] });
     const token = tokenFor(customer.firebaseUid);
 
@@ -254,4 +257,32 @@ describe("PUT /api/customerActivity/compare", () => {
     expect(ids).toEqual([newProp._id.toString()]);
     expect(ids).not.toContain(oldProp._id.toString());
   });
+});
+
+describe("saved lists only ever show live listings", () => {
+  it.each(["pending", "rejected", "suspended"])(
+    "drops a %s listing from Shortlist, Compare and the compare PUT (no peeking via guessed ids)",
+    async (status) => {
+      const live = await createLiveProperty({ title: "Live" });
+      const hidden = await createProperty({ title: "Hidden", status });
+      const customer = await createCustomer({
+        heartProperties: [live._id, hidden._id],
+        compareProperties: [live._id, hidden._id],
+      });
+      const token = tokenFor(customer.firebaseUid);
+
+      const activity = await request(app)
+        .get("/api/customerActivity/my-activity")
+        .set("Authorization", `Bearer ${token}`);
+      const put = await request(app)
+        .put("/api/customerActivity/compare")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ propertyIds: [live._id.toString(), hidden._id.toString()] });
+
+      const titles = (list) => list.map((p) => p.title);
+      expect(titles(activity.body.heartProperties)).toEqual(["Live"]);
+      expect(titles(activity.body.compareProperties)).toEqual(["Live"]);
+      expect(titles(put.body.compareProperties)).toEqual(["Live"]);
+    }
+  );
 });

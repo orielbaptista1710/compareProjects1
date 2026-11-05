@@ -2,7 +2,7 @@
 //
 // Allowlist for developer-submitted property data (POST /add, PUT /update/:id).
 // Only the fields below can be set by a developer; anything else in the body —
-// metadata.moderation/analytics, userId, status, featured, owner/broker contact
+// metadata.moderation/analytics, userId, status, featured, owner/agent contact
 // details, dataSource, review fields — is silently dropped (zod strips unknown
 // keys), because the edit form sends the whole saved property back.
 //
@@ -11,6 +11,7 @@
 // and enums on save. See docs/review/01-security.md SEC-04 / SEC-09.
 import { z } from "zod"; 
 import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from "../models/propertyType.js";
+import { toPlainText } from "../utils/sanitizeInput.js";
 
 // Hosts that listing links/media may point at (https only). A subdomain of a
 // listed host is allowed too, e.g. www.google.com, maps.app.goo.gl, my.matterport.com.
@@ -33,7 +34,8 @@ const isAllowedUrl = (value, hosts) => {
 const blankToUndefined = (v) => (v === "" || v === null ? undefined : v);
 const optional = (schema) => z.preprocess(blankToUndefined, schema.optional());
 
-const text = (max) => z.string().trim().max(max);
+// Free text is shown to other users, so it's stored as plain text (tags removed).
+const text = (max) => z.string().trim().max(max).transform(toPlainText);
 const num = optional(z.coerce.number().finite().min(0));
 const signedNum = optional(z.coerce.number().finite()); // floor: basement = -1
 
@@ -66,7 +68,6 @@ export const propertyInputSchema = z.object({
   long_description: text(10000),
   projectName: text(150),
   listingType: optional(z.enum(["sale", "resale"])),
-  subType: text(100),
 
   // ── Location ────────────────────────────────
   state: text(100),

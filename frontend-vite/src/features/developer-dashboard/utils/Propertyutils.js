@@ -32,4 +32,6 @@ export const STATUS_CONFIG = {
   approved: { label: "Approved", cls: "status--approved" },
   rejected: { label: "Rejected", cls: "status--rejected" },
   pending:  { label: "Pending",  cls: "status--pending"  },
+  // An agent's approved listing while their account is suspended.
+  suspended: { label: "Hidden (account suspended)", cls: "status--rejected" },
 };

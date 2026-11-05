@@ -3,6 +3,7 @@
 import express from 'express';
 import protect from '../middleware/protect.js';
 import isDeveloper from '../middleware/isDeveloper.js';
+import { developerListingOwner } from '../middleware/listingOwner.js';
 import { searchProperties } from '../controllers/searchController.js';
 import {
   searchLimiter,
@@ -42,10 +43,11 @@ router.get('/search', searchLimiter, searchProperties);//Full-text search — us
 
 // ── Protected – developer CRUD (admin tokens are deliberately excluded here —
 // admins review listings via /api/admin/*, they don't submit their own) ─────
-router.post('/add', protect, isDeveloper, addPropertyLimiter, addProperty);
-router.get('/my-properties', protect, isDeveloper, developerActionLimiter, getMyProperties);//Fetch the logged-in developer's own properties
-router.put('/update/:id', protect, isDeveloper, developerActionLimiter, updateProperty);
-router.delete('/delete/:id', protect, isDeveloper, developerActionLimiter, deleteProperty);
+// Owners/agents use the same handlers via /api/customers/listings.
+router.post('/add', protect, isDeveloper, developerListingOwner, addPropertyLimiter, addProperty);
+router.get('/my-properties', protect, isDeveloper, developerListingOwner, developerActionLimiter, getMyProperties);//Fetch the logged-in developer's own properties
+router.put('/update/:id', protect, isDeveloper, developerListingOwner, developerActionLimiter, updateProperty);
+router.delete('/delete/:id', protect, isDeveloper, developerListingOwner, developerActionLimiter, deleteProperty);
 
 // ── Public – parameterised routes ─────────────────────────────
 //parameterised routes are

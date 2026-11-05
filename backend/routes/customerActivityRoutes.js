@@ -12,11 +12,12 @@ import { safeErrorMeta } from '../utils/safeError.js';
 
 router.use(customerActionLimiter);
 
-const PROPERTY_CARD_FIELDS = 'title price coverImage locality city propertyType bhk';
+// developerName + listedBy: the card says "Contact Builder/Owner/Agent".
+const PROPERTY_CARD_FIELDS = 'title price coverImage locality city propertyType bhk developerName listedBy';
 // Everything the /compare page tabs and frontend compareScoring.js read. Safe to be
 // wide: the compare list is capped at 4 docs, fetched by _id.
 const COMPARE_PROPERTY_FIELDS = [
-  'title developerName featured coverImage galleryImages',
+  'title developerName listedBy featured coverImage galleryImages',
   'price emiStarts propertyType propertyGroup bhk area',
   'possessionStatus reraApproved reraNumber reraDate',
   'amenities facilities security',
@@ -56,9 +57,13 @@ router.get('/my-activity', protectCustomer, async (req, res) => {
     // const heartPageIds = customer.heartProperties; // TEMP: break pagination to verify the test catches it
     const heartPageIds = customer.heartProperties.slice(start, start + limit);
 
+    // Only live listings: a saved listing that was later rejected, or hidden by
+    // an agent suspension, drops out (reorderByIds skips the missing ones).
     const [heartDocs, compareDocs] = await Promise.all([
-      Property.find({ _id: { $in: heartPageIds } }).select(PROPERTY_CARD_FIELDS).lean(),
-      Property.find({ _id: { $in: customer.compareProperties } }).select(COMPARE_PROPERTY_FIELDS).lean(),
+      Property.find({ _id: { $in: heartPageIds }, status: 'approved' }).select(PROPERTY_CARD_FIELDS).lean(),
+      Property.find({ _id: { $in: customer.compareProperties }, status: 'approved' })
+        .select(COMPARE_PROPERTY_FIELDS)
+        .lean(),
     ]);
 
     res.json({
@@ -164,11 +169,14 @@ router.put('/compare', protectCustomer, async (req, res) => {
     ).populate({
       path: 'compareProperties',
       select: COMPARE_PROPERTY_FIELDS,
+      // Never return pending/rejected/hidden listings, even for guessed ids.
+      match: { status: 'approved' },
     });
 
     res.json({
       success: true,
-      compareProperties: updated.compareProperties,
+      // populate leaves null where match didn't pass
+      compareProperties: updated.compareProperties.filter(Boolean),
     });
   } catch (err) {
     logger.error('Compare sync error', safeErrorMeta(err));

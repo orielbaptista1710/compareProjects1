@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import asyncHandler from 'express-async-handler';
 import * as propertyService from '../services/propertyAdminService.js';
 import logger from '../utils/logger.js';
+import { LISTED_BY } from '../constants/roles.js';
+import { readReason } from '../utils/readReason.js';
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -13,9 +15,9 @@ const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 // GET /api/admin/properties - here are all the properties that are not approved/approved/pending for the admin to review
 export const getProperties = asyncHandler(async (req, res) => {
 
-  const { page, limit, status, propertyType, search, city, locality, sortBy, imageFilter } = req.query;
+  const { page, limit, status, propertyType, search, city, locality, sortBy, imageFilter, listedBy } = req.query;
 
-  const VALID_STATUSES = ["pending", "approved", "rejected", ""];
+  const VALID_STATUSES = ["pending", "approved", "rejected", "suspended", ""];
   //CHECK THIS DEPENDS ON Properties filter 
   const VALID_TYPES = ["Flats/Apartments", "Villa", "Plot",
                        "Builder Floor", "Commercial","Penthouse",
@@ -27,6 +29,10 @@ export const getProperties = asyncHandler(async (req, res) => {
 
   if (propertyType && !VALID_TYPES.includes(propertyType)) {
   return res.status(400).json({ message: "Invalid property type" });
+  }
+
+  if (listedBy && !Object.values(LISTED_BY).includes(listedBy)) {
+    return res.status(400).json({ message: "Invalid listedBy filter" });
   }
 
   // Debug level: printed locally, dropped in production (logger level is info there).
@@ -43,6 +49,7 @@ export const getProperties = asyncHandler(async (req, res) => {
     search,
     sortBy,
     imageFilter,
+    listedBy,
   });
 
   res.json(result);
@@ -120,7 +127,10 @@ export const approveProperty = asyncHandler(async (req, res) => {
     throw new Error('Property not found');
   }
 
-  res.json({ success: true, message: 'Property approved successfully', property });
+  const message = property.status === 'suspended'
+    ? 'Approved, but hidden until the posting agent is reinstated'
+    : 'Property approved successfully';
+  res.json({ success: true, message, property });
 });
 
 // PUT /api/admin/reject/:id - this rejects the individual property via AdminDashboard
@@ -137,7 +147,7 @@ export const rejectProperty = asyncHandler(async (req, res) => {
     throw err;
   }
 
-  const reason = req.body?.rejectionReason || 'No reason provided'; //
+  const reason = readReason(req.body?.rejectionReason);
   const property = await propertyService.updatePropertyStatus(req.params.id, 'rejected', req.user._id, reason);
 
   if (!property) {
@@ -170,7 +180,7 @@ export const bulkRejectProperties = asyncHandler(async (req, res) => {
     throw new Error('ids must be a non-empty array');
   }
 
-  const reason = rejectionReason || 'No reason provided';
+  const reason = readReason(rejectionReason);
   const result = await propertyService.bulkUpdatePropertyStatus(ids, 'rejected', req.user._id, reason);
   res.json({ success: true, message: 'Properties rejected successfully', ...result });
 });

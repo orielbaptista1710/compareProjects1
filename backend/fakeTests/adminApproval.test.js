@@ -4,7 +4,7 @@ import request from "supertest";
 import mongoose from "mongoose"; 
 import app from "./helpers/testApp.js";
 import { startTestDb, stopTestDb, clearTestDb } from "./helpers/db.js";
-import { createAdminUser, createUser, createProperty, signToken } from "./helpers/fixtures.js";
+import { createAdminUser, createUser, createProperty, createCustomer, signToken } from "./helpers/fixtures.js";
 import Property from "../models/Property.js";
 
 beforeAll(async () => {
@@ -273,5 +273,93 @@ describe("admin approval workflow - correctness", () => {
       expect(res.status).toBe(200);
       expect(res.body).toEqual(["Test.*Locality"]);
     });
+  });
+});
+
+describe("admin approval workflow - audit trail", () => {
+  it("appends every decision to reviewHistory", async () => {
+    const token = await adminToken();
+    const property = await createProperty({ status: "pending" });
+
+    await request(app)
+      .put(`/api/admin/reject/${property._id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ rejectionReason: "Blurry photos" });
+    await request(app)
+      .put(`/api/admin/approve/${property._id}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    const saved = await Property.findById(property._id).lean();
+    expect(saved.reviewHistory.map((h) => h.action)).toEqual(["rejected", "approved"]);
+    expect(saved.reviewHistory[0].reason).toBe("Blurry photos");
+    expect(saved.reviewHistory[1].by).toBeTruthy();
+    expect(saved.reviewHistory[1].at).toBeTruthy();
+  });
+
+  it("records bulk decisions in reviewHistory too", async () => {
+    const token = await adminToken();
+    const property = await createProperty({ status: "pending" });
+
+    const res = await request(app)
+      .put("/api/admin/bulk-approve")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ ids: [String(property._id)] });
+
+    expect(res.status).toBe(200);
+    const saved = await Property.findById(property._id).lean();
+    expect(saved.reviewHistory).toHaveLength(1);
+    expect(saved.reviewHistory[0].action).toBe("approved");
+  });
+
+  it("falls back to a default reason when rejectionReason isn't a string (no 500)", async () => {
+    const token = await adminToken();
+    const property = await createProperty({ status: "pending" });
+
+    const res = await request(app)
+      .put(`/api/admin/reject/${property._id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ rejectionReason: { $gt: "" } });
+
+    expect(res.status).toBe(200);
+    expect(res.body.property.rejectionReason).toBe("No reason provided");
+  });
+});
+
+describe("admin listing table - who posted it", () => {
+  it("shows the customer as poster for owner listings and filters by listedBy", async () => {
+    const token = await adminToken();
+    const customer = await createCustomer({ customerName: "Asha Owner" });
+    await createProperty({ userId: customer._id, ownerModel: "Customer", listedBy: "owner", developerName: undefined });
+    await createProperty({ listedBy: "developer" });
+
+    const res = await request(app)
+      .get("/api/admin/properties?listedBy=owner")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.total).toBe(1);
+    expect(res.body.data[0].listedBy).toBe("owner");
+    expect(res.body.data[0].userId.customerName).toBe("Asha Owner");
+  });
+
+  it("still populates developer listings saved before ownerModel existed", async () => {
+    const token = await adminToken();
+    const developer = await createUser({ displayName: "Old Dev" });
+    const property = await createProperty({ userId: developer._id });
+    await Property.collection.updateOne({ _id: property._id }, { $unset: { ownerModel: "" } });
+
+    const res = await request(app).get("/api/admin/properties").set("Authorization", `Bearer ${token}`);
+
+    expect(res.body.data[0].userId.displayName).toBe("Old Dev");
+  });
+
+  it("rejects an unknown listedBy filter (400)", async () => {
+    const token = await adminToken();
+
+    const res = await request(app)
+      .get("/api/admin/properties?listedBy=broker")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(400);
   });
 });

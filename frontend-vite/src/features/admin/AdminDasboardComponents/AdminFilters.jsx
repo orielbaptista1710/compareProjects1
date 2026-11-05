@@ -30,6 +30,7 @@ const STATUS_OPTIONS = [
   { value: "pending",  label: "Pending" },
   { value: "approved", label: "Approved" },
   { value: "rejected", label: "Rejected" },
+  { value: "suspended", label: "Hidden (agent suspended)" },
 ];
 
 const IMAGE_OPTIONS = [
