@@ -106,6 +106,59 @@ describe("AdminListings", () => {
     );
   });
 
+  it("bulk actions skip listings the action doesn't apply to, and say so", async () => {
+    mockApi({
+      properties: [
+        listing({ _id: "p1", title: "Already approved", status: "approved" }),
+        listing({ _id: "p2", title: "Waiting", status: "pending" }),
+      ],
+    });
+    API.put.mockResolvedValue({ data: { modified: 1, hidden: 0 } });
+    const user = userEvent.setup({ delay: null });
+    renderListings("/admin?status=all");
+
+    await screen.findByText("Waiting");
+    const [, first, second] = screen.getAllByRole("checkbox"); // [0] is "select all"
+    await user.click(first);
+    await user.click(second);
+    const bar = screen.getByText("2 selected").closest("div");
+    await user.click(within(bar).getByRole("button", { name: /^approve$/i }));
+
+    const dialog = await screen.findByRole("dialog");
+    expect(dialog).toHaveTextContent("Approve 1 properties?");
+    expect(dialog).toHaveTextContent("1 selected listing is already approved or hidden and will be skipped.");
+    await user.click(within(dialog).getByRole("button", { name: /^approve$/i }));
+
+    await waitFor(() => expect(API.put).toHaveBeenCalledWith("/api/admin/bulk-approve", { ids: ["p2"] }));
+  }, 15000);
+
+  it("never shows (or acts on) a listing after a newer one was opened", async () => {
+    let finishA;
+    API.get.mockImplementation((url) => {
+      if (url === "/api/admin/properties") {
+        return Promise.resolve({
+          data: { data: [listing({ _id: "a", title: "Listing A" }), listing({ _id: "b", title: "Listing B" })], total: 2 },
+        });
+      }
+      if (url === "/api/admin/property/a") return new Promise((resolve) => { finishA = resolve; });
+      if (url === "/api/admin/property/b") return Promise.resolve({ data: { data: listing({ _id: "b", title: "Listing B" }) } });
+      return Promise.resolve({ data: [] });
+    });
+    const user = userEvent.setup({ delay: null });
+    renderListings();
+
+    await user.click(await screen.findByText("Listing A")); // slow to load
+    await user.keyboard("{Escape}");
+    await user.click(screen.getByText("Listing B"));
+    expect(await screen.findByText(/Property Verification — Listing B/)).toBeInTheDocument();
+
+    // A's answer arrives late: it must not replace B.
+    finishA({ data: { data: listing({ _id: "a", title: "Listing A" }) } });
+    await new Promise((r) => setTimeout(r, 400)); // past the close-cleanup delay too
+    expect(screen.getByText(/Property Verification — Listing B/)).toBeInTheDocument();
+    expect(screen.queryByText(/Property Verification — Listing A/)).not.toBeInTheDocument();
+  }, 15000);
+
   it("updates the open details modal after approving from it, so it isn't offered twice", async () => {
     mockApi();
     API.put.mockResolvedValue({ data: { message: "Property approved successfully", property: { _id: "prop-1", status: "approved" } } });

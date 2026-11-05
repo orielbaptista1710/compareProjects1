@@ -165,10 +165,14 @@ export default function AdminPropertyTable({
       }}
       pageSizeOptions={[10, 20, 50, 100]}
       checkboxSelection
+      // "Select all" otherwise reports { type: "exclude", ids: [] } ("all but
+      // none"), which the bulk bar reads as 0 selected; list the ids instead.
+      disableRowSelectionExcludeModel
       rowSelectionModel={selectionModel}
       onRowSelectionModelChange={onSelectionModelChange}
-      // row-pending / row-approved / row-rejected / row-suspended (AdminPropertyTable.css)
-      getRowClassName={(params) => (isListingStatus(params.row.status) ? `row-${params.row.status}` : "")}
+      // admin-row-pending / -approved / -rejected / -suspended (AdminPropertyTable.css);
+      // prefixed because route CSS stays loaded across the whole SPA.
+      getRowClassName={(params) => (isListingStatus(params.row.status) ? `admin-row-${params.row.status}` : "")}
       onRowClick={(params) => onRowClick(params.row)}
       autoHeight
     />

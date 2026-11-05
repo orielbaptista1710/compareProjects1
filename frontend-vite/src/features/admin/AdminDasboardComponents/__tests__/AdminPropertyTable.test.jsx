@@ -144,3 +144,32 @@ describe("AdminPropertyTable - Posted by column", () => {
     expect(screen.getByText("Owner · Asha")).toBeInTheDocument();
   });
 });
+
+describe("AdminPropertyTable - row colours", () => {
+  it("uses admin-prefixed classes, so they can't recolour other pages' tables", () => {
+    const { container } = render(<AdminPropertyTable {...baseProps()} />);
+
+    expect(container.querySelector(".admin-row-pending")).not.toBeNull();
+    expect(container.querySelector(".row-pending")).toBeNull();
+  });
+});
+
+describe("AdminPropertyTable - select all", () => {
+  it("reports the actual row ids, so the bulk bar shows how many are selected", async () => {
+    const onSelectionModelChange = vi.fn();
+    render(
+      <AdminPropertyTable
+        {...baseProps({
+          data: { data: [makeProperty({ _id: "a" }), makeProperty({ _id: "b" })], total: 2 },
+          onSelectionModelChange,
+        })}
+      />
+    );
+
+    await userEvent.setup({ delay: null }).click(screen.getAllByRole("checkbox")[0]);
+
+    const [model] = onSelectionModelChange.mock.calls.at(-1);
+    expect(model.type).toBe("include");
+    expect([...model.ids].sort()).toEqual(["a", "b"]);
+  });
+});

@@ -1,7 +1,7 @@
 // features/admin/listings/AdminListings.jsx
 // The admin "Listings" tab: filter, review (approve/reject, single or bulk)
 // and inspect every listing. Filters and page live in the URL.
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Box, Typography, Button, CircularProgress,
@@ -80,6 +80,9 @@ const bulkApprovedMessage =({ modified = 0, hidden = 0 }) => {
   const held = `${hidden} ${hidden === 1 ? "stays" : "stay"} hidden until the posting agent is reinstated`;
   return live ? `${plural(live)} approved and live — ${held}` : `Approved, but ${held}`;
 };
+
+const skippedNote = (n, why) =>
+  `${n} selected ${n === 1 ? "listing is" : "listings are"} ${why} and will be skipped.`;
 
 // ─── URL <-> page helpers (filters: readFiltersFromParams) ───────────────────
 
@@ -312,23 +315,38 @@ export default function AdminListings() {
 
   // ── Row click — load full property detail ────────────────────────────────────
 
+  // The modal must only ever show (and act on) the listing last clicked: clear
+  // the previous one at once (its Approve/Reject would otherwise still point
+  // at it while the new one loads), cancel a pending close-cleanup, and drop
+  // a response that arrives after a newer click.
+  const detailsRequest = useRef(0);
+  const closeTimer = useRef(null);
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
+
   const handleRowClick = useCallback(async (property) => {
+    const request = ++detailsRequest.current;
+    clearTimeout(closeTimer.current);
+    setSelectedProperty(null);
     setDetailsLoading(true);
     setDetailsModalOpen(true);
     try {
       const res = await API.get(`/api/admin/property/${property._id}`);
-      setSelectedProperty(res.data.data);
+      if (request === detailsRequest.current) setSelectedProperty(res.data.data);
     } catch (e) {
+      if (request !== detailsRequest.current) return;
       toastError(e, "Failed to load property details");
       setDetailsModalOpen(false);
     } finally {
-      setDetailsLoading(false);
+      if (request === detailsRequest.current) setDetailsLoading(false);
     }
   }, []);
 
   const handleCloseDetails = useCallback(() => {
+    detailsRequest.current += 1; // a still-loading listing must not reopen it
     setDetailsModalOpen(false);
-    setTimeout(() => setSelectedProperty(null), 300);
+    setDetailsLoading(false);
+    // Clear after the close animation so the content doesn't vanish mid-fade.
+    closeTimer.current = setTimeout(() => setSelectedProperty(null), 300);
   }, []);
 
   // ── Approve flow (single row or bulk — propertyId can be an id or an array) ──
@@ -337,9 +355,21 @@ export default function AdminListings() {
     setConfirmApprove({ open: true, propertyId: id });
   }, []);
 
+  // Bulk actions follow the row buttons' rules: re-approving an approved (or
+  // hidden) listing or re-rejecting a rejected one would only rewrite its
+  // review history. Selected ids not on this page are sent as they are.
+  const splitSelection = useCallback((allowed) => {
+    const rows = new Map((data?.data ?? []).map((row) => [row._id, row]));
+    const all = Array.from(selectionModel.ids);
+    const ids = all.filter((id) => !rows.has(id) || allowed(rows.get(id).status));
+    return { ids, skipped: all.length - ids.length };
+  }, [data, selectionModel]);
+
   const handleBulkApproveClick = useCallback(() => {
-    setConfirmApprove({ open: true, propertyId: Array.from(selectionModel.ids) });
-  }, [selectionModel]);
+    const { ids, skipped } = splitSelection(canApprove);
+    if (!ids.length) return toast.error("None of the selected listings can be approved");
+    setConfirmApprove({ open: true, propertyId: ids, skipped });
+  }, [splitSelection]);
 
   const handleApproveConfirm = useCallback(() => {
     if (Array.isArray(confirmApprove.propertyId)) {
@@ -354,8 +384,10 @@ export default function AdminListings() {
   const handleOpenReject = useCallback((id) => setRejectModal({ open: true, propertyId: id }), []);
 
   const handleBulkRejectClick = useCallback(() => {
-    setRejectModal({ open: true, propertyId: Array.from(selectionModel.ids) });
-  }, [selectionModel]);
+    const { ids, skipped } = splitSelection(canReject);
+    if (!ids.length) return toast.error("None of the selected listings can be rejected");
+    setRejectModal({ open: true, propertyId: ids, skipped });
+  }, [splitSelection]);
 
   // Owners and agents see the reason on their listing, so it's required
   // (RejectListingDialog won't confirm without one).
@@ -499,6 +531,11 @@ export default function AdminListings() {
               : "This will mark the listing as approved and make it visible to customers."}
             {" "}Listings from a suspended agent stay hidden until the agent is reinstated.
           </Typography>
+          {confirmApprove.skipped > 0 && (
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              {skippedNote(confirmApprove.skipped, "already approved or hidden")}
+            </Typography>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmApprove({ open: false, propertyId: null })}>
@@ -518,6 +555,7 @@ export default function AdminListings() {
       <RejectListingDialog
         open={rejectModal.open}
         count={Array.isArray(rejectModal.propertyId) ? rejectModal.propertyId.length : 1}
+        note={rejectModal.skipped > 0 ? skippedNote(rejectModal.skipped, "already rejected") : null}
         isPending={isRejectPending}
         onConfirm={handleRejectConfirm}
         onClose={closeReject}

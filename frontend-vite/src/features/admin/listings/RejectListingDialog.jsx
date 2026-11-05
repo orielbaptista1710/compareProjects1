@@ -6,7 +6,8 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, TextField, Typography, Button,
 } from "@mui/material";
 
-export default function RejectListingDialog({ open, count = 1, isPending, onConfirm, onClose }) {
+// note: optional extra line, e.g. how many selected listings are skipped.
+export default function RejectListingDialog({ open, count = 1, note, isPending, onConfirm, onClose }) {
   const [reason, setReason] = useState("");
   const trimmed = reason.trim();
 
@@ -24,6 +25,11 @@ export default function RejectListingDialog({ open, count = 1, isPending, onConf
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           The poster sees this reason on their listing, so say what to fix.
         </Typography>
+        {note && (
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            {note}
+          </Typography>
+        )}
         <TextField
           label="Reason for rejection"
           required

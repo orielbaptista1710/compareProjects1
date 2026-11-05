@@ -15,6 +15,7 @@ import { Copy } from "lucide-react";
 import toast from "react-hot-toast";
 import API from "../../../api/api";
 import toastError from "../../../utils/toastError";
+import { fmtDate } from "../../../utils/formatters";
 import { AGENT_STATUS } from "../../../constants/roles";
 
 const PAGE_SIZE = 20;
@@ -34,9 +35,6 @@ const doneMessage = (action, fromStatus) => {
     ? "Agent reinstated — their listings are live again"
     : "Agent approved";
 };
-
-const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
 const copyText = async (text, label) => {
   try {
@@ -221,7 +219,7 @@ export default function AgentApplications() {
                       </Box>
                     ) : "—"}
                   </TableCell>
-                  <TableCell>{formatDate(agent.agent?.appliedAt)}</TableCell>
+                  <TableCell>{fmtDate(agent.agent?.appliedAt)}</TableCell>
                   {showReason && <TableCell>{agent.agent?.rejectionReason || "—"}</TableCell>}
                   <TableCell align="right" sx={{ whiteSpace: "nowrap" }}>{renderActions(agent)}</TableCell>
                 </TableRow>

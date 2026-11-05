@@ -14,10 +14,10 @@ import {
   Skeleton,
 } from "@mui/material";
 
-import { formatCurrency } from "../../../utils/formatters";
+import { formatCurrency, fmtDate } from "../../../utils/formatters";
 import { POSTER, posterOf } from "../../../constants/roles";
 import { posterLabel, posterName } from "../poster";
-import { LISTING_STATUS_LABELS, LISTING_STATUS_COLORS } from "../listingStatus";
+import { LISTING_STATUS, LISTING_STATUS_LABELS, LISTING_STATUS_COLORS } from "../listingStatus";
 
 import PropertyMediaSection from "./PropertyMediaSection";
 
@@ -56,9 +56,6 @@ function formatArea(area) {
 
 // floor 0 is the ground floor, not "missing"
 const formatFloor = (floor) => (floor === 0 ? "Ground" : floor ?? "N/A");
-
-const formatDate = (value) =>
-  value ? new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "N/A";
 
 // Who posted the listing and how to reach them. userId is the populated
 // poster: a developer (User) or an owner/agent (Customer).
@@ -250,7 +247,7 @@ function DeveloperDetailsModal({
                 <strong>Pincode:</strong> {property?.pincode ?? "N/A"}
               </Typography>
               <Typography>
-                <strong>Available Date:</strong> {formatDate(property?.reraDate)}
+                <strong>Available Date:</strong> {fmtDate(property?.reraDate)}
               </Typography>
 
 
@@ -358,7 +355,7 @@ function DeveloperDetailsModal({
                   color={LISTING_STATUS_COLORS[property?.status] ?? "default"}
                 />
               </Typography>
-              {property?.status === "rejected" && (
+              {property?.status === LISTING_STATUS.REJECTED && (
                 <Typography>
                   <strong>Rejection reason:</strong> {property?.rejectionReason || "None"}
                 </Typography>
