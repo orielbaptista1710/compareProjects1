@@ -258,7 +258,8 @@ describe("/api/admin/agents", () => {
     expect(single.status).toBe(200);
     expect(single.body.message).toMatch(/hidden until the posting agent is reinstated/);
     expect(await statusOf(waiting)).toBe("suspended");
-    expect(bulk.body.hidden).toBe(2);
+    // `hidden` was already approved (stored as suspended), so the bulk skips it.
+    expect(bulk.body.hidden).toBe(1);
     expect(await statusOf(hidden)).toBe("suspended");
     expect(await statusOf(another)).toBe("suspended");
 

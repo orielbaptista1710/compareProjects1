@@ -381,6 +381,76 @@ describe("admin listing table - who posted it", () => {
   });
 });
 
+describe("a decision already made isn't made again", () => {
+  const historyOf = async (p) => (await Property.findById(p._id).lean()).reviewHistory ?? [];
+
+  it("409s re-approving an approved listing, leaving its review untouched", async () => {
+    const token = await adminToken();
+    const property = await createProperty({ status: "approved" });
+
+    const res = await request(app).put(`/api/admin/approve/${property._id}`).set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(409);
+    expect(res.body.message).toMatch(/already approved/);
+    expect(await historyOf(property)).toHaveLength(0);
+  });
+
+  it("409s approving a listing that's already approved but hidden (suspended agent)", async () => {
+    const token = await adminToken();
+    const property = await createProperty({ status: "suspended" });
+
+    const res = await request(app).put(`/api/admin/approve/${property._id}`).set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(409);
+    expect(res.body.message).toMatch(/hidden until the posting agent is reinstated/);
+  });
+
+  it("409s re-rejecting a rejected listing, keeping the original reason", async () => {
+    const token = await adminToken();
+    const property = await createProperty({ status: "rejected", rejectionReason: "Blurry photos" });
+
+    const res = await request(app)
+      .put(`/api/admin/reject/${property._id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ rejectionReason: "Something else" });
+
+    expect(res.status).toBe(409);
+    expect((await Property.findById(property._id).lean()).rejectionReason).toBe("Blurry photos");
+  });
+
+  it("still lets an approved listing be rejected, and a rejected one approved", async () => {
+    const token = await adminToken();
+    const approved = await createProperty({ status: "approved" });
+    const rejected = await createProperty({ status: "rejected" });
+
+    const reject = await request(app)
+      .put(`/api/admin/reject/${approved._id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({ rejectionReason: "Price is wrong" });
+    const approve = await request(app).put(`/api/admin/approve/${rejected._id}`).set("Authorization", `Bearer ${token}`);
+
+    expect(reject.status).toBe(200);
+    expect(approve.status).toBe(200);
+  });
+
+  it("bulk approve skips listings that are already approved", async () => {
+    const token = await adminToken();
+    const developer = await createUser();
+    const done = await createProperty({ userId: developer._id, status: "approved" });
+    const waiting = await createProperty({ userId: developer._id, status: "pending" });
+
+    const res = await request(app)
+      .put("/api/admin/bulk-approve")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ ids: [String(done._id), String(waiting._id)] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.modified).toBe(1);
+    expect(await historyOf(done)).toHaveLength(0);
+    expect((await Property.findById(waiting._id).lean()).status).toBe("approved");
+  });
+});
+
 describe("GET /api/admin/property/:id — who posted it", () => {
   it("includes how to reach and verify an agent poster, without auth internals", async () => {
     const token = await adminToken();

@@ -266,7 +266,20 @@ const findHeldListingIds = async (listings) => {
 };
 
 /* --------------------------------------------------
+ * A decision that's already been made isn't made again: re-approving an
+ * approved (or approved-but-hidden 'suspended') listing, or re-rejecting a
+ * rejected one, would only re-stamp reviewedBy/At and push a duplicate into
+ * reviewHistory (capped at 20, so real decisions fall out). Enforced in the
+ * update filter itself, so it also holds for two admins clicking at once.
+ * -------------------------------------------------- */
+const ALREADY_DECIDED = {
+  approved: ["approved", "suspended"],
+  rejected: ["rejected"],
+};
+
+/* --------------------------------------------------
  * Update property status (approve / reject)
+ * @returns {{ property } | { error: 'not_found' } | { error: 'already_reviewed', status }}
  * -------------------------------------------------- */
 export const updatePropertyStatus = async (
   id,
@@ -279,20 +292,26 @@ export const updatePropertyStatus = async (
   }
 
   const existing = await Property.findById(id).select("status ownerModel userId").lean();
-  if (!existing) return null;
+  if (!existing) return { error: "not_found" };
+  if (ALREADY_DECIDED[status].includes(existing.status)) {
+    return { error: "already_reviewed", status: existing.status };
+  }
 
   const held = status === "approved" && (await findHeldListingIds([existing])).size > 0;
-  const property = await Property.findByIdAndUpdate(
-    id,
+  const property = await Property.findOneAndUpdate(
+    { _id: id, status: { $nin: ALREADY_DECIDED[status] } },
     buildReviewUpdate(status, adminId, rejectionReason, held ? "suspended" : status),
     { new: true }
   );
-  if (property) {
-    invalidatePropertyCaches();
-    logger.info("Listing reviewed", { action: status, adminId: String(adminId), propertyIds: [String(id)] });
+  if (!property) {
+    // Decided (or deleted) between the read above and this update.
+    const now = await Property.findById(id).select("status").lean();
+    return now ? { error: "already_reviewed", status: now.status } : { error: "not_found" };
   }
 
-  return property; // null if not found — caller decides the response
+  invalidatePropertyCaches();
+  logger.info("Listing reviewed", { action: status, adminId: String(adminId), propertyIds: [String(id)] });
+  return { property };
 };
 
 /* --------------------------------------------------
@@ -320,7 +339,12 @@ export const bulkUpdatePropertyStatus = async (
   // rejection, same as the single approve/reject path. Silently dropped from
   // the batch rather than failing it, consistent with how malformed/duplicate/
   // nonexistent ids are already handled above.
-  const reviewable = await Property.find({ _id: { $in: validIds }, userId: { $ne: adminId } })
+  // Listings already in that decision are skipped too (see ALREADY_DECIDED).
+  const reviewable = await Property.find({
+    _id: { $in: validIds },
+    userId: { $ne: adminId },
+    status: { $nin: ALREADY_DECIDED[status] },
+  })
     .select("_id status ownerModel userId")
     .lean();
   const reviewableIds = reviewable.map((p) => p._id);
@@ -335,12 +359,13 @@ export const bulkUpdatePropertyStatus = async (
   const heldIds = reviewableIds.filter((pid) => held.has(String(pid)));
   const liveIds = reviewableIds.filter((pid) => !held.has(String(pid)));
 
+  const notDecided = { status: { $nin: ALREADY_DECIDED[status] } };
   const [live, hidden] = await Promise.all([
     liveIds.length
-      ? Property.updateMany({ _id: { $in: liveIds } }, buildReviewUpdate(status, adminId, rejectionReason))
+      ? Property.updateMany({ _id: { $in: liveIds }, ...notDecided }, buildReviewUpdate(status, adminId, rejectionReason))
       : { matchedCount: 0, modifiedCount: 0 },
     heldIds.length
-      ? Property.updateMany({ _id: { $in: heldIds } }, buildReviewUpdate(status, adminId, rejectionReason, "suspended"))
+      ? Property.updateMany({ _id: { $in: heldIds }, ...notDecided }, buildReviewUpdate(status, adminId, rejectionReason, "suspended"))
       : { matchedCount: 0, modifiedCount: 0 },
   ]);
   const result = {
