@@ -9,11 +9,17 @@ It also aims to be a specialized platform exclusively for developers. Registered
 The listed properties are then analyzed using a comparison module. This module evaluates and compares properties to provide customers with tailored recommendations based on their preferences.
 
 
-The platform has two user types:
-•	Customers (homebuyers) — authenticate via Firebase, manage profiles, browse and save properties
-•	Developers / Admins — authenticate via our own JWT system, manage project listings and media
+The platform has these user types:
+•	Customers (homebuyers and owners) — authenticate via Firebase; browse, shortlist and compare properties, and post their own property (owner listings)
+•	Agents — sign up separately at /agent-signup (same Firebase login); can post listings once an admin approves them
+•	Developers / Admins — authenticate via our own JWT system; developers manage project listings, admins approve listings and agents
 
 ---
+
+**Startup checks:** the backend refuses to start when its configuration is unsafe
+(missing MONGO_URI/DATABASE_URL/JWT_SECRET, JWT_SECRET < 32 chars,
+NODE_ENV not production on Render, missing FIREBASE_SERVICE_ACCOUNT or
+non-https REACT_APP_FRONTEND_URL in production).
 
 ## Tech Stack
 
