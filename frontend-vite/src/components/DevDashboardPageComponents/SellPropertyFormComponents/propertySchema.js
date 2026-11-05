@@ -7,9 +7,12 @@ import { z } from "zod";
 const optionalNum = (schema) =>
   z.preprocess((v) => (v === "" || v === null || v === undefined ? undefined : v), schema);
  
-const optionalInt      = optionalNum(z.coerce.number().int().optional());
 const optionalPosInt   = optionalNum(z.coerce.number().int().min(1).optional());
 const optionalPosFloat = optionalNum(z.coerce.number().positive().optional());
+// BHK/bathroom/balcony pills: a number, or the top "N+" bucket ("5+", "4+")
+const optionalCount = optionalNum(
+  z.union([z.coerce.number().int().min(0), z.string().regex(/^\d+\+$/)]).optional()
+);
 
 // Same rule as the backend (validators/propertyInputValidator.js,
 // ALLOWED_URL_HOSTS.map): https Google Maps links only, so the developer sees
@@ -66,9 +69,9 @@ export const propertySchema = z
     propertyType: z.string().min(1, "Select a property type"),
  
     // ── Property Details ──────────────────────────────────────────
-    bhk:             optionalInt,
-    bathrooms:       optionalInt,
-    balconies:       optionalInt,
+    bhk:             optionalCount,
+    bathrooms:       optionalCount,
+    balconies:       optionalCount,
     facing:          z.string().optional(),
     // Mongoose has parkings as String (single). Form sends array.
     // Submit transform joins array → string. See onFormSubmit note.

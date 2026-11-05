@@ -1,7 +1,14 @@
+/* features/developer-dashboard/property-form/SellPropertyForm.css
+ *
+ * Every rule is scoped under .sell-property-form. This stylesheet stays loaded
+ * after the dashboard chunk is fetched, so bare selectors (label, input,
+ * .btn-primary…) would restyle every other page in the SPA, login pages
+ * included. Element rules use :where() so their specificity stays at one class
+ * and component classes below can still override them.
+ */
 
-/* //SellPropertyForm.css */
 /* ── Design Tokens ────────────────────────────────────────────────────────── */
-:root {
+.sell-property-form {
   --spf-purple:        #6D28D9;
   --spf-purple-mid:    #7C3AED;
   --spf-purple-light:  #EDE9FE;
@@ -12,8 +19,8 @@
   --spf-navy-soft:     #312E81;
 
   --spf-text:          #1F2937;
-  --spf-text-muted:    #6B7280;
-  --spf-text-hint:     #9CA3AF;
+  --spf-text-muted:    #4B5563;      /* 7.6:1 on white */
+  --spf-text-hint:     #6B7280;      /* 4.8:1 on white — WCAG AA */
 
   --spf-bg:            #F9FAFB;
   --spf-surface:       #FFFFFF;
@@ -26,6 +33,7 @@
   --spf-radius:        8px;
   --spf-shadow:        0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
   --spf-transition:    0.18s ease;
+  --spf-focus-ring:    0 0 0 3px var(--spf-purple-ring);
 }
 
 /* ── Form Shell ───────────────────────────────────────────────────────────── */
@@ -37,44 +45,53 @@
 }
 
 /* ── Sections wrapper ─────────────────────────────────────────────────────── */
-.spf-sections {
+.sell-property-form .spf-sections {
   margin: 0 auto;
   padding: 20px 0 0;
   display: flex;
   flex-direction: column;
   gap: 0;
-  width: 1200px;
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+}
+
+/* Keeps a section's top edge clear of the sticky progress bar on step click */
+.sell-property-form .spf-anchor {
+  scroll-margin-top: 96px;
 }
 
 /* ── Progress Bar (sticky) ───────────────────────────────────────────────── */
-.spf-progress-wrapper {
+.sell-property-form .spf-progress-wrapper {
   position: sticky;
   top: 0px;
   z-index: 100;
   background: #fff;
   border-bottom: 1px solid var(--spf-border);
-  padding:0;
+  padding: 0;
   margin-left: -24px;
   margin-right: -24px;
   box-shadow: 0 2px 8px rgba(0,0,0,.06);
 }
 
-.spf-progress__track {
+.sell-property-form .spf-progress__track {
   display: flex;
   align-items: flex-start;
   position: relative;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding-bottom: 0.85rem;
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0 0.6rem;
 }
-.spf-progress__track::-webkit-scrollbar { display: none; }
+.sell-property-form .spf-progress__track::-webkit-scrollbar { display: none; }
 
 /* grey rail */
-.spf-progress__track::before {
+.sell-property-form .spf-progress__track::before {
   content: '';
   position: absolute;
-  top: 13px;
+  top: calc(0.5rem + 21px);
   left: 13px;
   right: 13px;
   height: 2px;
@@ -83,10 +100,10 @@
 }
 
 /* purple filled rail */
-.spf-progress__track::after {
+.sell-property-form .spf-progress__track::after {
   content: '';
   position: absolute;
-  top: 13px;
+  top: calc(0.5rem + 21px);
   left: 13px;
   height: 2px;
   background: var(--spf-purple);
@@ -95,37 +112,54 @@
   transition: width 0.4s cubic-bezier(.4,0,.2,1);
 }
 
-.spf-step {
+.sell-property-form .spf-step-item {
+  flex: 1;
+  min-width: 60px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.sell-property-form .spf-step {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.3rem;
-  flex: 1;
-  min-width: 52px;
-  position: relative;
-  z-index: 2;
+  min-height: 44px;            /* tap target */
+  padding: 0.25rem 0.35rem;
+  background: none;
+  border: none;
+  border-radius: var(--spf-radius);
+  font: inherit;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
-.spf-step__dot {
-  width: 26px;
-  height: 26px;
+.sell-property-form .spf-step:focus-visible {
+  outline: none;
+  box-shadow: var(--spf-focus-ring);
+}
+
+.sell-property-form .spf-step__dot {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid var(--spf-border);
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--spf-text-muted);
   transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
-.spf-step__label {
-  font-size: 0.6rem;
+.sell-property-form .spf-step__label {
+  font-size: 0.72rem;
   font-weight: 500;
   color: var(--spf-text-hint);
   text-align: center;
@@ -134,29 +168,30 @@
 }
 
 /* done */
-.spf-step--done .spf-step__dot {
+.sell-property-form .spf-step--done .spf-step__dot {
   border-color: var(--spf-purple);
   background: var(--spf-purple);
   color: #fff;
 }
-.spf-step--done .spf-step__label {
+.sell-property-form .spf-step--done .spf-step__label {
   color: var(--spf-purple);
   font-weight: 600;
 }
 
 /* active */
-.spf-step--active .spf-step__dot {
+.sell-property-form .spf-step--active .spf-step__dot {
   border-color: var(--spf-purple);
   background: #fff;
   color: var(--spf-purple);
   box-shadow: 0 0 0 4px var(--spf-purple-ring);
 }
-.spf-step--active .spf-step__label {
+.sell-property-form .spf-step--active .spf-step__label {
   color: var(--spf-purple);
   font-weight: 700;
 }
+
 /* ── Section Cards ───────────────────────────────────────────────────────── */
-.form-section {
+.sell-property-form .form-section {
   background: var(--spf-surface);
   border: 1px solid var(--spf-border);
   padding: 1.75rem 2rem;
@@ -164,7 +199,7 @@
   margin-bottom: 1rem;
 }
 
-.section-title {
+.sell-property-form .section-title {
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--spf-navy);
@@ -177,7 +212,7 @@
   gap: .5rem;
 }
 
-.section-subtitle {
+.sell-property-form .section-subtitle {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--spf-text-muted);
@@ -187,31 +222,36 @@
   display: block;
 }
 
+.sell-property-form .spf-coming-soon {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--spf-text-muted);
+}
+
 /* ── Step Divider ────────────────────────────────────────────────────────── */
-.spf-divider {
+.sell-property-form .spf-divider {
   display: flex;
   align-items: center;
   gap: .65rem;
   padding: .2rem 0;
-  opacity: .4;
   pointer-events: none;
   margin-bottom: 1rem;
 }
 
-.spf-divider hr {
+.sell-property-form .spf-divider hr {
   flex: 1;
   border: none;
   border-top: 1px dashed var(--spf-border);
   margin: 0;
 }
 
-.spf-divider__step {
-  font-size: 0.6rem;
+.sell-property-form .spf-divider__step {
+  font-size: 0.68rem;
   font-weight: 700;
   background: var(--spf-purple-light);
   color: var(--spf-purple);
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -219,63 +259,63 @@
   flex-shrink: 0;
 }
 
-.spf-divider__label {
-  font-size: 0.68rem;
+.sell-property-form .spf-divider__label {
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--spf-text-muted);
+  color: var(--spf-text-hint);
   white-space: nowrap;
 }
 
 /* ── Form Layout ─────────────────────────────────────────────────────────── */
-.form-row {
+.sell-property-form .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.form-row--3col {
+.sell-property-form .form-row--3col {
   grid-template-columns: repeat(3, 1fr);
 }
 
-.form-col {
+.sell-property-form .form-col {
   display: flex;
   flex-direction: column;
   gap: .3rem;
+  min-width: 0;
 }
 
-.form-col--narrow {
+.sell-property-form .form-col--narrow {
   max-width: 200px;
 }
 
 /* ── Labels ──────────────────────────────────────────────────────────────── */
-label {
+.sell-property-form :where(label) {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--spf-text);
   display: block;
 }
 
-.required {
+.sell-property-form .required {
   color: var(--spf-purple);
   margin-left: .15em;
 }
 
-.optional {
+.sell-property-form .optional {
   font-weight: 400;
   color: var(--spf-text-hint);
   font-size: .8em;
 }
 
 /* ── Inputs / Selects / Textareas ────────────────────────────────────────── */
-input[type="text"],
-input[type="number"],
-input[type="url"],
-input[type="search"],
-input[type="date"],
-input[type="email"],
-select,
-textarea {
+/* :not() list instead of input[type="text"] so inputs with no type attribute
+   (developer name, title, RERA number) are styled too. */
+.sell-property-form :where(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  select,
+  textarea
+) {
   width: 100%;
   padding: .55rem .75rem;
   font-size: 0.875rem;
@@ -289,38 +329,36 @@ textarea {
   appearance: auto;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
+.sell-property-form :where(input, select, textarea):focus {
   border-color: var(--spf-border-focus);
-  box-shadow: 0 0 0 3px var(--spf-purple-ring);
+  box-shadow: var(--spf-focus-ring);
 }
 
-input:disabled,
-select:disabled,
-textarea:disabled {
+.sell-property-form :where(input, select, textarea):disabled {
   background: #F9FAFB;
   color: var(--spf-text-muted);
   cursor: not-allowed;
 }
 
-textarea {
+.sell-property-form :where(textarea) {
   resize: vertical;
   min-height: 80px;
 }
 
 /* ── Input Group (area value + unit) ─────────────────────────────────────── */
-.input-group {
+.sell-property-form .input-group {
   display: flex;
   gap: 0;
 }
 
-.input-group__input {
+.sell-property-form .input-group__input {
   border-radius: var(--spf-radius) 0 0 var(--spf-radius);
   flex: 1;
+  min-width: 0;
 }
 
-.input-group__addon {
+.sell-property-form .input-group__addon {
+  width: auto;
   border-radius: 0 var(--spf-radius) var(--spf-radius) 0;
   border-left: none;
   min-width: 110px;
@@ -331,30 +369,32 @@ textarea {
 }
 
 /* ── Checkbox Row (single checkbox + label) ──────────────────────────────── */
-.checkbox-row {
+.sell-property-form .checkbox-row {
   display: flex;
   align-items: center;
   gap: .5rem;
+  min-height: 40px;
   cursor: pointer;
   font-weight: 500;
 }
 
-.checkbox-row input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+.sell-property-form .checkbox-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   accent-color: var(--spf-purple);
   cursor: pointer;
 }
 
 /* ── Fieldsets ───────────────────────────────────────────────────────────── */
-.fieldset {
+.sell-property-form .fieldset {
   border: none;
   padding: 0;
   margin: 0 0 1.25rem;
+  min-width: 0;
 }
 
-.fieldset legend {
+.sell-property-form .fieldset legend {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--spf-text);
@@ -363,16 +403,18 @@ textarea {
 }
 
 /* ── Radio Button Pills ──────────────────────────────────────────────────── */
-.radio-container {
+.sell-property-form .radio-container {
   display: flex;
   flex-wrap: wrap;
   gap: .45rem;
 }
 
-.radio-label {
+.sell-property-form .radio-label,
+.sell-property-form .checkbox-label {
   display: inline-flex;
   align-items: center;
   gap: .4rem;
+  min-height: 40px;            /* tap target */
   padding: .4rem .9rem;
   font-size: 0.8rem;
   font-weight: 500;
@@ -383,9 +425,15 @@ textarea {
   background: #fff;
   transition: border-color var(--spf-transition), background var(--spf-transition), color var(--spf-transition);
   user-select: none;
+  box-sizing: border-box;
+  position: relative;
 }
 
-.radio-label input[type="radio"] {
+/* The real inputs are visually hidden; the pill/card shows their state.
+   Kept focusable so keyboard users can tab into them. */
+.sell-property-form .radio-label input[type="radio"],
+.sell-property-form .checkbox-label input[type="checkbox"],
+.sell-property-form .checkbox-card input[type="checkbox"] {
   position: absolute;
   opacity: 0;
   pointer-events: none;
@@ -393,57 +441,44 @@ textarea {
   height: 0;
 }
 
-.radio-label:hover {
+/* Focus ring on the visible pill/card when its hidden input has keyboard focus */
+.sell-property-form .radio-label:has(input:focus-visible),
+.sell-property-form .checkbox-label:has(input:focus-visible),
+.sell-property-form .checkbox-card:has(input:focus-visible),
+.sell-property-form .property-type-card:focus-visible {
+  outline: none;
+  box-shadow: var(--spf-focus-ring);
+  border-color: var(--spf-purple);
+}
+
+.sell-property-form .radio-label:hover {
   border-color: var(--spf-purple-mid);
   color: var(--spf-purple);
 }
 
-.radio-label--selected {
+.sell-property-form .radio-label--selected,
+.sell-property-form .radio-label--selected:hover {
   border-color: var(--spf-purple);
   background: var(--spf-purple);
   color: #fff;
 }
 
 /* ── Checkbox Pill (multi-select) ────────────────────────────────────────── */
-.checkbox-label {
-  display: inline-flex;
-  align-items: center;
-  gap: .4rem;
-  padding: .4rem .9rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  border: 1.5px solid var(--spf-border);
-  border-radius: 20px;
-  cursor: pointer;
-  color: var(--spf-text-muted);
-  background: #fff;
-  transition: border-color var(--spf-transition), background var(--spf-transition), color var(--spf-transition);
-  user-select: none;
-}
-
-.checkbox-label input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  width: 0;
-  height: 0;
-}
-
-.checkbox-label--selected {
+.sell-property-form .checkbox-label--selected {
   border-color: var(--spf-purple);
   background: var(--spf-purple-light);
   color: var(--spf-purple);
   font-weight: 600;
 }
 
-/* ── Property Type Cards (image 2 style) ─────────────────────────────────── */
-.property-type-grid {
+/* ── Property Type Cards ─────────────────────────────────────────────────── */
+.sell-property-form .property-type-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: .65rem;
 }
 
-.property-type-card {
+.sell-property-form .property-type-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -452,19 +487,20 @@ textarea {
   border: 1.5px solid var(--spf-border);
   background: #fff;
   cursor: pointer;
+  font: inherit;
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--spf-text-muted);
   transition: border-color var(--spf-transition), background var(--spf-transition), color var(--spf-transition);
 }
 
-.property-type-card:hover {
+.sell-property-form .property-type-card:hover {
   border-color: var(--spf-purple-mid);
   color: var(--spf-navy);
   background: var(--spf-purple-faint);
 }
 
-.property-type-card--selected {
+.sell-property-form .property-type-card--selected {
   border-color: var(--spf-navy);
   background: #fff;
   color: var(--spf-navy);
@@ -472,23 +508,23 @@ textarea {
   font-weight: 700;
 }
 
-.type-icon {
+.sell-property-form .type-icon {
   font-size: 1.4rem;
   opacity: .8;
 }
 
 /* ── Checkbox Grid / Cards (amenities) ───────────────────────────────────── */
-.checkbox-grid {
+.sell-property-form .checkbox-grid {
   display: flex;
   flex-wrap: wrap;
   gap: .45rem;
 }
 
-/* amenity chips — pill style matching image 2 */
-.checkbox-card {
+.sell-property-form .checkbox-card {
   display: inline-flex;
   align-items: center;
   gap: .45rem;
+  min-height: 40px;            /* tap target */
   padding: .45rem 1rem;
   border: 1.5px solid var(--spf-border);
   border-radius: 24px;
@@ -499,83 +535,63 @@ textarea {
   background: #fff;
   transition: border-color var(--spf-transition), background var(--spf-transition), color var(--spf-transition);
   user-select: none;
+  box-sizing: border-box;
+  position: relative;
 }
 
-.checkbox-card input[type="checkbox"] {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  width: 0;
-  height: 0;
-}
-
-.checkbox-card--selected {
+.sell-property-form .checkbox-card--selected {
   border-color: var(--spf-navy);
   background: var(--spf-navy);
   color: #fff;
   font-weight: 600;
 }
 
-.checkbox-card__icon {
+.sell-property-form .checkbox-card__icon {
   font-size: 0.95rem;
   flex-shrink: 0;
 }
 
 /* ── Maps ────────────────────────────────────────────────────────────────── */
-.maps-search-input {
+.sell-property-form .maps-search-input {
   width: 100%;
   box-sizing: border-box;
 }
 
-.map-wrapper {
+.sell-property-form .map-wrapper {
   position: relative;
-  margin-bottom: 1rem;
+  margin-bottom: .25rem;
   overflow: hidden;
   box-shadow: var(--spf-shadow);
   border: 1px solid var(--spf-border);
 }
 
-.map-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .85rem;
-  font-weight: 600;
-  color: var(--spf-purple);
-  z-index: 10;
-  backdrop-filter: blur(2px);
-}
-
-.map-hint {
+.sell-property-form .map-hint {
   font-size: 0.75rem;
   color: var(--spf-text-hint);
-  margin: .4rem 0 0;
+  margin: .4rem 0 1rem;
   text-align: center;
 }
 
 /* ── RERA Fields ─────────────────────────────────────────────────────────── */
-.rera-fields {
-  animation: slide-in 200ms ease forwards;
+.sell-property-form .rera-fields {
+  animation: spf-slide-in 200ms ease forwards;
 }
 
-@keyframes slide-in {
+@keyframes spf-slide-in {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Char Count ──────────────────────────────────────────────────────────── */
-.char-count {
-  font-size: 0.7rem;
+.sell-property-form .char-count {
+  font-size: 0.72rem;
   color: var(--spf-text-hint);
   text-align: right;
   margin-top: .2rem;
 }
 
 /* ── Hints & Errors ──────────────────────────────────────────────────────── */
-.field-error {
+.sell-property-form .field-error {
   font-size: 0.76rem;
   color: var(--spf-error);
   display: flex;
@@ -583,134 +599,142 @@ textarea {
   gap: .3rem;
 }
 
-.field-error::before {
+.sell-property-form .field-error::before {
   content: "⚠";
   font-size: .72rem;
 }
 
-.field-hint {
+.sell-property-form .field-hint {
   font-size: 0.75rem;
   color: var(--spf-text-hint);
   display: block;
   margin-top: .2rem;
 }
 
-.alert {
+.sell-property-form .alert {
   padding: .75rem 1rem;
   border-radius: var(--spf-radius);
   font-size: .85rem;
   margin-bottom: 1rem;
 }
 
-.alert--error {
+.sell-property-form .alert--error {
   background: var(--spf-error-bg);
   color: var(--spf-error);
   border: 1px solid #FCA5A5;
 }
 
 /* ── Footer Buttons ──────────────────────────────────────────────────────── */
-.spf-footer {
+.sell-property-form .spf-footer {
   margin: 1.5rem auto 0;
   padding: 0 1.5rem 2rem;
-  width: 1200px;
-
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
 }
 
-.form-actions {
+.sell-property-form .form-actions {
   display: flex;
   gap: .75rem;
   flex-wrap: wrap;
 }
 
-.btn-primary {
-  background: var(--spf-purple);
-  color: #fff;
-  border: none;
+.sell-property-form .btn-primary,
+.sell-property-form .btn-secondary {
+  min-height: 44px;
   padding: .65rem 2rem;
   border-radius: var(--spf-radius);
   font-size: .875rem;
-  font-weight: 600;
   cursor: pointer;
+}
+
+.sell-property-form .btn-primary {
+  background: var(--spf-purple);
+  color: #fff;
+  border: none;
+  font-weight: 600;
   transition: background var(--spf-transition), opacity var(--spf-transition);
   letter-spacing: .01em;
 }
 
-.btn-primary:hover:not(:disabled) {
+.sell-property-form .btn-primary:hover:not(:disabled) {
   background: var(--spf-purple-mid);
 }
 
-.btn-primary:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
+.sell-property-form .btn-secondary {
   background: transparent;
   color: var(--spf-text-muted);
   border: 1.5px solid var(--spf-border);
   padding: .65rem 1.5rem;
-  border-radius: var(--spf-radius);
-  font-size: .875rem;
   font-weight: 500;
-  cursor: pointer;
   transition: border-color var(--spf-transition), color var(--spf-transition);
 }
 
-.btn-secondary:hover:not(:disabled) {
+.sell-property-form .btn-secondary:hover:not(:disabled) {
   border-color: var(--spf-text-muted);
   color: var(--spf-text);
 }
 
-/* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 900px) {
-  
-
-  .spf-progress-wrapper {
-  position: sticky;
-  top: 70px;
+.sell-property-form .btn-primary:disabled,
+.sell-property-form .btn-secondary:disabled {
+  opacity: .5;
+  cursor: not-allowed;
 }
 
+.sell-property-form .btn-primary:focus-visible,
+.sell-property-form .btn-secondary:focus-visible {
+  outline: none;
+  box-shadow: var(--spf-focus-ring);
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sell-property-form .spf-progress__track::after,
+  .sell-property-form .rera-fields {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .sell-property-form .spf-progress-wrapper {
+    top: 70px;
+  }
 }
 
 @media (max-width: 640px) {
-  
-
-  .spf-progress-wrapper {
-  position: sticky;
-  top: 70px;
-}
-
-  .spf-sections {
+  .sell-property-form .spf-sections {
     padding: 0 .75rem;
   }
 
-  .form-section {
+  .sell-property-form .form-section {
     padding: 1.25rem 1rem;
   }
 
-  .form-row,
-  .form-row--3col {
+  .sell-property-form .form-row,
+  .sell-property-form .form-row--3col {
     grid-template-columns: 1fr;
   }
 
-  .property-type-grid {
+  .sell-property-form .property-type-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   }
 
-  .form-col--narrow {
+  .sell-property-form .form-col--narrow {
     max-width: 100%;
   }
 
-  .spf-footer {
+  .sell-property-form .spf-footer {
     padding: 0 .75rem;
   }
 
-  .form-actions {
+  .sell-property-form .form-actions {
     flex-direction: column;
   }
 
-  .btn-primary,
-  .btn-secondary {
+  .sell-property-form .btn-primary,
+  .sell-property-form .btn-secondary {
     width: 100%;
     text-align: center;
   }
