@@ -16,7 +16,8 @@ property-validator/node_modules/
 .env.test.local
 .env.production.local
 
-.env.*    
+.env.*
+!.env.example
 
 # ── OS / editor ────── Remove if have vscode extensition or configs u want to share
 .vscode/
@@ -32,6 +33,12 @@ docs/SYSTEM_DESIGN.md
 docs/review/
 PRODUCTION_READINESS_AUDIT.md
 docs/
+
+# Local-only for now (solo work): API reference + GitHub review rules/PR template.
+# Remove these lines to share them once a second developer joins.
+backend/API_CONTRACT.md
+.github/CODEOWNERS
+.github/pull_request_template.md
 #ignore validation files
 property-validator/data
 
@@ -49,10 +56,17 @@ property-validator/propertySchema.js
 # Ignore Firebase configuration file
 backend/config/firebase-service-account.json
 
-# SCRIPTS — local-only, except the backfills package.json runs on deploy
+# SCRIPTS — local-only, except the backfills package.json runs on deploy and
+# the account scripts (they take everything as flags; no secrets in the files)
 backend/scripts/*
 !backend/scripts/backfillProjectKey.js
 !backend/scripts/backfillProjectNameFromTitle.js
+!backend/scripts/createUser.js
+!backend/scripts/resetPassword.js
+!backend/scripts/deactivateUser.js
+!backend/scripts/deleteCustomer.js
+!backend/scripts/migrateRoles.js
+!backend/scripts/lib/
 
 # Ignore dependencies, testing, production, and misc files in the frontend
 # frontend specific

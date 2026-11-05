@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import API from "../../../../../api/api";
+import { posterOf, POSTER, POSTER_LABELS } from "../../../../../constants/roles";
 import "./ContactFormm.css";
 
 // ─────────────────────────────────────────────────────────────
@@ -154,14 +155,18 @@ const ContactFormm = ({ property }) => {
     }
   };
 
-  const devName = property?.developerName || "Developer";
+  // Builder listings show the developer's name; owner/agent listings show who
+  // posted them instead (their contact details stay private).
+  const posterLabel = POSTER_LABELS[posterOf(property)];
+  const devName =
+    posterOf(property) === POSTER.BUILDER && property?.developerName ? property.developerName : posterLabel;
   const devInitial = getInitials(devName);
 
   return (
     <div className="cf-root">
       {/* Header */}
       <div className="cf-header">
-        <p className="cf-header__label">Contact Developer</p>
+        <p className="cf-header__label">Contact {posterLabel}</p>
 
         <div className="cf-developer">
           <div className="cf-developer__avatar" aria-hidden="true">
@@ -187,7 +192,7 @@ const ContactFormm = ({ property }) => {
         className="cf-form"
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        aria-label="Contact developer form"
+        aria-label={`Contact ${posterLabel.toLowerCase()} form`}
       >
         {/* Name */}
         <Field

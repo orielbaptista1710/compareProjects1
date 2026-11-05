@@ -3,14 +3,36 @@ import mongoose from 'mongoose';
 import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from './propertyType.js';
 import slugify from 'slugify';
 import { buildProjectKey } from '../utils/projectKey.js';
+import { LISTED_BY, OWNER_MODEL } from '../constants/roles.js';
 
 const propertySchema = new mongoose.Schema({
 
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  status: { 
-    type: String, 
-    enum: ['pending', 'approved', 'rejected'], 
-    default: 'pending' 
+  // Who owns (and may edit) the listing. ownerModel says which collection
+  // userId points to: 'User' for developers, 'Customer' for owners and agents.
+  // Both are set server-side (middleware/listingOwner.js); ownership checks must
+  // match on BOTH fields — see ownerFilter() there.
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    // A function rather than refPath so listings saved before ownerModel
+    // existed (field missing in the raw doc, e.g. .lean() queries) still
+    // populate as developer listings.
+    ref: function () {
+      return this.ownerModel || OWNER_MODEL.USER;
+    },
+  },
+  ownerModel: {
+    type: String,
+    enum: Object.values(OWNER_MODEL),
+    default: OWNER_MODEL.USER,
+    required: true,
+  },
+  // 'suspended' = was approved, hidden while the posting agent is suspended
+  // (services/agentAdminService.js); reinstating the agent sets it back.
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected', 'suspended'],
+    default: 'pending'
   },
  
   slug: {
@@ -21,9 +43,12 @@ const propertySchema = new mongoose.Schema({
 
   featured: { type: Boolean, default: false }, 
   
-  //new feature added to differentiate between sale and resale properties and differnt authentication for owner, broker and developer(based on new auth system) 
+  //new feature added to differentiate between sale and resale properties and differnt authentication for owner, agent and developer(based on new auth system) 
   listingType: { type: String, enum: ['sale', 'resale'] }, //add rent later
-  listedBy: { type: String, enum: ['owner', 'broker', 'developer'] }, //add rent later
+  // Set server-side from the poster's account, never from the request body.
+  // 'broker' is the pre-migration name for 'agent' (scraped listings); it stays
+  // valid so those docs can still be saved until scripts/migrateRoles.js runs.
+  listedBy: { type: String, enum: [...Object.values(LISTED_BY), 'broker'] },
 
   //new added needs to be generated from title and developerName
   projectName: { type: String, trim: true }, //used in sale and resale - NEW
@@ -37,41 +62,24 @@ const propertySchema = new mongoose.Schema({
   projectKey: { type: String, default: null },
 
   // used in sale only
-  developerName : { type: String, required: true},
+  // Required for developer listings only (owner/agent listings have no
+  // developer). Older docs without listedBy are developer listings.
+  developerName: {
+    type: String,
+    required: function () {
+      return !this.listedBy || this.listedBy === LISTED_BY.DEVELOPER;
+    },
+  },
   developerAvatar: {
     url: { type: String, default: null },
     thumbnail: { type: String, default: null },
     },
 
 
-    ///DONT USE THIS FORGET THIS 
-    //broker used for sale and resale - NEW
-    //in scrapped db used for resale ony for now
-// broker:{
-  brokerName: { type: String, trim: true },
-  brokerPhone: { type: String, trim: true },
-  brokerEmail: { type: String, trim: true, lowercase: true },
-  brokerAvatar: {
-    url: { type: String, default: null },
-    thumbnail: { type: String, default: null },
-  },
-// },
-
-//owner is a customer that can psot properties for sale or rent --have to fix it based on auth modifications
-// owner: {
-  ownerName: { type: String, trim: true },
-  ownerPhone: { type: String, trim: true },
-  ownerEmail: { type: String, trim: true, lowercase: true },
-  ownerAvatar: {
-    url: { type: String, default: null },
-    thumbnail: { type: String, default: null },
-  },
-// },
-
   // Property Type
   // propertyType: { type: String, enum: [...RESIDENTIAL_TYPES, ...COMMERCIAL_TYPES], required: true },'
   //DONT USE
-  subType: { type: String }, //add enum later
+  // subType: { type: String }, //add enum later
 
   sourceUrl: { type: String },// original source if scraped/imported CHECK THIS delly delly babe
   tierType: { type: String, enum: ['tier1', 'tier2'] }, 
@@ -174,7 +182,7 @@ geo: {
 
   possessionStatus: { 
     type: String,
-    enum: ["Ready to Move", "Under Construction", "Immediate"],
+    enum: ["Ready to Move", "Under Construction", "Immediate", "New Launch", "Pre Launch", "Upcoming"],
    },
   //possessionStatus of the property depends on reraDate- classify into Immediate n UnderConstruction
   //ADD ENUM TO THIS ONCE RERA IS SETTLED
@@ -327,6 +335,21 @@ geo: {
   reviewedAt: Date,
   rejectionReason: String,
 
+  // Audit trail of admin decisions, newest last, capped at 20 entries by the
+  // $slice in services/propertyAdminService.js. reviewedBy/reviewedAt above
+  // only hold the latest decision. Approvals made directly in MongoDB bypass
+  // this — use scripts/reviewProperty.js for those so they're recorded too.
+  reviewHistory: {
+    type: [{
+      _id: false,
+      action: { type: String, enum: ['approved', 'rejected'] },
+      by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      at: { type: Date },
+      reason: { type: String },
+    }],
+    default: [],
+  },
+
    
 }, { 
   timestamps: true,
@@ -361,7 +384,11 @@ propertySchema.pre("validate", function (next) {
   // Recompute on every validate (not just when source fields change) so a
   // historical doc re-saved for any reason picks up a projectKey once
   // projectName is backfilled, same way propertyGroup self-heals above.
-  this.projectKey = buildProjectKey(this);
+  // Customer (owner/agent) listings are never grouped into project cards: an
+  // owner typing a project's name must not merge their unit into the
+  // developer's card. Everything User-owned groups as before (incl. scraped).
+  const isCustomerListing = this.ownerModel === OWNER_MODEL.CUSTOMER;
+  this.projectKey = isCustomerListing ? null : buildProjectKey(this);
 
   if (this.coordinates?.lat != null && this.coordinates?.lng != null) {
   const { lat, lng } = this.coordinates;

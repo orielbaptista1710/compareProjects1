@@ -1,6 +1,7 @@
 //models/User.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { USER_ROLES } from '../constants/roles.js';
 
 const userSchema = new mongoose.Schema({
   // --- Profile ---
@@ -34,12 +35,20 @@ const userSchema = new mongoose.Schema({
     },
 
 
-      password: { type: String, required: true },  // select:false i might add CHECK THIS 
+      // Never returned by queries unless asked for with .select('+password') (AUTH-13).
+      password: { type: String, required: true, select: false },
 
   // --- Role & Permissions ---
     // role is source of truth here for your app logic
     // permissions array mirrors what you set in Clerk publicMetadata   //just added this for nolemailer
-  role: { type:String, enum:['user','admin'] , default:'user'},
+  // 'user' is the legacy name for 'developer' — kept valid until
+  // scripts/migrateRoles.js renames existing accounts. See constants/roles.js.
+  role: {
+    type: String,
+    enum: Object.values(USER_ROLES),
+    // Switch to USER_ROLES.DEVELOPER once migrateRoles.js has run in production.
+    default: USER_ROLES.LEGACY_DEVELOPER,
+  },
   permissions: {
       type: [String],
       enum: [

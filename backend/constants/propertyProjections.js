@@ -1,7 +1,7 @@
 // backend/constants/propertyProjections.js
 //
 // Allowlists of Property fields that public (anonymous) endpoints may return.
-// Anything not listed here stays on the server: owner/broker contact details,
+// Anything not listed here stays on the server: customer/agent contact details,
 // userId, sourceUrl, dataSource, moderation/marketing metadata, review fields.
 // A new field added to models/Property.js is private until it's added here.
 
@@ -10,6 +10,7 @@
 // frontend compareScoring.js read.
 export const PUBLIC_LIST_FIELDS = [
   'title slug developerName developerAvatar projectName projectKey featured description createdAt',
+  'listedBy', // "Posted by Owner/Agent/Builder" on cards
   'coverImage galleryImages',
   'price emiStarts priceNegotiable propertyType propertyGroup bhk area',
   'possessionStatus reraApproved reraNumber reraDate',
@@ -23,7 +24,7 @@ export const PUBLIC_LIST_FIELDS = [
 // GET /api/properties/:id — the property page.
 export const PUBLIC_DETAIL_FIELDS = [
   PUBLIC_LIST_FIELDS,
-  'long_description sub_locality listingType listedBy subType',
+  'long_description sub_locality listingType',
   'floorPlans mediaFiles virtualTours brochure reraQR',
 ].join(' ');
 

@@ -2,7 +2,10 @@
 
 import mongoose from 'mongoose';
 import Property from '../models/Property.js';
+import Customer from '../models/Customer.js';
+import { AGENT_STATUS, OWNER_MODEL } from '../constants/roles.js';
 import { invalidatePropertyCaches } from '../utils/propertyCache.js';
+import logger from '../utils/logger.js';
 /**
  * Fetch paginated properties for Admin Dashboard
  * - Safe pagination
@@ -10,6 +13,13 @@ import { invalidatePropertyCaches } from '../utils/propertyCache.js';
  * - Predictable sorting
  * - Lean projection for performance
  */
+
+// Poster name for the admin views; userId points to a User (developer) or a
+// Customer (owner/agent) depending on Property.ownerModel.
+const POSTER_FIELDS = "displayName companyName customerName customerEmail agent.status agent.agencyName";
+
+// Admins decide approve/reject; "pending" is only ever set by an owner edit.
+const REVIEW_STATUSES = ["approved", "rejected"];
 
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -23,6 +33,7 @@ export const fetchProperties = async ({
   search,
   sortBy = "latest",
   imageFilter,
+  listedBy,
 }) => {
 
   /* --------------------------------------------------
@@ -42,6 +53,7 @@ export const fetchProperties = async ({
   if (city) filter.city = city;
   if (locality) filter.locality = locality;
   if (propertyType) filter.propertyType = propertyType;
+  if (listedBy) filter.listedBy = listedBy;
 
   /* --------------------------------------------------
    * 3. SEARCH FILTER (case-insensitive, safe length)
@@ -122,7 +134,7 @@ export const fetchProperties = async ({
     oldest: { createdAt: 1 },
     priceHigh: { price: -1 },
     priceLow: { price: 1 },
-    mostViewed: { views: -1 },
+    mostViewed: { 'metadata.analytics.viewCount': -1 },
   };
 
   const sort = sortMap[sortBy] || sortMap.latest;
@@ -145,6 +157,9 @@ export const fetchProperties = async ({
     "coverImage.url": 1,
     "coverImage.thumbnail": 1, //add galleryImages??
     userId: 1,
+    ownerModel: 1, // needed by populate("userId") to pick User vs Customer
+    listedBy: 1,
+    listingType: 1,
     views: 1,
     createdAt: 1,
   };
@@ -156,7 +171,7 @@ export const fetchProperties = async ({
     Property.countDocuments(filter),
     Property.find(filter)
       .select(LIST_PROJECTION)
-      .populate("userId", "displayName")
+      .populate("userId", POSTER_FIELDS)
       // .populate("reviewedBy", "displayName")
       .sort(sort)
       .skip(skip)
@@ -179,7 +194,7 @@ export const fetchPropertyOwner = async (id) => {
  * -------------------------------------------------- */
 export const fetchPropertyById = async (id) => {
   const property = await Property.findById(id)
-    .populate("userId", "displayName")  ////
+    .populate("userId", POSTER_FIELDS)  ////
     // .populate("reviewedBy", "displayName")
     .lean();
 
@@ -187,32 +202,80 @@ export const fetchPropertyById = async (id) => {
 };
 
 /* --------------------------------------------------
+ * Review update shared by single + bulk: sets the latest decision and appends
+ * it to reviewHistory (last 20 kept), so every decision leaves a trace.
+ * -------------------------------------------------- */
+// storedStatus: what the listing's status becomes. Usually the decision itself;
+// an approved listing of a suspended agent is stored as 'suspended' (hidden).
+const buildReviewUpdate = (status, adminId, rejectionReason, storedStatus = status) => {
+  const at = new Date();
+  const reason = status === "rejected" ? (rejectionReason || "").trim().slice(0, 500) : undefined;
+
+  return {
+    $set: {
+      status: storedStatus,
+      reviewedBy: adminId,
+      reviewedAt: at,
+      ...(reason !== undefined && { rejectionReason: reason }),
+    },
+    $push: {
+      reviewHistory: {
+        $each: [{ action: status, by: adminId, at, ...(reason && { reason }) }],
+        $slice: -20,
+      },
+    },
+  };
+};
+
+/* --------------------------------------------------
+ * Listings that must stay hidden even when approved: already hidden by an
+ * agent suspension, or posted by an agent who is suspended right now. They
+ * only go live when the agent is reinstated (agentAdminService).
+ * -------------------------------------------------- */
+const findHeldListingIds = async (listings) => {
+  const customerOwnerIds = listings
+    .filter((p) => p.ownerModel === OWNER_MODEL.CUSTOMER)
+    .map((p) => p.userId);
+  const suspendedOwners = customerOwnerIds.length
+    ? await Customer.find({ _id: { $in: customerOwnerIds }, "agent.status": AGENT_STATUS.SUSPENDED })
+        .select("_id")
+        .lean()
+    : [];
+  const suspended = new Set(suspendedOwners.map((c) => String(c._id)));
+
+  return new Set(
+    listings
+      .filter((p) => p.status === "suspended" || suspended.has(String(p.userId)))
+      .map((p) => String(p._id))
+  );
+};
+
+/* --------------------------------------------------
  * Update property status (approve / reject)
  * -------------------------------------------------- */
 export const updatePropertyStatus = async (
   id,
-  status,  
+  status,
   adminId,
   rejectionReason = null
 ) => {
-  const allowedStatuses = ["approved", "rejected", "pending"];
-
-  if (!allowedStatuses.includes(status)) {
+  if (!REVIEW_STATUSES.includes(status)) {
     throw new Error("Invalid status");
   }
 
-  const update = {
-    status,
-    reviewedBy: adminId,
-    reviewedAt: new Date(),
-  };
+  const existing = await Property.findById(id).select("status ownerModel userId").lean();
+  if (!existing) return null;
 
-  if (status === "rejected") {
-    update.rejectionReason = (rejectionReason || "").trim().slice(0, 500);
+  const held = status === "approved" && (await findHeldListingIds([existing])).size > 0;
+  const property = await Property.findByIdAndUpdate(
+    id,
+    buildReviewUpdate(status, adminId, rejectionReason, held ? "suspended" : status),
+    { new: true }
+  );
+  if (property) {
+    invalidatePropertyCaches();
+    logger.info("Listing reviewed", { action: status, adminId: String(adminId), propertyIds: [String(id)] });
   }
-
-  const property = await Property.findByIdAndUpdate(id, update, { new: true });
-  if (property) invalidatePropertyCaches();
 
   return property; // null if not found — caller decides the response
 };
@@ -226,9 +289,7 @@ export const bulkUpdatePropertyStatus = async (
   adminId,
   rejectionReason = null
 ) => {
-  const allowedStatuses = ["approved", "rejected", "pending"];
-
-  if (!allowedStatuses.includes(status)) {
+  if (!REVIEW_STATUSES.includes(status)) {
     throw new Error("Invalid status");
   }
 
@@ -240,37 +301,47 @@ export const bulkUpdatePropertyStatus = async (
     return { matched: 0, modified: 0 };
   }
 
-  const update = {
-    status,
-    reviewedBy: adminId,
-    reviewedAt: new Date(),
-  };
-
-  if (status === "rejected") {
-    update.rejectionReason = (rejectionReason || "").trim().slice(0, 500);
-  }
-
   // Exclude properties the reviewer submitted themselves — no self-approval/
   // rejection, same as the single approve/reject path. Silently dropped from
   // the batch rather than failing it, consistent with how malformed/duplicate/
   // nonexistent ids are already handled above.
-  const reviewableIds = (
-    await Property.find({ _id: { $in: validIds }, userId: { $ne: adminId } })
-      .select("_id")
-      .lean()
-  ).map((p) => p._id);
+  const reviewable = await Property.find({ _id: { $in: validIds }, userId: { $ne: adminId } })
+    .select("_id status ownerModel userId")
+    .lean();
+  const reviewableIds = reviewable.map((p) => p._id);
 
   if (!reviewableIds.length) {
     return { matched: 0, modified: 0 };
   }
 
-  const result = await Property.updateMany(
-    { _id: { $in: reviewableIds } },
-    update
-  );
-  if (result.modifiedCount) invalidatePropertyCaches();
+  // Approving a suspended agent's listings records the approval but keeps
+  // them hidden until the agent is reinstated.
+  const held = status === "approved" ? await findHeldListingIds(reviewable) : new Set();
+  const heldIds = reviewableIds.filter((pid) => held.has(String(pid)));
+  const liveIds = reviewableIds.filter((pid) => !held.has(String(pid)));
 
-  return { matched: result.matchedCount, modified: result.modifiedCount };
+  const [live, hidden] = await Promise.all([
+    liveIds.length
+      ? Property.updateMany({ _id: { $in: liveIds } }, buildReviewUpdate(status, adminId, rejectionReason))
+      : { matchedCount: 0, modifiedCount: 0 },
+    heldIds.length
+      ? Property.updateMany({ _id: { $in: heldIds } }, buildReviewUpdate(status, adminId, rejectionReason, "suspended"))
+      : { matchedCount: 0, modifiedCount: 0 },
+  ]);
+  const result = {
+    matchedCount: live.matchedCount + hidden.matchedCount,
+    modifiedCount: live.modifiedCount + hidden.modifiedCount,
+  };
+  if (result.modifiedCount) {
+    invalidatePropertyCaches();
+    logger.info("Listings bulk-reviewed", {
+      action: status,
+      adminId: String(adminId),
+      propertyIds: reviewableIds.map(String),
+    });
+  }
+
+  return { matched: result.matchedCount, modified: result.modifiedCount, hidden: heldIds.length };
 };
 
 

@@ -19,6 +19,7 @@ vi.mock("../config/firebaseAdmin.js", () => ({
 const { default: app } = await import("./helpers/customerRoutesApp.js");
 const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js");
 const { createCustomer } = await import("./helpers/fixtures.js");
+const { default: Customer } = await import("../models/Customer.js");
 
 beforeAll(async () => {
   await startTestDb();
@@ -92,6 +93,21 @@ describe("GET /api/customers/me", () => {
 
     expect(secondRes.body.customer.emailVerified).toBe(true);
   });
+
+  it("syncs emailVerified for an old record that breaks a newer rule, instead of a 500", async () => {
+    const customer = await createCustomer({ emailVerified: false });
+    // As if saved before the 2-character name rule existed.
+    await Customer.collection.updateOne({ _id: customer._id }, { $set: { customerName: "R" } });
+    const token = tokenFor(customer.firebaseUid, { email_verified: true });
+
+    const res = await request(app)
+      .get("/api/customers/me")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.customer.emailVerified).toBe(true);
+    expect((await Customer.findById(customer._id).lean()).emailVerified).toBe(true);
+  });
 });
 
 describe("POST /api/customers/firebase-signup", () => {
@@ -139,5 +155,29 @@ describe("POST /api/customers/firebase-login", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.customer.emailVerified).toBe(true);
+  });
+
+  it("checks the token isn't revoked, and refuses a deleted account's leftover token (401)", async () => {
+    // A deleted Firebase user's token is still signed for up to an hour; with
+    // checkRevoked Firebase rejects it, so it can't recreate the Customer.
+    verifyIdToken.mockRejectedValue(Object.assign(new Error("gone"), { code: "auth/user-not-found" }));
+
+    const res = await request(app).post("/api/customers/firebase-login").send({ token: "old-token" });
+
+    expect(verifyIdToken).toHaveBeenCalledWith("old-token", true);
+    expect(res.status).toBe(401);
+  });
+
+  it("refuses a suspended customer with a message the login page can show (403)", async () => {
+    const customer = await createCustomer({ isActive: false });
+    const token = tokenFor(customer.firebaseUid);
+
+    const res = await request(app)
+      .post("/api/customers/firebase-login")
+      .send({ token });
+
+    expect(res.status).toBe(403);
+    expect(res.body.message).toMatch(/suspended/i);
+    expect(res.body.customer).toBeUndefined();
   });
 });

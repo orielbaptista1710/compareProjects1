@@ -12,11 +12,12 @@ import { safeErrorMeta } from '../utils/safeError.js';
 
 router.use(customerActionLimiter);
 
-const PROPERTY_CARD_FIELDS = 'title price coverImage locality city propertyType bhk';
+// developerName + listedBy: the card says "Contact Builder/Owner/Agent".
+const PROPERTY_CARD_FIELDS = 'title price coverImage locality city propertyType bhk developerName listedBy';
 // Everything the /compare page tabs and frontend compareScoring.js read. Safe to be
 // wide: the compare list is capped at 4 docs, fetched by _id.
 const COMPARE_PROPERTY_FIELDS = [
-  'title developerName featured coverImage galleryImages',
+  'title developerName listedBy featured coverImage galleryImages',
   'price emiStarts propertyType propertyGroup bhk area',
   'possessionStatus reraApproved reraNumber reraDate',
   'amenities facilities security',
@@ -53,13 +54,23 @@ router.get('/my-activity', protectCustomer, async (req, res) => {
 
     const allHeartIds = customer.heartProperties.map(String);
     const start = (page - 1) * limit;
-    // const heartPageIds = customer.heartProperties; // TEMP: break pagination to verify the test catches it
-    const heartPageIds = customer.heartProperties.slice(start, start + limit);
 
-    const [heartDocs, compareDocs] = await Promise.all([
-      Property.find({ _id: { $in: heartPageIds } }).select(PROPERTY_CARD_FIELDS).lean(),
-      Property.find({ _id: { $in: customer.compareProperties } }).select(COMPARE_PROPERTY_FIELDS).lean(),
+    // Only live listings: a saved listing that was later rejected, or hidden by
+    // an agent suspension, drops out. Find the live ids first (ids only, at most
+    // MAX_HEART_PROPERTIES) and page over those, so pages stay full and
+    // total/hasMore don't count listings the customer can't see.
+    const [liveHearts, compareDocs] = await Promise.all([
+      Property.find({ _id: { $in: customer.heartProperties }, status: 'approved' }).select('_id').lean(),
+      Property.find({ _id: { $in: customer.compareProperties }, status: 'approved' })
+        .select(COMPARE_PROPERTY_FIELDS)
+        .lean(),
     ]);
+    const liveIds = new Set(liveHearts.map((doc) => String(doc._id)));
+    const liveHeartIds = customer.heartProperties.filter((id) => liveIds.has(String(id)));
+    // const heartPageIds = liveHeartIds; // TEMP: break pagination to verify the test catches it
+    const heartPageIds = liveHeartIds.slice(start, start + limit);
+
+    const heartDocs = await Property.find({ _id: { $in: heartPageIds } }).select(PROPERTY_CARD_FIELDS).lean();
 
     res.json({
       success: true,
@@ -72,8 +83,8 @@ router.get('/my-activity', protectCustomer, async (req, res) => {
       heartPagination: {
         page,
         limit,
-        total: allHeartIds.length,
-        hasMore: start + limit < allHeartIds.length,
+        total: liveHeartIds.length,
+        hasMore: start + limit < liveHeartIds.length,
       },
       compareProperties: reorderByIds(customer.compareProperties, compareDocs),
     });
@@ -164,11 +175,14 @@ router.put('/compare', protectCustomer, async (req, res) => {
     ).populate({
       path: 'compareProperties',
       select: COMPARE_PROPERTY_FIELDS,
+      // Never return pending/rejected/hidden listings, even for guessed ids.
+      match: { status: 'approved' },
     });
 
     res.json({
       success: true,
-      compareProperties: updated.compareProperties,
+      // populate leaves null where match didn't pass
+      compareProperties: updated.compareProperties.filter(Boolean),
     });
   } catch (err) {
     logger.error('Compare sync error', safeErrorMeta(err));

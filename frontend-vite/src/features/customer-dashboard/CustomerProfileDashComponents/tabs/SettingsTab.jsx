@@ -2,13 +2,23 @@
 import { useContext, useState } from "react";
 import { User, Bell, Lock, Save, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth";
 import { AuthContext } from "../../../../contexts/AuthContext";
+import { CustomerAuth } from "../../../../config/firebase";
 
 const SETTINGS_TABS = [
   { key: "account", label: "Account", icon: User },
   { key: "notifications", label: "Notifications", icon: Bell },
   { key: "security", label: "Security", icon: Lock },
 ];
+
+const PASSWORD_ERRORS = {
+  "auth/invalid-credential": "Current password is incorrect.",
+  "auth/wrong-password": "Current password is incorrect.",
+  "auth/weak-password": "New password is too weak.",
+  "auth/too-many-requests": "Too many attempts. Please wait and try again.",
+  "auth/network-request-failed": "Network error. Check your connection and try again.",
+};
 
 const SettingsTab = () => {
   const { currentUser } = useContext(AuthContext);
@@ -33,12 +43,18 @@ const SettingsTab = () => {
     confirmPassword: "",
   });
 
-  const handleAccountSave = () => {
-    // TODO: wire to Firebase updateProfile / MongoDB PATCH
-    toast.success("Profile updated successfully!");
-  };
+  const [savingPassword, setSavingPassword] = useState(false);
 
-  const handlePasswordSave = () => {
+  // Profile and notification saving need backend endpoints that don't exist
+  // yet, so those buttons are disabled instead of showing a fake success.
+
+  // Firebase only lets a signed-in user change their password right after
+  // proving they know the current one, so re-authenticate first.
+  const handlePasswordSave = async () => {
+    if (!passwordForm.currentPassword) {
+      toast.error("Enter your current password.");
+      return;
+    }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast.error("Passwords do not match.");
       return;
@@ -47,9 +63,25 @@ const SettingsTab = () => {
       toast.error("Password must be at least 8 characters.");
       return;
     }
-    // TODO: wire to Firebase reauthenticateWithCredential + updatePassword
-    toast.success("Password updated successfully!");
-    setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+
+    const user = CustomerAuth.currentUser;
+    if (!user?.email) {
+      toast.error("Please log in again to change your password.");
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      const credential = EmailAuthProvider.credential(user.email, passwordForm.currentPassword);
+      await reauthenticateWithCredential(user, credential);
+      await updatePassword(user, passwordForm.newPassword);
+      toast.success("Password updated successfully!");
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (err) {
+      toast.error(PASSWORD_ERRORS[err.code] || "Couldn't update your password. Please try again.");
+    } finally {
+      setSavingPassword(false);
+    }
   };
 
   const renderSettingsBody = () => {
@@ -105,9 +137,9 @@ const SettingsTab = () => {
             </div>
 
             <div className="settings-actions">
-              <button className="btn-primary" onClick={handleAccountSave}>
+              <button className="btn-primary" disabled title="Coming soon">
                 <Save size={15} />
-                Save Changes
+                Save Changes (coming soon)
               </button>
             </div>
           </div>
@@ -168,9 +200,9 @@ const SettingsTab = () => {
             </div>
 
             <div className="settings-actions">
-              <button className="btn-primary" onClick={() => toast.success("Notification preferences saved!")}>
+              <button className="btn-primary" disabled title="Coming soon">
                 <Save size={15} />
-                Save Preferences
+                Save Preferences (coming soon)
               </button>
             </div>
           </div>
@@ -227,9 +259,9 @@ const SettingsTab = () => {
             </div>
 
             <div className="settings-actions">
-              <button className="btn-primary" onClick={handlePasswordSave}>
+              <button className="btn-primary" onClick={handlePasswordSave} disabled={savingPassword}>
                 <Save size={15} />
-                Update Password
+                {savingPassword ? "Updating..." : "Update Password"}
               </button>
             </div>
           </div>

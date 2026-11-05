@@ -1,7 +1,7 @@
 // sections/PricingSection.jsx
 
 import React from "react";
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext, useWatch, Controller } from "react-hook-form";
 import { AREA_UNITS } from "../../../../assests/constants/propertyFormConstants"; 
 
 /** Formats number as Indian currency string for display only */
@@ -18,12 +18,12 @@ const PricingSection = () => {
   const {
     register,
     control,
-    watch,
     formState: { errors },
   } = useFormContext();
 
-  const priceRaw = watch("price");
-  const emiRaw   = watch("emiStarts");
+  // useWatch (not watch) so typing re-renders only this section, not the form
+  const priceRaw = useWatch({ control, name: "price" });
+  const emiRaw   = useWatch({ control, name: "emiStarts" });
 
   return (
     <section aria-labelledby="pricing-section-title" className="form-section">
@@ -109,7 +109,7 @@ const PricingSection = () => {
           <div className="input-group">
             <input
               id="areaValue"
-              {...register("areaValue")}
+              {...register("area.value")}
               type="number"
               min="0"
               placeholder="e.g. 1200"
@@ -117,7 +117,7 @@ const PricingSection = () => {
               className="input-group__input"
             />
             <select
-              {...register("areaUnit")}
+              {...register("area.unit")}
               className="input-group__addon"
               aria-label="Area unit"
             >

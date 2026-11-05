@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../../api/api";
+import { AuthContext } from "../../../contexts/AuthContext";
 import "./authStyles/auth-form.css";
 import "./authStyles/auth-layout.css";
 import "./authStyles/auth-responsive.css";
@@ -22,19 +23,26 @@ const FIREBASE_ERRORS = {
   "auth/operation-not-allowed":   "Email signup is not enabled. Contact support.",
 };
 
-const CustomerSignupPage = () => {
+// isAgent: the /agent-signup variant. Same Firebase account as a customer
+// (agents browse with it too), plus an agent application that an admin
+// approves before the agent can post as 'agent'.
+const CustomerSignupPage = ({ isAgent = false }) => {
   const [form, setForm] = useState({
     customerName:     "",
     customerEmail:    "",
     customerPhone:    "",
     customerPassword: "",
     confirmPassword:  "",
+    agencyName:       "",
+    reraAgentId:      "",
   });
   const [error, setError]               = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm]   = useState(false);
   const [submitting, setSubmitting]     = useState(false);
   const navigate = useNavigate();
+  // Optional: the page is also rendered without the provider in tests.
+  const auth = useContext(AuthContext);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -74,6 +82,10 @@ const CustomerSignupPage = () => {
       errs.customerPassword = "Password too weak";
     if (form.customerPassword !== form.confirmPassword)
       errs.confirmPassword = "Passwords don't match";
+    if (isAgent && form.agencyName.trim().length < 2)
+      errs.agencyName = "Enter your agency name";
+    if (isAgent && form.reraAgentId.trim().length < 3)
+      errs.reraAgentId = "Enter your RERA agent registration number";
     return errs;
   };
 
@@ -85,16 +97,30 @@ const CustomerSignupPage = () => {
     setSubmitting(true);
     setError({});
 
+    let createdUser = null;
     try {
       const userCredential = await createUserWithEmailAndPassword(
         CustomerAuth, form.customerEmail, form.customerPassword
       );
+      createdUser = userCredential.user;
       const idToken = await userCredential.user.getIdToken();
+      // Agent status can only be set here, as the account is created — the
+      // backend never turns an existing customer account into an agent.
       await API.post("/api/customers/firebase-signup", {
         token: idToken,
         customerName:  form.customerName.trim(),
         customerPhone: `+91${form.customerPhone.trim()}`,
+        ...(isAgent && {
+          agentApplication: {
+            agencyName:  form.agencyName.trim(),
+            reraAgentId: form.reraAgentId.trim(),
+          },
+        }),
       });
+
+      if (isAgent) {
+        toast.success("Agent application submitted — verify your email so our team can approve it.");
+      }
 
       // Sent only after the backend record is confirmed created — if the
       // backend call above had failed instead, the catch block below deletes
@@ -110,6 +136,9 @@ const CustomerSignupPage = () => {
         console.error("Failed to send verification email:", verificationErr);
       }
 
+      // Load the just-created profile (and agent status) before the profile
+      // page's route guard checks it.
+      await auth?.refreshUser?.();
       navigate("/customer-profile");
     } catch (err) {
       const message =
@@ -118,9 +147,12 @@ const CustomerSignupPage = () => {
         "Signup failed. Please try again.";
       setError({ global: message });
 
-      const backendServerError = err.response?.status >= 500;
-      if (backendServerError && CustomerAuth.currentUser) {
-        try { await CustomerAuth.currentUser.delete(); } catch (e) { console.error(e); }
+      // The backend refused the signup (any status): remove the Firebase login
+      // created moments ago, so the same email can simply try again. Kept, it
+      // would block a retry ("email already in use") and a later login would
+      // make it a plain customer that can never become an agent.
+      if (err.response && createdUser) {
+        try { await createdUser.delete(); } catch (e) { console.error(e); }
       }
     } finally {
       setSubmitting(false);
@@ -133,9 +165,11 @@ const CustomerSignupPage = () => {
 
       <div className="auth-right">
         <div className="auth-card">
-          <h2>Create new account</h2>
+          <h2>{isAgent ? "Create agent account" : "Create new account"}</h2>
           <p className="subheading">
-            Sign up to compare projects, save favorites, and unlock deals.
+            {isAgent
+              ? "Sign up as a real estate agent. Our team verifies your RERA registration before you can post listings as an agent."
+              : "Sign up to compare projects, save favorites, and unlock deals."}
           </p>
 
           <form onSubmit={handleSubmit} className="signup-form" noValidate>
@@ -167,7 +201,7 @@ const CustomerSignupPage = () => {
 
             {/* Row 2: Phone (full width) */}
             <div className="form-group full">
-              <label htmlFor="customerPhone">Phone Number</label>
+              <label htmlFor="customerPhone">WhatsApp Number</label>
               <div className="phone-input-wrapper">
                 <span className="country-code">+91</span>
                 <input
@@ -177,10 +211,40 @@ const CustomerSignupPage = () => {
                   onChange={handleChange}
                   maxLength={10}
                   autoComplete="tel"
+                  aria-describedby="customerPhone-hint"
                 />
               </div>
-              {error.customerPhone && <p className="error">{error.customerPhone}</p>}
+              {error.customerPhone
+                ? <p className="error">{error.customerPhone}</p>
+                : <p className="auth-field-hint" id="customerPhone-hint">Buyers will contact you on this number.</p>}
             </div>
+
+            {isAgent && (
+              <>
+                <div className="form-group">
+                  <label htmlFor="agencyName">Agency Name</label>
+                  <input
+                    name="agencyName" id="agencyName"
+                    placeholder="Your agency or firm"
+                    value={form.agencyName}
+                    onChange={handleChange}
+                    autoComplete="organization"
+                  />
+                  {error.agencyName && <p className="error">{error.agencyName}</p>}
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="reraAgentId">RERA Agent Registration No.</label>
+                  <input
+                    name="reraAgentId" id="reraAgentId"
+                    placeholder="e.g. A51800012345"
+                    value={form.reraAgentId}
+                    onChange={handleChange}
+                  />
+                  {error.reraAgentId && <p className="error">{error.reraAgentId}</p>}
+                </div>
+              </>
+            )}
 
             {/* Row 3: Password + Confirm side by side */}
             <div className="form-group">
@@ -249,7 +313,7 @@ const CustomerSignupPage = () => {
 
             <p className="login-redirect">
               Already have an account?{" "}
-              <span onClick={() => navigate("/customer-login")}>Login</span>
+              <span onClick={() => navigate(isAgent ? "/agent-login" : "/customer-login")}>Login</span>
             </p>
 
           </form>

@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import "./PropertyCardSmall.css";
 import { useCompare } from "../../../contexts/CompareContext";
+import { posterOf, POSTER, POSTER_LABELS } from "../../../constants/roles";
 import { formatCurrencyShort } from "../../../utils/formatters";
-import { getPropertyImage, fallbackImg } from "../../../utils/propertyHelpers";
+import { getOptimizedPropertyImage, fallbackImg } from "../../../utils/propertyHelpers";
 
 // disableNavigation — pass true when the parent (e.g. ExpandableSearch) owns
 // routing.  This prevents the card's own navigate() from firing alongside the
@@ -20,7 +21,8 @@ const PropertyCardSmall = ({ property, disableNavigation = false }) => {
   const { addToCompare } = useCompare();
   const navigate = useNavigate();
 
-  const imageUrl = getPropertyImage(property);
+  // Sized for the 100×80 desktop slot and the full-width 120px mobile one.
+  const imageUrl = getOptimizedPropertyImage(property, { width: 400, height: 240 });
 
   const handleCardClick = () => {
     if (!disableNavigation) {
@@ -68,7 +70,9 @@ const PropertyCardSmall = ({ property, disableNavigation = false }) => {
               {property?.propertyType || "Apartment NA"} |{" "}
             </span>
             <span className="span_developerName">
-              by {property?.developerName || "Developer NA"}
+              {posterOf(property) === POSTER.BUILDER && property?.developerName
+                ? `by ${property.developerName}`
+                : `Posted by ${POSTER_LABELS[posterOf(property)]}`}
             </span>
           </p>
         </div>

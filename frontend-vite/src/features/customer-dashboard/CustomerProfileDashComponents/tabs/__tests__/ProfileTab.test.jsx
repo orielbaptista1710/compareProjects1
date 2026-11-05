@@ -171,3 +171,24 @@ describe("ProfileTab — resend verification email", () => {
     expect(sendEmailVerification).not.toHaveBeenCalled();
   });
 });
+
+describe("ProfileTab — account type", () => {
+  it.each([
+    [undefined, "Customer"],
+    [{ status: "none" }, "Customer"],
+    [{ status: "pending" }, "Agent — pending approval"],
+    [{ status: "approved" }, "Agent"],
+    [{ status: "suspended" }, "Agent account suspended"],
+  ])("agent %j shows %s", (agent, title) => {
+    renderWithUser({ customerName: "Ravi", agent });
+
+    expect(screen.getByText(title)).toBeInTheDocument();
+  });
+
+  it("shows the admin's reason when the agent application was rejected", () => {
+    renderWithUser({ customerName: "Ravi", agent: { status: "rejected", rejectionReason: "RERA id not found" } });
+
+    expect(screen.getByText("Agent application not approved")).toBeInTheDocument();
+    expect(screen.getByText("RERA id not found")).toBeInTheDocument();
+  });
+});

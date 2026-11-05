@@ -1,7 +1,7 @@
 // /SellPropertyFormComponents/property-form/PropertyInformationSection.jsx
 // Developer name, title, short + long description.
 import React from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 const DESCRIPTION_MAX = 500;
 const LONG_DESC_MAX = 5000;
@@ -9,12 +9,13 @@ const LONG_DESC_MAX = 5000;
 const PropertyInformationSection = () => {
   const {
     register,
-    watch,
+    control,
     formState: { errors },
   } = useFormContext();
 
-  const descLen = (watch("description") || "").length;
-  const longDescLen = (watch("long_description") || "").length;
+  // useWatch (not watch) so typing re-renders only this section, not the form
+  const descLen = (useWatch({ control, name: "description" }) || "").length;
+  const longDescLen = (useWatch({ control, name: "long_description" }) || "").length;
 
   return (
     <section aria-labelledby="info-section-title" className="form-section">

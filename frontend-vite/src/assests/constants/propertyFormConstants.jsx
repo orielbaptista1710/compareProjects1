@@ -1,4 +1,11 @@
-// constants/propertyFormConstants.js
+// constants/propertyFormConstants.jsx
+//
+// Must stay .jsx: the icon entries are JSX elements (<Building size={16} />),
+// and Vite only compiles JSX in .jsx files — as .js, every page importing this
+// crashes with "Unexpected token '<'".
+// The react-refresh rule below is about dev hot-reload of component files; it
+// doesn't apply to a constants module, so it's switched off for this file.
+/* eslint-disable react-refresh/only-export-components */
 
 import {
   Sofa,

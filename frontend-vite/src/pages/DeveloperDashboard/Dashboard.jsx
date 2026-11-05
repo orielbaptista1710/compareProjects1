@@ -1,7 +1,7 @@
 // Developer Dashboard
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import './Dashboard.css';
 import SellPropertyForm from '../../features/developer-dashboard/property-form/SellPropertyForm';
 import DeveloperSupport from "../../features/developer-dashboard/components/DeveloperSupport/DeveloperSupport";
@@ -11,7 +11,7 @@ import DevPropertyList from '../../features/developer-dashboard/components/DevPr
 import '../../features/developer-dashboard/components/DevPropertyList/DevPropertyList.css';
 
 import toast from 'react-hot-toast';
-import toastError from '../../utils/toastError';
+import useMyListings, { DEVELOPER_LISTING_ENDPOINTS } from '../../features/listings/hooks/useMyListings';
 
 import {
   initialFormData,
@@ -38,21 +38,17 @@ const Dashboard = () => {
     } catch (err) {
       console.error('Logout failed:', err);
     } finally {
-      localStorage.removeItem('user');
       queryClient.clear();
       navigate('/login');
     }
   }, [navigate, queryClient]);
 
-  // Fetch Current User
+  // Fetch Current User (a 401 is handled by api.js's interceptor + the redirect below)
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['current-user'],
     queryFn: async () => {
       const res = await API.get('/api/auth/me');
       return res.data.user;
-    },
-    onError: (error) => {
-      if (error.response?.status === 401) handleLogout();
     },
   });
 
@@ -60,46 +56,16 @@ const Dashboard = () => {
     if (!userLoading && !user) navigate('/login');
   }, [user, userLoading, navigate]);
 
-  // Fetch Developer Properties
-  const { data: properties = [], isLoading, isError } = useQuery({
-    queryKey: ['my-properties'],
-    queryFn: async () => {
-      const res = await API.get('/api/properties/my-properties');
-      return res.data;
-    },
-  });
-
-  // Add Property
-  const { mutate: addProperty, isPending: isAdding } = useMutation({
-    mutationFn: (newProperty) => API.post('/api/properties/add', newProperty),
-    onSuccess: () => {
-      toast.success('Property submitted successfully!');
-      queryClient.invalidateQueries(['my-properties']);
+  // Listings + add/update/delete, shared with the customer "My listings" tab
+  const {
+    properties, isLoading, isError,
+    addProperty, isAdding, updateProperty, isUpdating, deleteProperty,
+  } = useMyListings(DEVELOPER_LISTING_ENDPOINTS, {
+    onSaved: () => {
       setFormData(initialFormData);
       setActiveTab('properties');
       setEditingId(null);
     },
-    onError: (err) => toastError(err, 'Failed to add property'),
-  });
-
-  // Update Property
-  const { mutate: updateProperty, isPending: isUpdating } = useMutation({
-    mutationFn: ({ id, data }) => API.put(`/api/properties/update/${id}`, data),
-    onSuccess: () => {
-      toast.success('Property updated successfully');
-      queryClient.invalidateQueries({ queryKey: ['my-properties'] });
-      setActiveTab('properties');
-      setEditingId(null);
-      setFormData(initialFormData);
-    },
-    onError: (err) => toastError(err, 'Failed to update property'),
-  });
-
-  // Delete Property
-  const { mutate: deleteProperty } = useMutation({
-    mutationFn: (id) => API.delete(`/api/properties/delete/${id}`),
-    onSuccess: () => toast.success('Property deleted'),
-    onError: (err) => toastError(err, 'Failed to delete property'),
   });
 
   const handleDelete = (id) => {

@@ -6,6 +6,7 @@ import protect from '../middleware/protect.js';
 import isAdmin from '../middleware/isAdmin.js';
 import { adminActionLimiter } from '../middleware/rateLimiters.js';
 import * as adminController from '../controllers/adminController.js';
+import * as agentAdminController from '../controllers/agentAdminController.js';
 
 router.use(adminActionLimiter);
 
@@ -27,5 +28,9 @@ router.put('/reject/:id', protect, isAdmin, adminController.rejectProperty);   /
 // PUT /api/admin/bulk-approve, /bulk-reject - checkbox bulk actions in AdminDashboard
 router.put('/bulk-approve', protect, isAdmin, adminController.bulkApproveProperties);
 router.put('/bulk-reject', protect, isAdmin, adminController.bulkRejectProperties);
+
+// Agent applications: list by status, then approve / reject / suspend
+router.get('/agents', protect, isAdmin, agentAdminController.getAgents);
+router.put('/agents/:id/:action', protect, isAdmin, agentAdminController.reviewAgent);
 
 export default router;

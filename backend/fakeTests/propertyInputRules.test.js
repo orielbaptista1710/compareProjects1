@@ -45,7 +45,7 @@ const FORGED = {
   featured: true,
   status: "approved",
   ownerPhone: "9999999999",
-  brokerEmail: "broker@example.com",
+  agentEmail: "agent@example.com",
   sourceUrl: "https://elsewhere.example",
   dataSource: "scraper",
 };
@@ -65,7 +65,7 @@ function expectNotForged(saved) {
   expect(saved.featured).toBe(false);
   expect(saved.status).toBe("pending");
   expect(saved.ownerPhone).toBeUndefined();
-  expect(saved.brokerEmail).toBeUndefined();
+  expect(saved.agentEmail).toBeUndefined();
   expect(saved.sourceUrl).toBeUndefined();
   expect(saved.dataSource).toBe("manual");
 }

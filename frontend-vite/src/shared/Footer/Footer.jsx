@@ -30,6 +30,7 @@ const COMPANY_LINKS = [
   { label: "For Buyers",       href: "/buyer" },
   { label: "For Developers",   href: "/developer" },
   { label: "Contact",          href: "/#contact" },
+  { label: "Developer login",  href: "/login" },
 ];
 
 const EXPLORE_LINKS = [

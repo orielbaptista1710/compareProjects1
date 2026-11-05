@@ -85,14 +85,7 @@ const MultiCheckboxGroup = React.memo(({ name, options }) => {
 });
 
 // ── Main Section ───────────────────────────────────────────────────────────────
-const RESIDENTIAL_TYPES = ["Flats/Apartments", "Villa", "Plot"];
-const COMMERCIAL_TYPES  = ["Shop/Showroom", "Industrial Warehouse/Godown", "Office Space","Commercial Land", "Industrial Building" ];
-
-const typeToGroupMap = Object.fromEntries([
-  ...RESIDENTIAL_TYPES.map((t) => [t, "Residential"]),
-  ...COMMERCIAL_TYPES.map((t) => [t, "Commercial"]),
-]);
-
+// propertyGroup (Residential/Commercial) is derived server-side from propertyType.
 const PropertyDetailsSection = () => {
   const {
     register,
@@ -105,10 +98,6 @@ const PropertyDetailsSection = () => {
 
   const handleTypeSelect = (label) => {
     setValue("propertyType", label, { shouldValidate: true });
-    // propertyGroup is derived server-side but we send it for convenience
-    if (typeToGroupMap[label]) {
-      setValue("propertyGroup", typeToGroupMap[label], { shouldValidate: false });
-    }
   };
 
   return (

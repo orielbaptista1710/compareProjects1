@@ -1,31 +1,24 @@
 //frontend-vite\src\pages\Home\HomePageComponents\PostPropertyBanner.jsx
-import React, { useState, useCallback } from "react";
+import React, { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import GradientBanner from "./GradientBanner";
-import DeveloperPopup from "../../../shared/Popups/DeveloperPopup";
-import { useEscapeKey } from "../../../hooks/useEscapeKey";
 
+// Same entry as the header's POST PROPERTY: owners, agents and developers
+// choose their path on /post-property (developers still get the partner form).
 const PostPropertyBanner = () => {
-  const [showPopup, setShowPopup] = useState(false);
-
-  const openPopup = useCallback(() => setShowPopup(true), []);
-  const closePopup = useCallback(() => setShowPopup(false), []);
-
-  useEscapeKey(showPopup, closePopup);
+  const navigate = useNavigate();
+  const goToPostProperty = useCallback(() => navigate("/post-property"), [navigate]);
 
   return (
-    <>
-      <GradientBanner
-        id="post-property-banner"
-        ariaLabelledBy="post-property-heading"
-        title="Looking to Post Your Property?"
-        subtitle="Join our network of trusted developers and reach thousands of buyers."
-        buttonText="Contact Us"
-        onButtonClick={openPopup}
-        backgroundImage="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
-      />
-
-      <DeveloperPopup isOpen={showPopup} onClose={closePopup} />
-    </>
+    <GradientBanner
+      id="post-property-banner"
+      ariaLabelledBy="post-property-heading"
+      title="Looking to Post Your Property?"
+      subtitle="Owners, agents and developers: list with us and reach thousands of buyers."
+      buttonText="Post property"
+      onButtonClick={goToPostProperty}
+      backgroundImage="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+    />
   );
 };
 

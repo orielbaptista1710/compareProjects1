@@ -35,6 +35,7 @@ import Footer from './shared/Footer/Footer';
 import NavigationBar from './shared/NavigationBar/NavigationBar';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedCustomerRoute from "./components/ProtectedCustomerRoute";
+import { DEVELOPER_ROLES } from "./constants/roles";
 
 import ErrorBoundary from './shared/ErrorBoundary/ErrorBoundary';
 
@@ -58,7 +59,8 @@ const ErrorPage = lazy(() => import("./pages/ErrorPage"));
 const LoginPage = lazy(() => import('./pages/Auth/DeveloperAdminAuth/LoginPage'));
 const CustomerSignupPage = lazy(() => import('./pages/Auth/CustomerAuth/CustomerSignupPage'));
 const CustomerLoginPage = lazy(() => import('./pages/Auth/CustomerAuth/CustomerLoginPage'));
-const CustomerProfilePage = lazy(() => import('./pages/CustomerProfileDashboard/CustomerProfilePage')); 
+const CustomerProfilePage = lazy(() => import('./pages/CustomerProfileDashboard/CustomerProfilePage'));
+const PostProperty = lazy(() => import('./pages/PostProperty/PostProperty'));
 const Dashboard = lazy(() => import('./pages/DeveloperDashboard/Dashboard'));
 const AdminDashboard = lazy(() => import('./pages/Admin/AdminDashboard'));
 
@@ -161,10 +163,16 @@ const showBreadcrumbs = !hideBreadcrumbRoutes.some((path) =>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/customer-signup" element={<CustomerSignupPage />} />
         <Route path="/customer-login" element={<CustomerLoginPage />} />
+        {/* Agents use the same Firebase account as customers; these only change wording + signup fields */}
+        <Route path="/agent-signup" element={<CustomerSignupPage isAgent />} />
+        <Route path="/agent-login" element={<CustomerLoginPage isAgent />} />
+        {/* Entry for posting (header POST PROPERTY). Always on: agents can sign up
+            and developers can enquire even before customer listings open. */}
+        <Route path="/post-property" element={<PostProperty />} />
         
         {/*  Protected  */}
         <Route path="/dashboard" element={
-          <ProtectedRoute roles={['user']}>
+          <ProtectedRoute roles={DEVELOPER_ROLES}>
             <Dashboard />
           </ProtectedRoute>
         } />

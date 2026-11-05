@@ -15,6 +15,7 @@ import { safeErrorMeta } from './utils/safeError.js';
 import errorHandler from './middleware/errorMiddleware.js';
 
 import customerRoutes from './routes/customerRoutes.js';
+import customerListingRoutes from './routes/customerListingRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import propertyRoutes from './routes/propertyRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
@@ -26,7 +27,7 @@ import crmRoutes from './routes/crmRoutes.js';
 
 import newsRoutes from "./routes/newsRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
-// import passwordResetRequestRoutes from './routes/passwordResetRequestRoutes.js';
+import passwordResetRequestRoutes from './routes/passwordResetRequestRoutes.js';
 
 import prisma from "./config/prisma.js";
 
@@ -60,6 +61,11 @@ app.get('/api/health', (req, res) => {
 });
 
 // Routes
+// Owner/agent posting, behind a flag until the role migration has run and
+// the customer "My listings" UI is ready (see backend/.env.example).
+if (process.env.ENABLE_CUSTOMER_LISTINGS === 'true') {
+  app.use('/api/customers/listings', customerListingRoutes);
+}
 app.use('/api/customers', customerRoutes); 
 app.use('/api/auth', authRoutes);          
 app.use('/api/properties', propertyRoutes);
@@ -72,7 +78,7 @@ app.use('/api/crm', crmRoutes);
 
 app.use('/api/news', newsRoutes);
 app.use("/api/locations", locationRoutes);
-// app.use('/api/password-reset-requests', passwordResetRequestRoutes);
+app.use('/api/password-reset-requests', passwordResetRequestRoutes); // developer/admin "forgot password" popup
 
 
 // TEST ROUTES
@@ -123,7 +129,7 @@ const connectDB = async () => {
     logger.info("Main DB connected ✅");
     return conn;
   } catch (error) {
-    logger.error("MongoDB error ❌", error.message);
+    logger.error("MongoDB error ❌", safeErrorMeta(error));
     process.exit(1);
   }
 };

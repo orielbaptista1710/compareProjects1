@@ -43,13 +43,15 @@ function makeUserCredential(overrides = {}) {
   };
 }
 
+// delay: null types instantly — seven fields typed key by key ran past the
+// 5s test timeout when the whole suite runs in parallel.
 async function fillAndSubmit() {
-  const user = userEvent.setup();
+  const user = userEvent.setup({ delay: null });
   render(<CustomerSignupPage />);
 
   await user.type(screen.getByLabelText("Full Name"), "Momotaro");
   await user.type(screen.getByLabelText("Email Address"), "momo@example.com");
-  await user.type(screen.getByLabelText("Phone Number"), "9876543210");
+  await user.type(screen.getByLabelText("WhatsApp Number"), "9876543210");
   // Strong enough to pass validate()'s strength.score >= 3 check:
   // length >= 8, an uppercase letter, a number, a special character.
   await user.type(screen.getByLabelText("Password"), "Passw0rd!");
@@ -115,5 +117,91 @@ describe("CustomerSignupPage — email verification wiring", () => {
 
     expect(sendEmailVerification).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
+  });
+});
+
+describe("CustomerSignupPage — agent variant (/agent-signup)", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  async function fillAgentAndSubmit({ agencyName = "Prime Realty", reraAgentId = "A51800012345" } = {}) {
+    const user = userEvent.setup({ delay: null });
+    render(<CustomerSignupPage isAgent />);
+
+    await user.type(screen.getByLabelText("Full Name"), "Ravi");
+    await user.type(screen.getByLabelText("Email Address"), "ravi@example.com");
+    await user.type(screen.getByLabelText("WhatsApp Number"), "9876543210");
+    if (agencyName) await user.type(screen.getByLabelText("Agency Name"), agencyName);
+    if (reraAgentId) await user.type(screen.getByLabelText("RERA Agent Registration No."), reraAgentId);
+    await user.type(screen.getByLabelText("Password"), "Passw0rd!");
+    await user.type(screen.getByLabelText("Confirm Password"), "Passw0rd!");
+    await user.click(screen.getByRole("button", { name: /sign up/i }));
+  }
+
+  it("sends the agent application inside the signup call (one request), then navigates", async () => {
+    createUserWithEmailAndPassword.mockResolvedValue(makeUserCredential());
+    API.post.mockResolvedValue({ data: {} });
+    sendEmailVerification.mockResolvedValue(undefined);
+
+    await fillAgentAndSubmit();
+
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/customer-profile"));
+    expect(API.post).toHaveBeenCalledTimes(1);
+    expect(API.post).toHaveBeenCalledWith(
+      "/api/customers/firebase-signup",
+      expect.objectContaining({
+        agentApplication: { agencyName: "Prime Realty", reraAgentId: "A51800012345" },
+      })
+    );
+    expect(toast.success).toHaveBeenCalledWith(expect.stringMatching(/agent application submitted/i));
+  });
+
+  it("a plain customer signup sends no agent application", async () => {
+    createUserWithEmailAndPassword.mockResolvedValue(makeUserCredential());
+    API.post.mockResolvedValue({ data: { customer: {} } });
+    sendEmailVerification.mockResolvedValue(undefined);
+
+    await fillAndSubmit();
+
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith("/customer-profile"));
+    expect(API.post.mock.calls[0][1]).not.toHaveProperty("agentApplication");
+  });
+
+  it("requires the agency name and RERA number before creating anything", async () => {
+    await fillAgentAndSubmit({ agencyName: "", reraAgentId: "" });
+
+    expect(screen.getByText("Enter your agency name")).toBeInTheDocument();
+    expect(screen.getByText("Enter your RERA agent registration number")).toBeInTheDocument();
+    expect(createUserWithEmailAndPassword).not.toHaveBeenCalled();
+  });
+
+  it.each([400, 409])(
+    "on a %s from the backend: shows its message, stays on the page and removes the new Firebase login",
+    async (status) => {
+      const credential = makeUserCredential();
+      createUserWithEmailAndPassword.mockResolvedValue(credential);
+      API.post.mockRejectedValue({ response: { status, data: { message: "Agency name is too short." } } });
+
+      await fillAgentAndSubmit();
+
+      await waitFor(() => expect(screen.getByText("Agency name is too short.")).toBeInTheDocument());
+      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(sendEmailVerification).not.toHaveBeenCalled();
+      // Otherwise the email is stuck: a retry says "already in use", and a
+      // login would turn it into a customer account that can't become an agent.
+      await waitFor(() => expect(credential.user.delete).toHaveBeenCalledTimes(1));
+    }
+  );
+
+  it("keeps the Firebase login when the failure isn't a backend answer (e.g. offline)", async () => {
+    const credential = makeUserCredential();
+    createUserWithEmailAndPassword.mockResolvedValue(credential);
+    API.post.mockRejectedValue(new Error("Network Error"));
+
+    await fillAgentAndSubmit();
+
+    await waitFor(() => expect(screen.getByText(/signup failed/i)).toBeInTheDocument());
+    expect(credential.user.delete).not.toHaveBeenCalled();
   });
 });

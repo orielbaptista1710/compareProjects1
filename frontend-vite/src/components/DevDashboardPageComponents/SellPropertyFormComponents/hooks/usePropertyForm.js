@@ -1,42 +1,99 @@
 // hooks/usePropertyForm.js
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useJsApiLoader } from "@react-google-maps/api";
+import toast from "react-hot-toast";
 import { propertySchema, defaultPropertyValues } from "../propertySchema";
 
-// Must be outside the hook — stable reference prevents Maps SDK re-init on every render
-const MAPS_LIBRARIES = ["places"];
+// Count fields are stored as numbers but the radio pills are strings with a
+// "+" bucket at the top, so in edit mode 3 → "3" and 6 → "5+".
+const COUNT_CAPS = { bhk: 5, bathrooms: 5, balconies: 4 };
 
-export const usePropertyForm = ({ formData = {}, onSubmit }) => {
+const toPillValue = (val, cap) => {
+  if (val == null || val === "") return "";
+  const n = Number(val);
+  if (Number.isNaN(n)) return String(val);
+  return n >= cap ? `${cap}+` : String(n);
+};
+
+// Shapes Dashboard's formData (a saved property in edit mode, or the empty
+// baseline) into the values the form inputs expect.
+const toFormValues = (formData = {}) => {
+  const values = { ...defaultPropertyValues, ...formData };
+  for (const [field, cap] of Object.entries(COUNT_CAPS)) {
+    values[field] = toPillValue(values[field], cap);
+  }
+  // <input type="date"> only accepts YYYY-MM-DD; the API returns a full ISO string
+  values.reraDate = values.reraDate ? String(values.reraDate).slice(0, 10) : "";
+  // The backend treats "has a RERA number" as RERA approved, but older docs can
+  // have a number with the flag false. Tick the box so saving doesn't wipe it.
+  values.reraApproved = Boolean(values.reraApproved || values.reraNumber);
+  if (formData.coordinates) {
+    values.lat = formData.coordinates.lat;
+    values.lng = formData.coordinates.lng;
+  }
+  return values;
+};
+
+const coordinatesFrom = (formData = {}) =>
+  formData.coordinates
+    ? { lat: formData.coordinates.lat, lng: formData.coordinates.lng }
+    : null;
+
+const parseCount = (val) => {
+  if (val == null || val === "") return undefined;
+  const n = parseInt(val, 10); // parseInt("5+") → 5, parseInt("1") → 1
+  return Number.isNaN(n) ? undefined : n;
+};
+
+// "5th Floor" → 5, "Ground" → 0, anything else unparseable → undefined
+const parseFloor = (val) => {
+  if (!val) return undefined;
+  if (/^\s*ground/i.test(val)) return 0;
+  return parseCount(val);
+};
+
+// RHF errors are nested ({ area: { value: {...} } }) — flatten to "area.value"
+const errorPaths = (errors, prefix = "") =>
+  Object.entries(errors).flatMap(([key, val]) => {
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (val?.message) return [path];
+    return val && typeof val === "object" ? errorPaths(val, path) : [];
+  });
+
+export const usePropertyForm = ({ formData = {}, onSubmit, editingId = null }) => {
   const autocompleteRef = useRef(null);
+  const formRef = useRef(null);
 
   // Initialise map pin from edit-mode data if available
-  const [coordinates, setCoordinates] = useState(
-    formData.coordinates
-      ? { lat: formData.coordinates.lat, lng: formData.coordinates.lng }
-      : null
-  );
-  const [geocodeError, setGeocodeError] = useState(null);
-  const [isGeocoding,  setIsGeocoding]  = useState(false);
+  const [coordinates, setCoordinates] = useState(() => coordinatesFrom(formData));
 
-  // ── Form init ──────────────────────────────────────────────────────────────
-  // defaultValues merges our baseline + any edit-mode data from Dashboard.
-  // IMPORTANT: formData comes from normalizePropertyData() which uses initialFormData
-  // as its base — both use nested area: { value, unit } shape.
   const methods = useForm({
     resolver: zodResolver(propertySchema),
-    defaultValues: { ...defaultPropertyValues, ...formData },
+    defaultValues: toFormValues(formData),
     mode: "onTouched", // validate on blur, not every keystroke
   });
 
-  const { setValue, handleSubmit } = methods;
+  const { setValue, handleSubmit, reset } = methods;
 
-  // ── Maps SDK ───────────────────────────────────────────────────────────────
-  const { isLoaded: isMapsLoaded, loadError: mapsLoadError } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries: MAPS_LIBRARIES,
-  });
+  // ── Re-sync when switching between add and edit ───────────────────────────
+  // useForm only reads defaultValues on mount. Cancel Edit keeps this component
+  // mounted, so without this the old listing stays in the fields and the next
+  // submit creates a duplicate. Keyed on editingId (not formData) so a parent
+  // re-render can't wipe what the user is typing.
+  const formDataRef = useRef(formData);
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    reset(toFormValues(formDataRef.current));
+    setCoordinates(coordinatesFrom(formDataRef.current));
+  }, [editingId, reset]);
 
   // ── Coordinate sync: state + RHF ──────────────────────────────────────────
   const applyCoordinates = useCallback(
@@ -74,59 +131,35 @@ export const usePropertyForm = ({ formData = {}, onSubmit }) => {
 
   const handlePlaceChanged = useCallback(() => {
     const place = autocompleteRef.current?.getPlace();
-    if (!place?.geometry?.location) {
-      console.warn("[Maps] No geometry for selected place");
-      return;
-    }
+    if (!place?.geometry?.location) return;
     applyCoordinates(place.geometry.location.lat(), place.geometry.location.lng());
     applyAddressComponents(place);
   }, [applyCoordinates, applyAddressComponents]);
 
-  // ── Map click → reverse geocode via backend proxy ─────────────────────────
-  // Backend route needed: GET /api/geocode/reverse?lat=XX&lng=YY
-  // Returns: { place: { formatted_address, address_components } }
+  // ── Map click → move the pin ──────────────────────────────────────────────
+  // Address autofill comes from the search box above the map. Reverse
+  // geocoding on click needs a backend /api/geocode route, which isn't
+  // mounted yet — add it here once it is.
   const handleMapClick = useCallback(
-    async (e) => {
-      const lat = e.latLng.lat();
-      const lng = e.latLng.lng();
-      applyCoordinates(lat, lng);
-      setIsGeocoding(true);
-      setGeocodeError(null);
-      try {
-        const res = await fetch(`/api/geocode/reverse?lat=${lat}&lng=${lng}`, {
-          credentials: "include",
-        });
-        if (!res.ok) throw new Error("Geocode request failed");
-        const data = await res.json();
-        if (data.place) applyAddressComponents(data.place);
-      } catch (err) {
-        console.error("[Geocode]", err);
-        setGeocodeError("Could not auto-fill address. Please fill manually.");
-      } finally {
-        setIsGeocoding(false);
-      }
-    },
-    [applyCoordinates, applyAddressComponents]
+    (e) => applyCoordinates(e.latLng.lat(), e.latLng.lng()),
+    [applyCoordinates]
   );
-
-
-  const parseCount = (val) => {
-          if (val == null || val === '') return undefined;
-          const n = parseInt(val, 10);  // parseInt("5+") → 5, parseInt("1") → 1
-          return isNaN(n) ? undefined : n;
-        };
-
-  
 
   // ── Submit: valid path ─────────────────────────────────────────────────────
   // Only runs when ALL Zod validations pass.
   // Transforms the Zod-validated data into the exact shape the backend expects.
   const onFormSubmit = useCallback(
     (data) => {
-      if (import.meta.env.DEV) {
-        console.log("[Form] Yass Zod passed — raw validated data:", data);
-      }
- 
+      // "5+" alone can't say whether the listing has 5 or 7 BHK. If the pill
+      // still shows the saved value's bucket, keep the saved number.
+      const countFor = (field, value) => {
+        const saved = formDataRef.current?.[field];
+        if (saved != null && saved !== "" && toPillValue(saved, COUNT_CAPS[field]) === value) {
+          return Number(saved);
+        }
+        return parseCount(value);
+      };
+
       const payload = {
         ...data,
 
@@ -147,50 +180,25 @@ export const usePropertyForm = ({ formData = {}, onSubmit }) => {
             ? { lat: Number(data.lat), lng: Number(data.lng) }
             : undefined,
 
-        // bhk:        data.bhk        ? Number(data.bhk)        : undefined,
-        // bathrooms:  data.bathrooms  ? Number(data.bathrooms)  : undefined,
-        // balconies:  data.balconies != null ? Number(data.balconies) : undefined,
-
-        bhk:       parseCount(data.bhk),
-        bathrooms: parseCount(data.bathrooms),
-        balconies: parseCount(data.balconies),
-
-
+        bhk:       countFor("bhk", data.bhk),
+        bathrooms: countFor("bathrooms", data.bathrooms),
+        balconies: countFor("balconies", data.balconies),
 
         // ── Floor: Mongoose field is Number, form is text ──────────
-        // Try to parse a number from the string. "5th Floor" → 5. "Ground" → undefined.
-        floor: data.floor
-          ? parseInt(data.floor, 10) || undefined
-          : undefined,
+        floor: parseFloor(data.floor),
 
-        // ── Parkings: Mongoose field is String (single value) ──────
-        // Schema has parkings: { type: String } not [String].
-        // If user selected multiple, join them. Single → use as-is.
-        // TODO: change Mongoose parkings to [String] to properly support multi-select.
-        parkings: Array.isArray(data.parkings) && data.parkings.length
-          ? data.parkings.join(", ")
-          : undefined,
-
-        // ── reraDate: empty string or null → undefined ─────────────
-        reraDate: data.reraDate 
-          ? new Date(data.reraDate)
-          : undefined,
-
-
-        // ── Arrays: ensure always arrays ───────────────────────────
-        amenities:  Array.isArray(data.amenities)  ? data.amenities  : [],
-        facilities: Array.isArray(data.facilities) ? data.facilities : [],
-        security:   Array.isArray(data.security)   ? data.security   : [],
+        // ── RERA: the backend marks a listing RERA approved whenever it has a
+        // reraNumber, so unticking the box must clear the number too.
+        reraNumber: data.reraApproved ? data.reraNumber : "",
+        reraDate:   data.reraApproved && data.reraDate ? new Date(data.reraDate) : undefined,
 
         // ── Strip RHF-only flat fields ─────────────────────────────
         lat: undefined,
         lng: undefined,
-
       };
 
-      // WHAT DOES THIS DO???
-      if (import.meta.env.DEV) { 
-        console.log("[Form]  Payload sent to Dashboard:", payload);
+      if (import.meta.env.DEV) {
+        console.log("[Form] Payload sent to Dashboard:", payload);
       }
 
       onSubmit(payload);
@@ -199,34 +207,43 @@ export const usePropertyForm = ({ formData = {}, onSubmit }) => {
   );
 
   // ── Submit: invalid path ───────────────────────────────────────────────────
-  // RHF calls this when Zod validation FAILS.
-  // Logs every blocking field so you can diagnose silently-failing submissions.
+  // RHF calls this when Zod validation FAILS. Tell the user how many fields
+  // need fixing and bring the first one (in page order) into view — the pill
+  // and card inputs are visually hidden, so RHF's own focus isn't visible.
   const onInvalidSubmit = useCallback((errors) => {
-    console.group("[Form] ❌ Submission blocked — validation errors:");
-    const flatten = (obj, prefix = "") => {
-      Object.entries(obj).forEach(([key, val]) => {
-        const path = prefix ? `${prefix}.${key}` : key;
-        if (val?.message) {
-          console.error(`  ${path}: ${val.message}`);
-        } else if (typeof val === "object" && val !== null) {
-          flatten(val, path);
-        }
-      });
-    };
-    flatten(errors);
-    console.groupEnd();
+    const paths = errorPaths(errors);
+    if (import.meta.env.DEV) {
+      console.warn("[Form] Submission blocked — invalid fields:", paths);
+    }
+    toast.error(
+      paths.length === 1
+        ? "1 field needs your attention"
+        : `${paths.length} fields need your attention`
+    );
+
+    const invalid = new Set(paths);
+    const first = [...(formRef.current?.querySelectorAll("[name]") || [])]
+      .find((el) => invalid.has(el.name));
+    if (!first) return;
+
+    const target = first.closest(".form-col, .fieldset") || first;
+    target.scrollIntoView?.({ behavior: "smooth", block: "center" });
+    if (first.type !== "hidden") first.focus({ preventScroll: true });
   }, []);
+
+  // Built per submit event (not during render) — onInvalidSubmit reads formRef
+  const submit = useCallback(
+    (e) => handleSubmit(onFormSubmit, onInvalidSubmit)(e),
+    [handleSubmit, onFormSubmit, onInvalidSubmit]
+  );
 
   return {
     methods,
-    handleSubmit: handleSubmit(onFormSubmit, onInvalidSubmit),
-    isMapsLoaded,
-    mapsLoadError,
+    formRef,
+    handleSubmit: submit,
     autocompleteRef,
     coordinates,
     handlePlaceChanged,
     handleMapClick,
-    isGeocoding,
-    geocodeError,
   };
 };

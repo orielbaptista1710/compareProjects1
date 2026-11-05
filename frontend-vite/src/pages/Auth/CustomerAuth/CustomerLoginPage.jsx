@@ -1,8 +1,9 @@
 //frontend/src/pages/Auth/CustomerAuth/CustomerLoginPage.js
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react"; 
+import { Eye, EyeOff } from "lucide-react";
 import API from "../../../api/api";
+import { AuthContext } from "../../../contexts/AuthContext";
 
 import "./authStyles/auth-form.css";
 import "./authStyles/auth-layout.css";
@@ -10,7 +11,7 @@ import "./authStyles/auth-responsive.css";
 
 import AuthMarketingPanel from "./AuthMarketingPanel";
 
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "firebase/auth";
 import { CustomerAuth } from "../../../config/firebase";
 
 // ── Friendly Firebase error messages ──────────────────────────
@@ -24,7 +25,10 @@ const FIREBASE_ERRORS = {
   "auth/network-request-failed":  "Network error. Check your connection and try again.",
 };
 
-const CustomerLoginPage = () => {
+// isAgent: the /agent-login variant — same Firebase login (agents are customer
+// accounts with an approved agent application); only the wording and the
+// signup link differ.
+const CustomerLoginPage = ({ isAgent = false }) => {
   const [form, setForm] = useState({
     emailOrPhone:     "",
     customerPassword: "",
@@ -36,6 +40,8 @@ const CustomerLoginPage = () => {
   const [resetLoading, setResetLoading] = useState(false);
 
   const navigate = useNavigate();
+  // Optional: the page is also rendered without the provider in tests.
+  const auth = useContext(AuthContext);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -64,11 +70,27 @@ const CustomerLoginPage = () => {
     const idToken = await userCredential.user.getIdToken();
     await API.post("/api/customers/firebase-login", { token: idToken });
 
-    // No token to store — interceptor handles everything from here
+    // AuthContext's own /me check can run before firebase-login has created
+    // the Mongo record and come back 401; load the profile again now, before
+    // the profile page reads it. No token to store — the interceptor handles it.
+    await auth?.refreshUser?.();
     navigate("/customer-profile");
 
   } catch (err) {
-    console.error("Login error:", err);
+    // Code/status only: the axios error's config holds the Firebase ID token.
+    console.error("Login error:", err.code || err.response?.status || err.message);
+
+    // Firebase accepted the password but our backend refused (e.g. account
+    // suspended): show its reason and don't leave them half signed in.
+    if (err.response) {
+      try { await signOut(CustomerAuth); } catch { /* already signed out */ }
+      setError(
+        (err.response.status < 500 && err.response.data?.message) ||
+        "Login failed. Please try again."
+      );
+      return;
+    }
+
     setError(FIREBASE_ERRORS[err.code] || "Login failed. Please try again.");
   } finally {
     setLoading(false);
@@ -109,7 +131,7 @@ const CustomerLoginPage = () => {
       <div className="auth-right">
 
         <div className="auth-card">
-          <h2 className="auth-title">Customer Login</h2>
+          <h2 className="auth-title">{isAgent ? "Agent Login" : "Customer Login"}</h2>
           <p className="auth-subtitle">Access your account to continue</p>
 
           <form onSubmit={handleSubmit} className="auth-form" noValidate>
@@ -182,7 +204,7 @@ const CustomerLoginPage = () => {
 
             <p className="auth-redirect">
               Don't have an account?{" "}
-              <span onClick={() => navigate("/customer-signup")}>Sign up</span>
+              <span onClick={() => navigate(isAgent ? "/agent-signup" : "/customer-signup")}>Sign up</span>
             </p>
 
           </form>

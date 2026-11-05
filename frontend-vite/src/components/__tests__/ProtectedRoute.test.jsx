@@ -73,8 +73,10 @@ describe("ProtectedRoute", () => {
 
     renderProtectedRoute({ roles: ["admin"] });
 
+    // Exact match: "/dashboard" also contains "/", so a substring check passed
+    // before the redirect had happened and the toast check below then flaked.
     await waitFor(() =>
-      expect(screen.getByTestId("location")).toHaveTextContent("/")
+      expect(screen.getByTestId("location")).toHaveTextContent(/^\/$/)
     );
     expect(toast.error).toHaveBeenCalledWith(
       "You don't have permission to access that page."

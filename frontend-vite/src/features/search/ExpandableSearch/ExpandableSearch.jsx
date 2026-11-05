@@ -1,8 +1,9 @@
 // src/pages/Home/HomePageComponents/ExpandableSearch.jsx
-import React, { useState, 
-  useRef, 
+import React, { useState,
+  useRef, useMemo, useId,
   useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Send, Home } from "lucide-react";
 import PropertyCardSmall from "../Propertycardsmall/PropertyCardSmall";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
@@ -13,22 +14,34 @@ import API from "../../../api/api";
 import "./ExpandableSearch.css";
 
 const MemoizedPropertyCard = React.memo(PropertyCardSmall);
-const LISTBOX_ID = "search-results-listbox";
+const NO_RESULTS = [];
+const RATE_LIMIT_MESSAGE = "Too many searches — please wait a moment and try again.";
+
+// react-query passes an AbortSignal and cancels the request when the query
+// key changes, so a slow response for an older query is simply dropped.
+const fetchSearchResults = async ({ queryKey: [, query], signal }) => {
+  const { data } = await API.get(
+    `/api/properties/search?query=${encodeURIComponent(query)}&limit=3`,
+    { signal }
+  );
+  return Array.isArray(data)
+    ? { results: data, fuzzy: false }
+    : { results: data.properties || [], fuzzy: Boolean(data.fuzzy) };
+};
 
 const ExpandableSearch = () => {
   const navigate = useNavigate();
+  const idPrefix = useId();
+  const listboxId = `${idPrefix}-listbox`;
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const [isFuzzy, setIsFuzzy] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
   const [prevDebouncedQuery, setPrevDebouncedQuery] = useState("");
 
-  // const inputRef = useRef(null);
   const wrapperRef = useRef(null);
-  const abortRef = useRef(null);
+  // Stable array so useOutsideClick doesn't re-subscribe on every render.
+  const outsideClickRefs = useMemo(() => [wrapperRef], []);
 
   const debouncedQuery = useDebounce(query, 350);
 
@@ -40,76 +53,55 @@ const ExpandableSearch = () => {
   const trimmedQuery = debouncedQuery.trim();
   const trimmedRawQuery = query.trim();
 
-  // FIX: previously "loading" and "show dropdown" were both derived only from
-  // debouncedQuery, so for ~350ms after every keystroke the dropdown kept
-  // showing the *previous* query's results/no-results state as if it matched
-  // what's currently typed. isPendingDebounce catches that window.
+  const { data, error: queryError, isFetching, refetch } = useQuery({
+    queryKey: ["property-search", trimmedQuery],
+    queryFn: fetchSearchResults,
+    enabled: trimmedQuery.length >= 2,
+    staleTime: 60_000,
+    // No automatic retries: retrying a 429 only hits the limit again, and the
+    // user can retry with Enter (see handleSubmit).
+    retry: false,
+  });
+
+  const results = data?.results ?? NO_RESULTS;
+  const isFuzzy = Boolean(data?.fuzzy);
+  const error = queryError
+    ? queryError.response?.status === 429 ? RATE_LIMIT_MESSAGE : "Unable to fetch results"
+    : "";
+
+  // Busy while the debounce hasn't caught up with the input, or while the
+  // debounced query is being fetched.
   const isPendingDebounce = trimmedRawQuery !== trimmedQuery;
-  const isBusy = isLoading || (isPendingDebounce && trimmedRawQuery.length >= 2);
+  const isBusy =
+    trimmedRawQuery.length >= 2 &&
+    (isPendingDebounce || (trimmedQuery.length >= 2 && isFetching));
 
   // Gate visibility off the raw query length too, so clearing the input
   // hides the dropdown immediately instead of waiting for the debounce.
-  const shouldShowDropdown =
-    trimmedRawQuery.length >= 2 && (isBusy || error || results.length > 0);
+  const shouldShowDropdown = isOpen && trimmedRawQuery.length >= 2;
 
-  const closeSearch = useCallback(() => {
-    // FIX: abort any in-flight request before clearing state, so a late
-    // response can't repopulate results/reopen the dropdown after close.
-    abortRef.current?.abort();
-    setResults([]);
-    setError("");
-    setQuery("");
+  // Closing only hides the dropdown — the typed text stays, so a stray tap
+  // (or the start of a scroll on mobile) doesn't wipe what the user wrote.
+  const closeDropdown = useCallback(() => {
+    setIsOpen(false);
+    setHighlightIndex(-1);
   }, []);
 
-  useOutsideClick(shouldShowDropdown, [wrapperRef], closeSearch);
-  useEscapeKey(shouldShowDropdown, closeSearch);
+  useOutsideClick(shouldShowDropdown, outsideClickRefs, closeDropdown);
+  useEscapeKey(shouldShowDropdown, closeDropdown);
 
+  // Keep the keyboard-highlighted result visible in a scrolling dropdown.
   useEffect(() => {
-    if (trimmedQuery.length < 2) {
-      abortRef.current?.abort();
-      return;
-    }
-
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    (async () => {
-      try {
-        setIsLoading(true);
-        setError("");
-
-        const { data } = await API.get(
-          `/api/properties/search?query=${encodeURIComponent(trimmedQuery)}&limit=3`,
-          { signal: controller.signal }
-        );
-
-        if (Array.isArray(data)) {
-          setResults(data);
-          setIsFuzzy(false);
-        } else {
-          setResults(data.properties || []);
-          setIsFuzzy(Boolean(data.fuzzy));
-        }
-      } catch (err) {
-        if (err.name !== "CanceledError" && err.name !== "AbortError") {
-          console.error("Search error:", err);
-          setError("Unable to fetch results");
-          setResults([]);
-          setIsFuzzy(false);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    })();
-
-    return () => controller.abort();
-  }, [trimmedQuery]);
+    if (highlightIndex < 0) return;
+    document
+      .getElementById(`${idPrefix}-option-${highlightIndex}`)
+      ?.scrollIntoView?.({ block: "nearest" });
+  }, [highlightIndex, idPrefix]);
 
   const navigateToProperty = useCallback(
     (propertyId) => {
       setQuery("");
-      setResults([]);
+      setIsOpen(false);
       navigate(`/property/${propertyId}`);
     },
     [navigate]
@@ -117,29 +109,33 @@ const ExpandableSearch = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isBusy) return; // FIX: don't navigate to a stale first result mid-fetch
-    if (highlightIndex >= 0 && results[highlightIndex]) {
-      navigateToProperty(results[highlightIndex]._id);
-    } else if (results.length > 0) {
-      navigateToProperty(results[0]._id);
+    // Don't navigate to a result that belongs to a different query.
+    if (trimmedRawQuery.length < 2 || isBusy) return;
+    setIsOpen(true);
+    if (error) {
+      refetch(); // Enter retries a failed search
+      return;
     }
+    const target = results[highlightIndex] ?? results[0];
+    if (target) navigateToProperty(target._id);
   };
 
   const handleKeyDown = (e) => {
-    if (!results.length) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setHighlightIndex((i) => Math.min(i + 1, results.length - 1));
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    if (!isOpen) {
+      setIsOpen(true);
+      return;
     }
-    if (e.key === "ArrowUp") {
-      e.preventDefault();
+    if (isBusy || !results.length) return;
+    if (e.key === "ArrowDown") {
+      setHighlightIndex((i) => Math.min(i + 1, results.length - 1));
+    } else {
       setHighlightIndex((i) => Math.max(i - 1, 0));
     }
-    if (e.key === "Enter" && highlightIndex >= 0 && !isBusy) {
-      e.preventDefault();
-      navigateToProperty(results[highlightIndex]._id);
-    }
   };
+
+  const showResults = shouldShowDropdown && !isBusy && !error;
 
   return (
     <div className="search-wrapper" ref={wrapperRef}>
@@ -147,19 +143,26 @@ const ExpandableSearch = () => {
         <form className="ai-search-form" onSubmit={handleSubmit} role="search">
           <div className="ai-input-wrapper">
             <input
-              // ref={inputRef}
               id="property-search-input"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setIsOpen(true);
+              }}
+              onFocus={() => setIsOpen(true)}
+              onClick={() => setIsOpen(true)}
               onKeyDown={handleKeyDown}
               className="ai-search-input"
               placeholder="Search properties"
               aria-label="Search properties"
+              role="combobox"
               aria-autocomplete="list"
               aria-expanded={shouldShowDropdown}
-              aria-controls={shouldShowDropdown ? LISTBOX_ID : undefined}
+              aria-controls={shouldShowDropdown ? listboxId : undefined}
               aria-activedescendant={
-                highlightIndex >= 0 ? `search-result-${highlightIndex}` : undefined
+                showResults && highlightIndex >= 0
+                  ? `${idPrefix}-option-${highlightIndex}`
+                  : undefined
               }
               autoComplete="off"
               spellCheck={false}
@@ -172,7 +175,7 @@ const ExpandableSearch = () => {
       </div>
 
       {shouldShowDropdown && (
-        <div id={LISTBOX_ID} className="search-results-dropdown" role="listbox" aria-label="Property search results">
+        <div id={listboxId} className="search-results-dropdown" role="listbox" aria-label="Property search results">
           {isBusy && (
             <div className="search-loading" role="status" aria-live="polite">
               <span className="loading-spinner" aria-hidden="true" />
@@ -180,19 +183,19 @@ const ExpandableSearch = () => {
             </div>
           )}
           {error && !isBusy && <div className="search-error" role="alert">{error}</div>}
-          {!isBusy && !error && results.length === 0 && (
+          {showResults && results.length === 0 && (
             <div className="no-results" role="status">
               <Home size={28} aria-hidden="true" />
               <p>No properties found</p>
             </div>
           )}
-          {isFuzzy && !isBusy && results.length > 0 && (
+          {showResults && isFuzzy && results.length > 0 && (
             <div className="fuzzy-indicator" aria-live="polite">Showing best matches</div>
           )}
-          {!isBusy && !error && results.map((property, i) => (
+          {showResults && results.map((property, i) => (
             <div
               key={property._id}
-              id={`search-result-${i}`}
+              id={`${idPrefix}-option-${i}`}
               className={`property-result-item ${i === highlightIndex ? "highlighted" : ""}`}
               role="option"
               aria-selected={i === highlightIndex}

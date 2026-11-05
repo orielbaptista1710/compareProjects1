@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "create-user": "node scripts/createUser.js",
     "deactivate-user": "node scripts/deactivateUser.js",
+    "delete-customer": "node scripts/deleteCustomer.js",
     "reset-password": "node scripts/resetPassword.js",
     "brokenimg-urls": "node scripts/findBrokenImageUrls.js",
     "backfill-project-key": "node scripts/backfillProjectKey.js",

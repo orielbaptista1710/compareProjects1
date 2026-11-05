@@ -21,7 +21,8 @@ const protect = asyncHandler(async (req, res, next) => {
   // ── 2. Verify signature & expiry ──────────────────────────────────────────
   let decoded;
   try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Pinned so a token signed with any other algorithm is rejected (AUTH-11).
+    decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
   } catch (err) {
     res.status(401);
     const errorMessage =  err.name === 'TokenExpiredError' ? 'Not authorised — token expired.' : 'Not authorised — invalid token.';
