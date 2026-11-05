@@ -16,6 +16,7 @@ import { getPropertyImage, getOptimizedImageUrl } from "../../../../utils/proper
 import { formatCurrencyShort, formatParkingText } from "../../../../utils/formatters";
 import { getPropertyLocation } from "../../../../utils/propertyHelpers";
 import useHeartProperty from "../../../../hooks/useHeartProperty";
+import { posterOf, POSTER, POSTER_LABELS } from "../../../../constants/roles";
 
 // Builds a unit-shaped object out of a flat (ungrouped) property, so the rest
 // of this component never has to branch on "is this grouped or not" — every
@@ -48,6 +49,9 @@ function PropertyCard({
   showCompareBtn = true,
 }) {
   const navigate = useNavigate();
+  const poster = posterOf(property);
+  const isBuilder = poster === POSTER.BUILDER;
+  const posterLabel = POSTER_LABELS[poster];
   const [expanded, setExpanded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -403,21 +407,23 @@ function PropertyCard({
           </div>
         )}
 
-        {/* Secondary meta strip */}
-        {(property.developerName || property.pricePerSqft) && (
-          <div className="pc-meta-strip">
-            {property.developerName && (
-              <span className="pc-meta-item">
-                <span className="pc-meta-label">By</span> {property.developerName}
-              </span>
-            )}
+        {/* Secondary meta strip: who posted it, and price per sq.ft */}
+        <div className="pc-meta-strip">
+          {isBuilder && property.developerName ? (
+            <span className="pc-meta-item">
+              <span className="pc-meta-label">By</span> {property.developerName}
+            </span>
+          ) : (
+            <span className="pc-meta-item">
+              <span className="pc-meta-label">Posted by</span> {posterLabel}
+            </span>
+          )}
             {property.pricePerSqft && (
               <span className="pc-meta-item">
                 <span className="pc-meta-label">₹{property.pricePerSqft}</span>/sq.ft
               </span>
             )}
-          </div>
-        )}
+        </div>
 
         {/* Footer */}
         <footer className="pc-footer">
@@ -437,7 +443,7 @@ function PropertyCard({
             className="pc-btn-contact"
             onClick={(e) => e.stopPropagation()}
           >
-            Contact {property.developerName ? 'Builder' : 'Owner'}
+            Contact {posterLabel}
           </button>
         </footer>
 

@@ -266,3 +266,22 @@ describe("PropertyCard — grouped project (multiple units, one tile each)", () 
     expect(scrollBySpy).toHaveBeenCalledWith(expect.objectContaining({ left: 180 }));
   });
 });
+
+describe("PropertyCard — who posted it", () => {
+  const contactButton = (container) => container.querySelector(".pc-btn-contact");
+  const metaStrip = (container) => container.querySelector(".pc-meta-strip");
+
+  it.each([
+    [{ listedBy: "developer" }, "Contact Builder", "By Acme Developers"],
+    [{ listedBy: "owner" }, "Contact Owner", "Posted by Owner"],
+    [{ listedBy: "agent" }, "Contact Agent", "Posted by Agent"],
+    // Saved before listedBy existed: a developer name still means a builder.
+    [{}, "Contact Builder", "By Acme Developers"],
+    [{ developerName: "" }, "Contact Owner", "Posted by Owner"],
+  ])("%j → %s / %s", (overrides, buttonText, metaText) => {
+    const { container } = renderCard({ property: { ...flatProperty, ...overrides } });
+
+    expect(contactButton(container)).toHaveTextContent(buttonText);
+    expect(metaStrip(container)).toHaveTextContent(metaText);
+  });
+});

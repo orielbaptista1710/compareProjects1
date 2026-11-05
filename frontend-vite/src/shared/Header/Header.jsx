@@ -1,8 +1,8 @@
 import { useState, useEffect, useContext, useCallback, useRef } from "react";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Header.css";
-import { Menu, X, Users, Plus, ChevronRight, Scale } from "lucide-react";
+import { Menu, X, Plus, ChevronRight, Scale } from "lucide-react";
 import { AuthContext } from "../../contexts/AuthContext";
 import { menuItems } from "../../database/menuData";
 import {HeaderAuthSection} from "./Headercomponents/HeaderAuthSection"
@@ -16,12 +16,10 @@ import { useOutsideClick } from "../../hooks/useOutsideClick";
 import { useCompare } from "../../contexts/CompareContext";
 
 import CompareBar from "../CompareBar/CompareBar";
-const DeveloperPopup = lazy(() =>import("../Popups/DeveloperPopup"));
 
 function Header() { 
   const { isMenuOpen, toggleMenu, closeMenu, setIsMenuOpen } = useHeaderMenu();
   const { currentUser, loading, logout } = useContext(AuthContext);
-  const [showDeveloperPopup, setShowDeveloperPopup] = useState(false);
   const [showCompareBar, setShowCompareBar] = useState(false);
   const isScrolled = useHeaderScroll();
   const navigate = useNavigate();
@@ -98,13 +96,6 @@ function Header() {
     <>
 
     
-      <Suspense fallback={null}>
-        <DeveloperPopup
-          isOpen={showDeveloperPopup}
-          onClose={() => setShowDeveloperPopup(false)}
-        />
-      </Suspense>
-
       <Suspense fallback={null}>
         <CompareBar
           compareList={compareList}
@@ -227,7 +218,15 @@ function Header() {
         </button>
       </li>
       <li>
-        <button className="post-property-btn" onClick={() => setShowDeveloperPopup(true)}>
+        {/* One entry for posting: owners, agents and developers pick their path
+            on /post-property. Developer login lives in the footer. */}
+        <button
+          className="post-property-btn"
+          onClick={() => {
+            closeMenu();
+            navigate("/post-property");
+          }}
+        >
           <Plus size={18} />
           POST PROPERTY
         </button>
@@ -240,13 +239,6 @@ function Header() {
           onLogout={handleLogout}
           closeMenu={closeMenu}
         />
-      </li>
-
-      <li className="nav-dev-item">
-        <Link to="/login" className="nav-link-developers" onClick={closeMenu}>
-          <Users size={18} />
-          Developers
-        </Link>
       </li>
     </ul>
   </li>
