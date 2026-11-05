@@ -6,7 +6,6 @@ describe("posterOf", () => {
   it.each([
     [{ listedBy: "owner", developerName: "Ignored" }, "Owner"],
     [{ listedBy: "agent" }, "Agent"],
-    [{ listedBy: "broker" }, "Agent"], // pre-migration name
     [{ listedBy: "developer" }, "Builder"],
     // Saved before listedBy existed: keep the old developerName rule.
     [{ developerName: "Kalpataru" }, "Builder"],

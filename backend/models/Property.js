@@ -46,9 +46,7 @@ const propertySchema = new mongoose.Schema({
   //new feature added to differentiate between sale and resale properties and differnt authentication for owner, agent and developer(based on new auth system) 
   listingType: { type: String, enum: ['sale', 'resale'] }, //add rent later
   // Set server-side from the poster's account, never from the request body.
-  // 'broker' is the pre-migration name for 'agent' (scraped listings); it stays
-  // valid so those docs can still be saved until scripts/migrateRoles.js runs.
-  listedBy: { type: String, enum: [...Object.values(LISTED_BY), 'broker'] },
+  listedBy: { type: String, enum: Object.values(LISTED_BY) },
 
   //new added needs to be generated from title and developerName
   projectName: { type: String, trim: true }, //used in sale and resale - NEW

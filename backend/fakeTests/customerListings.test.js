@@ -288,19 +288,10 @@ describe("developer listings through /api/properties", () => {
     expect(removed.status).toBe(200);
   });
 
-  it("keeps saving pre-migration 'broker' listings and keeps them in their project card", async () => {
-    const owner = await createUser();
-    const scraped = await createProperty({
-      userId: owner._id,
-      listedBy: "broker",
-      developerName: "Dev Co",
-      projectName: "Skyline Towers",
-    });
+  it("refuses the old 'broker' value for listedBy (only owner, agent, developer)", async () => {
+    const developer = await createUser();
 
-    scraped.price += 1;
-    await scraped.save();
-
-    expect(scraped.projectKey).toBeTruthy();
+    await expect(createProperty({ userId: developer._id, listedBy: "broker" })).rejects.toThrow(/listedBy/);
   });
 
   it("doesn't let a developer edit a customer's listing (404)", async () => {

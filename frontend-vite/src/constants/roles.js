@@ -34,15 +34,13 @@ export const POSTER_LABELS = Object.freeze({
   [POSTER.BUILDER]: "Builder",
 });
 
-// Who posted a public listing. 'broker' is the pre-migration name for agent;
-// listings saved before listedBy existed keep the old rule (a developer name
-// means a builder posted it).
+// Who posted a public listing. Listings saved before listedBy existed keep the
+// old rule (a developer name means a builder posted it).
 export const posterOf = (property) => {
   switch (property?.listedBy) {
     case LISTED_BY.OWNER:
       return POSTER.OWNER;
     case LISTED_BY.AGENT:
-    case "broker":
       return POSTER.AGENT;
     case LISTED_BY.DEVELOPER:
       return POSTER.BUILDER;
