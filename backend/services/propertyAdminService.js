@@ -17,6 +17,9 @@ import logger from '../utils/logger.js';
 // Poster name for the admin views; userId points to a User (developer) or a
 // Customer (owner/agent) depending on Property.ownerModel.
 const POSTER_FIELDS = "displayName companyName customerName customerEmail agent.status agent.agencyName";
+// The details view also needs how to reach and verify the poster.
+const POSTER_DETAIL_FIELDS =
+  `${POSTER_FIELDS} email phone customerPhone emailVerified agent.reraAgentId`;
 
 // Admins decide approve/reject; "pending" is only ever set by an owner edit.
 const REVIEW_STATUSES = ["approved", "rejected"];
@@ -194,7 +197,7 @@ export const fetchPropertyOwner = async (id) => {
  * -------------------------------------------------- */
 export const fetchPropertyById = async (id) => {
   const property = await Property.findById(id)
-    .populate("userId", POSTER_FIELDS)  ////
+    .populate("userId", POSTER_DETAIL_FIELDS)
     // .populate("reviewedBy", "displayName")
     .lean();
 

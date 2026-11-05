@@ -17,6 +17,8 @@ import DeveloperDetailsModal from "../AdminDasboardComponents/DeveloperDetailsMo
 import AdminFilters from "../AdminDasboardComponents/AdminFilters";
 import { canApprove, canReject } from "../listingStatus";
 import RejectListingDialog from "./RejectListingDialog";
+import { DEFAULT_LISTING_FILTERS as DEFAULT_FILTERS } from "./listingFilters";
+import { LISTED_BY } from "../../../constants/roles";
 
 import toast from "react-hot-toast";
 import toastError from "../../../utils/toastError";
@@ -35,6 +37,7 @@ const fetchProperties = async ({ queryKey }) => {
     locality:     filters.locality     || undefined,
     sortBy:       filters.sortBy,
     imageFilter:  filters.imageFilter  || undefined,
+    listedBy:     filters.listedBy     || undefined,
   };
   const { data } = await API.get("/api/admin/properties", { params });
   return data;
@@ -76,19 +79,6 @@ const bulkApprovedMessage = ({ modified = 0, hidden = 0 }) =>
     ? `${plural(modified)} approved — ${hidden} stay hidden until the posting agent is reinstated`
     : `${plural(modified)} approved`;
 
-// ─── Default filter state (stable reference — avoids inline object recreation) ─
-// Keep in sync with AdminFilters.jsx's DEFAULT_FILTERS
-
-const DEFAULT_FILTERS = {
-  search:       "",
-  propertyType: "",
-  status:       "pending",
-  city:         "",
-  locality:     null,
-  imageFilter:  "",
-  sortBy:       "latest",
-};
-
 // ─── URL <-> filters helpers ──────────────────────────────────────────────────
 // "status" is the one field whose "not set" value ("all"/"") differs from the
 // default ("pending"), so it needs an explicit sentinel to round-trip through
@@ -100,6 +90,8 @@ function readInitialFiltersFromParams(params) {
     search:       params.get("search") || DEFAULT_FILTERS.search,
     propertyType: params.get("propertyType") || DEFAULT_FILTERS.propertyType,
     status:       rawStatus == null ? DEFAULT_FILTERS.status : (rawStatus === "all" ? "" : rawStatus),
+    // Only known values: anything else would make every request a 400.
+    listedBy:     Object.values(LISTED_BY).includes(params.get("listedBy")) ? params.get("listedBy") : DEFAULT_FILTERS.listedBy,
     city:         params.get("city") || DEFAULT_FILTERS.city,
     locality:     params.get("locality") || DEFAULT_FILTERS.locality,
     imageFilter:  params.get("imageFilter") || DEFAULT_FILTERS.imageFilter,
@@ -166,6 +158,7 @@ export default function AdminListings() {
     if (debouncedSearch) params.set("search", debouncedSearch);
     if (filters.propertyType) params.set("propertyType", filters.propertyType);
     if (filters.status !== DEFAULT_FILTERS.status) params.set("status", filters.status || "all");
+    if (filters.listedBy) params.set("listedBy", filters.listedBy);
     if (filters.city) params.set("city", filters.city);
     if (filters.locality) params.set("locality", filters.locality);
     if (filters.imageFilter) params.set("imageFilter", filters.imageFilter);
@@ -178,6 +171,7 @@ export default function AdminListings() {
     debouncedSearch,
     filters.propertyType,
     filters.status,
+    filters.listedBy,
     filters.city,
     filters.locality,
     filters.imageFilter,
@@ -207,6 +201,7 @@ export default function AdminListings() {
   const pageResetKey = JSON.stringify([
     debouncedSearch,
     filters.status,
+    filters.listedBy,
     filters.propertyType,
     filters.city,
     filters.locality,
@@ -227,6 +222,7 @@ export default function AdminListings() {
       page:         page + 1,
       limit:        rowsPerPage,
       status:       filters.status,
+      listedBy:     filters.listedBy,
       propertyType: filters.propertyType,
       search:       debouncedSearch,
       city:         filters.city,

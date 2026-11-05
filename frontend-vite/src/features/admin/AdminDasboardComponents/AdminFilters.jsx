@@ -13,6 +13,8 @@ import {
 import { Autocomplete } from "@mui/material";
 import { X } from "lucide-react";
 import { LISTING_STATUS_LABELS } from "../listingStatus";
+import { DEFAULT_LISTING_FILTERS as DEFAULT_FILTERS } from "../listings/listingFilters";
+import { LISTED_BY } from "../../../constants/roles";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 // Keep in sync with propertyType.js — or import directly if bundler allows
@@ -29,6 +31,14 @@ const PROPERTY_TYPES = [
 
 const STATUS_OPTIONS = Object.entries(LISTING_STATUS_LABELS).map(([value, label]) => ({ value, label }));
 
+// Listings saved before the role migration (scripts/migrateRoles.js) may have
+// no listedBy yet, so "Builder" can miss some old developer listings until it runs.
+const POSTED_BY_OPTIONS = [
+  { value: LISTED_BY.OWNER,     label: "Owner" },
+  { value: LISTED_BY.AGENT,     label: "Agent" },
+  { value: LISTED_BY.DEVELOPER, label: "Builder" },
+];
+
 const IMAGE_OPTIONS = [
   { value: "withImages",    label: "Has images" },
   { value: "withoutImages", label: "No images" },
@@ -44,29 +54,14 @@ const SORT_OPTIONS = [
   { value: "mostViewed", label: "Most viewed" },
 ];
 
-// Keep in sync with AdminDashboard.jsx's DEFAULT_FILTERS
-const DEFAULT_FILTERS = {
-  search:       "",
-  propertyType: "",
-  status:       "pending",
-  city:         "",
-  locality:     null,
-  imageFilter:  "",
-  sortBy:       "latest",
-};
-
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// Count how many non-default filters are active (excludes sortBy)
+const FILTER_FIELDS = ["search", "propertyType", "status", "listedBy", "city", "locality", "imageFilter"];
+
+// How many filters differ from the defaults (excludes sortBy). The default
+// status ("pending") isn't something the admin chose, so it doesn't count.
 function countActiveFilters(filters) {
-  return [
-    filters.search,
-    filters.propertyType,
-    filters.status,
-    filters.city,
-    filters.locality,
-    filters.imageFilter,
-  ].filter(Boolean).length;
+  return FILTER_FIELDS.filter((field) => filters[field] !== DEFAULT_FILTERS[field]).length;
 }
 
 // ─── Shared select style ─────────────────────────────────────────────────────
@@ -126,6 +121,21 @@ export default function AdminFilters({
         >
           <MenuItem value="">All status</MenuItem>
           {STATUS_OPTIONS.map(({ value, label }) => (
+            <MenuItem key={value} value={value}>{label}</MenuItem>
+          ))}
+        </Select>
+
+        {/* Posted by */}
+        <Select
+          size="small"
+          value={filters.listedBy}
+          displayEmpty
+          onChange={(e) => handleChange("listedBy", e.target.value)}
+          sx={selectSx}
+          inputProps={{ "aria-label": "Posted by" }}
+        >
+          <MenuItem value="">Posted by anyone</MenuItem>
+          {POSTED_BY_OPTIONS.map(({ value, label }) => (
             <MenuItem key={value} value={value}>{label}</MenuItem>
           ))}
         </Select>
@@ -237,11 +247,18 @@ export default function AdminFilters({
               onDelete={() => handleChange("search", "")}
             />
           )}
-          {filters.status && (
+          {filters.status !== DEFAULT_FILTERS.status && (
             <Chip
               size="small"
-              label={filters.status}
-              onDelete={() => handleChange("status", "")}
+              label={LISTING_STATUS_LABELS[filters.status] ?? "All status"}
+              onDelete={() => handleChange("status", DEFAULT_FILTERS.status)}
+            />
+          )}
+          {filters.listedBy && (
+            <Chip
+              size="small"
+              label={`Posted by ${POSTED_BY_OPTIONS.find((o) => o.value === filters.listedBy)?.label ?? filters.listedBy}`}
+              onDelete={() => handleChange("listedBy", "")}
             />
           )}
           {filters.propertyType && (

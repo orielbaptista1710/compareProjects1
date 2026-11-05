@@ -15,6 +15,9 @@ import {
 } from "@mui/material";
 
 import { formatCurrency } from "../../../utils/formatters";
+import { POSTER, posterOf } from "../../../constants/roles";
+import { posterLabel, posterName } from "../poster";
+import { LISTING_STATUS_LABELS, LISTING_STATUS_COLORS } from "../listingStatus";
 
 import PropertyMediaSection from "./PropertyMediaSection";
 
@@ -51,6 +54,75 @@ function formatArea(area) {
   return `${value} ${unit}`;
 }
 
+// floor 0 is the ground floor, not "missing"
+const formatFloor = (floor) => (floor === 0 ? "Ground" : floor ?? "N/A");
+
+const formatDate = (value) =>
+  value ? new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "N/A";
+
+// Who posted the listing and how to reach them. userId is the populated
+// poster: a developer (User) or an owner/agent (Customer).
+const PosterDetails = ({ property }) => {
+  const poster = property?.userId ?? {};
+  const kind = posterOf(property);
+
+  if (kind === POSTER.BUILDER) {
+    return (
+      <Stack direction="row" spacing={3} alignItems="center">
+        <Box
+          component="img"
+          src={property?.developerAvatar?.url || FALLBACK_IMAGE}
+          alt={property?.developerName || "developer avatar"}
+          width={80}
+          height={80}
+          sx={{ borderRadius: 1, objectFit: "cover" }}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = FALLBACK_IMAGE;
+          }}
+        />
+        <Box>
+          <Typography><strong>Builder:</strong> {posterName(property)}</Typography>
+          <Typography><strong>Tier:</strong> {property?.tierType || "N/A"}</Typography>
+          {poster.displayName && (
+            <Typography><strong>Account:</strong> {poster.displayName}</Typography>
+          )}
+          {poster.email && <Typography><strong>Email:</strong> {poster.email}</Typography>}
+          {poster.phone && <Typography><strong>Phone:</strong> {poster.phone}</Typography>}
+        </Box>
+      </Stack>
+    );
+  }
+
+  const isAgent = kind === POSTER.AGENT;
+  return (
+    <Box>
+      <Typography>
+        <strong>{posterLabel(property)}:</strong> {poster.customerName || "N/A"}
+      </Typography>
+      {isAgent && (
+        <>
+          <Typography><strong>Agency:</strong> {poster.agent?.agencyName || "N/A"}</Typography>
+          <Typography><strong>RERA agent ID:</strong> {poster.agent?.reraAgentId || "N/A"}</Typography>
+          <Typography><strong>Agent status:</strong> {poster.agent?.status || "N/A"}</Typography>
+        </>
+      )}
+      <Typography component="div" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <span><strong>Email:</strong> {poster.customerEmail || "N/A"}</span>
+        {poster.customerEmail && (
+          <Chip
+            size="small"
+            variant="outlined"
+            label={poster.emailVerified ? "Verified" : "Not verified"}
+            color={poster.emailVerified ? "success" : "warning"}
+          />
+        )}
+      </Typography>
+      <Typography><strong>Phone:</strong> {poster.customerPhone || "N/A"}</Typography>
+    </Box>
+  );
+};
+
 function DeveloperDetailsModal({
   open,
   onClose,
@@ -80,8 +152,8 @@ function DeveloperDetailsModal({
       </DialogTitle>
 
       <DialogContent dividers sx={{ py: 3, maxHeight: "70vh", overflowY: "auto" }}>
-        {/* Developer Details */}
-        <Section title="Developer Details">
+        {/* Who posted it */}
+        <Section title="Posted by">
           {loading ? (
             <Stack direction="row" spacing={3} alignItems="center">
               <Skeleton variant="circular" width={80} height={80} />
@@ -92,29 +164,7 @@ function DeveloperDetailsModal({
               </Box>
             </Stack>
           ) : (
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Box
-                component="img"
-                src={property?.developerAvatar?.url || FALLBACK_IMAGE}
-                alt={property?.developerName || "developer avatar"}
-                width={80}
-                height={80}
-                sx={{ borderRadius: 1, objectFit: "cover" }}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = FALLBACK_IMAGE;
-                }}
-              />
-              <Box>
-                <Typography>
-                  <strong>Name:</strong> {property?.developerName || "N/A"}
-                </Typography>
-                <Typography>
-                  <strong>Tier:</strong> {property?.tierType || "N/A"}
-                </Typography>
-                
-              </Box>
-            </Stack>
+            <PosterDetails property={property} />
           )}
         </Section>
 
@@ -200,7 +250,7 @@ function DeveloperDetailsModal({
                 <strong>Pincode:</strong> {property?.pincode ?? "N/A"}
               </Typography>
               <Typography>
-                <strong>Available Date:</strong> {property?.reraDate ?? "N/A"}
+                <strong>Available Date:</strong> {formatDate(property?.reraDate)}
               </Typography>
 
 
@@ -211,7 +261,7 @@ function DeveloperDetailsModal({
   <Typography><strong>Parking:</strong> {property?.parkings || "N/A"}</Typography>
   <Typography><strong>Facing:</strong> {property?.facing || "N/A"}</Typography>
   <Typography><strong>Age of Property:</strong> {property?.ageOfProperty || "N/A"}</Typography>
-  <Typography><strong>Floor:</strong> {property?.floor || "N/A"}</Typography>
+  <Typography><strong>Floor:</strong> {formatFloor(property?.floor)}</Typography>
   <Typography><strong>Wing:</strong> {property?.wing || "N/A"}</Typography>
   <Typography><strong>Units Available:</strong> {property?.unitsAvailable ?? "N/A"}</Typography>
 </Section>
@@ -299,6 +349,20 @@ function DeveloperDetailsModal({
             </>
           ) : (
             <>
+              <Typography component="div" sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                <strong>Status:</strong>
+                <Chip
+                  size="small"
+                  variant="outlined"
+                  label={LISTING_STATUS_LABELS[property?.status] ?? property?.status ?? "N/A"}
+                  color={LISTING_STATUS_COLORS[property?.status] ?? "default"}
+                />
+              </Typography>
+              {property?.status === "rejected" && (
+                <Typography>
+                  <strong>Rejection reason:</strong> {property?.rejectionReason || "None"}
+                </Typography>
+              )}
               <Typography>
                 <strong>Verified by Admin:</strong>{" "}
                 {property?.metadata?.moderation?.verifiedByAdmin ? "Yes" : "No"}
@@ -394,6 +458,11 @@ DeveloperDetailsModal.propTypes = {
       })
     ),
     metadata: PropTypes.object,
+    status: PropTypes.string,
+    rejectionReason: PropTypes.string,
+    listedBy: PropTypes.string,
+    // populated poster: developer (User) or owner/agent (Customer)
+    userId: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   }),
   onApprove: PropTypes.func,
   onReject: PropTypes.func,

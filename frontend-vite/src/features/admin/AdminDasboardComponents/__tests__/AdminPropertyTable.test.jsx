@@ -123,3 +123,24 @@ describe("AdminPropertyTable - hidden (suspended agent) listings", () => {
     expect(screen.getByRole("button", { name: "Reject" })).toBeEnabled();
   });
 });
+
+describe("AdminPropertyTable - Posted by column", () => {
+  it("says who posted each listing instead of 'N/A' for owners and agents", () => {
+    render(
+      <AdminPropertyTable
+        {...baseProps({
+          data: {
+            data: [
+              makeProperty({ _id: "a", listedBy: "agent", developerName: undefined, userId: { agent: { agencyName: "Prime Realty" } } }),
+              makeProperty({ _id: "b", listedBy: "owner", developerName: undefined, userId: { customerName: "Asha" } }),
+            ],
+            total: 2,
+          },
+        })}
+      />
+    );
+
+    expect(screen.getByText("Agent · Prime Realty")).toBeInTheDocument();
+    expect(screen.getByText("Owner · Asha")).toBeInTheDocument();
+  });
+});

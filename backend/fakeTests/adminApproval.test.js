@@ -363,3 +363,29 @@ describe("admin listing table - who posted it", () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe("GET /api/admin/property/:id — who posted it", () => {
+  it("includes how to reach and verify an agent poster, without auth internals", async () => {
+    const token = await adminToken();
+    const agent = await createCustomer({
+      customerName: "Ravi Agent",
+      customerPhone: "+919800000009",
+      emailVerified: true,
+      agent: { status: "approved", agencyName: "Prime Realty", reraAgentId: "A51800012345" },
+    });
+    const property = await createProperty({
+      userId: agent._id, ownerModel: "Customer", listedBy: "agent", developerName: undefined,
+    });
+
+    const res = await request(app).get(`/api/admin/property/${property._id}`).set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.userId).toMatchObject({
+      customerName: "Ravi Agent",
+      customerPhone: "+919800000009",
+      emailVerified: true,
+      agent: { status: "approved", agencyName: "Prime Realty", reraAgentId: "A51800012345" },
+    });
+    expect(res.body.data.userId).not.toHaveProperty("firebaseUid");
+  });
+});

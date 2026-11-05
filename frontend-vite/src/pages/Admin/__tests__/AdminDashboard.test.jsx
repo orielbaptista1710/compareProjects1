@@ -221,6 +221,40 @@ describe("AdminDashboard - review feedback", () => {
   }, 15000);
 });
 
+describe("AdminDashboard - Posted by filter", () => {
+  it("sends listedBy from the URL, and ignores a value the backend would reject", async () => {
+    setupApiMocks();
+    renderDashboard({ initialEntries: ["/admin?listedBy=agent"] });
+
+    await waitFor(() =>
+      expect(API.get).toHaveBeenCalledWith(
+        "/api/admin/properties",
+        expect.objectContaining({ params: expect.objectContaining({ listedBy: "agent" }) })
+      )
+    );
+    cleanup();
+    vi.clearAllMocks();
+
+    setupApiMocks();
+    renderDashboard({ initialEntries: ["/admin?listedBy=broker"] });
+
+    await waitFor(() =>
+      expect(API.get).toHaveBeenCalledWith(
+        "/api/admin/properties",
+        expect.objectContaining({ params: expect.objectContaining({ listedBy: undefined }) })
+      )
+    );
+  });
+
+  it("doesn't show 'Clear' for the default (pending) view", async () => {
+    setupApiMocks();
+    renderDashboard();
+
+    await screen.findByText("Test Property");
+    expect(screen.queryByRole("button", { name: /clear/i })).not.toBeInTheDocument();
+  });
+});
+
 describe("AdminDashboard - tabs", () => {
   it("opens the Agents tab from ?tab=agents without loading listings", async () => {
     setupApiMocks();

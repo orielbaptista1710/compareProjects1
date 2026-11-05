@@ -9,6 +9,7 @@ import {
   canApprove,
   canReject,
 } from "../listingStatus";
+import { posterLabel, posterName } from "../poster";
 import "./AdminPropertyTable.css";
 
 export default function AdminPropertyTable({
@@ -31,10 +32,11 @@ export default function AdminPropertyTable({
     { field: "title", headerName: "Title", flex: 1 },
 
     {
-      field: "developerName",
-      headerName: "Developer",
+      field: "postedBy",
+      headerName: "Posted by",
       flex: 1,
-      valueGetter: (value, row) => row?.developerName || "N/A"
+      sortable: false,
+      valueGetter: (value, row) => `${posterLabel(row)} · ${posterName(row)}`
     },
 
     {
