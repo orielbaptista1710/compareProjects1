@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Mocked so the real firebase SDK never loads for this test — we only care
 // about how api.js reacts to CustomerAuth.currentUser, not Firebase itself.
@@ -12,6 +12,7 @@ vi.mock("react-hot-toast", () => ({
 
 import { CustomerAuth } from "../config/firebase";
 import API, { isDeveloperRoute } from "../api/api";
+import toast from "react-hot-toast";
 
 beforeEach(() => {
   CustomerAuth.currentUser = null;
@@ -67,5 +68,37 @@ describe("request interceptor — Firebase token scoping (regression test: this 
     const config = await interceptor({ url: "/api/customers/me", headers: {} });
 
     expect(config.headers.Authorization).toBeUndefined();
+  });
+});
+
+describe("response interceptor — 401 handling", () => {
+  const getErrorInterceptor = () => API.interceptors.response.handlers[0].rejected;
+  const unauthorized = (url) => ({ response: { status: 401 }, config: { url } });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.useFakeTimers(); // the redirect is on a timer; never let it fire in jsdom
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("an expired developer/admin session says so and schedules a redirect to /login", async () => {
+    const error = unauthorized("/api/properties/my-properties");
+
+    await expect(getErrorInterceptor()(error)).rejects.toBe(error);
+
+    expect(toast.error).toHaveBeenCalledWith("Session expired. Please log in again.");
+    expect(vi.getTimerCount()).toBe(1);
+  });
+
+  it("a customer 401 never sends the customer to the developer /login page", async () => {
+    const error = unauthorized("/api/customers/me");
+
+    await expect(getErrorInterceptor()(error)).rejects.toBe(error);
+
+    expect(toast.error).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
   });
 });

@@ -53,7 +53,7 @@ export const login = asyncHandler(async (req, res) => {
     throw new Error('Username and password are required');
   }
 
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ username }).select('+password');
   const isMatch = await bcrypt.compare(password, user?.password ?? DUMMY_HASH);
   if (!user || !isMatch) {
     res.status(401);

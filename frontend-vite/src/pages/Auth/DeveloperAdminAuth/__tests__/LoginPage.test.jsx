@@ -73,8 +73,10 @@ describe("LoginPage", () => {
     expect(toast.success).toHaveBeenCalledWith("Welcome back, Ada!");
   });
 
-  it("navigates to /dashboard for a non-admin role", async () => {
-    API.post.mockResolvedValue({ data: { user: { role: "user", displayName: "Dev" } } });
+  // 'user' is the legacy name for 'developer'; both must keep working until
+  // and after scripts/migrateRoles.js renames them in production.
+  it.each(["user", "developer"])("navigates to /dashboard for the %s role", async (role) => {
+    API.post.mockResolvedValue({ data: { user: { role, displayName: "Dev" } } });
 
     await fillAndSubmit();
 
