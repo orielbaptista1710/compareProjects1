@@ -61,6 +61,21 @@ export const addPropertyLimiter = rateLimit({
 });
 
 // ---------------------------------------------------------------------------
+// Owner/agent property submission  —  10 req / 60 min per account
+// ---------------------------------------------------------------------------
+// Keyed by the customer account, not the IP: many people share one mobile
+// carrier IP, and they shouldn't use up each other's (or developers') quota.
+// Runs after protectCustomer, so req.customer is set.
+// Applied to: POST /api/customers/listings
+export const customerAddPropertyLimiter = rateLimit({
+  ...sharedOptions,
+  windowMs: 60 * 60_000,
+  max: 10,
+  keyGenerator: (req) => `customer:${req.customer?._id ?? clientIp(req)}`,
+  message: { error: 'Too many property submissions — try again later.' },
+});
+
+// ---------------------------------------------------------------------------
 // General public reads  —  120 req / 60 s
 // ---------------------------------------------------------------------------
 // Wide limit for listing / featured / recent endpoints.
@@ -109,6 +124,19 @@ export const authLimiter = rateLimit({
   windowMs: 15 * 60_000, 
   max: 10,
   message: { error: 'Too many auth attempts — please wait before trying again.' },
+});
+
+// ---------------------------------------------------------------------------
+// Developer/admin "forgot password" requests  —  5 req / hour
+// ---------------------------------------------------------------------------
+// Separate from authLimiter so filling the request form can't use up the
+// login quota for everyone behind the same IP (shared mobile-carrier IPs).
+// Applied to: POST /api/password-reset-requests
+export const passwordResetRequestLimiter = rateLimit({
+  ...sharedOptions,
+  windowMs: 60 * 60_000,
+  max: 5,
+  message: { error: 'Too many password reset requests — please try again later.' },
 });
 
 // ---------------------------------------------------------------------------
