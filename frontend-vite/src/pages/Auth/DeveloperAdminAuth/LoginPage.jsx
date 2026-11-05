@@ -11,6 +11,7 @@ import ForgotPasswordPopup from '../../../shared/Popups/ForgotPasswordPopup';
 // import MascotGuide from '../../../components/DevDashboardPageComponents/Mascot/MascotGuide'
 // import Seo from '../constants/Seo';
 import toast from 'react-hot-toast';
+import { USER_ROLES } from '../../../constants/roles';
 
  
 const LoginPage = () => {
@@ -50,7 +51,7 @@ const LoginPage = () => {
         // cached data (e.g. my-properties, adminProperties) showing under the
         // new account until it happens to go stale on its own.
         queryClient.clear();
-        navigate(data.user.role === 'admin' ? '/admin' : '/dashboard');
+        navigate(data.user.role === USER_ROLES.ADMIN ? '/admin' : '/dashboard');
         toast.success(`Welcome back, ${data.user.displayName}!`);
       
         

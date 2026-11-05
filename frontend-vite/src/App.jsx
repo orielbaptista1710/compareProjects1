@@ -35,7 +35,7 @@ import Footer from './shared/Footer/Footer';
 import NavigationBar from './shared/NavigationBar/NavigationBar';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProtectedCustomerRoute from "./components/ProtectedCustomerRoute";
-import { DEVELOPER_ROLES } from "./constants/roles";
+import { DEVELOPER_ROLES, USER_ROLES } from "./constants/roles";
 
 import ErrorBoundary from './shared/ErrorBoundary/ErrorBoundary';
 
@@ -177,7 +177,7 @@ const showBreadcrumbs = !hideBreadcrumbRoutes.some((path) =>
           </ProtectedRoute>
         } />
         <Route path="/admin" element={
-          <ProtectedRoute roles={['admin']}>
+          <ProtectedRoute roles={[USER_ROLES.ADMIN]}>
             <AdminDashboard />
           </ProtectedRoute>
         } />    
