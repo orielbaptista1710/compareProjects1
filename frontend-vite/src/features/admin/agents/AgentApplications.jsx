@@ -55,7 +55,7 @@ export default function AgentApplications() {
   const [dialog, setDialog] = useState(null);
   const [reason, setReason] = useState("");
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading, isError, isPlaceholderData, refetch } = useQuery({
     queryKey: ["adminAgents", status, page],
     queryFn: async () =>
       (await API.get("/api/admin/agents", { params: { status, page: page + 1, limit: PAGE_SIZE } })).data,
@@ -77,7 +77,9 @@ export default function AgentApplications() {
     onError: (err) => toastError(err, "Couldn't update the agent"),
   });
 
-  const isBusy = (agent) => review.isPending && review.variables?.agent._id === agent._id;
+  // One action at a time: a second click elsewhere would replace the first
+  // one's pending state and re-enable its buttons mid-request.
+  const busy = review.isPending;
 
   const changeStatus = (_, next) => {
     setStatus(next);
@@ -93,8 +95,14 @@ export default function AgentApplications() {
   const agents = data?.data ?? [];
   const showReason = status === AGENT_STATUS.REJECTED;
 
+  // Acting on the last agent of a later page empties it; step back instead of
+  // stranding the admin on a blank page with no pagination. Skipped while the
+  // previous page's data is only a placeholder.
+  if (data && !isPlaceholderData && agents.length === 0 && page > 0) {
+    setPage(page - 1);
+  }
+
   const renderActions = (agent) => {
-    const busy = isBusy(agent);
     switch (agent.agent?.status) {
       case AGENT_STATUS.PENDING:
         return (

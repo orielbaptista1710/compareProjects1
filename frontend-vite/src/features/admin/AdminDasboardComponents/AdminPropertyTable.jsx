@@ -3,9 +3,11 @@ import { useMemo } from "react";
 import { Button, Chip, Tooltip } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import {
+  LISTING_STATUS,
   LISTING_STATUS_LABELS,
   LISTING_STATUS_COLORS,
   SUSPENDED_APPROVE_HINT,
+  isListingStatus,
   canApprove,
   canReject,
 } from "../listingStatus";
@@ -110,7 +112,7 @@ export default function AdminPropertyTable({
 
         return (
           <>
-            <Tooltip title={prop.status === "suspended" ? SUSPENDED_APPROVE_HINT : ""}>
+            <Tooltip title={prop.status === LISTING_STATUS.SUSPENDED ? SUSPENDED_APPROVE_HINT : ""}>
               {/* span: a disabled button can't trigger its tooltip */}
               <span>
                 <Button
@@ -165,13 +167,8 @@ export default function AdminPropertyTable({
       checkboxSelection
       rowSelectionModel={selectionModel}
       onRowSelectionModelChange={onSelectionModelChange}
-      getRowClassName={(params) => {
-        if (params.row.status === "approved") return "row-approved";
-        if (params.row.status === "rejected") return "row-rejected";
-        if (params.row.status === "pending") return "row-pending";
-        if (params.row.status === "suspended") return "row-suspended";
-        return "";
-      }}
+      // row-pending / row-approved / row-rejected / row-suspended (AdminPropertyTable.css)
+      getRowClassName={(params) => (isListingStatus(params.row.status) ? `row-${params.row.status}` : "")}
       onRowClick={(params) => onRowClick(params.row)}
       autoHeight
     />

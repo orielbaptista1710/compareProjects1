@@ -13,46 +13,14 @@ import {
 import { Autocomplete } from "@mui/material";
 import { X } from "lucide-react";
 import { LISTING_STATUS_LABELS } from "../listingStatus";
-import { DEFAULT_LISTING_FILTERS as DEFAULT_FILTERS } from "../listings/listingFilters";
-import { LISTED_BY } from "../../../constants/roles";
-
-// ─── Constants ───────────────────────────────────────────────────────────────
-// Keep in sync with propertyType.js — or import directly if bundler allows
-const PROPERTY_TYPES = [
-  "Flats/Apartments",
-  "Villa",
-  "Plot",
-  "Shop/Showroom",
-  "Industrial Warehouse/Godown",
-  "Industrial Building",
-  "Office Space",
-  "Commercial Land",
-];
-
-const STATUS_OPTIONS = Object.entries(LISTING_STATUS_LABELS).map(([value, label]) => ({ value, label }));
-
-// Listings saved before the role migration (scripts/migrateRoles.js) may have
-// no listedBy yet, so "Builder" can miss some old developer listings until it runs.
-const POSTED_BY_OPTIONS = [
-  { value: LISTED_BY.OWNER,     label: "Owner" },
-  { value: LISTED_BY.AGENT,     label: "Agent" },
-  { value: LISTED_BY.DEVELOPER, label: "Builder" },
-];
-
-const IMAGE_OPTIONS = [
-  { value: "withImages",    label: "Has images" },
-  { value: "withoutImages", label: "No images" },
-  { value: "coverOnly",     label: "Cover only" },
-  { value: "galleryOnly",   label: "Gallery only" },
-];
-
-const SORT_OPTIONS = [
-  { value: "latest",    label: "Latest first" },
-  { value: "oldest",    label: "Oldest first" },
-  { value: "priceHigh", label: "Price: high → low" },
-  { value: "priceLow",  label: "Price: low → high" },
-  { value: "mostViewed", label: "Most viewed" },
-];
+import {
+  DEFAULT_LISTING_FILTERS as DEFAULT_FILTERS,
+  PROPERTY_TYPES,
+  STATUS_OPTIONS,
+  POSTED_BY_OPTIONS,
+  IMAGE_OPTIONS,
+  SORT_OPTIONS,
+} from "../listings/listingFilters";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

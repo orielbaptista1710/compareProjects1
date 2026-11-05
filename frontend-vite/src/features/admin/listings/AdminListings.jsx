@@ -17,8 +17,7 @@ import DeveloperDetailsModal from "../AdminDasboardComponents/DeveloperDetailsMo
 import AdminFilters from "../AdminDasboardComponents/AdminFilters";
 import { canApprove, canReject } from "../listingStatus";
 import RejectListingDialog from "./RejectListingDialog";
-import { DEFAULT_LISTING_FILTERS as DEFAULT_FILTERS } from "./listingFilters";
-import { LISTED_BY } from "../../../constants/roles";
+import { DEFAULT_LISTING_FILTERS as DEFAULT_FILTERS, readFiltersFromParams } from "./listingFilters";
 
 import toast from "react-hot-toast";
 import toastError from "../../../utils/toastError";
@@ -73,31 +72,16 @@ const showReviewError = (err, fallback) => {
 
 const plural = (n) => `${n} propert${n === 1 ? "y" : "ies"}`;
 
-// Bulk approve keeps a suspended agent's listings hidden; say so.
-const bulkApprovedMessage = ({ modified = 0, hidden = 0 }) =>
-  hidden
-    ? `${plural(modified)} approved — ${hidden} stay hidden until the posting agent is reinstated`
-    : `${plural(modified)} approved`;
+// Bulk approve keeps a suspended agent's listings hidden. The backend's
+// `modified` counts those too, so the live count is modified - hidden.
+const bulkApprovedMessage =({ modified = 0, hidden = 0 }) => {
+  if (!hidden) return `${plural(modified)} approved`;
+  const live = Math.max(0, modified - hidden);
+  const held = `${hidden} ${hidden === 1 ? "stays" : "stay"} hidden until the posting agent is reinstated`;
+  return live ? `${plural(live)} approved and live — ${held}` : `Approved, but ${held}`;
+};
 
-// ─── URL <-> filters helpers ──────────────────────────────────────────────────
-// "status" is the one field whose "not set" value ("all"/"") differs from the
-// default ("pending"), so it needs an explicit sentinel to round-trip through
-// the URL correctly (an empty string can't just mean "omit the param").
-
-function readInitialFiltersFromParams(params) {
-  const rawStatus = params.get("status");
-  return {
-    search:       params.get("search") || DEFAULT_FILTERS.search,
-    propertyType: params.get("propertyType") || DEFAULT_FILTERS.propertyType,
-    status:       rawStatus == null ? DEFAULT_FILTERS.status : (rawStatus === "all" ? "" : rawStatus),
-    // Only known values: anything else would make every request a 400.
-    listedBy:     Object.values(LISTED_BY).includes(params.get("listedBy")) ? params.get("listedBy") : DEFAULT_FILTERS.listedBy,
-    city:         params.get("city") || DEFAULT_FILTERS.city,
-    locality:     params.get("locality") || DEFAULT_FILTERS.locality,
-    imageFilter:  params.get("imageFilter") || DEFAULT_FILTERS.imageFilter,
-    sortBy:       params.get("sortBy") || DEFAULT_FILTERS.sortBy,
-  };
-}
+// ─── URL <-> page helpers (filters: readFiltersFromParams) ───────────────────
 
 function readInitialPageFromParams(params) {
   const page = Number(params.get("page"));
@@ -119,8 +103,8 @@ export default function AdminListings() {
   const [rowsPerPage, setRowsPerPage] = useState(() => readInitialRowsPerPageFromParams(searchParams));
 
   // Filters
-  const [filters, setFilters]               = useState(() => readInitialFiltersFromParams(searchParams));
-  const [debouncedSearch, setDebouncedSearch] = useState(() => readInitialFiltersFromParams(searchParams).search);
+  const [filters, setFilters]               = useState(() => readFiltersFromParams(searchParams));
+  const [debouncedSearch, setDebouncedSearch] = useState(() => readFiltersFromParams(searchParams).search);
 
   // Modals — propertyId can be a single id (string) or an array of ids (bulk action)
   const [selectedProperty, setSelectedProperty]   = useState(null);
@@ -269,10 +253,22 @@ export default function AdminListings() {
     queryClient.invalidateQueries({ queryKey: ["adminProperties"] });
   }, [queryClient]);
 
+  // Keep an open details modal in step with the review just made, so it
+  // doesn't keep showing the old status and offering the same action again.
+  const syncSelected = useCallback((updated) => {
+    if (!updated?._id) return;
+    setSelectedProperty((prev) =>
+      prev && String(prev._id) === String(updated._id)
+        ? { ...prev, status: updated.status, rejectionReason: updated.rejectionReason, reviewedAt: updated.reviewedAt }
+        : prev
+    );
+  }, []);
+
   const approveMutation = useMutation({
     mutationFn: approvePropertyApi,
     onSuccess:  (result) => {
       invalidateProperties();
+      syncSelected(result?.property);
       // "Approved, but hidden until the posting agent is reinstated" when the
       // agent is suspended.
       toast.success(result?.message || "Property approved");
@@ -283,8 +279,9 @@ export default function AdminListings() {
 
   const rejectMutation = useMutation({
     mutationFn: rejectPropertyApi,
-    onSuccess:  () => {
+    onSuccess:  (result) => {
       invalidateProperties();
+      syncSelected(result?.property);
       toast.success("Property rejected");
       setRejectModal({ open: false, propertyId: null });
     },
@@ -383,19 +380,6 @@ export default function AdminListings() {
 
   // ── Render ───────────────────────────────────────────────────────────────────
 
-  if (isError && !data) {
-    return (
-      <Box>
-        <Alert
-          severity="error"
-          action={<Button onClick={refetch} size="small">Retry</Button>}
-        >
-          Failed to load properties.
-        </Alert>
-      </Box>
-    );
-  }
-
   return (
     <Box>
       <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
@@ -448,7 +432,15 @@ export default function AdminListings() {
         </Box>
       )}
 
-      {isLoading && !data ? (
+      {/* The filters above stay on screen, so a filter that fails can be changed. */}
+      {isError && !data ? (
+        <Alert
+          severity="error"
+          action={<Button onClick={() => refetch()} size="small">Retry</Button>}
+        >
+          Failed to load properties. Try again, or change the filters above.
+        </Alert>
+      ) : isLoading && !data ? (
         <Box>
           {[...Array(8)].map((_, i) => (
             <Skeleton key={i} variant="rectangular" height={52} sx={{ mb: 0.5, borderRadius: 1 }} />

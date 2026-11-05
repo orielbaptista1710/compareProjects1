@@ -353,6 +353,23 @@ describe("admin listing table - who posted it", () => {
     expect(res.body.data[0].userId.displayName).toBe("Old Dev");
   });
 
+  it("'Builder' (listedBy=developer) also finds developer listings saved before listedBy existed", async () => {
+    const token = await adminToken();
+    const developer = await createUser();
+    const labelled = await createProperty({ userId: developer._id, listedBy: "developer", title: "Labelled" });
+    const legacy = await createProperty({ userId: developer._id, title: "Legacy" });
+    await Property.collection.updateOne({ _id: legacy._id }, { $unset: { listedBy: "", ownerModel: "" } });
+    const customer = await createCustomer();
+    await createProperty({ userId: customer._id, ownerModel: "Customer", listedBy: "owner", developerName: undefined });
+
+    const res = await request(app)
+      .get("/api/admin/properties?listedBy=developer&status=")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.map((p) => String(p._id)).sort()).toEqual([String(labelled._id), String(legacy._id)].sort());
+  });
+
   it("rejects an unknown listedBy filter (400)", async () => {
     const token = await adminToken();
 

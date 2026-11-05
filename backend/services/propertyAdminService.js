@@ -3,7 +3,7 @@
 import mongoose from 'mongoose';
 import Property from '../models/Property.js';
 import Customer from '../models/Customer.js';
-import { AGENT_STATUS, OWNER_MODEL } from '../constants/roles.js';
+import { AGENT_STATUS, LISTED_BY, OWNER_MODEL } from '../constants/roles.js';
 import { invalidatePropertyCaches } from '../utils/propertyCache.js';
 import logger from '../utils/logger.js';
 /**
@@ -56,7 +56,19 @@ export const fetchProperties = async ({
   if (city) filter.city = city;
   if (locality) filter.locality = locality;
   if (propertyType) filter.propertyType = propertyType;
-  if (listedBy) filter.listedBy = listedBy;
+  if (listedBy === LISTED_BY.DEVELOPER) {
+    // Developer listings saved before listedBy existed have none. Owner and
+    // agent listings always have it, so anything unlabelled that wasn't posted
+    // from a customer account is a developer listing.
+    andConditions.push({
+      $or: [
+        { listedBy: LISTED_BY.DEVELOPER },
+        { listedBy: null, ownerModel: { $ne: OWNER_MODEL.CUSTOMER } },
+      ],
+    });
+  } else if (listedBy) {
+    filter.listedBy = listedBy;
+  }
 
   /* --------------------------------------------------
    * 3. SEARCH FILTER (case-insensitive, safe length)

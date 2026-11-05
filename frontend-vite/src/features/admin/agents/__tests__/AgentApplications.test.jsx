@@ -117,6 +117,46 @@ describe("AgentApplications (admin Agents tab)", () => {
     await waitFor(() => expect(API.put).toHaveBeenCalledWith("/api/admin/agents/c1/approve", {}));
   });
 
+  it("allows one action at a time, so a second click can't hide the first one's progress", async () => {
+    agentsFor({ pending: [makeAgent(), makeAgent({ _id: "c2", customerName: "Meera Iyer" })] });
+    API.put.mockReturnValue(new Promise(() => {})); // first approve never finishes
+    renderTab();
+    const u = user();
+
+    const [first, second] = await screen.findAllByRole("button", { name: "Approve" });
+    await u.click(first);
+
+    await waitFor(() => expect(second).toBeDisabled());
+    expect(screen.getAllByRole("button", { name: "Reject" }).every((b) => b.disabled)).toBe(true);
+  });
+
+  it("steps back a page when an action empties the current one", async () => {
+    const pageOne = Array.from({ length: 20 }, (_, i) => makeAgent({ _id: `p1-${i}`, customerName: `Agent ${i}` }));
+    let lastOneHandled = false;
+    API.get.mockImplementation((url, { params }) => {
+      if (params.page === 1) return Promise.resolve({ data: { data: pageOne, total: lastOneHandled ? 20 : 21 } });
+      return Promise.resolve({
+        data: lastOneHandled
+          ? { data: [], total: 20 }
+          : { data: [makeAgent({ _id: "last", customerName: "Last Agent" })], total: 21 },
+      });
+    });
+    API.put.mockImplementation(() => {
+      lastOneHandled = true;
+      return Promise.resolve({ data: { success: true } });
+    });
+    renderTab();
+    const u = user();
+
+    await screen.findByText("Agent 0");
+    await u.click(screen.getByRole("button", { name: /next page/i }));
+    await u.click(await screen.findByRole("button", { name: "Approve" }));
+
+    // Back on page 1 with its agents, not a blank "No pending agents" page.
+    expect(await screen.findByText("Agent 0")).toBeInTheDocument();
+    expect(screen.queryByText(/No pending agents/)).not.toBeInTheDocument();
+  });
+
   it("shows the rejection reason on the Rejected tab", async () => {
     agentsFor({
       rejected: [makeAgent({ agent: { status: "rejected", agencyName: "Prime Realty", rejectionReason: "Wrong RERA ID" } })],
