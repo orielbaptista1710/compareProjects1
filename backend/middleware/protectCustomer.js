@@ -38,9 +38,11 @@ const protectCustomer = async (req, res, next) => {
     // it over. Sync it here (not just at login) so the badge flips on the
     // very next request instead of requiring a logout/login. Only write on
     // the false -> true transition, so this isn't a DB write on every request.
+    // updateOne, not save(): save() re-validates the whole document, so an old
+    // record that breaks a newer rule (e.g. phone format) would 500 every request.
     if (decoded.email_verified === true && !customer.emailVerified) {
+      await Customer.updateOne({ _id: customer._id }, { $set: { emailVerified: true } });
       customer.emailVerified = true;
-      await customer.save();
     }
 
     req.customer = customer;

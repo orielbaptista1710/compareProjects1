@@ -97,10 +97,12 @@ const CustomerSignupPage = ({ isAgent = false }) => {
     setSubmitting(true);
     setError({});
 
+    let createdUser = null;
     try {
       const userCredential = await createUserWithEmailAndPassword(
         CustomerAuth, form.customerEmail, form.customerPassword
       );
+      createdUser = userCredential.user;
       const idToken = await userCredential.user.getIdToken();
       // Agent status can only be set here, as the account is created — the
       // backend never turns an existing customer account into an agent.
@@ -145,9 +147,12 @@ const CustomerSignupPage = ({ isAgent = false }) => {
         "Signup failed. Please try again.";
       setError({ global: message });
 
-      const backendServerError = err.response?.status >= 500;
-      if (backendServerError && CustomerAuth.currentUser) {
-        try { await CustomerAuth.currentUser.delete(); } catch (e) { console.error(e); }
+      // The backend refused the signup (any status): remove the Firebase login
+      // created moments ago, so the same email can simply try again. Kept, it
+      // would block a retry ("email already in use") and a later login would
+      // make it a plain customer that can never become an agent.
+      if (err.response && createdUser) {
+        try { await createdUser.delete(); } catch (e) { console.error(e); }
       }
     } finally {
       setSubmitting(false);

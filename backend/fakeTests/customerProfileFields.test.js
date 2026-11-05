@@ -19,6 +19,7 @@ vi.mock("../config/firebaseAdmin.js", () => ({
 const { default: app } = await import("./helpers/customerRoutesApp.js");
 const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js");
 const { createCustomer } = await import("./helpers/fixtures.js");
+const { default: Customer } = await import("../models/Customer.js");
 
 beforeAll(async () => {
   await startTestDb();
@@ -91,6 +92,21 @@ describe("GET /api/customers/me", () => {
       .set("Authorization", `Bearer ${staleClaimToken}`);
 
     expect(secondRes.body.customer.emailVerified).toBe(true);
+  });
+
+  it("syncs emailVerified for an old record that breaks a newer rule, instead of a 500", async () => {
+    const customer = await createCustomer({ emailVerified: false });
+    // As if saved before the 2-character name rule existed.
+    await Customer.collection.updateOne({ _id: customer._id }, { $set: { customerName: "R" } });
+    const token = tokenFor(customer.firebaseUid, { email_verified: true });
+
+    const res = await request(app)
+      .get("/api/customers/me")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.customer.emailVerified).toBe(true);
+    expect((await Customer.findById(customer._id).lean()).emailVerified).toBe(true);
   });
 });
 

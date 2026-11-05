@@ -54,17 +54,23 @@ router.get('/my-activity', protectCustomer, async (req, res) => {
 
     const allHeartIds = customer.heartProperties.map(String);
     const start = (page - 1) * limit;
-    // const heartPageIds = customer.heartProperties; // TEMP: break pagination to verify the test catches it
-    const heartPageIds = customer.heartProperties.slice(start, start + limit);
 
     // Only live listings: a saved listing that was later rejected, or hidden by
-    // an agent suspension, drops out (reorderByIds skips the missing ones).
-    const [heartDocs, compareDocs] = await Promise.all([
-      Property.find({ _id: { $in: heartPageIds }, status: 'approved' }).select(PROPERTY_CARD_FIELDS).lean(),
+    // an agent suspension, drops out. Find the live ids first (ids only, at most
+    // MAX_HEART_PROPERTIES) and page over those, so pages stay full and
+    // total/hasMore don't count listings the customer can't see.
+    const [liveHearts, compareDocs] = await Promise.all([
+      Property.find({ _id: { $in: customer.heartProperties }, status: 'approved' }).select('_id').lean(),
       Property.find({ _id: { $in: customer.compareProperties }, status: 'approved' })
         .select(COMPARE_PROPERTY_FIELDS)
         .lean(),
     ]);
+    const liveIds = new Set(liveHearts.map((doc) => String(doc._id)));
+    const liveHeartIds = customer.heartProperties.filter((id) => liveIds.has(String(id)));
+    // const heartPageIds = liveHeartIds; // TEMP: break pagination to verify the test catches it
+    const heartPageIds = liveHeartIds.slice(start, start + limit);
+
+    const heartDocs = await Property.find({ _id: { $in: heartPageIds } }).select(PROPERTY_CARD_FIELDS).lean();
 
     res.json({
       success: true,
@@ -77,8 +83,8 @@ router.get('/my-activity', protectCustomer, async (req, res) => {
       heartPagination: {
         page,
         limit,
-        total: allHeartIds.length,
-        hasMore: start + limit < allHeartIds.length,
+        total: liveHeartIds.length,
+        hasMore: start + limit < liveHeartIds.length,
       },
       compareProperties: reorderByIds(customer.compareProperties, compareDocs),
     });

@@ -176,18 +176,32 @@ describe("CustomerSignupPage — agent variant (/agent-signup)", () => {
     expect(createUserWithEmailAndPassword).not.toHaveBeenCalled();
   });
 
-  it("shows the server's message and stays on the page when the backend refuses the agent signup", async () => {
-    createUserWithEmailAndPassword.mockResolvedValue(makeUserCredential());
-    API.post.mockRejectedValue({
-      response: { status: 409, data: { message: "Use a different email to sign up as an agent." } },
-    });
+  it.each([400, 409])(
+    "on a %s from the backend: shows its message, stays on the page and removes the new Firebase login",
+    async (status) => {
+      const credential = makeUserCredential();
+      createUserWithEmailAndPassword.mockResolvedValue(credential);
+      API.post.mockRejectedValue({ response: { status, data: { message: "Agency name is too short." } } });
+
+      await fillAgentAndSubmit();
+
+      await waitFor(() => expect(screen.getByText("Agency name is too short.")).toBeInTheDocument());
+      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(sendEmailVerification).not.toHaveBeenCalled();
+      // Otherwise the email is stuck: a retry says "already in use", and a
+      // login would turn it into a customer account that can't become an agent.
+      await waitFor(() => expect(credential.user.delete).toHaveBeenCalledTimes(1));
+    }
+  );
+
+  it("keeps the Firebase login when the failure isn't a backend answer (e.g. offline)", async () => {
+    const credential = makeUserCredential();
+    createUserWithEmailAndPassword.mockResolvedValue(credential);
+    API.post.mockRejectedValue(new Error("Network Error"));
 
     await fillAgentAndSubmit();
 
-    await waitFor(() =>
-      expect(screen.getByText("Use a different email to sign up as an agent.")).toBeInTheDocument()
-    );
-    expect(mockNavigate).not.toHaveBeenCalled();
-    expect(sendEmailVerification).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByText(/signup failed/i)).toBeInTheDocument());
+    expect(credential.user.delete).not.toHaveBeenCalled();
   });
 });

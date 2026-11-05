@@ -285,4 +285,25 @@ describe("saved lists only ever show live listings", () => {
       expect(titles(put.body.compareProperties)).toEqual(["Live"]);
     }
   );
+
+  it("pages over live listings only, so hidden ones don't leave short pages or a phantom 'Load more'", async () => {
+    const developer = await createUser();
+    const hidden = await Promise.all(
+      Array.from({ length: 3 }, (_, i) => createProperty({ title: `Hidden ${i}`, status: "rejected", userId: developer._id }))
+    );
+    const live = await Promise.all(
+      Array.from({ length: 3 }, (_, i) => createLiveProperty({ title: `Live ${i}`, userId: developer._id }))
+    );
+    // Hidden ones first, so a slice-then-filter page 1 would come back empty.
+    const customer = await createCustomer({ heartProperties: [...hidden, ...live].map((p) => p._id) });
+    const token = tokenFor(customer.firebaseUid);
+
+    const res = await request(app)
+      .get("/api/customerActivity/my-activity?heartLimit=3")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.body.heartProperties.map((p) => p.title)).toEqual(["Live 0", "Live 1", "Live 2"]);
+    expect(res.body.heartPagination).toEqual({ page: 1, limit: 3, total: 3, hasMore: false });
+    expect(res.body.heartedIds).toHaveLength(6); // heart icons still know what's saved
+  });
 });
