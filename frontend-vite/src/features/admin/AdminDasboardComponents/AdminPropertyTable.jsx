@@ -1,7 +1,14 @@
 // src/components/Admin/AdminPropertyTable.js
 import { useMemo } from "react";
-import { Button } from "@mui/material";
+import { Button, Chip, Tooltip } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+import {
+  LISTING_STATUS_LABELS,
+  LISTING_STATUS_COLORS,
+  SUSPENDED_APPROVE_HINT,
+  canApprove,
+  canReject,
+} from "../listingStatus";
 import "./AdminPropertyTable.css";
 
 export default function AdminPropertyTable({
@@ -49,7 +56,19 @@ export default function AdminPropertyTable({
           : "N/A"
     },
 
-    { field: "status", headerName: "Status", flex: 1 },
+    {
+      field: "status",
+      headerName: "Status",
+      flex: 1,
+      renderCell: ({ value }) => (
+        <Chip
+          size="small"
+          label={LISTING_STATUS_LABELS[value] ?? value}
+          color={LISTING_STATUS_COLORS[value] ?? "default"}
+          variant="outlined"
+        />
+      ),
+    },
 
     {
       field: "submittedAt",
@@ -89,25 +108,30 @@ export default function AdminPropertyTable({
 
         return (
           <>
-            <Button
-              variant="contained"
-              color="success"
-              size="small"
-              disabled={prop.status === "approved" || isApprovingThis}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleApprove(prop._id);
-              }}
-              sx={{ mr: 1 }}
-            >
-              {isApprovingThis ? "Approving…" : "Approve"}
-            </Button>
+            <Tooltip title={prop.status === "suspended" ? SUSPENDED_APPROVE_HINT : ""}>
+              {/* span: a disabled button can't trigger its tooltip */}
+              <span>
+                <Button
+                  variant="contained"
+                  color="success"
+                  size="small"
+                  disabled={!canApprove(prop.status) || isApprovingThis}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleApprove(prop._id);
+                  }}
+                  sx={{ mr: 1 }}
+                >
+                  {isApprovingThis ? "Approving…" : "Approve"}
+                </Button>
+              </span>
+            </Tooltip>
 
             <Button
               variant="contained"
               color="error"
               size="small"
-              disabled={prop.status === "rejected" || isRejectingThis}
+              disabled={!canReject(prop.status) || isRejectingThis}
               onClick={(e) => {
                 e.stopPropagation();
                 handleOpenReject(prop._id);
@@ -143,6 +167,7 @@ export default function AdminPropertyTable({
         if (params.row.status === "approved") return "row-approved";
         if (params.row.status === "rejected") return "row-rejected";
         if (params.row.status === "pending") return "row-pending";
+        if (params.row.status === "suspended") return "row-suspended";
         return "";
       }}
       onRowClick={(params) => onRowClick(params.row)}

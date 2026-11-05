@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import { Autocomplete } from "@mui/material";
 import { X } from "lucide-react";
+import { LISTING_STATUS_LABELS } from "../listingStatus";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 // Keep in sync with propertyType.js — or import directly if bundler allows
@@ -26,12 +27,7 @@ const PROPERTY_TYPES = [
   "Commercial Land",
 ];
 
-const STATUS_OPTIONS = [
-  { value: "pending",  label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-  { value: "suspended", label: "Hidden (agent suspended)" },
-];
+const STATUS_OPTIONS = Object.entries(LISTING_STATUS_LABELS).map(([value, label]) => ({ value, label }));
 
 const IMAGE_OPTIONS = [
   { value: "withImages",    label: "Has images" },

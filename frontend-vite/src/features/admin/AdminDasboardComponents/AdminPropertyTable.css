@@ -9,3 +9,8 @@
 .row-pending {
   background-color: #FFFDE7;
 }
+
+.row-suspended {
+  background-color: #F5F5F5;
+  color: #757575;
+}

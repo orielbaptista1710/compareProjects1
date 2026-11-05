@@ -4,10 +4,15 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import API from "../../../api/api";
+import toast from "react-hot-toast";
 import AdminDashboard from "../AdminDashboard";
 
 vi.mock("../../../api/api", () => ({
   default: { get: vi.fn(), put: vi.fn(), post: vi.fn() },
+}));
+
+vi.mock("react-hot-toast", () => ({
+  default: { success: vi.fn(), error: vi.fn() },
 }));
 
 afterEach(() => {
@@ -161,6 +166,58 @@ describe("AdminDashboard - URL param hydration", () => {
       await screen.findByText(/failed to load properties/i, {}, { timeout: 10000 })
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
+  }, 15000);
+});
+
+describe("AdminDashboard - review feedback", () => {
+  it("needs a reason before a listing can be rejected, and sends it", async () => {
+    setupApiMocks();
+    const user = userEvent.setup({ delay: null });
+    renderDashboard();
+
+    await user.click(await screen.findByRole("button", { name: /^reject$/i }));
+    const dialog = await screen.findByRole("dialog");
+    const confirm = within(dialog).getByRole("button", { name: /^reject$/i });
+    expect(confirm).toBeDisabled();
+
+    await user.type(within(dialog).getByLabelText(/reason for rejection/i), "Price looks wrong");
+    await user.click(confirm);
+
+    await waitFor(() =>
+      expect(API.put).toHaveBeenCalledWith("/api/admin/reject/prop-1", { rejectionReason: "Price looks wrong" })
+    );
+  }, 15000);
+
+  it("shows the server's approve message, e.g. when the posting agent is suspended", async () => {
+    setupApiMocks();
+    API.put.mockResolvedValue({
+      data: { success: true, message: "Approved, but hidden until the posting agent is reinstated" },
+    });
+    const user = userEvent.setup({ delay: null });
+    renderDashboard();
+
+    await user.click(await screen.findByRole("button", { name: /^approve$/i }));
+    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: /^approve$/i }));
+
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith("Approved, but hidden until the posting agent is reinstated")
+    );
+  }, 15000);
+
+  it("explains a refused self-review instead of 'account deactivated'", async () => {
+    setupApiMocks();
+    API.put.mockRejectedValue({
+      response: { status: 403, data: { message: "You cannot review a property you submitted yourself" } },
+    });
+    const user = userEvent.setup({ delay: null });
+    renderDashboard();
+
+    await user.click(await screen.findByRole("button", { name: /^approve$/i }));
+    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: /^approve$/i }));
+
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith("You cannot review a property you submitted yourself")
+    );
   }, 15000);
 });
 

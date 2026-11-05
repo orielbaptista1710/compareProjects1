@@ -111,3 +111,15 @@ describe("AdminPropertyTable - per-row mutation state", () => {
     expect(screen.getByRole("button", { name: /rejecting/i })).toBeDisabled();
   });
 });
+
+describe("AdminPropertyTable - hidden (suspended agent) listings", () => {
+  it("can't be approved (nothing would change) but can still be rejected", () => {
+    render(
+      <AdminPropertyTable {...baseProps({ data: { data: [makeProperty({ status: "suspended" })], total: 1 } })} />
+    );
+
+    expect(screen.getByText("Hidden (agent suspended)")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Approve" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Reject" })).toBeEnabled();
+  });
+});

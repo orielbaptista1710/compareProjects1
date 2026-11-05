@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Box, Typography, Button, CircularProgress,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField,
+  Dialog, DialogTitle, DialogContent, DialogActions,
   Alert, Skeleton,
 } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,6 +15,8 @@ import debounce from "lodash.debounce";
 import AdminPropertyTable from "../AdminDasboardComponents/AdminPropertyTable";
 import DeveloperDetailsModal from "../AdminDasboardComponents/DeveloperDetailsModal";
 import AdminFilters from "../AdminDasboardComponents/AdminFilters";
+import { canApprove, canReject } from "../listingStatus";
+import RejectListingDialog from "./RejectListingDialog";
 
 import toast from "react-hot-toast";
 import toastError from "../../../utils/toastError";
@@ -57,6 +59,22 @@ const bulkRejectPropertiesApi = async ({ ids, reason }) => {
   const { data } = await API.put("/api/admin/bulk-reject", { ids, rejectionReason: reason });
   return data;
 };
+
+// A 403 here is "you can't review your own listing", not a deactivated
+// account (toastError's generic 403 text), so show the server's reason.
+const showReviewError = (err, fallback) => {
+  const serverMsg = err.response?.data?.message;
+  if (err.response?.status === 403 && serverMsg) return toast.error(serverMsg);
+  return toastError(err, fallback);
+};
+
+const plural = (n) => `${n} propert${n === 1 ? "y" : "ies"}`;
+
+// Bulk approve keeps a suspended agent's listings hidden; say so.
+const bulkApprovedMessage = ({ modified = 0, hidden = 0 }) =>
+  hidden
+    ? `${plural(modified)} approved — ${hidden} stay hidden until the posting agent is reinstated`
+    : `${plural(modified)} approved`;
 
 // ─── Default filter state (stable reference — avoids inline object recreation) ─
 // Keep in sync with AdminFilters.jsx's DEFAULT_FILTERS
@@ -116,7 +134,7 @@ export default function AdminListings() {
   const [selectedProperty, setSelectedProperty]   = useState(null);
   const [detailsModalOpen, setDetailsModalOpen]   = useState(false);
   const [detailsLoading, setDetailsLoading]       = useState(false);
-  const [rejectModal, setRejectModal]             = useState({ open: false, propertyId: null, reason: "" });
+  const [rejectModal, setRejectModal]             = useState({ open: false, propertyId: null });
   const [confirmApprove, setConfirmApprove]       = useState({ open: false, propertyId: null });
 
   // Bulk selection (checkbox column in AdminPropertyTable).
@@ -257,12 +275,14 @@ export default function AdminListings() {
 
   const approveMutation = useMutation({
     mutationFn: approvePropertyApi,
-    onSuccess:  () => {
+    onSuccess:  (result) => {
       invalidateProperties();
-      toast.success("Property approved");
+      // "Approved, but hidden until the posting agent is reinstated" when the
+      // agent is suspended.
+      toast.success(result?.message || "Property approved");
       setConfirmApprove({ open: false, propertyId: null });
     },
-    onError: (err) => toastError(err, "Failed to approve property"),
+    onError: (err) => showReviewError(err, "Failed to approve property"),
   });
 
   const rejectMutation = useMutation({
@@ -270,31 +290,31 @@ export default function AdminListings() {
     onSuccess:  () => {
       invalidateProperties();
       toast.success("Property rejected");
-      setRejectModal({ open: false, propertyId: null, reason: "" });
+      setRejectModal({ open: false, propertyId: null });
     },
-    onError: (err) => toastError(err, "Failed to reject property"),
+    onError: (err) => showReviewError(err, "Failed to reject property"),
   });
 
   const bulkApproveMutation = useMutation({
     mutationFn: bulkApprovePropertiesApi,
     onSuccess:  (result) => {
       invalidateProperties();
-      toast.success(`${result.modified} propert${result.modified === 1 ? "y" : "ies"} approved`);
+      toast.success(bulkApprovedMessage(result));
       setConfirmApprove({ open: false, propertyId: null });
       clearSelection();
     },
-    onError: (err) => toastError(err, "Failed to approve properties"),
+    onError: (err) => showReviewError(err, "Failed to approve properties"),
   });
 
   const bulkRejectMutation = useMutation({
     mutationFn: bulkRejectPropertiesApi,
     onSuccess:  (result) => {
       invalidateProperties();
-      toast.success(`${result.modified} propert${result.modified === 1 ? "y" : "ies"} rejected`);
-      setRejectModal({ open: false, propertyId: null, reason: "" });
+      toast.success(`${plural(result.modified)} rejected`);
+      setRejectModal({ open: false, propertyId: null });
       clearSelection();
     },
-    onError: (err) => toastError(err, "Failed to reject properties"),
+    onError: (err) => showReviewError(err, "Failed to reject properties"),
   });
 
   // ── Row click — load full property detail ────────────────────────────────────
@@ -338,19 +358,24 @@ export default function AdminListings() {
 
   // ── Reject flow (single row or bulk) ──────────────────────────────────────────
 
-  const handleOpenReject = useCallback((id) => setRejectModal({ open: true, propertyId: id, reason: "" }), []);
+  const handleOpenReject = useCallback((id) => setRejectModal({ open: true, propertyId: id }), []);
 
   const handleBulkRejectClick = useCallback(() => {
-    setRejectModal({ open: true, propertyId: Array.from(selectionModel.ids), reason: "" });
+    setRejectModal({ open: true, propertyId: Array.from(selectionModel.ids) });
   }, [selectionModel]);
 
-  const handleRejectConfirm = useCallback(() => {
+  // Owners and agents see the reason on their listing, so it's required
+  // (RejectListingDialog won't confirm without one).
+  const handleRejectConfirm = useCallback((reason) => {
+    if (!reason) return;
     if (Array.isArray(rejectModal.propertyId)) {
-      bulkRejectMutation.mutate({ ids: rejectModal.propertyId, reason: rejectModal.reason });
+      bulkRejectMutation.mutate({ ids: rejectModal.propertyId, reason });
     } else {
-      rejectMutation.mutate({ id: rejectModal.propertyId, reason: rejectModal.reason });
+      rejectMutation.mutate({ id: rejectModal.propertyId, reason });
     }
-  }, [rejectMutation, bulkRejectMutation, rejectModal]);
+  }, [rejectMutation, bulkRejectMutation, rejectModal.propertyId]);
+
+  const closeReject = useCallback(() => setRejectModal({ open: false, propertyId: null }), []);
 
   const isApprovePending = Array.isArray(confirmApprove.propertyId)
     ? bulkApproveMutation.isPending
@@ -462,8 +487,8 @@ export default function AdminListings() {
         onClose={handleCloseDetails}
         property={selectedProperty}
         loading={detailsLoading}
-        onApprove={selectedProperty ? () => handleApprove(selectedProperty._id) : undefined}
-        onReject={selectedProperty ? () => handleOpenReject(selectedProperty._id) : undefined}
+        onApprove={selectedProperty && canApprove(selectedProperty.status) ? () => handleApprove(selectedProperty._id) : undefined}
+        onReject={selectedProperty && canReject(selectedProperty.status) ? () => handleOpenReject(selectedProperty._id) : undefined}
         isApproving={approveMutation.isPending && approveMutation.variables === selectedProperty?._id}
         isRejecting={rejectMutation.isPending && rejectMutation.variables?.id === selectedProperty?._id}
       />
@@ -484,6 +509,7 @@ export default function AdminListings() {
             {Array.isArray(confirmApprove.propertyId)
               ? "This will mark the selected listings as approved and make them visible to customers."
               : "This will mark the listing as approved and make it visible to customers."}
+            {" "}Listings from a suspended agent stay hidden until the agent is reinstated.
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -501,44 +527,13 @@ export default function AdminListings() {
         </DialogActions>
       </Dialog>
 
-      <Dialog
+      <RejectListingDialog
         open={rejectModal.open}
-        onClose={() => setRejectModal({ open: false, propertyId: null, reason: "" })}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>
-          {Array.isArray(rejectModal.propertyId)
-            ? `Reject ${rejectModal.propertyId.length} properties`
-            : "Reject property"}
-        </DialogTitle>
-        <DialogContent sx={{ pt: 2 }}>
-          <TextField
-            label="Reason for rejection"
-            placeholder="e.g. Missing RERA number, incorrect price…"
-            fullWidth
-            multiline
-            rows={3}
-            value={rejectModal.reason}
-            onChange={(e) => setRejectModal((prev) => ({ ...prev, reason: e.target.value }))}
-            autoFocus
-            slotProps={{ htmlInput: { maxLength: 500 } }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setRejectModal({ open: false, propertyId: null, reason: "" })}>
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleRejectConfirm}
-            disabled={isRejectPending}
-          >
-            {isRejectPending ? "Rejecting…" : "Reject"}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        count={Array.isArray(rejectModal.propertyId) ? rejectModal.propertyId.length : 1}
+        isPending={isRejectPending}
+        onConfirm={handleRejectConfirm}
+        onClose={closeReject}
+      />
     </Box>
   );
 }
