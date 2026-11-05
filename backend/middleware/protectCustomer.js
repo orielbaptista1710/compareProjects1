@@ -28,6 +28,11 @@ const protectCustomer = async (req, res, next) => {
       return res.status(401).json({ message: "Customer not found" });
     }
 
+    // `=== false` so documents created before isActive existed stay active.
+    if (customer.isActive === false) {
+      return res.status(403).json({ message: "Your account has been suspended. Contact support." });
+    }
+
     // Firebase marks the account verified the moment the user clicks the
     // emailed link, but that only lives on Firebase's servers until we copy
     // it over. Sync it here (not just at login) so the badge flips on the

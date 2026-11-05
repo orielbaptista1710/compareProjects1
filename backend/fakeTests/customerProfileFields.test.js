@@ -140,4 +140,28 @@ describe("POST /api/customers/firebase-login", () => {
     expect(res.status).toBe(200);
     expect(res.body.customer.emailVerified).toBe(true);
   });
+
+  it("checks the token isn't revoked, and refuses a deleted account's leftover token (401)", async () => {
+    // A deleted Firebase user's token is still signed for up to an hour; with
+    // checkRevoked Firebase rejects it, so it can't recreate the Customer.
+    verifyIdToken.mockRejectedValue(Object.assign(new Error("gone"), { code: "auth/user-not-found" }));
+
+    const res = await request(app).post("/api/customers/firebase-login").send({ token: "old-token" });
+
+    expect(verifyIdToken).toHaveBeenCalledWith("old-token", true);
+    expect(res.status).toBe(401);
+  });
+
+  it("refuses a suspended customer with a message the login page can show (403)", async () => {
+    const customer = await createCustomer({ isActive: false });
+    const token = tokenFor(customer.firebaseUid);
+
+    const res = await request(app)
+      .post("/api/customers/firebase-login")
+      .send({ token });
+
+    expect(res.status).toBe(403);
+    expect(res.body.message).toMatch(/suspended/i);
+    expect(res.body.customer).toBeUndefined();
+  });
 });
