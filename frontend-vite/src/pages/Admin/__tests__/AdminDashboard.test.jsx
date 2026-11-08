@@ -4,10 +4,15 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import API from "../../../api/api";
+import toast from "react-hot-toast";
 import AdminDashboard from "../AdminDashboard";
 
 vi.mock("../../../api/api", () => ({
   default: { get: vi.fn(), put: vi.fn(), post: vi.fn() },
+}));
+
+vi.mock("react-hot-toast", () => ({
+  default: { success: vi.fn(), error: vi.fn() },
 }));
 
 afterEach(() => {
@@ -162,4 +167,115 @@ describe("AdminDashboard - URL param hydration", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();
   }, 15000);
+});
+
+describe("AdminDashboard - review feedback", () => {
+  it("needs a reason before a listing can be rejected, and sends it", async () => {
+    setupApiMocks();
+    const user = userEvent.setup({ delay: null });
+    renderDashboard();
+
+    await user.click(await screen.findByRole("button", { name: /^reject$/i }));
+    const dialog = await screen.findByRole("dialog");
+    const confirm = within(dialog).getByRole("button", { name: /^reject$/i });
+    expect(confirm).toBeDisabled();
+
+    await user.type(within(dialog).getByLabelText(/reason for rejection/i), "Price looks wrong");
+    await user.click(confirm);
+
+    await waitFor(() =>
+      expect(API.put).toHaveBeenCalledWith("/api/admin/reject/prop-1", { rejectionReason: "Price looks wrong" })
+    );
+  }, 15000);
+
+  it("shows the server's approve message, e.g. when the posting agent is suspended", async () => {
+    setupApiMocks();
+    API.put.mockResolvedValue({
+      data: { success: true, message: "Approved, but hidden until the posting agent is reinstated" },
+    });
+    const user = userEvent.setup({ delay: null });
+    renderDashboard();
+
+    await user.click(await screen.findByRole("button", { name: /^approve$/i }));
+    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: /^approve$/i }));
+
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith("Approved, but hidden until the posting agent is reinstated")
+    );
+  }, 15000);
+
+  it("explains a refused self-review instead of 'account deactivated'", async () => {
+    setupApiMocks();
+    API.put.mockRejectedValue({
+      response: { status: 403, data: { message: "You cannot review a property you submitted yourself" } },
+    });
+    const user = userEvent.setup({ delay: null });
+    renderDashboard();
+
+    await user.click(await screen.findByRole("button", { name: /^approve$/i }));
+    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: /^approve$/i }));
+
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith("You cannot review a property you submitted yourself")
+    );
+  }, 15000);
+});
+
+describe("AdminDashboard - Posted by filter", () => {
+  it("sends listedBy from the URL, and ignores a value the backend would reject", async () => {
+    setupApiMocks();
+    renderDashboard({ initialEntries: ["/admin?listedBy=agent"] });
+
+    await waitFor(() =>
+      expect(API.get).toHaveBeenCalledWith(
+        "/api/admin/properties",
+        expect.objectContaining({ params: expect.objectContaining({ listedBy: "agent" }) })
+      )
+    );
+    cleanup();
+    vi.clearAllMocks();
+
+    setupApiMocks();
+    renderDashboard({ initialEntries: ["/admin?listedBy=broker"] });
+
+    await waitFor(() =>
+      expect(API.get).toHaveBeenCalledWith(
+        "/api/admin/properties",
+        expect.objectContaining({ params: expect.objectContaining({ listedBy: undefined }) })
+      )
+    );
+  });
+
+  it("doesn't show 'Clear' for the default (pending) view", async () => {
+    setupApiMocks();
+    renderDashboard();
+
+    await screen.findByText("Test Property");
+    expect(screen.queryByRole("button", { name: /clear/i })).not.toBeInTheDocument();
+  });
+});
+
+describe("AdminDashboard - tabs", () => {
+  it("opens the Agents tab from ?tab=agents without loading listings", async () => {
+    setupApiMocks();
+    renderDashboard({ initialEntries: ["/admin?tab=agents"] });
+
+    expect(await screen.findByRole("tab", { name: "Agents", selected: true })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(API.get).toHaveBeenCalledWith("/api/admin/agents", expect.objectContaining({ params: expect.anything() }))
+    );
+    expect(API.get).not.toHaveBeenCalledWith("/api/admin/properties", expect.anything());
+  });
+
+  it("switches from Listings to Agents", async () => {
+    setupApiMocks();
+    renderDashboard();
+
+    await userEvent.setup({ delay: null }).click(await screen.findByRole("tab", { name: "Agents" }));
+
+    expect(await screen.findByRole("tab", { name: "Agents", selected: true })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(API.get).toHaveBeenCalledWith("/api/admin/agents", expect.objectContaining({ params: expect.anything() }))
+    );
+  });
 });

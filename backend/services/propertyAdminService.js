@@ -3,7 +3,7 @@
 import mongoose from 'mongoose';
 import Property from '../models/Property.js';
 import Customer from '../models/Customer.js';
-import { AGENT_STATUS, OWNER_MODEL } from '../constants/roles.js';
+import { AGENT_STATUS, LISTED_BY, OWNER_MODEL } from '../constants/roles.js';
 import { invalidatePropertyCaches } from '../utils/propertyCache.js';
 import logger from '../utils/logger.js';
 /**
@@ -17,6 +17,9 @@ import logger from '../utils/logger.js';
 // Poster name for the admin views; userId points to a User (developer) or a
 // Customer (owner/agent) depending on Property.ownerModel.
 const POSTER_FIELDS = "displayName companyName customerName customerEmail agent.status agent.agencyName";
+// The details view also needs how to reach and verify the poster.
+const POSTER_DETAIL_FIELDS =
+  `${POSTER_FIELDS} email phone customerPhone emailVerified agent.reraAgentId`;
 
 // Admins decide approve/reject; "pending" is only ever set by an owner edit.
 const REVIEW_STATUSES = ["approved", "rejected"];
@@ -53,7 +56,19 @@ export const fetchProperties = async ({
   if (city) filter.city = city;
   if (locality) filter.locality = locality;
   if (propertyType) filter.propertyType = propertyType;
-  if (listedBy) filter.listedBy = listedBy;
+  if (listedBy === LISTED_BY.DEVELOPER) {
+    // Developer listings saved before listedBy existed have none. Owner and
+    // agent listings always have it, so anything unlabelled that wasn't posted
+    // from a customer account is a developer listing.
+    andConditions.push({
+      $or: [
+        { listedBy: LISTED_BY.DEVELOPER },
+        { listedBy: null, ownerModel: { $ne: OWNER_MODEL.CUSTOMER } },
+      ],
+    });
+  } else if (listedBy) {
+    filter.listedBy = listedBy;
+  }
 
   /* --------------------------------------------------
    * 3. SEARCH FILTER (case-insensitive, safe length)
@@ -194,7 +209,7 @@ export const fetchPropertyOwner = async (id) => {
  * -------------------------------------------------- */
 export const fetchPropertyById = async (id) => {
   const property = await Property.findById(id)
-    .populate("userId", POSTER_FIELDS)  ////
+    .populate("userId", POSTER_DETAIL_FIELDS)
     // .populate("reviewedBy", "displayName")
     .lean();
 
@@ -251,7 +266,20 @@ const findHeldListingIds = async (listings) => {
 };
 
 /* --------------------------------------------------
+ * A decision that's already been made isn't made again: re-approving an
+ * approved (or approved-but-hidden 'suspended') listing, or re-rejecting a
+ * rejected one, would only re-stamp reviewedBy/At and push a duplicate into
+ * reviewHistory (capped at 20, so real decisions fall out). Enforced in the
+ * update filter itself, so it also holds for two admins clicking at once.
+ * -------------------------------------------------- */
+const ALREADY_DECIDED = {
+  approved: ["approved", "suspended"],
+  rejected: ["rejected"],
+};
+
+/* --------------------------------------------------
  * Update property status (approve / reject)
+ * @returns {{ property } | { error: 'not_found' } | { error: 'already_reviewed', status }}
  * -------------------------------------------------- */
 export const updatePropertyStatus = async (
   id,
@@ -264,20 +292,26 @@ export const updatePropertyStatus = async (
   }
 
   const existing = await Property.findById(id).select("status ownerModel userId").lean();
-  if (!existing) return null;
+  if (!existing) return { error: "not_found" };
+  if (ALREADY_DECIDED[status].includes(existing.status)) {
+    return { error: "already_reviewed", status: existing.status };
+  }
 
   const held = status === "approved" && (await findHeldListingIds([existing])).size > 0;
-  const property = await Property.findByIdAndUpdate(
-    id,
+  const property = await Property.findOneAndUpdate(
+    { _id: id, status: { $nin: ALREADY_DECIDED[status] } },
     buildReviewUpdate(status, adminId, rejectionReason, held ? "suspended" : status),
     { new: true }
   );
-  if (property) {
-    invalidatePropertyCaches();
-    logger.info("Listing reviewed", { action: status, adminId: String(adminId), propertyIds: [String(id)] });
+  if (!property) {
+    // Decided (or deleted) between the read above and this update.
+    const now = await Property.findById(id).select("status").lean();
+    return now ? { error: "already_reviewed", status: now.status } : { error: "not_found" };
   }
 
-  return property; // null if not found — caller decides the response
+  invalidatePropertyCaches();
+  logger.info("Listing reviewed", { action: status, adminId: String(adminId), propertyIds: [String(id)] });
+  return { property };
 };
 
 /* --------------------------------------------------
@@ -305,7 +339,12 @@ export const bulkUpdatePropertyStatus = async (
   // rejection, same as the single approve/reject path. Silently dropped from
   // the batch rather than failing it, consistent with how malformed/duplicate/
   // nonexistent ids are already handled above.
-  const reviewable = await Property.find({ _id: { $in: validIds }, userId: { $ne: adminId } })
+  // Listings already in that decision are skipped too (see ALREADY_DECIDED).
+  const reviewable = await Property.find({
+    _id: { $in: validIds },
+    userId: { $ne: adminId },
+    status: { $nin: ALREADY_DECIDED[status] },
+  })
     .select("_id status ownerModel userId")
     .lean();
   const reviewableIds = reviewable.map((p) => p._id);
@@ -320,12 +359,13 @@ export const bulkUpdatePropertyStatus = async (
   const heldIds = reviewableIds.filter((pid) => held.has(String(pid)));
   const liveIds = reviewableIds.filter((pid) => !held.has(String(pid)));
 
+  const notDecided = { status: { $nin: ALREADY_DECIDED[status] } };
   const [live, hidden] = await Promise.all([
     liveIds.length
-      ? Property.updateMany({ _id: { $in: liveIds } }, buildReviewUpdate(status, adminId, rejectionReason))
+      ? Property.updateMany({ _id: { $in: liveIds }, ...notDecided }, buildReviewUpdate(status, adminId, rejectionReason))
       : { matchedCount: 0, modifiedCount: 0 },
     heldIds.length
-      ? Property.updateMany({ _id: { $in: heldIds } }, buildReviewUpdate(status, adminId, rejectionReason, "suspended"))
+      ? Property.updateMany({ _id: { $in: heldIds }, ...notDecided }, buildReviewUpdate(status, adminId, rejectionReason, "suspended"))
       : { matchedCount: 0, modifiedCount: 0 },
   ]);
   const result = {

@@ -111,3 +111,65 @@ describe("AdminPropertyTable - per-row mutation state", () => {
     expect(screen.getByRole("button", { name: /rejecting/i })).toBeDisabled();
   });
 });
+
+describe("AdminPropertyTable - hidden (suspended agent) listings", () => {
+  it("can't be approved (nothing would change) but can still be rejected", () => {
+    render(
+      <AdminPropertyTable {...baseProps({ data: { data: [makeProperty({ status: "suspended" })], total: 1 } })} />
+    );
+
+    expect(screen.getByText("Hidden (agent suspended)")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Approve" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Reject" })).toBeEnabled();
+  });
+});
+
+describe("AdminPropertyTable - Posted by column", () => {
+  it("says who posted each listing instead of 'N/A' for owners and agents", () => {
+    render(
+      <AdminPropertyTable
+        {...baseProps({
+          data: {
+            data: [
+              makeProperty({ _id: "a", listedBy: "agent", developerName: undefined, userId: { agent: { agencyName: "Prime Realty" } } }),
+              makeProperty({ _id: "b", listedBy: "owner", developerName: undefined, userId: { customerName: "Asha" } }),
+            ],
+            total: 2,
+          },
+        })}
+      />
+    );
+
+    expect(screen.getByText("Agent · Prime Realty")).toBeInTheDocument();
+    expect(screen.getByText("Owner · Asha")).toBeInTheDocument();
+  });
+});
+
+describe("AdminPropertyTable - row colours", () => {
+  it("uses admin-prefixed classes, so they can't recolour other pages' tables", () => {
+    const { container } = render(<AdminPropertyTable {...baseProps()} />);
+
+    expect(container.querySelector(".admin-row-pending")).not.toBeNull();
+    expect(container.querySelector(".row-pending")).toBeNull();
+  });
+});
+
+describe("AdminPropertyTable - select all", () => {
+  it("reports the actual row ids, so the bulk bar shows how many are selected", async () => {
+    const onSelectionModelChange = vi.fn();
+    render(
+      <AdminPropertyTable
+        {...baseProps({
+          data: { data: [makeProperty({ _id: "a" }), makeProperty({ _id: "b" })], total: 2 },
+          onSelectionModelChange,
+        })}
+      />
+    );
+
+    await userEvent.setup({ delay: null }).click(screen.getAllByRole("checkbox")[0]);
+
+    const [model] = onSelectionModelChange.mock.calls.at(-1);
+    expect(model.type).toBe("include");
+    expect([...model.ids].sort()).toEqual(["a", "b"]);
+  });
+});

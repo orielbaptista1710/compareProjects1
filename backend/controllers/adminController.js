@@ -106,6 +106,26 @@ async function assertNotSelfReview(propertyId, reviewerId) {
   }
 }
 
+// Already-decided wording for the 409 (the listing's current status).
+const ALREADY_REVIEWED_MESSAGE = {
+  approved: 'This listing is already approved',
+  suspended: "This listing is already approved; it's hidden until the posting agent is reinstated",
+  rejected: 'This listing is already rejected',
+};
+
+// updatePropertyStatus result → the updated listing, or a 404/409 error.
+function reviewedOrThrow(result, res) {
+  if (result.error === 'not_found') {
+    res.status(404);
+    throw new Error('Property not found');
+  }
+  if (result.error === 'already_reviewed') {
+    res.status(409);
+    throw new Error(ALREADY_REVIEWED_MESSAGE[result.status] ?? 'This listing has already been reviewed');
+  }
+  return result.property;
+}
+
 // PUT /api/admin/approve/:id - this approves the individual property via AdminDashboard - makes status = approved
 export const approveProperty = asyncHandler(async (req, res) => {
   if (!isValidId(req.params.id)) {
@@ -120,12 +140,8 @@ export const approveProperty = asyncHandler(async (req, res) => {
     throw err;
   }
 
-  const property = await propertyService.updatePropertyStatus(req.params.id, 'approved', req.user._id);
-
-  if (!property) {
-    res.status(404);
-    throw new Error('Property not found');
-  }
+  const result = await propertyService.updatePropertyStatus(req.params.id, 'approved', req.user._id);
+  const property = reviewedOrThrow(result, res);
 
   const message = property.status === 'suspended'
     ? 'Approved, but hidden until the posting agent is reinstated'
@@ -148,12 +164,8 @@ export const rejectProperty = asyncHandler(async (req, res) => {
   }
 
   const reason = readReason(req.body?.rejectionReason);
-  const property = await propertyService.updatePropertyStatus(req.params.id, 'rejected', req.user._id, reason);
-
-  if (!property) {
-    res.status(404);
-    throw new Error('Property not found');
-  }
+  const result = await propertyService.updatePropertyStatus(req.params.id, 'rejected', req.user._id, reason);
+  const property = reviewedOrThrow(result, res);
 
   res.json({ success: true, message: 'Property rejected successfully', property });
 });

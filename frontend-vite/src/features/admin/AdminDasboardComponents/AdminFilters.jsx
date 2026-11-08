@@ -12,65 +12,24 @@ import {
 } from "@mui/material";
 import { Autocomplete } from "@mui/material";
 import { X } from "lucide-react";
-
-// ─── Constants ───────────────────────────────────────────────────────────────
-// Keep in sync with propertyType.js — or import directly if bundler allows
-const PROPERTY_TYPES = [
-  "Flats/Apartments",
-  "Villa",
-  "Plot",
-  "Shop/Showroom",
-  "Industrial Warehouse/Godown",
-  "Industrial Building",
-  "Office Space",
-  "Commercial Land",
-];
-
-const STATUS_OPTIONS = [
-  { value: "pending",  label: "Pending" },
-  { value: "approved", label: "Approved" },
-  { value: "rejected", label: "Rejected" },
-  { value: "suspended", label: "Hidden (agent suspended)" },
-];
-
-const IMAGE_OPTIONS = [
-  { value: "withImages",    label: "Has images" },
-  { value: "withoutImages", label: "No images" },
-  { value: "coverOnly",     label: "Cover only" },
-  { value: "galleryOnly",   label: "Gallery only" },
-];
-
-const SORT_OPTIONS = [
-  { value: "latest",    label: "Latest first" },
-  { value: "oldest",    label: "Oldest first" },
-  { value: "priceHigh", label: "Price: high → low" },
-  { value: "priceLow",  label: "Price: low → high" },
-  { value: "mostViewed", label: "Most viewed" },
-];
-
-// Keep in sync with AdminDashboard.jsx's DEFAULT_FILTERS
-const DEFAULT_FILTERS = {
-  search:       "",
-  propertyType: "",
-  status:       "pending",
-  city:         "",
-  locality:     null,
-  imageFilter:  "",
-  sortBy:       "latest",
-};
+import { LISTING_STATUS_LABELS } from "../listingStatus";
+import {
+  DEFAULT_LISTING_FILTERS as DEFAULT_FILTERS,
+  PROPERTY_TYPES,
+  STATUS_OPTIONS,
+  POSTED_BY_OPTIONS,
+  IMAGE_OPTIONS,
+  SORT_OPTIONS,
+} from "../listings/listingFilters";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-// Count how many non-default filters are active (excludes sortBy)
+const FILTER_FIELDS = ["search", "propertyType", "status", "listedBy", "city", "locality", "imageFilter"];
+
+// How many filters differ from the defaults (excludes sortBy). The default
+// status ("pending") isn't something the admin chose, so it doesn't count.
 function countActiveFilters(filters) {
-  return [
-    filters.search,
-    filters.propertyType,
-    filters.status,
-    filters.city,
-    filters.locality,
-    filters.imageFilter,
-  ].filter(Boolean).length;
+  return FILTER_FIELDS.filter((field) => filters[field] !== DEFAULT_FILTERS[field]).length;
 }
 
 // ─── Shared select style ─────────────────────────────────────────────────────
@@ -130,6 +89,21 @@ export default function AdminFilters({
         >
           <MenuItem value="">All status</MenuItem>
           {STATUS_OPTIONS.map(({ value, label }) => (
+            <MenuItem key={value} value={value}>{label}</MenuItem>
+          ))}
+        </Select>
+
+        {/* Posted by */}
+        <Select
+          size="small"
+          value={filters.listedBy}
+          displayEmpty
+          onChange={(e) => handleChange("listedBy", e.target.value)}
+          sx={selectSx}
+          inputProps={{ "aria-label": "Posted by" }}
+        >
+          <MenuItem value="">Posted by anyone</MenuItem>
+          {POSTED_BY_OPTIONS.map(({ value, label }) => (
             <MenuItem key={value} value={value}>{label}</MenuItem>
           ))}
         </Select>
@@ -241,11 +215,18 @@ export default function AdminFilters({
               onDelete={() => handleChange("search", "")}
             />
           )}
-          {filters.status && (
+          {filters.status !== DEFAULT_FILTERS.status && (
             <Chip
               size="small"
-              label={filters.status}
-              onDelete={() => handleChange("status", "")}
+              label={LISTING_STATUS_LABELS[filters.status] ?? "All status"}
+              onDelete={() => handleChange("status", DEFAULT_FILTERS.status)}
+            />
+          )}
+          {filters.listedBy && (
+            <Chip
+              size="small"
+              label={`Posted by ${POSTED_BY_OPTIONS.find((o) => o.value === filters.listedBy)?.label ?? filters.listedBy}`}
+              onDelete={() => handleChange("listedBy", "")}
             />
           )}
           {filters.propertyType && (

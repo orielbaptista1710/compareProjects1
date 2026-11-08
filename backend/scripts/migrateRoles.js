@@ -31,12 +31,6 @@ const STEPS = [
     update: { $set: { ownerModel: OWNER_MODEL.USER } },
   },
   {
-    label: 'properties: listedBy "broker" → "agent" (renamed)',
-    collection: 'properties',
-    filter: { listedBy: 'broker' },
-    update: { $set: { listedBy: LISTED_BY.AGENT } },
-  },
-  {
     label: 'properties: missing listedBy on non-scraped listings → "developer"',
     collection: 'properties',
     filter: { listedBy: null, dataSource: { $ne: 'scraper' } },
