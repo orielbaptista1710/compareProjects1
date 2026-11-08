@@ -28,9 +28,10 @@ describe("DeveloperDetailsModal — Posted by", () => {
     expect(screen.queryByText(/Tier:/)).not.toBeInTheDocument();
   });
 
-  it("keeps the builder details for a developer listing", () => {
+  it("keeps the developer details for a developer listing", () => {
     renderModal({ title: "Lodha Palava", listedBy: "developer", developerName: "Lodha Group", tierType: "Premium" });
 
+    expect(screen.getByText("Developer:")).toBeInTheDocument();
     expect(screen.getByText("Lodha Group", { exact: false })).toBeInTheDocument();
     expect(screen.getByText("Premium", { exact: false })).toBeInTheDocument();
   });

@@ -79,7 +79,7 @@ const PosterDetails = ({ property }) => {
           }}
         />
         <Box>
-          <Typography><strong>Builder:</strong> {posterName(property)}</Typography>
+          <Typography><strong>Developer:</strong> {posterName(property)}</Typography>
           <Typography><strong>Tier:</strong> {property?.tierType || "N/A"}</Typography>
           {poster.displayName && (
             <Typography><strong>Account:</strong> {poster.displayName}</Typography>

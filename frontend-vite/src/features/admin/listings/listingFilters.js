@@ -34,7 +34,7 @@ export const STATUS_OPTIONS = Object.entries(LISTING_STATUS_LABELS).map(([value,
 export const POSTED_BY_OPTIONS = [
   { value: LISTED_BY.OWNER,     label: "Owner" },
   { value: LISTED_BY.AGENT,     label: "Agent" },
-  { value: LISTED_BY.DEVELOPER, label: "Builder" },
+  { value: LISTED_BY.DEVELOPER, label: "Developer" },
 ];
 
 export const IMAGE_OPTIONS = [

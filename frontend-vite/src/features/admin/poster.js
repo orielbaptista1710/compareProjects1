@@ -4,7 +4,10 @@
 // (Customer), see backend/services/propertyAdminService.js.
 import { POSTER, POSTER_LABELS, posterOf } from "../../constants/roles";
 
-export const posterLabel = (listing) => POSTER_LABELS[posterOf(listing)];
+// Admins say "Developer"; the public pages keep "Builder" (POSTER_LABELS).
+const ADMIN_POSTER_LABELS = { ...POSTER_LABELS, [POSTER.BUILDER]: "Developer" };
+
+export const posterLabel = (listing) => ADMIN_POSTER_LABELS[posterOf(listing)];
 
 export const posterName = (listing) => {
   const poster = listing?.userId ?? {};

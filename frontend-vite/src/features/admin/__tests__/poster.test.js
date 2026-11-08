@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import { posterLabel, posterName } from "../poster";
 
 describe("admin poster helpers", () => {
-  it("names a builder listing by its developer name", () => {
+  it("names a developer listing by its developer name", () => {
     const listing = { listedBy: "developer", developerName: "Lodha Group", userId: { displayName: "lodha-admin" } };
 
-    expect(posterLabel(listing)).toBe("Builder");
+    expect(posterLabel(listing)).toBe("Developer");
     expect(posterName(listing)).toBe("Lodha Group");
   });
 
@@ -24,8 +24,8 @@ describe("admin poster helpers", () => {
     expect(posterName(listing)).toBe("Asha");
   });
 
-  it("treats an old listing without listedBy but with a developer name as a builder", () => {
-    expect(posterLabel({ developerName: "Old Dev" })).toBe("Builder");
+  it("treats an old listing without listedBy but with a developer name as a developer", () => {
+    expect(posterLabel({ developerName: "Old Dev" })).toBe("Developer");
   });
 
   it("never crashes on a listing whose poster wasn't populated", () => {
