@@ -1,0 +1,26 @@
+{
+  "defaultSeverity": "warning",
+  "ignoreFiles": [
+    "src/styles/tokens.css",
+    "src/styles/colors.css",
+    "dist/**",
+    "coverage/**"
+  ],
+  "rules": {
+    "color-no-hex": true,
+    "function-disallowed-list": ["rgb", "rgba", "hsl", "hsla"],
+    "declaration-property-unit-disallowed-list": {
+      "font-size": ["px"]
+    }
+  },
+  "overrides": [
+    {
+      "files": ["src/shared/Header/**/*.css"],
+      "rules": {
+        "color-no-hex": [true, { "severity": "error" }],
+        "function-disallowed-list": [["rgb", "rgba", "hsl", "hsla"], { "severity": "error" }],
+        "declaration-property-unit-disallowed-list": [{ "font-size": ["px"] }, { "severity": "error" }]
+      }
+    }
+  ]
+}
