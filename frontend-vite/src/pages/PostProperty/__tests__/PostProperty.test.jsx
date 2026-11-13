@@ -40,14 +40,32 @@ describe("PostProperty", () => {
     expect(screen.getByRole("radio", { name: "Owner" })).toHaveAttribute("aria-checked", "true");
   });
 
+  it("shows a card with a 'You'll need' list for each role", () => {
+    renderAs();
+
+    expect(screen.getAllByRole("radio")).toHaveLength(3);
+    expect(screen.getAllByRole("heading", { name: "You'll need" })).toHaveLength(3);
+    expect(screen.getByText("Your RERA agent registration number")).toBeInTheDocument();
+  });
+
+  it("clicking anywhere on a card selects that role", () => {
+    renderAs();
+
+    fireEvent.click(screen.getByRole("heading", { name: "List your projects" }));
+
+    expect(screen.getByRole("radio", { name: "Developer" })).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByRole("radio", { name: "Owner" })).toHaveAttribute("aria-checked", "false");
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
   it.each([
-    ["Owner", "/customer-signup", "/customer-login"],
-    ["Agent", "/agent-signup", "/agent-login"],
-  ])("%s, logged out → signup %s, login link %s", (role, signup, login) => {
+    ["Owner", "/customer-signup", "Login as an owner", "/customer-login"],
+    ["Agent", "/agent-signup", "Login as an agent", "/agent-login"],
+  ])("%s, logged out → signup %s, login link to the right page", (role, signup, loginLabel, login) => {
     renderAs();
     pick(role);
 
-    expect(screen.getByRole("link", { name: "Log in" })).toHaveAttribute("href", login);
+    expect(screen.getByRole("link", { name: loginLabel })).toHaveAttribute("href", login);
     fireEvent.click(mainButton());
     expect(mockNavigate).toHaveBeenCalledWith(signup);
   });
@@ -56,7 +74,7 @@ describe("PostProperty", () => {
     renderAs();
     pick("Developer");
 
-    expect(screen.getByRole("link", { name: "Developer login" })).toHaveAttribute("href", "/login");
+    expect(screen.getByRole("link", { name: "Login" })).toHaveAttribute("href", "/login");
     fireEvent.click(screen.getByRole("button", { name: "Partner with us" }));
 
     expect(await screen.findByRole("dialog")).toHaveTextContent("Partner form");
