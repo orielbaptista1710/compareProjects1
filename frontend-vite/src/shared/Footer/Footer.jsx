@@ -1,317 +1,259 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Mail, Phone, MapPin } from "lucide-react";
-import { POPULAR_SEARCHES } from "../../database/popularSearchFooter";
-import "./Footer.css";
+import { useId, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import API from "../../api/api";
+import "./Footer.css";
 
-// ─── Static data at module level — never recreated on render ──────────────────
+// ─── Static data ──────────────────────────────────────────────────────────────
 
-const FOOTER_TABS = [
-  "RESIDENTIAL",
-  "INDUSTRIAL",
-  "COMMERCIAL",
-  "RETAIL",
-  "PLOT",
-  "POPULAR SEARCHES",
+// Display order of the "Popular searches" tabs. `key` matches the
+// GET /api/discover/localities response; a tab only shows when its list has links.
+const POPULAR_SEARCH_TABS = [
+  { key: "residential", label: "Residential" },
+  { key: "commercial",  label: "Commercial" },
+  { key: "retail",      label: "Retail" },
+  { key: "industrial",  label: "Industrial" },
+  { key: "plot",        label: "Plots" },
 ];
 
-const API_KEY_MAP = {
-  RESIDENTIAL: "residential",
-  INDUSTRIAL:  "industrial",
-  COMMERCIAL:  "commercial",
-  RETAIL:      "retail",
-  PLOT:        "plot",
-};
-
 const COMPANY_LINKS = [
+  { label: "About us",         href: "/#about" },
   { label: "Properties",       href: "/properties" },
-  { label: "About",            href: "/#about" },
-  { label: "Compare Projects", href: "/compare" },
-  { label: "For Buyers",       href: "/buyer" },
-  { label: "For Developers",   href: "/developer" },
-  { label: "Contact",          href: "/#contact" },
+  { label: "Compare projects", href: "/compare" },
+  { label: "For buyers",       href: "/buyer" },
+  { label: "For developers",   href: "/developer" },
   { label: "Developer login",  href: "/login" },
 ];
 
 const EXPLORE_LINKS = [
   { label: "News",            href: "/property-guide" },
-  { label: "Home Loans",      href: "/apnaloan" },
-  { label: "Home Interior",   href: "/interior" },
-  { label: "Sitemap",         href: "/sitemap.xml" },
-  { label: "AI Smart Search", href: "/" },
+  { label: "Avodah Loan",     href: "/apnaloan" },
+  { label: "Home Interiors",  href: "/interior" },
+  { label: "Smart search", href: "/" },
   { label: "Testimonials",    href: "/#testimonials" },
+  { label: "Sitemap",         href: "/sitemap.xml" },
 ];
+
+const CONTACT_LINKS = [
+  { label: "+91 99999 99999",         href: "tel:+919999999999" },
+  { label: "info@compareprojects.in", href: "mailto:info@compareprojects.in" },
+  { label: "Mumbai, Maharashtra" },
+  { label: "Support & Help",          href: "/#contact" },
+];
+
+// Only links with a confirmed `href` render. Fill these in once the company's
+// real profiles exist — until then the row is hidden rather than pointing at
+// accounts we may not own.
+const SOCIAL_LINKS = [
+  { label: "Instagram", href: null },
+  { label: "LinkedIn",  href: null },
+  { label: "YouTube",   href: null },
+  { label: "Facebook",  href: null },
+].filter((s) => s.href);
 
 const LEGAL_LINKS = [
-  { label: "Privacy Policy", href: "/privacy-policy" },
-  { label: "Terms of Use",   href: "/terms" },
+  { label: "Privacy policy", href: "/privacy-policy" },
+  { label: "Terms of use",   href: "/terms" },
   { label: "Disclaimer",     href: "/disclaimer" },
-  { label: "Cookie Policy",  href: "/cookie-policy" },
+  { label: "Cookie policy",  href: "/cookie-policy" },
 ];
 
-// ─── TabContent ───────────────────────────────────────────────────────────────
+// ─── Data ─────────────────────────────────────────────────────────────────────
 
-const TabContent = ({ activeTab, tabData, loading, error }) => {
-  if (activeTab === "POPULAR SEARCHES") {
+const isLink = (l) => typeof l?.label === "string" && l.params && typeof l.params === "object";
+
+// Keeps only well-formed { label, params } links, so an older backend that still
+// sends plain locality strings (frontend and backend deploy separately) just
+// hides the section instead of rendering broken links.
+const fetchPopularSearches = async () => {
+  const res = await API.get("/api/discover/localities");
+  if (!res?.data?.success) throw new Error("Footer popular searches unavailable");
+  const raw = res.data.data ?? {};
+  return Object.fromEntries(
+    POPULAR_SEARCH_TABS.map(({ key }) => [key, (Array.isArray(raw[key]) ? raw[key] : []).filter(isLink)])
+  );
+};
+
+// Array values become repeated keys (?propertyType=A&propertyType=B), which is
+// what /api/properties and filters.schema.js (getAll) read. URLSearchParams on
+// a plain object would join them as "A,B" instead.
+const toHref = (params) => {
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    for (const item of [].concat(value)) qs.append(key, String(item));
+  }
+  return `/properties?${qs}`;
+};
+
+// ─── Popular searches ─────────────────────────────────────────────────────────
+
+const PopularSearches = () => {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["footer-popular-searches"],
+    queryFn: fetchPopularSearches,
+    staleTime: 5 * 60_000, // matches the server-side cache TTL
+  });
+
+  const [selected, setSelected] = useState(null);
+  const tabRefs = useRef({});
+  const baseId = useId();
+
+  if (isPending) {
     return (
-      <>
-        <h4 className="footer-title">Popular Property Searches</h4>
-        <ul className="property-type-list">
-          {POPULAR_SEARCHES.map((item) => (
-            <li key={item.href}>
-              <a href={item.href}>{item.label}</a>
+      <section className="site-footer__searches" aria-busy="true" aria-label="Popular searches">
+        <div className="site-footer__searches-head">
+          <span className="site-footer__skeleton site-footer__skeleton--title" />
+        </div>
+        <ul className="site-footer__search-grid" aria-hidden="true">
+          {Array.from({ length: 8 }, (_, i) => (
+            <li key={i}><span className="site-footer__skeleton" /></li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+
+  // Show only categories that currently have listings; hide the whole block otherwise.
+  const tabs = isError ? [] : POPULAR_SEARCH_TABS.filter((t) => data?.[t.key]?.length);
+  if (!tabs.length) return null;
+
+  const active = tabs.find((t) => t.key === selected) ?? tabs[0];
+  const links = data[active.key];
+  const tabId = (key) => `${baseId}-tab-${key}`;
+  const panelId = `${baseId}-panel`;
+
+  // WAI-ARIA tabs: arrows move between tabs, Home/End jump to the ends.
+  const handleKeyDown = (e) => {
+    const i = tabs.findIndex((t) => t.key === active.key);
+    const next = {
+      ArrowRight: tabs[(i + 1) % tabs.length],
+      ArrowLeft:  tabs[(i - 1 + tabs.length) % tabs.length],
+      Home:       tabs[0],
+      End:        tabs[tabs.length - 1],
+    }[e.key];
+    if (!next) return;
+    e.preventDefault();
+    setSelected(next.key);
+    tabRefs.current[next.key]?.focus();
+  };
+
+  return (
+    <section className="site-footer__searches" aria-labelledby={`${baseId}-title`}>
+      <div className="site-footer__searches-head">
+        <h2 id={`${baseId}-title`} className="site-footer__searches-title">
+          Popular searches
+        </h2>
+
+        <div
+          className="site-footer__tabs"
+          role="tablist"
+          aria-label="Property category"
+          onKeyDown={handleKeyDown}
+        >
+          {tabs.map((tab) => {
+            const isActive = tab.key === active.key;
+            return (
+              <button
+                key={tab.key}
+                ref={(el) => { tabRefs.current[tab.key] = el; }}
+                id={tabId(tab.key)}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={panelId}
+                tabIndex={isActive ? 0 : -1}
+                className={`site-footer__tab${isActive ? " site-footer__tab--active" : ""}`}
+                onClick={() => setSelected(tab.key)}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div id={panelId} role="tabpanel" aria-labelledby={tabId(active.key)}>
+        {/* key replays the fade-in each time the tab changes */}
+        <ul key={active.key} className="site-footer__search-grid site-footer__search-grid--enter">
+          {links.map((link) => (
+            <li key={link.label}>
+              <a href={toHref(link.params)}>{link.label}</a>
             </li>
           ))}
         </ul>
-      </>
-    );
-  }
-
-  if (loading) {
-    return (
-      <ul className="property-type-list property-type-list--skeleton">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <li key={i}><span className="skeleton-line" /></li>
-        ))}
-      </ul>
-    );
-  }
-
-  if (error) {
-    return <p className="error-message">Unable to load data right now.</p>;
-  }
-
-  const apiKey = API_KEY_MAP[activeTab];
-  const values = tabData?.[apiKey];
-
-  if (!values?.length) {
-    return (
-      <p className="tab-placeholder">
-        No {activeTab.toLowerCase()} localities available.
-      </p>
-    );
-  }
-
-  return (
-    <>
-      <h4 className="footer-title">{activeTab} Localities</h4>
-      <ul className="property-type-list">
-        {values.map((loc) => (
-          <li key={loc}>
-            <a
-              href={`/properties?locality=${encodeURIComponent(loc)}&type=${API_KEY_MAP[activeTab]}`}
-            >
-              Properties in {loc}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </>
+      </div>
+    </section>
   );
 };
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
-const Footer = () => {
-  const [tabData,   setTabData]   = useState({});
-  const [activeTab, setActiveTab] = useState("POPULAR SEARCHES");
-  const [loading,   setLoading]   = useState(true);
-  const [error,     setError]     = useState(false);
-  const [animating, setAnimating] = useState(false);
-  const animTimerRef  = useRef(null);
-  const controllerRef = useRef(null);
+const LinkColumn = ({ title, links }) => (
+  <div className="site-footer__col">
+    <h2 className="site-footer__col-title">{title}</h2>
+    <ul className="site-footer__col-list">
+      {links.map((l) => (
+        <li key={l.label}>
+          {l.href ? <a href={l.href}>{l.label}</a> : <span>{l.label}</span>}
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 
-  useEffect(() => {
-    controllerRef.current = new AbortController();
+const Footer = () => (
+  <footer className="site-footer">
+    <div className="site-footer__inner">
+      <PopularSearches />
 
-    const fetchLocalitiesFooter = async () => {
-      try {
-        const res = await API.get("/api/discover/localities", {
-          signal: controllerRef.current.signal,
-        });
-        if (res?.data?.success) {
-          setTabData(res.data.data);
-        } else {
-          setError(true);
-        }
-      } catch (err) {
-        if (err?.code !== "ERR_CANCELED" && err?.name !== "AbortError") {
-          console.error("Footer API error:", err);
-          setError(true);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+      <div className="site-footer__main">
+        <div className="site-footer__brand">
+          <a href="/" className="site-footer__logo-link" aria-label="CompareProjects home">
+            <img
+              className="site-footer__logo"
+              src="/logo.webp"
+              alt="CompareProjects"
+              width="160"
+              height="40"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
+          <p className="site-footer__tagline">
+            Compare RERA-registered new projects side by side, then talk to
+            developers directly. No brokerage.
+          </p>
+          {SOCIAL_LINKS.length > 0 && (
+            <ul className="site-footer__social" aria-label="CompareProjects on social media">
+              {SOCIAL_LINKS.map((s) => (
+                <li key={s.label}>
+                  <a href={s.href} target="_blank" rel="noopener noreferrer">
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
-    fetchLocalitiesFooter(); //make change from fetchLocalities to fetchLocalitiesFooter
-
-    return () => {
-      controllerRef.current?.abort();
-      clearTimeout(animTimerRef.current);
-    };
-  }, []);
-
-  const handleTabClick = useCallback((tab) => {
-    if (tab === activeTab) return;
-    setAnimating(true);
-    setActiveTab(tab);
-    clearTimeout(animTimerRef.current);
-    animTimerRef.current = setTimeout(() => setAnimating(false), 350);
-  }, [activeTab]);
-
-  return (
-    <footer className="footer">
-
-      {/* ── Top row: logo + tabs ── */}
-      <div className="footer-top-row">
-        <img
-          className="logo-img-header"
-          src="/logo.webp"
-          alt="CompareProjects — Compare Real Estate Projects in India"
-          width="160"
-          height="40"
-          loading="lazy"
-        />
-
-        {/*
-          FIX: role="tablist" + aria-selected is more semantically correct than
-          aria-pressed for a tab strip. Keeping aria-pressed since you're using
-          <button> not [role="tab"], but adding aria-label on the nav for screen readers.
-        */}
-        <nav className="footer-tabs" aria-label="Browse properties by category">
-          {FOOTER_TABS.map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              className={`footer-tab${activeTab === tab ? " active" : ""}`}
-              onClick={() => handleTabClick(tab)}
-              aria-pressed={activeTab === tab}
-            >
-              {tab}
-            </button>
-          ))}
+        <nav className="site-footer__cols" aria-label="Footer">
+          <LinkColumn title="Company" links={COMPANY_LINKS} />
+          <LinkColumn title="Explore" links={EXPLORE_LINKS} />
+          <LinkColumn title="Contact" links={CONTACT_LINKS} />
         </nav>
       </div>
 
-      {/* ── Tab content ── */}
-      <div
-        className={`footer-searches${animating ? " footer-searches--fade" : ""}`}
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        <TabContent
-          activeTab={activeTab}
-          tabData={tabData}
-          loading={loading}
-          error={error}
-        />
-      </div>
-
-      {/* ── Bottom columns ── */}
-      <div className="footer-bottom">
-        {/*
-          FIX: 5 columns total — CSS grid handles them.
-          Column order matters for the responsive reflow:
-          1. About (wide)  2. Company  3. Explore  4. Contact  5. Social
-        */}
-        <div className="footer-columns">
-
-          <div className="footer-column">
-            <h5>ABOUT US</h5>
-            <span>
-              CompareProjects is a real estate comparison platform that helps you find
-              the best real estate projects in India. We provide detailed information
-              about each project, including its location, amenities, and pricing. Our
-              platform also allows you to compare different projects side-by-side, so
-              you can make an informed decision about which project is right for you.
-            </span>
-          </div>
-
-          <div className="footer-column">
-            <h5>COMPANY</h5>
-            <ul>
-              {COMPANY_LINKS.map((l) => (
-                <li key={l.href}><a href={l.href}>{l.label}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="footer-column">
-            <h5>EXPLORE</h5>
-            <ul>
-              {EXPLORE_LINKS.map((l) => (
-                <li key={l.href}><a href={l.href}>{l.label}</a></li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="footer-column">
-            <h5>CONTACT</h5>
-            {/* FIX: class must be on the <ul>, not the <div> */}
-            <ul className="footer-contact-list">
-              <li>
-                <Phone size={15} aria-hidden="true" />
-                <a href="tel:+919999999999">+91 9999 999 999</a>
-              </li>
-              <li>
-                <Mail size={15} aria-hidden="true" />
-                <a href="mailto:info@compareprojects.in">info@compareprojects.in</a>
-              </li>
-              <li>
-                <MapPin size={15} aria-hidden="true" />
-                {/* address is not a link — use <address> semantics */}
-                <span style={{ fontStyle: "normal" }}>
-                  Mumbai, Maharashtra
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Social is the 5th column — CSS moves it to a full-width row on smaller screens */}
-          <div className="footer-column footer-social">
-            <h5>FOLLOW US</h5>
-            <div className="footer-icons">
-
-              {/*               
-                Uncomment when social links are ready.
-                Each needs: href, aria-label, and rel="noopener noreferrer".
-              */}
-              
-              {/* <a href="https://youtube.com/@compareprojects" target="_blank" rel="noopener noreferrer" aria-label="CompareProjects on YouTube">
-                <Youtube size={20} aria-hidden="true" />
-              </a>
-              <a href="https://linkedin.com/company/compareprojects" target="_blank" rel="noopener noreferrer" aria-label="CompareProjects on LinkedIn">
-                <Linkedin size={20} aria-hidden="true" />
-              </a>
-              <a href="https://instagram.com/compareprojects" target="_blank" rel="noopener noreferrer" aria-label="CompareProjects on Instagram">
-                <Instagram size={20} aria-hidden="true" />
-              </a> */}
-
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      {/* ── Legal links + copyright ── */}
-      <div className="footer-copy">
-        <div className="footer-legal-links">
-          {LEGAL_LINKS.map((l, i) => (
-            <React.Fragment key={l.href}>
-              <a href={l.href}>{l.label}</a>
-              {i < LEGAL_LINKS.length - 1 && (
-                <span aria-hidden="true">·</span>
-              )}
-            </React.Fragment>
+      <div className="site-footer__bottom">
+        <p className="site-footer__copy">
+          © {new Date().getFullYear()} CompareProjects Pvt. Ltd. All rights reserved.
+        </p>
+        <ul className="site-footer__legal" aria-label="Legal">
+          {LEGAL_LINKS.map((l) => (
+            <li key={l.href}><a href={l.href}>{l.label}</a></li>
           ))}
-        </div>
-
-        <p>© {new Date().getFullYear()} Compare Projects Pvt. Ltd. All rights reserved.</p>
+        </ul>
       </div>
-
-    </footer>
-  );
-};
+    </div>
+  </footer>
+);
 
 export default Footer;
