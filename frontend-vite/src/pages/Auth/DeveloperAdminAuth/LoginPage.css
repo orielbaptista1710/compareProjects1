@@ -1,132 +1,373 @@
-/* LoginPage.css */
+/* src/pages/Auth/DeveloperAdminAuth/LoginPage.css — developer/admin sign in (/login)
+   Every class is devlogin- prefixed so it can't collide with other routes'
+   global CSS. Colours, fonts and sizes come from styles/tokens.css +
+   styles/colors.css; the only extra colours are the on-dark ones declared
+   once on .devlogin-page below. Fonts (Poppins/Inter) load in index.html. */
 
-.login-container {
+/* shared/Header is fixed and has no spacer, so the page starts below it. */
+.devlogin-page {
+  --devlogin-gutter: 24px;
+  /* Text, lines and fills on the violet panel and the purple button. */
+  --devlogin-on-dark: #fff;
+  --devlogin-on-dark-muted: rgba(255, 255, 255, 0.8);
+  --devlogin-on-dark-line: rgba(255, 255, 255, 0.2);
+  --devlogin-on-dark-fill: rgba(255, 255, 255, 0.1);
+  padding-top: var(--site-header-height);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.5;
+}
+
+/* Small screens: sign-in card first, info panel below it. */
+.devlogin-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "main"
+    "panel";
+}
+
+/* ── Sign-in card ─────────────────────────────────────────── */
+
+.devlogin-main {
+  grid-area: main;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 1.5rem;
-  background: url("../../../assests/images/loginbg.jpg")
-    no-repeat center center / cover;
-
+  padding: var(--space-6) var(--devlogin-gutter);
 }
 
-.login-box {
-  position: relative;
-  z-index: 1;
+.devlogin-card {
   width: 100%;
-  max-width: 420px;
-  padding: 2.5rem 2.25rem;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 32px rgba(126, 91, 214, 0.1);
+  max-width: 440px;
 }
 
-.login-heading {
-  color: #3b1278;
-  font-size: 1.75rem;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 1rem;
+.devlogin-pill {
+  display: inline-block;
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
 }
 
-.login-form {
+.devlogin-title {
+  margin: var(--space-3) 0 var(--space-5);
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+
+.devlogin-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
-.login-label {
+.devlogin-field {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  color: #4a4a4a;
-  font-size: 0.875rem;
-  font-weight: 500;
+  gap: 6px;
 }
 
-.password-input-wrapper {
-  position: relative;
+.devlogin-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
 }
 
-.login-input {
+.devlogin-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+}
+
+.devlogin-input {
   width: 100%;
-  padding: 0.8rem 1rem;
-  border: 1.5px solid #e0d6f5;
-  border-radius: 8px;
-  font-size: 0.975rem;
-  color: #1a1a1a;
-  background: #faf8ff;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: var(--text-body);
   box-sizing: border-box;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast) var(--ease-out);
 }
 
-.login-input:focus {
+.devlogin-input::placeholder {
+  color: var(--color-placeholder);
+}
+
+.devlogin-input:focus {
   outline: none;
-  border-color: #9e7ae0;
-  box-shadow: 0 0 0 3px rgba(158, 122, 224, 0.15);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-surface-tint-strong);
 }
 
-.login-input::placeholder {
-  color: #b8b8b8;
+.devlogin-password {
+  position: relative;
 }
 
-.toggle-eye {
+/* Room for the eye button. */
+.devlogin-input--password {
+  padding-right: 48px;
+}
+
+/* Hide Edge's built-in reveal icon so there's only our eye button. */
+.devlogin-input--password::-ms-reveal,
+.devlogin-input--password::-ms-clear {
+  display: none;
+}
+
+.devlogin-show {
   position: absolute;
-  right: 12px;
   top: 50%;
+  right: 4px;
   transform: translateY(-50%);
-  color: #9e7ae0;
-  cursor: pointer;
-}
-
-.dev-forgot-password{
-  cursor: pointer;
-  font-weight: 550;
-  background-color: transparent;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 36px;
+  padding: 0;
   border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-ink-muted);
+  cursor: pointer;
 }
 
-.login-button {
+.devlogin-show:hover {
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+}
+
+/* Text-style buttons and links on the white side. */
+.devlogin-textlink {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-primary-dark);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+.devlogin-textlink:hover,
+.devlogin-link:hover {
+  text-decoration: underline;
+}
+
+.devlogin-show:focus-visible,
+.devlogin-textlink:focus-visible,
+.devlogin-link:focus-visible,
+.devlogin-submit:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.devlogin-error {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  font-size: var(--text-sm);
+}
+
+.devlogin-submit {
   width: 100%;
-  padding: 0.875rem;
-  background: linear-gradient(135deg, #7e5bd6 0%, #5d3b9e 100%);
-  color: #ffffff;
+  height: 48px;
+  margin-top: var(--space-1);
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--devlogin-on-dark);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
-  margin-top: 0.25rem;
-  transition: opacity 0.2s;
+  transition: background var(--dur-fast) var(--ease-out);
 }
 
-.login-button:disabled {
-  opacity: 0.55;
+.devlogin-submit:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.devlogin-submit:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-.login-error {
-  color: #c0392b;
-  font-size: 0.875rem;
-  text-align: center;
-  padding: 0.5rem;
-  background: #fff0f0;
-  border-radius: 6px;
+.devlogin-help {
+  margin: 0;
+  font-size: var(--text-help);
+  color: var(--color-ink-muted);
 }
 
-.auth-link {
-  color: #7e5bd6;
+/* Owner / agent links under the card. */
+.devlogin-others {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+
+.devlogin-others p {
+  margin: 0;
+}
+
+.devlogin-link {
+  color: var(--color-primary-dark);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+}
+
+/* ── Info panel ───────────────────────────────────────────── */
+
+.devlogin-panel {
+  grid-area: panel;
+  background: var(--color-primary-deep);
+  color: var(--devlogin-on-dark);
+  padding: var(--space-6) var(--devlogin-gutter);
+}
+
+.devlogin-panel-inner {
+  max-width: 560px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.devlogin-eyebrow {
+  margin: 0 0 var(--space-3);
+  color: var(--color-surface-tint-strong);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.devlogin-panel-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  line-height: 1.25;
+  color: var(--devlogin-on-dark);
+}
+
+.devlogin-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.devlogin-features li {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.devlogin-feature-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--devlogin-on-dark-fill);
+  color: var(--color-surface-tint-strong);
+}
+
+.devlogin-features h3,
+.devlogin-access h3 {
+  margin: 0 0 2px;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--devlogin-on-dark);
+}
+
+.devlogin-features p,
+.devlogin-access p {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--devlogin-on-dark-muted);
+}
+
+.devlogin-access {
+  margin-top: auto; /* sits at the bottom of the panel on wide screens */
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--devlogin-on-dark-line);
+  border-radius: var(--radius-md);
+}
+
+.devlogin-access-btn {
+  margin-top: var(--space-2);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--devlogin-on-dark);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
-  font-weight: 500;
 }
 
-@media (max-width: 480px) {
-  .login-box {
-    padding: 2rem 1.5rem;
+.devlogin-access-btn:focus-visible {
+  outline: 2px solid var(--devlogin-on-dark);
+  outline-offset: 2px;
+}
+
+/* ── Breakpoints (gutters mirror PostProperty / Breadcrumbs) ── */
+
+@media (min-width: 640px) {
+  .devlogin-page { --devlogin-gutter: 28px; }
+}
+
+/* Wide screens: panel left, card right, together filling the screen below the header. */
+@media (min-width: 960px) {
+  .devlogin-page { --devlogin-gutter: 32px; }
+
+  .devlogin-split {
+    min-height: calc(100vh - var(--site-header-height));
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-areas: "panel main";
   }
 
-  .login-heading {
-    font-size: 1.5rem;
+  .devlogin-panel {
+    padding: var(--space-7) var(--space-7) var(--space-6);
+  }
+
+  .devlogin-panel-title {
+    font-size: var(--text-3xl);
+  }
+
+  .devlogin-main {
+    padding: var(--space-7) var(--space-6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .devlogin-input,
+  .devlogin-submit {
+    transition: none;
   }
 }
