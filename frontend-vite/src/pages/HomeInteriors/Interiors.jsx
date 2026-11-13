@@ -1,12 +1,11 @@
-// src/pages/Interiors/Interiors 
+// src/pages/HomeInteriors/Interiors
 import { useState } from "react";
 import "./Interiors.css";
-import BaseLayout from "../../layouts/BaseLayout";
-import FullWidthSection from "../../layouts/FullWidthSection";
 
 import HeroSection from "./InteriorsPageComponents/InteriorsHeroSection";
 import ServicesSection from "./InteriorsPageComponents/ServicesSection";
 import PortfolioSection from "./InteriorsPageComponents/PortfolioSection";
+import HowItWorksSection from "./InteriorsPageComponents/HowItWorksSection";
 import TestimonialSection from "../Home/HomePageComponents/TestimonialSection";
 import ContactSection from "./InteriorsPageComponents/ContactSection";
 
@@ -15,29 +14,18 @@ export default function Interiors() {
   const [activeFilter, setActiveFilter] = useState("all");
 
   return (
-    <div className="interior-wrapper">
+    <div className="intr-page">
       <HeroSection />
 
+      <ServicesSection activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <BaseLayout>
-      <ServicesSection
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+      <PortfolioSection activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
 
-      <PortfolioSection
-        activeFilter={activeFilter}
-        setActiveFilter={setActiveFilter}
-      />
-      </BaseLayout>
+      <HowItWorksSection />
 
-
-      <FullWidthSection>
       <TestimonialSection />
 
       <ContactSection />
-      </FullWidthSection>
-
     </div>
   );
 }
