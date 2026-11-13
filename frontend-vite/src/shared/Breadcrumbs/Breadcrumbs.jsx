@@ -18,6 +18,7 @@ const routeNameMap = {
   "customer-profile": "Profile",
   "privacy-policy": "Privacy Policy",
   terms: "Terms & Conditions",
+  "post-property": "Post property",
 };
 
 // const HIDDEN_SEGMENTS = new Set(["property"]);

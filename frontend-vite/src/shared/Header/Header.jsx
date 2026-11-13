@@ -118,7 +118,7 @@ function Header() {
             <img
               className="logo-img-header"
               src="/logo.webp"
-              alt="Company Logo"
+              alt="CompareProjects home"
               fetchPriority="high"
               loading="eager"
               decoding="async"
@@ -175,7 +175,7 @@ function Header() {
           Contact
         </button>
 
-        <button className="header-nav-link" onClick={() => handleScrollToSection("contact")}>
+        <button className="header-nav-link header-nav-link--rentals" onClick={() => handleScrollToSection("contact")}>
           Compare Rentals
         </button>
       </li>
@@ -214,7 +214,8 @@ function Header() {
           {compareList.length > 0 && (
             <span className="compare-count-bubble">{compareList.length}</span>
           )}
-          <Scale size={23} />
+          <Scale size={20} strokeWidth={1.75} />
+          <span className="header-compare-label" aria-hidden="true">Compare</span>
         </button>
       </li>
       <li>
@@ -228,7 +229,8 @@ function Header() {
           }}
         >
           <Plus size={18} />
-          POST PROPERTY
+          Post property
+          <span className="header-post-free" aria-hidden="true">Free</span>
         </button>
       </li>
 

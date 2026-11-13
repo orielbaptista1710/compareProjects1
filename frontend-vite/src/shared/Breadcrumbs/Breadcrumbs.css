@@ -8,6 +8,22 @@
 .breadcrumbs--no-nav {
   margin-top: 70px;
 }
+
+/* NavigationBar hides below 1200px (NavigationBar.css), so clear only the
+   70px header there — otherwise a 60px blank strip shows under it. */
+@media (max-width: 1199px) {
+  .breadcrumbs--with-nav {
+    margin-top: 70px;
+  }
+}
+
+/* Header shrinks to 64px on small phones (Header.css). */
+@media (max-width: 480px) {
+  .breadcrumbs--with-nav,
+  .breadcrumbs--no-nav {
+    margin-top: 64px;
+  }
+}
 /* --------------------------------
    Breadcrumb list
 -------------------------------- */
@@ -205,17 +221,6 @@
 
   .breadcrumbs-current {
     max-width: 650px;
-  }
-}
-
-/* --------------------------------
-   Large desktop
--------------------------------- */
-
-@media (min-width: 1440px) {
-  .breadcrumbs-list {
-    padding-left: 0;
-    padding-right: 0;
   }
 }
 

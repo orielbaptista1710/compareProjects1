@@ -1,32 +1,36 @@
 /* =========================================
-   HEADER AUTH SECTION — PRODUCTION
+   HEADER AUTH SECTION
+   Sits on the dark header bar, so it uses the --color-on-dark-* tints from
+   styles/tokens.css. All colours from tokens.css + colors.css: brand
+   purple, ink, white only.
 ========================================= */
 
 /* ── Loading ── */
 .loading-text {
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.8);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-on-dark-muted);
 }
 
-/* ── Login icon ── */
+/* ── Login icon (logged out) ── */
 .profile-icon-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  color: #ffffff;
-  transition: background 0.2s ease;
+  width: var(--control-height);
+  height: var(--control-height);
+  border: 1px solid var(--color-on-dark-line);
+  border-radius: var(--radius-full);
+  color: var(--color-on-dark);
+  transition: background var(--dur-fast) var(--ease-out);
 }
 
 .profile-icon-link:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--color-on-dark-fill);
 }
 
 .profile-icon-link:focus-visible {
-  outline: 2px solid #fbbf24;
+  outline: 2px solid var(--color-on-dark);
   outline-offset: 2px;
 }
 
@@ -37,9 +41,7 @@
 }
 
 .profile-svg-icon {
-  width: 28px;
-  height: 28px;
-  fill: #ffffff;
+  color: currentColor;
 }
 
 /* ── Wrapper ── */
@@ -49,38 +51,37 @@
   align-items: center;
 }
 
-/* ── Trigger button ── */
+/* ── Trigger button (logged in) ── */
 .profile-trigger-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  height: 43px;
-  padding: 0 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #ffffff;
+  gap: var(--space-2);
+  height: var(--control-height);
+  padding: 0 var(--space-3) 0 var(--space-1);
+  background: transparent;
+  border: 1px solid var(--color-on-dark-line);
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-on-dark);
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
-  backdrop-filter: blur(10px);
+  transition: background var(--dur-fast) var(--ease-out);
 }
 
 .profile-trigger-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.35);
+  background: var(--color-on-dark-fill);
 }
 
 .profile-trigger-btn:focus-visible {
-  outline: 2px solid #fbbf24;
+  outline: 2px solid var(--color-on-dark);
   outline-offset: 2px;
 }
 
 /* ── Chevron ── */
 .profile-chevron {
-  color: rgba(255, 255, 255, 0.7);
-  transition: transform 0.2s ease;
+  color: var(--color-on-dark-muted);
+  transition: transform var(--dur-fast) var(--ease-out);
   flex-shrink: 0;
 }
 
@@ -90,21 +91,22 @@
 
 /* ── Avatar ── */
 .profile-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: var(--color-on-dark-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
-  color: #1a1a1a;
+  font-size: var(--text-help);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
   flex-shrink: 0;
 }
 
-/* ── Name ── */
+/* ── Name: hidden in the bar (reference shows avatar only), shown in the drawer ── */
 .profile-name {
+  display: none;
   max-width: 110px;
   white-space: nowrap;
   overflow: hidden;
@@ -114,16 +116,16 @@
 /* ── Dropdown menu ── */
 .profile-dropdown-menu {
   position: absolute;
-  top: calc(100% + 10px);
+  top: calc(100% + var(--space-2));
   right: 0;
   min-width: 210px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
   overflow: hidden;
   z-index: 1100;
-  animation: dropdown-in 0.15s ease;
+  animation: dropdown-in var(--dur-fast) var(--ease-out);
 }
 
 @keyframes dropdown-in {
@@ -133,25 +135,25 @@
 
 /* ── Dropdown header (user info) ── */
 .profile-dropdown-header {
-  padding: 12px 14px;
-  border-bottom: 1px solid #f3f4f6;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-line);
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
 .profile-dropdown-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #111827;
+  font-size: var(--text-help);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .profile-dropdown-email {
-  font-size: 12px;
-  color: #9ca3af;
+  font-size: var(--text-xs);
+  color: var(--color-ink-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -159,7 +161,7 @@
 
 /* ── Dropdown items ── */
 .profile-dropdown-items {
-  padding: 6px;
+  padding: var(--space-2);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -168,55 +170,48 @@
 .profile-dropdown-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
   text-decoration: none;
   width: 100%;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
   font-family: inherit;
   text-align: left;
 }
 
 .profile-dropdown-item:hover {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
 }
 
+/* Red is reserved for errors/destructive actions (design standards) */
 .profile-dropdown-item--danger {
-  color: #dc2626;
+  color: var(--color-error-text);
 }
 
 .profile-dropdown-item--danger:hover {
-  background: #fef2f2;
-  color: #b91c1c;
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
 }
 
-/* ── Mobile ── */
+/* ── Mobile drawer (white background) ── */
 @media (max-width: 1199px) {
   .profile-icon-link {
     width: 100%;
-    justify-content: center;
-    padding: 12px 16px;
-    background: rgba(124, 58, 237, 0.06);
-    border-radius: 8px;
-    height: auto;
+    border-radius: var(--radius-sm);
+    border-color: var(--color-line-strong);
+    color: var(--color-primary);
   }
 
   .profile-icon-link:hover {
-    background: rgba(124, 58, 237, 0.12);
-  }
-
-  .profile-svg-icon {
-    width: 24px;
-    height: 24px;
-    fill: #7c3aed;
+    background: var(--color-primary-tint);
   }
 
   .profile-dropdown-wrapper {
@@ -228,71 +223,54 @@
   .profile-trigger-btn {
     width: 100%;
     justify-content: flex-start;
-    height: 48px;
-    padding: 0 16px;
-    background: rgba(124, 58, 237, 0.06);
-    border: 1px solid rgba(124, 58, 237, 0.15);
-    color: #1f2937;
-    backdrop-filter: none;
+    padding: 0 var(--space-4) 0 var(--space-2);
+    border-radius: var(--radius-sm);
+    border-color: var(--color-line-strong);
+    color: var(--color-ink);
   }
 
   .profile-trigger-btn:hover {
-    background: rgba(124, 58, 237, 0.12);
-    border-color: rgba(124, 58, 237, 0.25);
+    background: var(--color-primary-tint);
   }
 
   .profile-avatar {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-surface);
   }
 
   .profile-name {
+    display: block;
     flex: 1;
-    color: #1f2937;
+    text-align: left;
+    color: var(--color-ink);
     max-width: none;
   }
 
   .profile-chevron {
-    color: #6b7280;
+    color: var(--color-ink-muted);
     margin-left: auto;
   }
 
   /* Inline dropdown on mobile — not absolute */
   .profile-dropdown-menu {
     position: static;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     box-shadow: none;
-    border: 1px solid rgba(124, 58, 237, 0.15);
-    margin-top: 6px;
-    background: #faf5ff;
+    margin-top: var(--space-2);
+    background: var(--color-primary-tint);
     animation: none;
   }
 
   .profile-dropdown-header {
-    padding: 10px 12px;
-  }
-
-  .profile-dropdown-item {
-    color: #374151;
-    padding: 11px 12px;
-  }
-
-  .profile-dropdown-item:hover {
-    background: rgba(124, 58, 237, 0.08);
-    color: #7c3aed;
-  }
-
-  .profile-dropdown-item--danger:hover {
-    background: #fef2f2;
-    color: #b91c1c;
+    padding: var(--space-2) var(--space-3);
   }
 
   .loading-text {
     display: block;
     width: 100%;
     text-align: center;
-    padding: 12px;
-    color: #7c3aed;
-    font-weight: 600;
+    padding: var(--space-3);
+    color: var(--color-primary);
+    font-weight: var(--weight-semibold);
   }
 }
