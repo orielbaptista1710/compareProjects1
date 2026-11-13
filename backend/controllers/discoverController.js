@@ -111,6 +111,8 @@ const DISCOVER_PIPELINE = [
       _id: 0,
       propertyType: 1,
       bhk: 1,
+      // Trimmed like the Property schema (trim: true), which Mongoose also
+      // applies to query filters, so link params match what /api/properties searches.
       city: trimmed("$city"),
       locality: trimmed("$locality"),
       cityKey: lowerKey("$city"),

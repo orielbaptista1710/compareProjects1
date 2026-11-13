@@ -39,10 +39,18 @@ const PropertyInformationSection = () => {
   const descLen = (useWatch({ control, name: "description" }) || "").length;
   const longDescLen = (useWatch({ control, name: "long_description" }) || "").length;
 
-  const [category, setCategory] = useState(() => categoryOf(getValues("propertyType")));
+  // Follows propertyType, so a restored draft or an add/edit switch (reset())
+  // shows the right list. The lister's own pick wins while the type is blank
+  // or fits it, e.g. right after choosing Commercial clears a Villa.
+  const propertyType = useWatch({ control, name: "propertyType" });
+  const [picked, setPicked] = useState(null);
+  const category =
+    picked && (!propertyType || CATEGORY_TYPES[picked].includes(propertyType))
+      ? picked
+      : categoryOf(propertyType);
 
   const chooseCategory = (next) => {
-    setCategory(next);
+    setPicked(next);
     // A type from the other category no longer fits — clear it
     if (!CATEGORY_TYPES[next].includes(getValues("propertyType"))) {
       setValue("propertyType", "", { shouldDirty: true });

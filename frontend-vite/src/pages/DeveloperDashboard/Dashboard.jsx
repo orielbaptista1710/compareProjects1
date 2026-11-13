@@ -72,14 +72,16 @@ const Dashboard = () => {
       deleteProperty(id);
   };
 
-  // Form Submit
-  const handleSubmit = (data) => {
+  // Form Submit. `onSuccess` runs only once the server has saved the listing
+  // (the form uses it to clear its draft).
+  const handleSubmit = (data, { onSuccess } = {}) => {
     const missing = REQUIRED_FIELDS.filter((f) => !data[f]);
     if (missing.length) {
       toast.error(`Please fill in: ${missing.join(', ')}`);
       return;
     }
-    editingId ? updateProperty({ id: editingId, data }) : addProperty(data);
+    if (editingId) updateProperty({ id: editingId, data }, { onSuccess });
+    else addProperty(data, { onSuccess });
   };
 
   const handleEdit = (property) => {
@@ -111,6 +113,7 @@ const Dashboard = () => {
             editingId={editingId}
             isAdding={isAdding}
             isUpdating={isUpdating}
+            draftOwner={user?.username}
             onSubmit={handleSubmit}
             handleCancelEdit={handleCancelEdit}
             onShowListings={() => setActiveTab('properties')}

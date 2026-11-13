@@ -6,6 +6,7 @@
 const PageHeader = ({
   isEditing,
   canPublish,
+  needsFixes,
   isSubmitting,
   isAdding,
   isUpdating,
@@ -42,7 +43,9 @@ const PageHeader = ({
       <div className="spf-page-header__actions">
         {!canPublish && (
           <p className="spf-page-header__hint" id="spf-publish-hint">
-            Complete every section to publish
+            {needsFixes
+              ? "Fix the fields marked in the checklist to publish"
+              : "Complete every section to publish"}
           </p>
         )}
         {isEditing && (

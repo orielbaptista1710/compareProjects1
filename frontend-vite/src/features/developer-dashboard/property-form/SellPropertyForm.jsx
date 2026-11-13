@@ -44,17 +44,17 @@ const SellPropertyForm = ({
   editingId,
   isAdding,
   isUpdating,
+  draftOwner,
 }) => {
   const isEditing = Boolean(editingId);
   const isSubmitting = isAdding || isUpdating;
-  const draftKey = draftKeyFor(editingId);
+  const draftKey = draftKeyFor(draftOwner, editingId);
 
-  // A valid submit means the draft has done its job
+  // The draft is only cleared once the server has saved the listing. A failed
+  // save (network, 4xx/5xx) keeps it. removeDraft only touches localStorage,
+  // so it's safe even though a successful save closes this form.
   const handleValidSubmit = useCallback(
-    (payload) => {
-      removeDraft(draftKey);
-      onSubmit(payload);
-    },
+    (payload) => onSubmit(payload, { onSuccess: () => removeDraft(draftKey) }),
     [draftKey, onSubmit]
   );
 
@@ -64,10 +64,19 @@ const SellPropertyForm = ({
     handleSubmit,
     autocompleteRef,
     coordinates,
+    syncCoordinates,
     handlePlaceChanged,
     handleMapClick,
   } = usePropertyForm({ formData, onSubmit: handleValidSubmit, editingId });
   const { control, trigger, getValues, getFieldState, reset } = methods;
+
+  // Editing a saved listing: show anything it already fails (e.g. an older
+  // listing with a too-short description). Otherwise Publish is disabled with
+  // no field saying why, because errors only appear once a field is touched.
+  // Runs after usePropertyForm's reset for the same editingId.
+  useEffect(() => {
+    if (editingId) trigger();
+  }, [editingId, trigger]);
 
   // ── Which section is open, and which ones the lister has been through ──
   // Reset when switching between add and edit (adjusted during render so
@@ -154,7 +163,13 @@ const SellPropertyForm = ({
   );
 
   const status = useSectionStatus(control, { openId, visited });
-  const { draft, saveDraft, restoreDraft, discardDraft } = useDraft({ draftKey, getValues, reset });
+  const { draft, saveDraft, restoreDraft, discardDraft } = useDraft({
+    draftKey,
+    getValues,
+    reset,
+    onRestore: syncCoordinates,
+  });
+  const needsFixes = Object.values(status.byId).some((s) => s.state === "error");
 
   const renderSection = (id) => {
     switch (id) {
@@ -188,6 +203,7 @@ const SellPropertyForm = ({
           <PageHeader
             isEditing={isEditing}
             canPublish={status.canPublish}
+            needsFixes={needsFixes}
             isSubmitting={isSubmitting}
             isAdding={isAdding}
             isUpdating={isUpdating}

@@ -43,7 +43,7 @@
 .dnav__brand-name {
   font-family: var(--font-heading, "Poppins", system-ui, sans-serif);
   font-size: var(--text-lg, 1.125rem);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   white-space: nowrap;
 }
 
@@ -86,7 +86,7 @@
   background: none;
   font: inherit;
   font-size: var(--text-body, 0.9375rem);
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   color: var(--color-ink-muted, #5a5872);
   text-align: left;
   cursor: pointer;
@@ -98,7 +98,7 @@
 .dnav__item.is-active {
   background: var(--color-surface-tint-strong, #ede9fe);
   color: var(--color-primary-dark, #6d28d9);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 /* ── Account ─────────────────────────────────────────────────────────────── */
@@ -120,14 +120,14 @@
   background: var(--color-surface-tint-strong, #ede9fe);
   color: var(--color-primary-dark, #6d28d9);
   font-size: var(--text-sm, 0.875rem);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .dnav__name {
   margin: 0;
   overflow: hidden;
   font-size: var(--text-sm, 0.875rem);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -150,7 +150,7 @@
   background: none;
   font: inherit;
   font-size: var(--text-sm, 0.875rem);
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   color: var(--color-ink-muted, #5a5872);
   cursor: pointer;
 }
@@ -187,7 +187,7 @@
     background: var(--color-surface, #fff);
     font: inherit;
     font-size: var(--text-sm, 0.875rem);
-    font-weight: 500;
+    font-weight: var(--weight-medium);
     color: var(--color-ink, #1c1a33);
     cursor: pointer;
   }

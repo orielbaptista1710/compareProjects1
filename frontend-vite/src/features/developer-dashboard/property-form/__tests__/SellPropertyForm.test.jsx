@@ -5,9 +5,11 @@ vi.mock("react-hot-toast", () => ({
   default: { error: vi.fn(), success: vi.fn() },
 }));
 
-// The Maps SDK is never loaded in tests; the section shows its loading hint.
+// The Maps SDK is never really loaded; by default the section shows its
+// loading hint. A test can flip maps.isLoaded to render the (stubbed) map.
+const maps = vi.hoisted(() => ({ isLoaded: false }));
 vi.mock("@react-google-maps/api", () => ({
-  useJsApiLoader: () => ({ isLoaded: false, loadError: undefined }),
+  useJsApiLoader: () => ({ isLoaded: maps.isLoaded, loadError: undefined }),
   GoogleMap: () => null,
   Marker: () => null,
   Autocomplete: ({ children }) => children,
@@ -60,9 +62,14 @@ const renderForm = (props = {}) =>
       editingId={null}
       isAdding={false}
       isUpdating={false}
+      draftOwner="dev1"
       {...props}
     />
   );
+
+const NEW_DRAFT_KEY = "spf-draft:dev1:new";
+const putDraft = (values, key = NEW_DRAFT_KEY, savedAt = Date.now()) =>
+  window.localStorage.setItem(key, JSON.stringify({ savedAt, values: { ...initialFormData, ...values } }));
 
 // Collapsed section rows are the only buttons with aria-expanded="false"
 const openSection = (name) =>
@@ -75,6 +82,7 @@ describe("SellPropertyForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.localStorage.clear();
+    maps.isLoaded = false;
     Element.prototype.scrollIntoView = vi.fn();
   });
 
@@ -170,6 +178,76 @@ describe("SellPropertyForm", () => {
     expect(screen.getByLabelText(/Listing title/)).toHaveValue("");
     fireEvent.click(screen.getByRole("button", { name: "Restore draft" }));
     expect(screen.getByLabelText(/Listing title/)).toHaveValue("Draft title here");
+  });
+
+  it("keeps drafts separate per developer", () => {
+    putDraft({ title: "Someone else's draft" }, "spf-draft:dev2:new");
+
+    renderForm();
+
+    expect(screen.queryByRole("button", { name: "Restore draft" })).not.toBeInTheDocument();
+  });
+
+  it("removes drafts saved before they were scoped per developer", () => {
+    window.localStorage.setItem("spf-draft:new", JSON.stringify({ savedAt: Date.now(), values: {} }));
+
+    renderForm();
+
+    expect(window.localStorage.getItem("spf-draft:new")).toBeNull();
+  });
+
+  it("ignores a corrupted draft instead of crashing", () => {
+    window.localStorage.setItem(NEW_DRAFT_KEY, JSON.stringify({ savedAt: "x", values: { title: "t" } }));
+
+    renderForm();
+
+    expect(screen.getByLabelText(/Listing title/)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Restore draft" })).not.toBeInTheDocument();
+  });
+
+  it("switches the category to match a restored draft's property type", () => {
+    putDraft({ propertyType: "Office Space" });
+    renderForm();
+    expect(screen.getByRole("button", { name: "Residential" })).toHaveAttribute("aria-pressed", "true");
+
+    fireEvent.click(screen.getByRole("button", { name: "Restore draft" }));
+
+    expect(screen.getByRole("button", { name: "Commercial" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByLabelText(/Property type/)).toHaveValue("Office Space");
+  });
+
+  it("puts the map pin back when a draft with a location is restored", () => {
+    maps.isLoaded = true;
+    putDraft({ lat: 19.07, lng: 72.87 });
+    renderForm();
+    fireEvent.click(screen.getByRole("button", { name: "Restore draft" }));
+
+    openSection(/Location/);
+
+    expect(screen.getByText("Click the map to move the pin.")).toBeInTheDocument();
+  });
+
+  it("keeps the draft when the save fails and clears it once the save succeeds", async () => {
+    putDraft({ title: "Draft title here" });
+    const onSubmit = vi.fn();
+    renderForm({ formData: VALID_LISTING, editingId: null, onSubmit });
+
+    fireEvent.click(screen.getByRole("button", { name: "Publish listing" }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+
+    // Save still in flight / failed: the parent never calls onSuccess
+    expect(window.localStorage.getItem(NEW_DRAFT_KEY)).not.toBeNull();
+
+    onSubmit.mock.calls[0][1].onSuccess();
+    expect(window.localStorage.getItem(NEW_DRAFT_KEY)).toBeNull();
+  });
+
+  it("shows what a saved listing already fails when it's opened for editing", async () => {
+    renderForm({ formData: { ...VALID_LISTING, description: "Too short" }, editingId: "p1" });
+
+    expect(await screen.findByText(/Short description must be at least 20 characters/)).toBeInTheDocument();
+    expect(screen.getByText("Fix the fields marked in the checklist to publish")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Update listing" })).toBeDisabled();
   });
 
   const submitEdit = async (formData, beforeSubmit) => {
