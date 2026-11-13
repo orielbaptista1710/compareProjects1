@@ -1,102 +1,95 @@
 // DeveloperDashboardComponents/DashboardNav.jsx
+// Dashboard sidebar: logo, the three real dashboard views, and the account
+// block. Below 768px it collapses into a top menu bar with a Menu button.
+// Sign out calls the handleLogout passed in by Dashboard, unchanged.
 import React, { useState, useCallback } from "react";
-import {
-  AddCircleOutlined as AddCircleIcon,
-  ListAlt as ListAltIcon,
-  HeadsetMic as HeadsetIcon,
-  Logout as LogoutIcon,
-  Menu as MenuIcon,
-  Close as CloseIcon,
-} from "@mui/icons-material";
+import { House, List, SquarePlus, LifeBuoy, LogOut, Menu, X } from "lucide-react";
 import "./DashboardNav.css";
 
 const NAV_ITEMS = [
-  { id: "sell",       label: "Sell Property",  Icon: AddCircleIcon },
-  { id: "properties", label: "My Properties",  Icon: ListAltIcon   },
-  { id: "support",    label: "Support / Help", Icon: HeadsetIcon   },
+  { id: "properties", label: "Listings",    Icon: List },
+  { id: "sell",       label: "New listing", Icon: SquarePlus },
+  { id: "support",    label: "Support",     Icon: LifeBuoy },
 ];
 
+const ICON_PROPS = { size: 18, strokeWidth: 1.5, "aria-hidden": true };
+
 const DashboardNav = ({ activeTab, setActiveTab, user, handleLogout }) => {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleNav = useCallback((id) => {
     setActiveTab(id);
-    setMobileOpen(false);
+    setMenuOpen(false);
   }, [setActiveTab]);
 
-  const initials = user?.displayName
-    ? user.displayName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()
-    : "D";
+  const name = user?.displayName || "Developer";
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
-  const NavContent = (
-    <div className="dnav__inner">
-
-      <div className="dnav__header">
-        <span className="dnav__portal-label">Developer Portal</span>
-        <div className="dnav__avatar">{initials}</div>
-        <p className="dnav__name">{user?.displayName || "Developer"}</p>
-        <p className="dnav__role">CompareProjects Partner</p>
-      </div>
-
-      <nav className="dnav__body">
-        <span className="dnav__group-label">Navigation</span>
-        <ul className="dnav__list">
-          {NAV_ITEMS.map(({ id, label, Icon }) => (
-            <li key={id}>
-              <button
-                className={`dnav__item${activeTab === id ? " dnav__item--active" : ""}`}
-                onClick={() => handleNav(id)}
-              >
-                <span className="dnav__item-indicator" aria-hidden="true" />
-                <Icon className="dnav__item-icon" fontSize="small" />
-                <span className="dnav__item-label">{label}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-
-        <div className="dnav__divider" />
-
-        <ul className="dnav__list">
-          <li>
-            <button
-              className="dnav__item dnav__item--logout"
-              onClick={handleLogout}
-            >
-              <span className="dnav__item-indicator" aria-hidden="true" />
-              <LogoutIcon className="dnav__item-icon" fontSize="small" />
-              <span className="dnav__item-label">Log Out</span>
-            </button>
-          </li>
-        </ul>
-      </nav>
-
-    </div>
-  );
+  const current = NAV_ITEMS.find((i) => i.id === activeTab)?.label;
 
   return (
-    <>
-      {/* Always rendered — CSS shows/hides it via media query */}
-      <button
-        className="dnav__hamburger"
-        onClick={() => setMobileOpen(o => !o)}
-        aria-label={mobileOpen ? "Close menu" : "Open menu"}
-        aria-expanded={mobileOpen}
-      >
-        {mobileOpen ? <CloseIcon /> : <MenuIcon />}
-      </button>
+    <aside className="dnav" aria-label="Dashboard">
+      <div className="dnav__top">
+        <div className="dnav__brand">
+          <span className="dnav__logo" aria-hidden="true">
+            <House size={17} strokeWidth={2} color="#fff" />
+          </span>
+          <span className="dnav__brand-name">CompareProjects</span>
+        </div>
 
-      {/* Backdrop — conditionally add visible class */}
-      <div
-        className={`dnav__backdrop${mobileOpen ? " dnav__backdrop--visible" : ""}`}
-        onClick={() => setMobileOpen(false)}
-        aria-hidden="true"
-      />
+        <button
+          type="button"
+          className="dnav__menu-btn"
+          aria-expanded={menuOpen}
+          aria-controls="dnav-menu"
+          onClick={() => setMenuOpen((o) => !o)}
+        >
+          {menuOpen ? <X {...ICON_PROPS} /> : <Menu {...ICON_PROPS} />}
+          <span>{menuOpen ? "Close" : current || "Menu"}</span>
+        </button>
+      </div>
 
-      <aside className={`dnav__sidebar${mobileOpen ? " dnav__sidebar--open" : ""}`}>
-        {NavContent}
-      </aside>
-    </>
+      <div id="dnav-menu" className={`dnav__menu${menuOpen ? " is-open" : ""}`}>
+        <nav aria-label="Dashboard sections">
+          <ul className="dnav__list">
+            {NAV_ITEMS.map(({ id, label, Icon }) => {
+              const active = activeTab === id;
+              return (
+                <li key={id}>
+                  <button
+                    type="button"
+                    className={`dnav__item${active ? " is-active" : ""}`}
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => handleNav(id)}
+                  >
+                    <Icon {...ICON_PROPS} />
+                    <span>{label}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className="dnav__account">
+          <span className="dnav__avatar" aria-hidden="true">{initials || "D"}</span>
+          <div className="dnav__who">
+            <p className="dnav__name">{name}</p>
+            <p className="dnav__role">Developer account</p>
+          </div>
+          <button type="button" className="dnav__signout" onClick={handleLogout}>
+            <LogOut {...ICON_PROPS} />
+            <span>Sign out</span>
+          </button>
+        </div>
+      </div>
+    </aside>
   );
 };
 

@@ -126,8 +126,8 @@ const PricingSection = () => {
               ))}
             </select>
           </div>
-          {errors.areaValue && (
-            <span className="field-error" role="alert">{errors.areaValue.message}</span>
+          {errors.area?.value && (
+            <span className="field-error" role="alert">{errors.area.value.message}</span>
           )}
         </div>
       </div>

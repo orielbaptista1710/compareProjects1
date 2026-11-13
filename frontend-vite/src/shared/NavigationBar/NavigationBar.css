@@ -1,3 +1,6 @@
+/* Legacy globals — still read by CompareTable.css and ExpandableSearch.css,
+   so they stay here until those files move to tokens.css. The nav itself
+   below uses tokens.css + colors.css only (purple, ink, white). */
 :root {
   --nav-bg: #ffffff;
   --nav-text: #1a202c;
@@ -12,23 +15,24 @@
   --border-radius: 4px;
 }
 
+/* Height stays 60px: AnnouncementStrip, Breadcrumbs and Compare offset
+   their content by 130px (70px header + 60px nav). */
 .navigation-bar {
-  background-color: var(--nav-bg);
-  box-shadow: var(--shadow-sm);
+  background-color: var(--color-surface);
   position: fixed;
-  top: 70px;
+  top: var(--site-header-height);
   left: 0;
   right: 0;
   z-index: 999;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-line);
   width: 100%;
-  transition: top var(--transition-speed) ease;
+  font-family: var(--font-body);
+  transition: top var(--dur-fast) var(--ease-out);
 }
 
 .nav-container {
-  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--space-5); /* lines up with the header's logo */
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -37,7 +41,7 @@
 
 .nav-centerr {
   flex-grow: 1;
-  width: 55%;
+  height: 100%;
 }
 
 .nav-menu {
@@ -46,42 +50,53 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 10px;
+  gap: var(--space-6);
+  height: 100%;
 }
 
-/* Navigation Items - Updated class name */
 .nav-bar-item {
   position: relative;
-  margin: 0 10px;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Last item (Support & Help) sits on the right, as in the reference */
+.nav-bar-item:last-child {
+  margin-left: auto;
 }
 
 .nav-linkk {
-  color: var(--nav-text);
+  color: var(--color-ink);
   text-decoration: none;
-  font-weight: 500;
-  font-size: 1.05rem;
-  padding: 16px 12px;
+  font-weight: var(--weight-regular);
+  font-size: var(--text-body);
+  padding: 0 2px;
   display: inline-flex;
   align-items: center;
-  transition: color var(--transition-speed) ease;
   position: relative;
   cursor: pointer;
-  border-radius: var(--border-radius);
+  transition: box-shadow var(--dur-fast) var(--ease-out);
 }
 
-.nav-linkk:hover {
-  color: var(--nav-hover);
+/* Underline along the bottom edge of the bar */
+.nav-linkk:hover,
+.nav-bar-item.active .nav-linkk {
+  box-shadow: inset 0 -2px 0 var(--color-ink);
 }
 
-/* Dropdown Indicators - Updated selector */
+.nav-bar-item.active .nav-linkk {
+  font-weight: var(--weight-semibold);
+}
+
+/* Dropdown Indicators */
 .nav-bar-item:has(.dropdown-menu) .nav-linkk {
-  padding-right: 24px;
+  padding-right: var(--space-5);
 }
 
 .nav-bar-item:has(.dropdown-menu) .nav-linkk::after {
   content: "";
   position: absolute;
-  right: 8px;
+  right: 4px;
   top: 50%;
   transform: translateY(-50%);
   width: 0;
@@ -89,24 +104,11 @@
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   border-top: 4px solid currentColor;
-  transition: transform var(--transition-speed) ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .nav-bar-item:has(.dropdown-menu):hover .nav-linkk::after {
   transform: translateY(-50%) rotate(180deg);
-}
-
-/* External Link Indicators */
-.external-link::after {
-  /* content: "↗"; */
-  font-size: 0.7em;
-  margin-left: 4px;
-  opacity: 0.6;
-  transition: transform 0.2s ease;
-}
-
-.external-link:hover::after {
-  transform: translate(1px, -1px);
 }
 
 /* Dropdown Menu */
@@ -114,21 +116,20 @@
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  background-color: var(--dropdown-bg);
+  background-color: var(--color-surface);
   min-width: 220px;
-  box-shadow: var(--shadow-md);
-  border-radius: var(--border-radius);
-  padding: 6px 0;
+  box-shadow: var(--shadow-pop);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) 0;
   z-index: 100;
-  animation: fadeIn var(--transition-speed) ease-out;
-  border: 1px solid var(--dropdown-border);
+  border: 1px solid var(--color-line);
   opacity: 0;
   visibility: hidden;
   transform: translateY(8px);
-  transition: 
-    opacity var(--transition-speed) ease,
-    transform var(--transition-speed) ease,
-    visibility var(--transition-speed) ease;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    visibility var(--dur-fast) var(--ease-out);
 }
 
 .nav-bar-item:hover .dropdown-menu {
@@ -140,13 +141,13 @@
 .dropdown-item {
   display: flex;
   align-items: center;
-  padding: 8px 16px;
-  color: var(--dropdown-text);
+  padding: var(--space-2) var(--space-4);
+  color: var(--color-ink);
   text-decoration: none;
-  transition: color var(--transition-speed) ease, padding-left var(--transition-speed) ease;
-  font-size: 0.9rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  gap: 8px;
+  font-size: var(--text-sm);
+  border-bottom: 1px solid var(--color-line);
+  gap: var(--space-2);
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
 
 .dropdown-item:last-child {
@@ -154,38 +155,20 @@
 }
 
 .dropdown-item:hover {
-  color: var(--nav-hover);
-  padding-left: 18px;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  color: var(--color-primary);
+  background: var(--color-primary-tint);
 }
 
 /* Link Descriptions */
 .link-description {
   display: block;
-  font-size: 0.75rem;
-  color: #718096;
+  font-size: var(--text-xs);
+  color: var(--color-ink-muted);
   margin-top: 2px;
   line-height: 1.3;
 }
 
-/* Active State */
-.nav-bar-item.active .nav-linkk {
-  color: var(--nav-hover);
-  font-weight: 600;
-}
-
-/* Mobile Responsiveness */
+/* Mobile: links live in the header drawer instead */
 @media (max-width: 1199px) {
   .navigation-bar {
     display: none;
@@ -195,6 +178,15 @@
 /* Focus States for Accessibility */
 .nav-linkk:focus-visible,
 .dropdown-item:focus-visible {
-  outline: 2px solid var(--nav-hover);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navigation-bar,
+  .nav-linkk,
+  .dropdown-menu,
+  .dropdown-item {
+    transition: none;
+  }
 }

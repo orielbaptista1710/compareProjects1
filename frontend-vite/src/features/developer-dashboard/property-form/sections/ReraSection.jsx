@@ -1,8 +1,9 @@
 // sections/ReraSection.jsx
-// RERA approved toggle, conditional RERA number + possession date.
+// Possession status, RERA approved toggle, conditional RERA number + date.
 
 import React from "react";
 import { useFormContext, Controller, useWatch } from "react-hook-form";
+import { POSSESSION_OPTIONS } from "../sectionConfig";
 
 const ReraSection = () => {
   const {
@@ -16,8 +17,29 @@ const ReraSection = () => {
   return (
     <section aria-labelledby="rera-section-title" className="form-section">
       <h3 id="rera-section-title" className="section-title">
-        RERA &amp; Possession
+        RERA and possession
       </h3>
+
+      <div className="form-row">
+        <div className="form-col form-col--half">
+          <label htmlFor="possessionStatus">
+            Possession status <span className="required">*</span>
+          </label>
+          <select
+            id="possessionStatus"
+            {...register("possessionStatus")}
+            aria-invalid={errors.possessionStatus ? "true" : undefined}
+          >
+            <option value="">Select a status</option>
+            {POSSESSION_OPTIONS.map((o) => (
+              <option key={o} value={o}>{o}</option>
+            ))}
+          </select>
+          {errors.possessionStatus && (
+            <span className="field-error" role="alert">{errors.possessionStatus.message}</span>
+          )}
+        </div>
+      </div>
 
       {/* RERA Approved toggle */}
       <div className="form-row">

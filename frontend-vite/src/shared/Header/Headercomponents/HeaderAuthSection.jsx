@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { ChevronDown, User, LogOut } from "lucide-react";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import "./HeaderAuthSection.css";
-import profileIcon from "../../../assests/icons/profile-circle.svg";
 
 export function HeaderAuthSection({ currentUser, loading, onLogout, closeMenu }) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -36,8 +35,8 @@ export function HeaderAuthSection({ currentUser, loading, onLogout, closeMenu })
         className="profile-icon-link"
         aria-label="Login or Sign up"
       >
-        <span className="profile-icon-wrapper">
-          <img src={profileIcon} className="profile-svg-icon" alt="Profile" />
+        <span className="profile-icon-wrapper" aria-hidden="true">
+          <User size={18} strokeWidth={1.75} className="profile-svg-icon" />
         </span>
       </Link>
     );

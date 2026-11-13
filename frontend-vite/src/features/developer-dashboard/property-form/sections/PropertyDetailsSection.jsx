@@ -1,13 +1,12 @@
 // SellPropertyFormComponents/property-form/PropertyDetailsSection.jsx
-// Property type cards, BHK/bathrooms/balconies/facing radio groups,
-// parking (multi-select), furnishing, possession status, age of property.
+// BHK/bathrooms/balconies/facing radio groups, parking (multi-select),
+// furnishing and age of property. Property type lives in Basic information
+// and possession status in RERA and possession.
 
 import React, { useCallback } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import {
-  PROPERTY_TYPES,
   FURNISHED_OPTIONS,
-  POSSESSION_STATUS_OPTIONS,
   AGE_OF_PROPERTY_OPTIONS,
   BHK_OPTIONS, 
   BATHROOM_OPTIONS,
@@ -85,54 +84,16 @@ const MultiCheckboxGroup = React.memo(({ name, options }) => {
 });
 
 // ── Main Section ───────────────────────────────────────────────────────────────
-// propertyGroup (Residential/Commercial) is derived server-side from propertyType.
 const PropertyDetailsSection = () => {
   const {
-    register,
-    setValue,
-    control,
     formState: { errors },
   } = useFormContext();
-
-  const selectedType = useWatch({ control, name: "propertyType" });
-
-  const handleTypeSelect = (label) => {
-    setValue("propertyType", label, { shouldValidate: true });
-  };
 
   return (
     <section aria-labelledby="details-section-title" className="form-section">
       <h3 id="details-section-title" className="section-title">
-        Property Details
+        Property details
       </h3>
-
-      {/* Property Type */}
-      <fieldset className="fieldset">
-        <legend> 
-          Property Type <span className="required">*</span>
-        </legend>
-        {/* Hidden input so RHF tracks value through Zod */}
-        <input type="hidden" {...register("propertyType")} />
-        <div className="property-type-grid">
-          {PROPERTY_TYPES.map((type) => (
-            <button
-              key={type.label}
-              type="button"
-              className={`property-type-card ${
-                selectedType === type.label ? "property-type-card--selected" : ""
-              }`}
-              onClick={() => handleTypeSelect(type.label)}
-              aria-pressed={selectedType === type.label}
-            >
-              {type.icon && <span className="type-icon">{type.icon}</span>}
-              <span>{type.label}</span>
-            </button>
-          ))}
-        </div>
-        {errors.propertyType && (
-          <span className="field-error" role="alert">{errors.propertyType.message}</span>
-        )}
-      </fieldset>
 
       {/* BHK */}
       <fieldset className="fieldset">
@@ -175,17 +136,6 @@ const PropertyDetailsSection = () => {
         <RadioGroup name="furnishing" options={FURNISHED_OPTIONS} />
         {errors.furnishing && (
           <span className="field-error" role="alert">{errors.furnishing.message}</span>
-        )}
-      </fieldset>
-
-      {/* Possession Status */}
-      <fieldset className="fieldset">
-        <legend>
-          Possession Status <span className="required">*</span>
-        </legend>
-        <RadioGroup name="possessionStatus" options={POSSESSION_STATUS_OPTIONS} />
-        {errors.possessionStatus && (
-          <span className="field-error" role="alert">{errors.possessionStatus.message}</span>
         )}
       </fieldset>
 

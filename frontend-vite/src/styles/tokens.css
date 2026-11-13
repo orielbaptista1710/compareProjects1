@@ -1,0 +1,82 @@
+/* src/styles/tokens.css
+   Site-wide design tokens: type, spacing, radius, motion, and the colours
+   colors.css doesn't have yet. Variables only — nothing here styles an element,
+   so importing it changes no page until that page opts in with var(--…).
+   Brand colours stay in colors.css (--color-primary #7c3aed etc.).
+
+   Fonts: Poppins for headings, prices and buttons; Inter for body, labels,
+   forms and tables. Use Inter + font-variant-numeric: tabular-nums for prices
+   in tables so the digits line up. */
+:root {
+  /* Type */
+  --font-heading: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-help: 0.8125rem;  /* 13px help text */
+  --text-sm: 0.875rem;     /* 14px labels */
+  --text-body: 0.9375rem;  /* 15px body + inputs */
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Space (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --page-gutter: clamp(16px, 4vw, 56px); /* left/right page padding, fluid */
+
+  /* Radius: inputs/buttons, cards, pills */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-full: 999px;
+
+  /* Controls */
+  --control-height: 44px;
+
+  /* Layout */
+  --site-header-height: 70px; /* shared/Header is fixed at this height */
+  --sidebar-width: 232px;
+
+  /* Colours not in colors.css. Brand purple stays --color-primary (#7c3aed). */
+  --color-ink: #1c1a33;           /* headings and body text */
+  --color-ink-muted: #5a5872;     /* secondary text (6.9:1 on white) */
+  --color-line: #e2e1ea;          /* card and divider borders */
+  --color-line-strong: #cfcdda;   /* input borders */
+  --color-placeholder: #6e6c85;   /* 5.2:1 on white */
+  --color-bg-page: #f5f5f8;       /* app background */
+  --color-surface-subtle: #fafafc; /* card footers */
+  --color-primary-tint: #f5f3ff;
+  --color-primary-deep: #2e1065;  /* darkest brand violet — site footer */
+  --color-success: #15803d;
+  --color-success-bg: #f0fdf4;
+  --color-highlight: #fbbf24; /* "Featured" tag and ★ rating only */
+
+  /* Tints of the three standard colours — not new colours. Use these instead
+     of writing rgba() in feature CSS. */
+  --color-on-dark: #ffffff;                      /* text/icons on ink surfaces */
+  --color-on-dark-muted: rgba(255, 255, 255, 0.8);
+  --color-on-dark-line: rgba(255, 255, 255, 0.22); /* borders on ink */
+  --color-on-dark-fill: rgba(255, 255, 255, 0.08); /* hover fill on ink */
+  --color-ink-fill: rgba(28, 26, 51, 0.06);      /* --color-ink at 6%: pills on white */
+  --color-overlay: rgba(28, 26, 51, 0.5);        /* scrim behind drawers/modals */
+
+  /* Elevation: menus, dialogs and popovers only — cards are flat */
+  --shadow-pop: 0 12px 32px rgba(17, 24, 39, 0.14);
+
+  /* Motion */
+  --dur-fast: 150ms;
+  --dur-medium: 300ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+}

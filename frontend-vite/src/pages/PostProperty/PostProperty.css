@@ -1,149 +1,313 @@
-/* src/pages/PostProperty/PostProperty.css — every class is pp- prefixed so it
-   can't collide with other routes' global CSS. */
-.pp-page {
-  --pp-brand: #7c3aed;
-  --pp-brand-dark: #6d28d9;
-  --pp-brand-soft: #f5f3ff;
-  --pp-brand-border: #ddd6fe;
-  --pp-text: #111827;
-  --pp-text-muted: #6b7280;
-  --pp-border: #e5e7eb;
+/* src/pages/PostProperty/PostProperty.css
+   Every class is pp- prefixed so it can't collide with other routes' global
+   CSS. Colours, fonts and sizes come from styles/tokens.css + styles/colors.css
+   — don't add new hex values here. Cards are flat (no shadows). */
 
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 70vh;
-  padding: 56px 16px;
-  background: #f9fafb;
+/* Poppins + Inter, only the weights in use. Moves to index.html with the
+   site-wide font switch. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap");
+
+.pp-page {
+  background: #fff;
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: 1.5;
 }
 
-.pp-card {
-  width: 100%;
-  max-width: 480px;
-  padding: 36px 32px;
-  border: 1px solid var(--pp-border);
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 10px 30px -12px rgba(17, 24, 39, 0.15);
+/* Width and side padding mirror shared/Breadcrumbs .breadcrumbs-list (same
+   breakpoints), so "Home > Post property" and the title share a left edge. */
+.pp-container {
+  --pp-gutter: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-7) var(--pp-gutter) calc(var(--space-7) + var(--space-6));
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .pp-container { --pp-gutter: 28px; }
+}
+
+@media (min-width: 1024px) {
+  .pp-container { --pp-gutter: 32px; }
+}
+
+.pp-nowrap {
+  white-space: nowrap;
+}
+
+.pp-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── Title ──────────────────────────────────────────────────────────────── */
+
+.pp-intro {
+  max-width: 720px;
+  margin-bottom: var(--space-6);
 }
 
 .pp-title {
-  margin: 0 0 6px;
-  font-size: 1.75rem;
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--pp-text);
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
 }
 
 .pp-subtitle {
-  margin: 0 0 28px;
-  font-size: 0.95rem;
-  color: var(--pp-text-muted);
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--color-ink-muted);
 }
 
-.pp-label {
-  margin: 0 0 12px;
-  font-weight: 600;
-  color: var(--pp-text);
-}
+/* ── Role cards ─────────────────────────────────────────────────────────── */
 
 .pp-roles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.pp-option {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.pp-role {
-  min-height: 44px; /* comfortable tap target on phones */
-  padding: 10px 24px;
-  border: 1px solid #d1d5db;
-  border-radius: 999px;
+  flex-direction: column;
+  padding: var(--space-5);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
   background: #fff;
-  font-size: 1rem;
-  color: #374151;
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  transition: border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
 }
 
-.pp-role:hover {
-  border-color: var(--pp-brand);
+.pp-option:hover {
+  border-color: var(--color-line-strong);
 }
 
-.pp-role:focus-visible,
-.pp-start:focus-visible {
-  outline: 2px solid var(--pp-brand);
-  outline-offset: 2px;
+.pp-option--active,
+.pp-option--active:hover {
+  border-color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px var(--color-primary); /* 2px border without layout shift */
+  background: var(--color-primary-tint);
 }
 
-.pp-role--active {
-  border-color: var(--pp-brand);
-  background: var(--pp-brand-soft);
-  color: var(--pp-brand);
-  font-weight: 600;
+.pp-option-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.pp-eyebrow {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary);
+}
+
+/* Round radio indicator — the real control for keyboard and screen readers. */
+.pp-radio {
+  flex: none;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 2px solid var(--color-line-strong);
+  border-radius: var(--radius-full);
+  background: #fff;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+
+/* Bigger invisible tap area (44px) without changing the look. */
+.pp-radio::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+}
+
+.pp-radio[aria-checked="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  box-shadow: inset 0 0 0 4px #fff;
+}
+
+.pp-radio:focus-visible,
+.pp-start:focus-visible,
+.pp-login a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.pp-option-title {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-heading);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-xl);
+  line-height: 1.3;
+  color: var(--color-ink);
+}
+
+.pp-option-desc {
+  margin: 0;
+  color: var(--color-ink-muted);
+}
+
+.pp-divider {
+  width: 100%;
+  margin: var(--space-4) 0;
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.pp-needs-title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+}
+
+.pp-needs {
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.pp-needs li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+}
+
+.pp-tick {
+  flex: none;
+  margin-top: 3px;
+  color: var(--color-primary);
+}
+
+.pp-note {
+  margin: auto 0 0; /* pins the note to the bottom so cards line up */
+  font-size: var(--text-help);
+  color: var(--color-ink-muted);
+}
+
+/* ── Bottom bar ─────────────────────────────────────────────────────────── */
+
+.pp-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
 }
 
 .pp-hint {
-  min-height: 3em;
-  margin: 24px 0;
-  padding: 14px 16px;
-  border: 1px solid var(--pp-brand-border);
-  border-radius: 10px;
-  background: var(--pp-brand-soft);
-  font-size: 0.92rem;
-  line-height: 1.5;
-  color: #374151;
+  margin: 0;
+  color: var(--color-ink);
 }
 
 .pp-start {
-  width: 100%;
-  min-height: 48px;
-  padding: 14px;
+  flex: none;
+  min-height: var(--control-height);
+  padding: var(--space-3) var(--space-5);
   border: none;
-  border-radius: 999px;
-  background: var(--pp-brand);
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
   color: #fff;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: background-color var(--dur-fast) var(--ease-out);
 }
 
 .pp-start:hover {
-  background: var(--pp-brand-dark);
+  background: var(--color-primary-dark);
 }
 
 .pp-login {
-  margin: 18px 0 0;
+  margin: var(--space-5) 0 0;
   text-align: center;
-  font-size: 0.92rem;
-  color: var(--pp-text-muted);
+  color: var(--color-ink-muted);
 }
 
 .pp-login a {
-  font-weight: 600;
-  color: var(--pp-brand);
-  text-decoration: none;
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .pp-login a:hover {
-  text-decoration: underline;
+  color: var(--color-primary-dark);
 }
 
-@media (max-width: 480px) {
-  .pp-page {
-    padding: 24px 16px;
+/* ── Tablet: two columns would leave an orphan, so stack ───────────────── */
+
+@media (max-width: 900px) {
+  .pp-roles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── Phone: bar sticks to the bottom so the button is always reachable ─── */
+
+@media (max-width: 720px) {
+  .pp-container {
+    padding-top: var(--space-5);
   }
 
-  .pp-card {
-    padding: 28px 20px;
+  .pp-subtitle {
+    font-size: var(--text-md);
   }
 
-  .pp-title {
-    font-size: 1.5rem;
+  .pp-option {
+    padding: var(--space-4);
   }
 
-  .pp-role {
-    flex: 1 1 0;
-    padding: 10px 12px;
+  .pp-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    margin-left: calc(-1 * var(--pp-gutter));
+    margin-right: calc(-1 * var(--pp-gutter));
+    padding: var(--space-3) var(--pp-gutter) calc(var(--space-3) + env(safe-area-inset-bottom));
+    border-width: 1px 0 0;
+    border-radius: 0;
+    background: #fff;
+  }
+
+  .pp-hint {
+    font-size: var(--text-sm);
+  }
+
+  .pp-start {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-option,
+  .pp-radio,
+  .pp-start {
+    transition: none;
   }
 }

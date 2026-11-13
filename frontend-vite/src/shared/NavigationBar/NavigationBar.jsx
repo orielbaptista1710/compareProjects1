@@ -67,7 +67,6 @@ const NavigationBar = () => {
                   <span
                     className="nav-linkk"
                     onClick={() => handleNavigation(item.path)}
-                    style={{ cursor: 'pointer' }}
                   >
                     {item.name}
                   </span>

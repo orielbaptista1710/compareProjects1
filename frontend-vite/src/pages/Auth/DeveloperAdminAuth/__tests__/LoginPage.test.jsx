@@ -10,6 +10,8 @@ const mockClear = vi.fn();
 
 vi.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
+  // The owner/agent sign-in links render as plain anchors in tests.
+  Link: ({ to, children, ...props }) => <a href={to} {...props}>{children}</a>,
 }));
 
 vi.mock("@tanstack/react-query", () => ({
@@ -24,9 +26,14 @@ vi.mock("react-hot-toast", () => ({
   default: { error: vi.fn(), success: vi.fn() },
 }));
 
-// Irrelevant to auth logic — stubbed out so this test only exercises LoginPage itself.
-vi.mock("../../../../shared/Popups/DeveloperPopup", () => ({ default: () => null }));
-vi.mock("../../../../shared/Popups/ForgotPasswordPopup", () => ({ default: () => null }));
+// Stubbed so this test only exercises LoginPage itself; each renders a marker
+// while open so the tests can check which button opens which popup.
+vi.mock("../../../../shared/Popups/DeveloperPopup", () => ({
+  default: ({ isOpen }) => (isOpen ? <div data-testid="developer-popup" /> : null),
+}));
+vi.mock("../../../../shared/Popups/ForgotPasswordPopup", () => ({
+  default: ({ isOpen }) => (isOpen ? <div data-testid="forgot-password-popup" /> : null),
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -37,7 +44,7 @@ async function fillAndSubmit({ username = "devuser", password = "Password123!" }
   render(<LoginPage />);
   if (username) await user.type(screen.getByPlaceholderText("Enter username"), username);
   if (password) await user.type(screen.getByPlaceholderText("Enter password"), password);
-  await user.click(screen.getByRole("button", { name: /login/i }));
+  await user.click(screen.getByRole("button", { name: /^sign in$/i }));
 }
 
 describe("LoginPage", () => {
@@ -97,10 +104,54 @@ describe("LoginPage", () => {
 
       await fillAndSubmit();
 
-      await waitFor(() => expect(screen.getByText(expected)).toBeInTheDocument());
-      expect(toast.error).toHaveBeenCalledWith(expected);
+      await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent(expected));
+      // Shown once inline only — a toast too would be announced twice.
+      expect(toast.error).not.toHaveBeenCalled();
     }
   );
+
+  it("links owners and agents to their own sign-in pages", () => {
+    render(<LoginPage />);
+
+    expect(screen.getByRole("link", { name: "Owner sign in" })).toHaveAttribute("href", "/customer-login");
+    expect(screen.getByRole("link", { name: "Agent sign in" })).toHaveAttribute("href", "/agent-login");
+  });
+
+  it("opens the developer enquiry popup from Request access", async () => {
+    const user = userEvent.setup();
+    render(<LoginPage />);
+
+    expect(screen.queryByTestId("developer-popup")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Request access" }));
+    expect(screen.getByTestId("developer-popup")).toBeInTheDocument();
+  });
+
+  it("opens the forgot-password popup without submitting the form", async () => {
+    const user = userEvent.setup();
+    render(<LoginPage />);
+
+    await user.click(screen.getByRole("button", { name: "Forgot password?" }));
+    expect(screen.getByTestId("forgot-password-popup")).toBeInTheDocument();
+    expect(API.post).not.toHaveBeenCalled();
+  });
+
+  it("shows and hides the password with the eye button", async () => {
+    const user = userEvent.setup();
+    render(<LoginPage />);
+    const password = screen.getByPlaceholderText("Enter password");
+    const toggle = screen.getByRole("button", { name: "Show password" });
+
+    expect(password).toHaveAttribute("type", "password");
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+    await user.click(toggle);
+    expect(password).toHaveAttribute("type", "text");
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+
+    await user.click(toggle);
+    expect(password).toHaveAttribute("type", "password");
+    expect(API.post).not.toHaveBeenCalled();
+  });
 
   it("shows a server-unreachable message when there is no response at all (network error)", async () => {
     API.post.mockRejectedValue({});

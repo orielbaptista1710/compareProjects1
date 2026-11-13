@@ -34,7 +34,10 @@ export const propertySchema = z
     title:            z.string().min(5, "Title must be at least 5 characters").max(150).trim(),
     description:      z.string().min(20, "Short description must be at least 20 characters").max(500).trim(),
     long_description: z.string().max(5000).optional().or(z.literal("")),
- 
+    // Groups BHK variants of one project onto one card (server: projectKey).
+    // Blank = never grouped. Same 150 limit as the server validator.
+    projectName:      z.string().trim().max(150, "Project name can be up to 150 characters").optional().or(z.literal("")),
+
     // ── Location ──────────────────────────────────────────────────
     state:    z.string().min(1, "State is required"),
     city:     z.string().min(1, "City is required"),
@@ -116,6 +119,7 @@ export const defaultPropertyValues = {
   title:            "",
   description:      "",
   long_description: "",
+  projectName:      "",
   state:            "",
   city:             "",
   locality:         "",

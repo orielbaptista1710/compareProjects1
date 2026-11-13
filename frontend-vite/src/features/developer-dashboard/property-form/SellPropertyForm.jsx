@@ -1,5 +1,9 @@
 // features/developer-dashboard/property-form/SellPropertyForm.jsx
-import { useState, useEffect, useCallback, useRef } from "react";
+// New-listing page: header with actions, numbered accordion sections (one
+// open at a time) and a right rail with a live buyer preview and the publish
+// checklist. Data, validation and the submit payload all still come from
+// usePropertyForm + propertySchema.
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FormProvider } from "react-hook-form";
 import { usePropertyForm } from "../../../components/DevDashboardPageComponents/SellPropertyFormComponents/hooks/usePropertyForm";
 
@@ -10,242 +14,263 @@ import PropertyDetailsSection from "./sections/PropertyDetailsSection";
 import BuildingSection from "./sections/BuildingSection";
 import ReraSection from "./sections/ReraSection";
 import PropertyAmenitiesSection from "./sections/PropertyAmenitiesSection";
-// import MediaUploadSection from "./property-form/MediaUploadSection";
+// MediaUploadSection stays "coming soon" until uploads ship.
+
+import PageHeader from "./components/PageHeader";
+import SectionCard from "./components/SectionCard";
+import BuyerPreview from "./components/BuyerPreview";
+import PublishChecklist from "./components/PublishChecklist";
+import { useSectionStatus } from "./hooks/useSectionStatus";
+import { useDraft, draftKeyFor, removeDraft } from "./hooks/useDraft";
+import { SECTIONS, focusFirstError, prefersReducedMotion } from "./sectionConfig";
 
 import "./SellPropertyForm.css";
 
-// ── Step definitions ───────────────────────────────────────────
-const STEPS = [
-  { id: "info",      label: "Basic Info"  },
-  { id: "location",  label: "Location"    },
-  { id: "pricing",   label: "Pricing"     },
-  { id: "details",   label: "Details"     },
-  { id: "building",  label: "Building"    },
-  { id: "rera",      label: "RERA"        },
-  { id: "amenities", label: "Amenities"   },
-  { id: "media",     label: "Media"       },
-];
+const FIRST_ID = SECTIONS[0].id;
+const NO_VISITS = new Set();
 
-// A section counts as "current" while it crosses this band in the middle of
-// the viewport. A plain threshold never fires for sections taller than the
-// screen (Location with the map, Amenities on mobile).
-const ACTIVE_BAND = { rootMargin: "-45% 0px -50% 0px", threshold: 0 };
+const DRAFT_DATE = new Intl.DateTimeFormat("en-IN", {
+  day: "numeric",
+  month: "short",
+  hour: "numeric",
+  minute: "2-digit",
+});
 
-// After a step click, ignore the observer while the smooth scroll runs so it
-// can't highlight the sections it passes (or the one below a short section).
-const CLICK_LOCK_MS = 900;
-
-const prefersReducedMotion = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-// ── Progress bar ───────────────────────────────────────────────
-const ProgressBar = ({ activeStep, onStepClick }) => {
-  const activeIdx = STEPS.findIndex((s) => s.id === activeStep);
-  // line fills from 0 → 88% across the steps
-  const pct = activeIdx <= 0 ? "0%" : `${(activeIdx / (STEPS.length - 1)) * 88}%`;
-
-  return (
-    <nav className="spf-progress" aria-label="Form progress">
-      <ol className="spf-progress__track" style={{ "--progress-pct": pct }}>
-        {STEPS.map((step, idx) => {
-          const done   = idx < activeIdx;
-          const active = idx === activeIdx;
-          return (
-            <li key={step.id} className="spf-step-item">
-              <button
-                type="button"
-                className={[
-                  "spf-step",
-                  done   ? "spf-step--done"   : "",
-                  active ? "spf-step--active" : "",
-                ].filter(Boolean).join(" ")}
-                aria-current={active ? "step" : undefined}
-                onClick={() => onStepClick(step.id)}
-              >
-                <span className="spf-step__dot" aria-hidden="true">
-                  {done ? "✓" : idx + 1}
-                </span>
-                <span className="spf-step__label">{step.label}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
-  );
-};
-
-// ── Main component ─────────────────────────────────────────────
 const SellPropertyForm = ({
   formData = {},
   onSubmit,
   handleCancelEdit,
+  onShowListings,
   editingId,
   isAdding,
   isUpdating,
+  draftOwner,
 }) => {
+  const isEditing = Boolean(editingId);
+  const isSubmitting = isAdding || isUpdating;
+  const draftKey = draftKeyFor(draftOwner, editingId);
+
+  // The draft is only cleared once the server has saved the listing. A failed
+  // save (network, 4xx/5xx) keeps it. removeDraft only touches localStorage,
+  // so it's safe even though a successful save closes this form.
+  const handleValidSubmit = useCallback(
+    (payload) => onSubmit(payload, { onSuccess: () => removeDraft(draftKey) }),
+    [draftKey, onSubmit]
+  );
+
   const {
     methods,
     formRef,
     handleSubmit,
     autocompleteRef,
     coordinates,
+    syncCoordinates,
     handlePlaceChanged,
     handleMapClick,
-  } = usePropertyForm({ formData, onSubmit, editingId });
+  } = usePropertyForm({ formData, onSubmit: handleValidSubmit, editingId });
+  const { control, trigger, getValues, getFieldState, reset } = methods;
 
-  const isSubmitting = isAdding || isUpdating;
-
-  // Track which section is currently in view for the progress bar.
-  // Sections are found by their data-step attribute inside the form.
-  const [activeStep, setActiveStep] = useState(STEPS[0].id);
-  const lockUntil = useRef(0);
-
+  // Editing a saved listing: show anything it already fails (e.g. an older
+  // listing with a too-short description). Otherwise Publish is disabled with
+  // no field saying why, because errors only appear once a field is touched.
+  // Runs after usePropertyForm's reset for the same editingId.
   useEffect(() => {
-    const form = formRef.current;
-    if (!form || typeof IntersectionObserver === "undefined") return undefined;
-    const isLocked = () => Date.now() < lockUntil.current;
+    if (editingId) trigger();
+  }, [editingId, trigger]);
 
-    const obs = new IntersectionObserver((entries) => {
-      const hit = entries.find((e) => e.isIntersecting);
-      if (hit && !isLocked()) setActiveStep(hit.target.dataset.step);
-    }, ACTIVE_BAND);
-    form.querySelectorAll("[data-step]").forEach((el) => obs.observe(el));
+  // ── Which section is open, and which ones the lister has been through ──
+  // Reset when switching between add and edit (adjusted during render so
+  // there's no flash of the old state).
+  const [view, setView] = useState({ key: editingId, openId: FIRST_ID, visited: NO_VISITS });
+  let { openId, visited } = view;
+  if (view.key !== editingId) {
+    openId = FIRST_ID;
+    visited = NO_VISITS;
+    setView({ key: editingId, openId, visited });
+  }
 
-    // The last section can't scroll up into the middle band, so mark it
-    // active once the end of the form is on screen.
-    const endObs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !isLocked()) setActiveStep(STEPS[STEPS.length - 1].id);
-    });
-    const end = form.querySelector(".spf-end");
-    if (end) endObs.observe(end);
+  const pendingScroll = useRef(null); // section id to bring into view
+  const pendingFocus = useRef(null);  // Set of invalid field keys to focus
 
-    return () => {
-      obs.disconnect();
-      endObs.disconnect();
-    };
-  }, [formRef]);
+  const goTo = useCallback((nextId, { scroll = true } = {}) => {
+    setView((v) => ({
+      ...v,
+      openId: nextId,
+      visited: v.openId && v.openId !== nextId ? new Set(v.visited).add(v.openId) : v.visited,
+    }));
+    pendingScroll.current = scroll ? nextId : null;
+  }, []);
 
-  const handleStepClick = useCallback((id) => {
-    lockUntil.current = Date.now() + CLICK_LOCK_MS;
-    setActiveStep(id);
-    formRef.current?.querySelector(`[data-step="${id}"]`)?.scrollIntoView({
-      behavior: prefersReducedMotion() ? "auto" : "smooth",
-      block: "start",
-    });
-  }, [formRef]);
+  const toggle = useCallback(
+    (id) => goTo(id === openId ? null : id),
+    [goTo, openId]
+  );
+
+  // After a section opens: focus its first error, or bring its card into view
+  useEffect(() => {
+    if (!openId) return;
+    const card = formRef.current?.querySelector(`[data-section="${openId}"]`);
+    if (!card) return;
+    const keys = pendingFocus.current;
+    pendingFocus.current = null;
+    if (keys && focusFirstError(card, keys)) {
+      pendingScroll.current = null;
+      return;
+    }
+    if (pendingScroll.current === openId) {
+      pendingScroll.current = null;
+      card.scrollIntoView?.({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+    }
+  }, [openId, formRef]);
+
+  const invalidKeys = useCallback(
+    (section) => new Set(section.fields.filter((f) => getFieldState(f).invalid)),
+    [getFieldState]
+  );
+
+  // ── Continue: validate only this section, then open the next ──
+  const handleContinue = useCallback(
+    async (section) => {
+      const ok = await trigger(section.fields);
+      if (!ok) {
+        const card = formRef.current?.querySelector(`[data-section="${section.id}"]`);
+        focusFirstError(card, invalidKeys(section));
+        return;
+      }
+      const idx = SECTIONS.findIndex((s) => s.id === section.id);
+      goTo(SECTIONS[idx + 1]?.id ?? null);
+    },
+    [trigger, formRef, invalidKeys, goTo]
+  );
+
+  // ── Submit: the hook validates, toasts and sends. If it was blocked (e.g.
+  // a value changed after Publish enabled), open the first section with an
+  // error; closed sections have no fields in the DOM for the hook to focus.
+  const handleFormSubmit = useCallback(
+    async (e) => {
+      await handleSubmit(e);
+      const bad = SECTIONS.find((s) => s.fields.some((f) => getFieldState(f).invalid));
+      if (!bad) return;
+      const keys = invalidKeys(bad);
+      if (bad.id === openId) {
+        focusFirstError(formRef.current?.querySelector(`[data-section="${bad.id}"]`), keys);
+      } else {
+        pendingFocus.current = keys;
+        goTo(bad.id, { scroll: false });
+      }
+    },
+    [handleSubmit, getFieldState, invalidKeys, openId, formRef, goTo]
+  );
+
+  const status = useSectionStatus(control, { openId, visited });
+  const { draft, saveDraft, restoreDraft, discardDraft } = useDraft({
+    draftKey,
+    getValues,
+    reset,
+    onRestore: syncCoordinates,
+  });
+  const needsFixes = Object.values(status.byId).some((s) => s.state === "error");
+
+  const renderSection = (id) => {
+    switch (id) {
+      case "info":      return <PropertyInformationSection />;
+      case "location":  return (
+        <SellProLocationSection
+          autocompleteRef={autocompleteRef}
+          coordinates={coordinates}
+          onPlaceChanged={handlePlaceChanged}
+          onMapClick={handleMapClick}
+        />
+      );
+      case "pricing":   return <PricingSection />;
+      case "details":   return <PropertyDetailsSection />;
+      case "building":  return <BuildingSection />;
+      case "rera":      return <ReraSection />;
+      case "amenities": return <PropertyAmenitiesSection />;
+      default:          return null;
+    }
+  };
 
   return (
     <FormProvider {...methods}>
       <form
         ref={formRef}
         className="sell-property-form"
-        onSubmit={handleSubmit}
+        onSubmit={handleFormSubmit}
         noValidate
       >
+        <div className="spf-page">
+          <PageHeader
+            isEditing={isEditing}
+            canPublish={status.canPublish}
+            needsFixes={needsFixes}
+            isSubmitting={isSubmitting}
+            isAdding={isAdding}
+            isUpdating={isUpdating}
+            onSaveDraft={saveDraft}
+            onCancel={handleCancelEdit}
+            onShowListings={onShowListings}
+          />
 
-        {/* ── Progress bar ── */}
-        <div className="spf-progress-wrapper">
-          <ProgressBar activeStep={activeStep} onStepClick={handleStepClick} />
+          {draft && (
+            <div className="spf-draft" role="status">
+              <p>You have a draft saved on {DRAFT_DATE.format(draft.savedAt)}.</p>
+              <div className="spf-draft__actions">
+                <button type="button" className="spf-btn spf-btn--secondary" onClick={restoreDraft}>
+                  Restore draft
+                </button>
+                <button type="button" className="spf-btn spf-btn--quiet" onClick={discardDraft}>
+                  Discard
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="spf-layout">
+            <div className="spf-cards">
+              {SECTIONS.map((section, i) => {
+                const next = SECTIONS[i + 1];
+                return (
+                  <SectionCard
+                    key={section.id}
+                    section={section}
+                    number={i + 1}
+                    isOpen={section.id === openId}
+                    onToggle={toggle}
+                    footer={
+                      !section.comingSoon && next ? (
+                        <button
+                          type="button"
+                          className="spf-btn spf-btn--primary"
+                          onClick={() => handleContinue(section)}
+                        >
+                          Continue to {next.next}
+                        </button>
+                      ) : null
+                    }
+                  >
+                    {section.comingSoon ? (
+                      <p className="spf-coming-soon">
+                        Photo, floor plan and brochure uploads are coming soon. You can
+                        publish the listing without them and add them later.
+                      </p>
+                    ) : (
+                      renderSection(section.id)
+                    )}
+                  </SectionCard>
+                );
+              })}
+            </div>
+
+            <aside className="spf-rail" aria-label="Preview and progress">
+              <BuyerPreview />
+              <PublishChecklist status={status} onOpen={goTo} />
+            </aside>
+          </div>
         </div>
-
-        {/* ── Sections ── */}
-        <div className="spf-sections">
-
-          <Divider step={1} label="Basic Info" />
-          <div className="spf-anchor" data-step="info">
-            <PropertyInformationSection />
-          </div>
-
-          <Divider step={2} label="Location" />
-          <div className="spf-anchor" data-step="location">
-            <SellProLocationSection
-              autocompleteRef={autocompleteRef}
-              coordinates={coordinates}
-              onPlaceChanged={handlePlaceChanged}
-              onMapClick={handleMapClick}
-            />
-          </div>
-
-          <Divider step={3} label="Pricing & Area" />
-          <div className="spf-anchor" data-step="pricing">
-            <PricingSection />
-          </div>
-
-          <Divider step={4} label="Property Details" />
-          <div className="spf-anchor" data-step="details">
-            <PropertyDetailsSection />
-          </div>
-
-          <Divider step={5} label="Building Info" />
-          <div className="spf-anchor" data-step="building">
-            <BuildingSection />
-          </div>
-
-          <Divider step={6} label="RERA" />
-          <div className="spf-anchor" data-step="rera">
-            <ReraSection />
-          </div>
-
-          <Divider step={7} label="Amenities" />
-          <div className="spf-anchor" data-step="amenities">
-            <PropertyAmenitiesSection />
-          </div>
-
-          <Divider step={8} label="Media" />
-          <div className="spf-anchor" data-step="media">
-            {/* <MediaUploadSection /> */}
-            <section aria-labelledby="media-section-title" className="form-section">
-              <h3 id="media-section-title" className="section-title">
-                Photos &amp; Media
-              </h3>
-              <p className="spf-coming-soon">
-                Coming soon — photo, floor plan and brochure uploads will be added here.
-              </p>
-            </section>
-          </div>
-
-        </div>
-
-        {/* ── Footer ── */}
-        <footer className="spf-footer">
-          <div className="form-actions">
-            {editingId && (
-              <button
-                type="button"
-                className="btn-secondary"
-                onClick={handleCancelEdit}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </button>
-            )}
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={isSubmitting}
-              aria-busy={isSubmitting}
-            >
-              {editingId
-                ? isUpdating ? "Updating…"   : "Update Property"
-                : isAdding   ? "Submitting…" : "Submit Property"}
-            </button>
-          </div>
-        </footer>
-        <div className="spf-end" aria-hidden="true" />
       </form>
     </FormProvider>
   );
 };
-
-// ── Divider ────────────────────────────────────────────────────
-const Divider = ({ step, label }) => (
-  <div className="spf-divider" aria-hidden="true">
-    <span className="spf-divider__step">{step}</span>
-    <span className="spf-divider__label">{label}</span>
-    <hr />
-  </div>
-);
 
 export default SellPropertyForm;

@@ -85,7 +85,9 @@ import "./CitySelector.css";
         aria-expanded={open}
         aria-haspopup="listbox"
       >
-        {city || "City"} <ChevronDown size={14} />
+        <MapPin size={16} className="city-trigger-pin" aria-hidden="true" />
+        <span className="city-trigger-label">{city || "City"}</span>
+        <ChevronDown size={16} className="city-trigger-chevron" aria-hidden="true" />
       </button>
 
       {/* Dropdown */}

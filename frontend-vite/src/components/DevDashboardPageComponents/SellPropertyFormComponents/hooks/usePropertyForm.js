@@ -105,6 +105,15 @@ export const usePropertyForm = ({ formData = {}, onSubmit, editingId = null }) =
     [setValue]
   );
 
+  // ── Pin from a whole set of values (e.g. a restored draft) ────────────────
+  // reset() only updates RHF; the map pin is separate state.
+  const syncCoordinates = useCallback((values = {}) => {
+    const lat = Number(values.lat);
+    const lng = Number(values.lng);
+    const has = values.lat !== "" && values.lat != null && values.lng !== "" && values.lng != null;
+    setCoordinates(has && Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null);
+  }, []);
+
   // ── Address autofill from Google Places result ────────────────────────────
   const applyAddressComponents = useCallback(
     (place) => {
@@ -243,6 +252,7 @@ export const usePropertyForm = ({ formData = {}, onSubmit, editingId = null }) =
     handleSubmit: submit,
     autocompleteRef,
     coordinates,
+    syncCoordinates,
     handlePlaceChanged,
     handleMapClick,
   };
