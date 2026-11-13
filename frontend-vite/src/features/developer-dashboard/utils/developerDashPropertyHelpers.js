@@ -23,6 +23,7 @@ export const initialFormData = {
   title:            "",
   description:      "",
   long_description: "",
+  projectName:      "",
   state:            "",
   city:             "",
   locality:         "",

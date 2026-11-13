@@ -1,314 +1,386 @@
 /* features/developer-dashboard/property-form/SellPropertyForm.css
  *
- * Every rule is scoped under .sell-property-form. This stylesheet stays loaded
- * after the dashboard chunk is fetched, so bare selectors (label, input,
- * .btn-primary…) would restyle every other page in the SPA, login pages
- * included. Element rules use :where() so their specificity stays at one class
- * and component classes below can still override them.
+ * Every rule is scoped under .sell-property-form: this stylesheet stays loaded
+ * after the dashboard chunk is fetched, so bare selectors would restyle other
+ * pages. Element rules use :where() to keep specificity at one class.
+ *
+ * All colours, fonts and sizes come from styles/tokens.css + styles/colors.css.
+ * Layout responds to the form's own width (container queries), so it works in
+ * the developer dashboard and, later, inside owner/agent dashboards.
+ *
+ * Flat: 1px borders, no shadows or gradients. Radius 12 (cards) / 8
+ * (controls) / full (pills). Motion only answers a user action.
  */
 
-/* ── Design Tokens ────────────────────────────────────────────────────────── */
+/* Poppins + Inter, only the weights in use. Moves to index.html with the
+   site-wide font switch. */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600&display=swap");
+
+/* ── Local aliases for the site tokens ───────────────────────────────────── */
 .sell-property-form {
-  --spf-purple:        #6D28D9;
-  --spf-purple-mid:    #7C3AED;
-  --spf-purple-light:  #EDE9FE;
-  --spf-purple-faint:  #F5F3FF;
-  --spf-purple-ring:   rgba(109, 40, 217, 0.18);
+  --spf-accent:      var(--color-primary, #7c3aed);
+  --spf-accent-dark: var(--color-primary-dark, #6d28d9);
+  --spf-accent-tint: var(--color-surface-tint-strong, #ede9fe);
+  --spf-ink:         var(--color-ink, #1c1a33);
+  --spf-muted:       var(--color-ink-muted, #5a5872);
+  --spf-line:        var(--color-line, #e2e1ea);
+  --spf-line-strong: var(--color-line-strong, #cfcdda);
+  --spf-placeholder: var(--color-placeholder, #6e6c85);
+  --spf-bg:          var(--color-bg-page, #f5f5f8);
+  --spf-surface:     var(--color-surface, #ffffff);
+  --spf-subtle:      var(--color-surface-subtle, #fafafc);
+  --spf-error:       var(--color-error-text, #dc2626);
+  --spf-error-bg:    var(--color-error-bg, #fef2f2);
+  --spf-success:     var(--color-success, #15803d);
 
-  --spf-navy:          #1E1B4B;      /* deep indigo for headings */
-  --spf-navy-soft:     #312E81;
-
-  --spf-text:          #1F2937;
-  --spf-text-muted:    #4B5563;      /* 7.6:1 on white */
-  --spf-text-hint:     #6B7280;      /* 4.8:1 on white — WCAG AA */
-
-  --spf-bg:            #F9FAFB;
-  --spf-surface:       #FFFFFF;
-  --spf-border:        #E5E7EB;
-  --spf-border-focus:  #7C3AED;
-
-  --spf-error:         #DC2626;
-  --spf-error-bg:      #FEF2F2;
-
-  --spf-radius:        8px;
-  --spf-shadow:        0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
-  --spf-transition:    0.18s ease;
-  --spf-focus-ring:    0 0 0 3px var(--spf-purple-ring);
+  --spf-r-sm:   var(--radius-sm, 8px);
+  --spf-r-md:   var(--radius-md, 12px);
+  --spf-r-full: var(--radius-full, 999px);
+  --spf-h:      var(--control-height, 44px);
+  --spf-fast:   var(--dur-fast, 150ms);
+  --spf-ease:   var(--ease-out, cubic-bezier(0.2, 0, 0, 1));
+  --spf-head:   var(--font-heading, "Poppins", system-ui, sans-serif);
+  --spf-body:   var(--font-body, "Inter", system-ui, sans-serif);
 }
 
-/* ── Form Shell ───────────────────────────────────────────────────────────── */
+/* ── Shell ───────────────────────────────────────────────────────────────── */
 .sell-property-form {
+  container: spf / inline-size;
+  min-height: 100%;
   background: var(--spf-bg);
-  min-height: 100vh;
-  padding: 0 0 4rem;
-  overflow: visible;
+  color: var(--spf-ink);
+  font-family: var(--spf-body);
+  font-size: var(--text-body, 0.9375rem);
+  line-height: 1.5;
 }
 
-/* ── Sections wrapper ─────────────────────────────────────────────────────── */
-.sell-property-form .spf-sections {
-  margin: 0 auto;
-  padding: 20px 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  width: 100%;
+.sell-property-form .spf-page {
   max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 40px 48px;
   box-sizing: border-box;
 }
 
-/* Keeps a section's top edge clear of the sticky progress bar on step click */
-.sell-property-form .spf-anchor {
-  scroll-margin-top: 96px;
+.sell-property-form .spf-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px;
 }
 
-/* ── Progress Bar (sticky) ───────────────────────────────────────────────── */
-.sell-property-form .spf-progress-wrapper {
-  position: sticky;
-  top: 0px;
-  z-index: 100;
-  background: #fff;
-  border-bottom: 1px solid var(--spf-border);
-  padding: 0;
-  margin-left: -24px;
-  margin-right: -24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
-}
-
-.sell-property-form .spf-progress__track {
+/* ── Page header ─────────────────────────────────────────────────────────── */
+.sell-property-form .spf-page-header {
   display: flex;
-  align-items: flex-start;
-  position: relative;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  list-style: none;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin-bottom: 24px;
+}
+
+.sell-property-form .spf-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin: 0;
-  padding: 0.5rem 0 0.6rem;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
 }
-.sell-property-form .spf-progress__track::-webkit-scrollbar { display: none; }
-
-/* grey rail */
-.sell-property-form .spf-progress__track::before {
-  content: '';
-  position: absolute;
-  top: calc(0.5rem + 21px);
-  left: 13px;
-  right: 13px;
-  height: 2px;
-  background: var(--spf-border);
-  z-index: 0;
+.sell-property-form .spf-breadcrumb li + li::before {
+  content: "/";
+  margin-right: 6px;
 }
-
-/* purple filled rail */
-.sell-property-form .spf-progress__track::after {
-  content: '';
-  position: absolute;
-  top: calc(0.5rem + 21px);
-  left: 13px;
-  height: 2px;
-  background: var(--spf-purple);
-  z-index: 1;
-  width: var(--progress-pct, 0%);
-  transition: width 0.4s cubic-bezier(.4,0,.2,1);
-}
-
-.sell-property-form .spf-step-item {
-  flex: 1;
-  min-width: 60px;
-  display: flex;
-  justify-content: center;
-  position: relative;
-  z-index: 2;
-}
-
-.sell-property-form .spf-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  min-height: 44px;            /* tap target */
-  padding: 0.25rem 0.35rem;
+.sell-property-form .spf-breadcrumb__link {
+  padding: 0;
   background: none;
-  border: none;
-  border-radius: var(--spf-radius);
+  border: 0;
   font: inherit;
+  color: var(--spf-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+}
+.sell-property-form .spf-breadcrumb__link:hover { color: var(--spf-ink); }
+
+.sell-property-form .spf-page-header__title {
+  margin: 4px 0 0;
+  font-family: var(--spf-head);
+  font-size: var(--text-2xl, 1.75rem);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--spf-ink);
 }
 
-.sell-property-form .spf-step:focus-visible {
-  outline: none;
-  box-shadow: var(--spf-focus-ring);
-}
-
-.sell-property-form .spf-step__dot {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid var(--spf-border);
-  background: #fff;
+.sell-property-form .spf-page-header__actions {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.sell-property-form .spf-page-header__hint {
+  margin: 0;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.sell-property-form .spf-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--spf-text-muted);
-  transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
-  flex-shrink: 0;
-  box-sizing: border-box;
-}
-
-.sell-property-form .spf-step__label {
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: var(--spf-text-hint);
-  text-align: center;
+  gap: 8px;
+  min-height: var(--spf-h);
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: var(--spf-r-sm);
+  font-family: var(--spf-body);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
   white-space: nowrap;
-  transition: color .2s, font-weight .2s;
+  cursor: pointer;
+  transition: background-color var(--spf-fast), border-color var(--spf-fast), color var(--spf-fast);
 }
 
-/* done */
-.sell-property-form .spf-step--done .spf-step__dot {
-  border-color: var(--spf-purple);
-  background: var(--spf-purple);
+.sell-property-form .spf-btn--primary {
+  background: var(--spf-accent);
   color: #fff;
 }
-.sell-property-form .spf-step--done .spf-step__label {
-  color: var(--spf-purple);
-  font-weight: 600;
+.sell-property-form .spf-btn--primary:hover:not(:disabled) {
+  background: var(--spf-accent-dark);
 }
 
-/* active */
-.sell-property-form .spf-step--active .spf-step__dot {
-  border-color: var(--spf-purple);
-  background: #fff;
-  color: var(--spf-purple);
-  box-shadow: 0 0 0 4px var(--spf-purple-ring);
-}
-.sell-property-form .spf-step--active .spf-step__label {
-  color: var(--spf-purple);
-  font-weight: 700;
-}
-
-/* ── Section Cards ───────────────────────────────────────────────────────── */
-.sell-property-form .form-section {
+.sell-property-form .spf-btn--secondary {
   background: var(--spf-surface);
-  border: 1px solid var(--spf-border);
-  padding: 1.75rem 2rem;
-  box-shadow: var(--spf-shadow);
-  margin-bottom: 1rem;
+  border-color: var(--spf-line-strong);
+  color: var(--spf-ink);
+}
+.sell-property-form .spf-btn--secondary:hover:not(:disabled) {
+  border-color: var(--spf-ink);
 }
 
-.sell-property-form .section-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--spf-navy);
-  margin: 0 0 1.25rem;
-  padding-bottom: .75rem;
-  border-bottom: 2px solid var(--spf-purple-light);
-  letter-spacing: 0.01em;
+.sell-property-form .spf-btn--quiet {
+  background: transparent;
+  color: var(--spf-muted);
+}
+.sell-property-form .spf-btn--quiet:hover:not(:disabled) {
+  color: var(--spf-ink);
+}
+
+.sell-property-form .spf-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.sell-property-form .spf-btn--primary:disabled {
+  background: var(--spf-line);
+  color: var(--spf-muted);
+  opacity: 1;
+}
+
+/* One focus style everywhere: solid 2px outline, 2px offset */
+.sell-property-form :where(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid var(--spf-accent);
+  outline-offset: 2px;
+}
+
+/* ── Draft banner ────────────────────────────────────────────────────────── */
+.sell-property-form .spf-draft {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: var(--spf-surface);
+  border: 1px solid var(--spf-line);
+  border-radius: var(--spf-r-md);
+}
+.sell-property-form .spf-draft p {
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+}
+.sell-property-form .spf-draft__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Section cards ───────────────────────────────────────────────────────── */
+.sell-property-form .spf-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.sell-property-form .spf-card {
+  background: var(--spf-surface);
+  border: 1px solid var(--spf-line);
+  border-radius: var(--spf-r-md);
+  scroll-margin-top: 16px;
+}
+
+.sell-property-form .spf-card__heading {
+  margin: 0;
+  font: inherit;
+}
+
+.sell-property-form .spf-card__toggle {
   display: flex;
   align-items: center;
-  gap: .5rem;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  padding: 16px 24px;
+  background: none;
+  border: 0;
+  border-radius: var(--spf-r-md);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sell-property-form .spf-card.is-open .spf-card__toggle {
+  padding: 24px;
+  border-bottom: 1px solid var(--spf-line);
+  border-radius: var(--spf-r-md) var(--spf-r-md) 0 0;
+}
+.sell-property-form .spf-card__toggle:focus-visible {
+  outline-offset: -2px;
 }
 
-.sell-property-form .section-subtitle {
-  font-size: 0.78rem;
+.sell-property-form .spf-card__number {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 1px solid var(--spf-line-strong);
+  border-radius: var(--spf-r-full);
+  font-size: var(--text-help, 0.8125rem);
   font-weight: 600;
-  color: var(--spf-text-muted);
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  margin: 0 0 .75rem;
-  display: block;
+  font-variant-numeric: tabular-nums;
+  color: var(--spf-muted);
+  box-sizing: border-box;
+}
+.sell-property-form .spf-card.is-open .spf-card__number {
+  border-color: var(--spf-accent);
+  background: var(--spf-accent);
+  color: #fff;
+}
+
+.sell-property-form .spf-card__titles {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sell-property-form .spf-card__title {
+  font-family: var(--spf-head);
+  font-size: var(--text-md, 1rem);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--spf-ink);
+}
+.sell-property-form .spf-card.is-open .spf-card__title {
+  font-size: var(--text-lg, 1.125rem);
+}
+
+.sell-property-form .spf-card__desc {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--spf-muted);
+}
+
+.sell-property-form .spf-card__chevron {
+  flex-shrink: 0;
+  color: var(--spf-muted);
+  transition: transform var(--spf-fast) var(--spf-ease);
+}
+.sell-property-form .spf-card.is-open .spf-card__chevron {
+  transform: rotate(180deg);
+}
+
+.sell-property-form .spf-card__body {
+  padding: 24px;
+}
+
+.sell-property-form .spf-card__foot {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  background: var(--spf-subtle);
+  border-top: 1px solid var(--spf-line);
+  border-radius: 0 0 var(--spf-r-md) var(--spf-r-md);
+}
+
+/* The section components still render their own wrapper + title. Inside a
+   card, flatten that wrapper and drop the duplicate heading (the card header
+   names the section; aria-labelledby still resolves to the hidden title). */
+.sell-property-form .spf-card__body .form-section {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+.sell-property-form .spf-card__body .form-section > .section-title {
+  display: none;
 }
 
 .sell-property-form .spf-coming-soon {
   margin: 0;
-  font-size: 0.85rem;
-  color: var(--spf-text-muted);
+  color: var(--spf-muted);
 }
 
-/* ── Step Divider ────────────────────────────────────────────────────────── */
-.sell-property-form .spf-divider {
-  display: flex;
-  align-items: center;
-  gap: .65rem;
-  padding: .2rem 0;
-  pointer-events: none;
-  margin-bottom: 1rem;
-}
-
-.sell-property-form .spf-divider hr {
-  flex: 1;
-  border: none;
-  border-top: 1px dashed var(--spf-border);
-  margin: 0;
-}
-
-.sell-property-form .spf-divider__step {
-  font-size: 0.68rem;
-  font-weight: 700;
-  background: var(--spf-purple-light);
-  color: var(--spf-purple);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.sell-property-form .spf-divider__label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--spf-text-hint);
-  white-space: nowrap;
-}
-
-/* ── Form Layout ─────────────────────────────────────────────────────────── */
+/* ── Fields ──────────────────────────────────────────────────────────────── */
 .sell-property-form .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px 20px;
+  margin-bottom: 20px;
 }
-
+.sell-property-form .form-row:last-child { margin-bottom: 0; }
 .sell-property-form .form-row--3col {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .sell-property-form .form-col {
   display: flex;
   flex-direction: column;
-  gap: .3rem;
+  gap: 6px;
   min-width: 0;
 }
+.sell-property-form .form-col--narrow { max-width: 240px; }
+.sell-property-form .form-col--half { max-width: 360px; }
 
-.sell-property-form .form-col--narrow {
-  max-width: 200px;
+.sell-property-form :where(label),
+.sell-property-form .field-label {
+  display: block;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--spf-ink);
 }
 
-/* ── Labels ──────────────────────────────────────────────────────────────── */
-.sell-property-form :where(label) {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--spf-text);
-  display: block;
+.sell-property-form .field-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .sell-property-form .required {
-  color: var(--spf-purple);
-  margin-left: .15em;
+  margin-left: 0.15em;
+  color: var(--spf-accent);
 }
-
 .sell-property-form .optional {
   font-weight: 400;
-  color: var(--spf-text-hint);
-  font-size: .8em;
+  color: var(--spf-muted);
 }
 
-/* ── Inputs / Selects / Textareas ────────────────────────────────────────── */
 /* :not() list instead of input[type="text"] so inputs with no type attribute
    (developer name, title, RERA number) are styled too. */
 .sell-property-form :where(
@@ -317,425 +389,501 @@
   textarea
 ) {
   width: 100%;
-  padding: .55rem .75rem;
-  font-size: 0.875rem;
-  border: 1.5px solid var(--spf-border);
-  border-radius: var(--spf-radius);
+  min-height: var(--spf-h);
+  padding: 0 12px;
+  border: 1px solid var(--spf-line-strong);
+  border-radius: var(--spf-r-sm);
   background: var(--spf-surface);
-  color: var(--spf-text);
-  transition: border-color var(--spf-transition), box-shadow var(--spf-transition);
+  color: var(--spf-ink);
+  font-family: inherit;
+  font-size: var(--text-body, 0.9375rem);
   box-sizing: border-box;
-  outline: none;
-  appearance: auto;
+  transition: border-color var(--spf-fast);
 }
-
+.sell-property-form :where(textarea) {
+  min-height: 112px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.sell-property-form :where(input, textarea)::placeholder {
+  color: var(--spf-placeholder);
+  opacity: 1;
+}
 .sell-property-form :where(input, select, textarea):focus {
-  border-color: var(--spf-border-focus);
-  box-shadow: var(--spf-focus-ring);
+  border-color: var(--spf-accent);
 }
-
+.sell-property-form :where(input, select, textarea)[aria-invalid="true"] {
+  border-color: var(--spf-error);
+}
 .sell-property-form :where(input, select, textarea):disabled {
-  background: #F9FAFB;
-  color: var(--spf-text-muted);
+  background: var(--spf-subtle);
+  color: var(--spf-muted);
   cursor: not-allowed;
 }
 
-.sell-property-form :where(textarea) {
-  resize: vertical;
-  min-height: 80px;
-}
-
-/* ── Input Group (area value + unit) ─────────────────────────────────────── */
-.sell-property-form .input-group {
-  display: flex;
-  gap: 0;
-}
-
+/* Area value + unit */
+.sell-property-form .input-group { display: flex; }
 .sell-property-form .input-group__input {
-  border-radius: var(--spf-radius) 0 0 var(--spf-radius);
   flex: 1;
   min-width: 0;
+  border-radius: var(--spf-r-sm) 0 0 var(--spf-r-sm);
 }
-
 .sell-property-form .input-group__addon {
   width: auto;
-  border-radius: 0 var(--spf-radius) var(--spf-radius) 0;
-  border-left: none;
-  min-width: 110px;
+  min-width: 130px;
   flex-shrink: 0;
-  background: var(--spf-purple-faint);
-  color: var(--spf-purple);
+  border-left: 0;
+  border-radius: 0 var(--spf-r-sm) var(--spf-r-sm) 0;
+  background: var(--spf-subtle);
+}
+
+/* Segmented control (category) */
+.sell-property-form .spf-segmented {
+  display: flex;
+  padding: 3px;
+  border: 1px solid var(--spf-line-strong);
+  border-radius: var(--spf-r-sm);
+  background: var(--spf-surface);
+  box-sizing: border-box;
+}
+.sell-property-form .spf-segmented button {
+  flex: 1;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--spf-ink);
+  cursor: pointer;
+  transition: background-color var(--spf-fast), color var(--spf-fast);
+}
+.sell-property-form .spf-segmented button[aria-pressed="true"] {
+  background: var(--spf-accent);
+  color: #fff;
   font-weight: 600;
 }
 
-/* ── Checkbox Row (single checkbox + label) ──────────────────────────────── */
+/* Single checkbox + label */
 .sell-property-form .checkbox-row {
   display: flex;
   align-items: center;
-  gap: .5rem;
-  min-height: 40px;
-  cursor: pointer;
+  gap: 10px;
+  min-height: var(--spf-h);
   font-weight: 500;
+  cursor: pointer;
 }
-
 .sell-property-form .checkbox-row input[type="checkbox"] {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  accent-color: var(--spf-purple);
+  accent-color: var(--spf-accent);
   cursor: pointer;
 }
 
-/* ── Fieldsets ───────────────────────────────────────────────────────────── */
 .sell-property-form .fieldset {
-  border: none;
-  padding: 0;
-  margin: 0 0 1.25rem;
   min-width: 0;
+  margin: 0 0 20px;
+  padding: 0;
+  border: 0;
 }
-
+.sell-property-form .fieldset:last-child { margin-bottom: 0; }
 .sell-property-form .fieldset legend {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--spf-text);
-  margin-bottom: .5rem;
   display: block;
+  margin-bottom: 8px;
+  padding: 0;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--spf-ink);
 }
 
-/* ── Radio Button Pills ──────────────────────────────────────────────────── */
-.sell-property-form .radio-container {
+/* Sub-group label inside Amenities */
+.sell-property-form .section-subtitle {
+  display: block;
+  margin: 0 0 8px;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--spf-ink);
+}
+
+/* Pills (radio + multi-select) */
+.sell-property-form .radio-container,
+.sell-property-form .checkbox-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: .45rem;
+  gap: 8px;
 }
 
 .sell-property-form .radio-label,
-.sell-property-form .checkbox-label {
+.sell-property-form .checkbox-label,
+.sell-property-form .checkbox-card {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: .4rem;
-  min-height: 40px;            /* tap target */
-  padding: .4rem .9rem;
-  font-size: 0.8rem;
+  gap: 6px;
+  min-height: var(--spf-h);
+  padding: 0 16px;
+  border: 1px solid var(--spf-line-strong);
+  border-radius: var(--spf-r-full);
+  background: var(--spf-surface);
+  color: var(--spf-ink);
+  font-size: var(--text-sm, 0.875rem);
   font-weight: 500;
-  border: 1.5px solid var(--spf-border);
-  border-radius: 20px;
   cursor: pointer;
-  color: var(--spf-text-muted);
-  background: #fff;
-  transition: border-color var(--spf-transition), background var(--spf-transition), color var(--spf-transition);
   user-select: none;
   box-sizing: border-box;
-  position: relative;
+  transition: background-color var(--spf-fast), border-color var(--spf-fast), color var(--spf-fast);
 }
 
-/* The real inputs are visually hidden; the pill/card shows their state.
-   Kept focusable so keyboard users can tab into them. */
+/* Real inputs are visually hidden; the pill shows their state. Kept focusable. */
 .sell-property-form .radio-label input[type="radio"],
 .sell-property-form .checkbox-label input[type="checkbox"],
 .sell-property-form .checkbox-card input[type="checkbox"] {
   position: absolute;
-  opacity: 0;
-  pointer-events: none;
   width: 0;
   height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* Focus ring on the visible pill/card when its hidden input has keyboard focus */
-.sell-property-form .radio-label:has(input:focus-visible),
-.sell-property-form .checkbox-label:has(input:focus-visible),
-.sell-property-form .checkbox-card:has(input:focus-visible),
-.sell-property-form .property-type-card:focus-visible {
-  outline: none;
-  box-shadow: var(--spf-focus-ring);
-  border-color: var(--spf-purple);
-}
-
-.sell-property-form .radio-label:hover {
-  border-color: var(--spf-purple-mid);
-  color: var(--spf-purple);
+.sell-property-form .radio-label:hover,
+.sell-property-form .checkbox-label:hover,
+.sell-property-form .checkbox-card:hover {
+  border-color: var(--spf-accent);
 }
 
 .sell-property-form .radio-label--selected,
 .sell-property-form .radio-label--selected:hover {
-  border-color: var(--spf-purple);
-  background: var(--spf-purple);
+  border-color: var(--spf-accent);
+  background: var(--spf-accent);
   color: #fff;
 }
 
-/* ── Checkbox Pill (multi-select) ────────────────────────────────────────── */
-.sell-property-form .checkbox-label--selected {
-  border-color: var(--spf-purple);
-  background: var(--spf-purple-light);
-  color: var(--spf-purple);
-  font-weight: 600;
-}
-
-/* ── Property Type Cards ─────────────────────────────────────────────────── */
-.sell-property-form .property-type-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: .65rem;
-}
-
-.sell-property-form .property-type-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: .5rem;
-  padding: 1rem .75rem;
-  border: 1.5px solid var(--spf-border);
-  background: #fff;
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--spf-text-muted);
-  transition: border-color var(--spf-transition), background var(--spf-transition), color var(--spf-transition);
-}
-
-.sell-property-form .property-type-card:hover {
-  border-color: var(--spf-purple-mid);
-  color: var(--spf-navy);
-  background: var(--spf-purple-faint);
-}
-
-.sell-property-form .property-type-card--selected {
-  border-color: var(--spf-navy);
-  background: #fff;
-  color: var(--spf-navy);
-  border-width: 2px;
-  font-weight: 700;
-}
-
-.sell-property-form .type-icon {
-  font-size: 1.4rem;
-  opacity: .8;
-}
-
-/* ── Checkbox Grid / Cards (amenities) ───────────────────────────────────── */
-.sell-property-form .checkbox-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .45rem;
-}
-
-.sell-property-form .checkbox-card {
-  display: inline-flex;
-  align-items: center;
-  gap: .45rem;
-  min-height: 40px;            /* tap target */
-  padding: .45rem 1rem;
-  border: 1.5px solid var(--spf-border);
-  border-radius: 24px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--spf-text-muted);
-  background: #fff;
-  transition: border-color var(--spf-transition), background var(--spf-transition), color var(--spf-transition);
-  user-select: none;
-  box-sizing: border-box;
-  position: relative;
-}
-
-.sell-property-form .checkbox-card--selected {
-  border-color: var(--spf-navy);
-  background: var(--spf-navy);
-  color: #fff;
+.sell-property-form .checkbox-label--selected,
+.sell-property-form .checkbox-card--selected,
+.sell-property-form .checkbox-card--selected:hover {
+  border-color: var(--spf-accent);
+  background: var(--spf-accent-tint);
+  color: var(--spf-ink);
   font-weight: 600;
 }
 
 .sell-property-form .checkbox-card__icon {
-  font-size: 0.95rem;
+  display: inline-flex;
   flex-shrink: 0;
+  color: var(--spf-muted);
 }
 
-/* ── Maps ────────────────────────────────────────────────────────────────── */
-.sell-property-form .maps-search-input {
-  width: 100%;
-  box-sizing: border-box;
+.sell-property-form .radio-label:has(input:focus-visible),
+.sell-property-form .checkbox-label:has(input:focus-visible),
+.sell-property-form .checkbox-card:has(input:focus-visible) {
+  outline: 2px solid var(--spf-accent);
+  outline-offset: 2px;
 }
 
+/* Maps */
+.sell-property-form .maps-search-input { width: 100%; }
 .sell-property-form .map-wrapper {
   position: relative;
-  margin-bottom: .25rem;
+  margin-bottom: 4px;
   overflow: hidden;
-  box-shadow: var(--spf-shadow);
-  border: 1px solid var(--spf-border);
+  border: 1px solid var(--spf-line);
+  border-radius: var(--spf-r-sm);
 }
-
 .sell-property-form .map-hint {
-  font-size: 0.75rem;
-  color: var(--spf-text-hint);
-  margin: .4rem 0 1rem;
-  text-align: center;
+  margin: 8px 0 16px;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
 }
 
-/* ── RERA Fields ─────────────────────────────────────────────────────────── */
+/* RERA details appear once, when the box is ticked */
 .sell-property-form .rera-fields {
-  animation: spf-slide-in 200ms ease forwards;
+  animation: spf-appear var(--spf-fast) var(--spf-ease);
+}
+@keyframes spf-appear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-@keyframes spf-slide-in {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Char Count ──────────────────────────────────────────────────────────── */
+/* Hints, counts and errors */
 .sell-property-form .char-count {
-  font-size: 0.72rem;
-  color: var(--spf-text-hint);
-  text-align: right;
-  margin-top: .2rem;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-
-/* ── Hints & Errors ──────────────────────────────────────────────────────── */
+.sell-property-form .field-hint {
+  display: block;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
+}
 .sell-property-form .field-error {
-  font-size: 0.76rem;
-  color: var(--spf-error);
   display: flex;
   align-items: center;
-  gap: .3rem;
+  gap: 4px;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-error);
 }
-
-.sell-property-form .field-error::before {
-  content: "⚠";
-  font-size: .72rem;
-}
-
-.sell-property-form .field-hint {
-  font-size: 0.75rem;
-  color: var(--spf-text-hint);
-  display: block;
-  margin-top: .2rem;
-}
-
 .sell-property-form .alert {
-  padding: .75rem 1rem;
-  border-radius: var(--spf-radius);
-  font-size: .85rem;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: var(--spf-r-sm);
+  font-size: var(--text-sm, 0.875rem);
 }
-
 .sell-property-form .alert--error {
   background: var(--spf-error-bg);
+  border: 1px solid #fca5a5;
   color: var(--spf-error);
-  border: 1px solid #FCA5A5;
 }
 
-/* ── Footer Buttons ──────────────────────────────────────────────────────── */
-.sell-property-form .spf-footer {
-  margin: 1.5rem auto 0;
-  padding: 0 1.5rem 2rem;
-  width: 100%;
-  max-width: 1200px;
-  box-sizing: border-box;
-}
-
-.sell-property-form .form-actions {
+/* ── Right rail ──────────────────────────────────────────────────────────── */
+.sell-property-form .spf-rail {
   display: flex;
-  gap: .75rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
 }
 
-.sell-property-form .btn-primary,
-.sell-property-form .btn-secondary {
-  min-height: 44px;
-  padding: .65rem 2rem;
-  border-radius: var(--spf-radius);
-  font-size: .875rem;
+.sell-property-form .spf-rail-card {
+  padding: 20px;
+  background: var(--spf-surface);
+  border: 1px solid var(--spf-line);
+  border-radius: var(--spf-r-md);
+}
+
+.sell-property-form .spf-rail-card__title {
+  margin: 0;
+  font-family: var(--spf-head);
+  font-size: var(--text-md, 1rem);
+  font-weight: 600;
+  color: var(--spf-ink);
+}
+.sell-property-form .spf-rail-card__lead {
+  margin: 4px 0 16px;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
+}
+
+/* Buyer preview */
+.sell-property-form .spf-preview {
+  overflow: hidden;
+  border: 1px solid var(--spf-line);
+  border-radius: var(--spf-r-sm);
+}
+.sell-property-form .spf-preview__photo {
+  padding: 20px 16px 16px;
+  background: var(--spf-bg);
+  border-bottom: 1px solid var(--spf-line);
+  text-align: center;
+}
+.sell-property-form .spf-preview__photo p {
+  margin: 8px auto 0;
+  max-width: 24ch;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
+}
+.sell-property-form .spf-preview__drawing {
+  width: 140px;
+  height: auto;
+  color: #8e8ca6;
+}
+.sell-property-form .spf-preview__drawing-accent {
+  stroke: var(--spf-accent);
+}
+.sell-property-form .spf-preview__head {
+  padding: 12px 16px;
+}
+.sell-property-form .spf-preview__tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--spf-r-full);
+  background: var(--spf-accent-tint);
+  color: var(--spf-accent-dark);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 600;
+}
+.sell-property-form .spf-preview__title {
+  margin: 6px 0 0;
+  font-family: var(--spf-head);
+  font-size: var(--text-body, 0.9375rem);
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.sell-property-form .spf-preview__rows {
+  margin: 0;
+}
+.sell-property-form .spf-preview__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  padding: 9px 16px;
+  border-top: 1px solid var(--spf-line);
+  font-size: var(--text-help, 0.8125rem);
+}
+.sell-property-form .spf-preview__row dt { color: var(--spf-muted); }
+.sell-property-form .spf-preview__row dd {
+  margin: 0;
+  font-weight: 500;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.sell-property-form .spf-preview__row dd.is-empty {
+  font-weight: 400;
+  color: var(--spf-muted);
+}
+
+/* Publish checklist */
+.sell-property-form .spf-checklist__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sell-property-form .spf-checklist__count {
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
+  font-variant-numeric: tabular-nums;
+}
+.sell-property-form .spf-checklist__bar {
+  height: 4px;
+  margin: 12px 0 8px;
+  overflow: hidden;
+  border-radius: var(--spf-r-full);
+  background: var(--spf-line);
+}
+.sell-property-form .spf-checklist__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--spf-accent);
+  transition: width var(--dur-medium, 300ms) var(--spf-ease);
+}
+
+.sell-property-form .spf-checklist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sell-property-form .spf-checklist__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: var(--spf-h);
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--spf-r-sm);
+  background: none;
+  font: inherit;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--spf-ink);
+  text-align: left;
   cursor: pointer;
 }
+.sell-property-form .spf-checklist__item:hover { background: var(--spf-bg); }
 
-.sell-property-form .btn-primary {
-  background: var(--spf-purple);
-  color: #fff;
-  border: none;
-  font-weight: 600;
-  transition: background var(--spf-transition), opacity var(--spf-transition);
-  letter-spacing: .01em;
+.sell-property-form .spf-checklist__dot {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--spf-line-strong);
+  border-radius: var(--spf-r-full);
+  box-sizing: border-box;
+}
+.sell-property-form .spf-checklist__item.is-progress .spf-checklist__dot {
+  border: 3px solid var(--spf-accent);
+}
+.sell-property-form .spf-checklist__item.is-done .spf-checklist__dot {
+  border-color: var(--spf-success);
+  background: var(--spf-success);
+}
+.sell-property-form .spf-checklist__item.is-error .spf-checklist__dot {
+  border-color: var(--spf-error);
+  background: var(--spf-error);
 }
 
-.sell-property-form .btn-primary:hover:not(:disabled) {
-  background: var(--spf-purple-mid);
+.sell-property-form .spf-checklist__name {
+  flex: 1;
+  min-width: 0;
 }
-
-.sell-property-form .btn-secondary {
-  background: transparent;
-  color: var(--spf-text-muted);
-  border: 1.5px solid var(--spf-border);
-  padding: .65rem 1.5rem;
-  font-weight: 500;
-  transition: border-color var(--spf-transition), color var(--spf-transition);
+.sell-property-form .spf-checklist__status {
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
+  white-space: nowrap;
 }
+.sell-property-form .is-done .spf-checklist__status { color: var(--spf-success); }
+.sell-property-form .is-error .spf-checklist__status { color: var(--spf-error); }
+.sell-property-form .is-progress .spf-checklist__status { color: var(--spf-accent-dark); }
 
-.sell-property-form .btn-secondary:hover:not(:disabled) {
-  border-color: var(--spf-text-muted);
-  color: var(--spf-text);
-}
-
-.sell-property-form .btn-primary:disabled,
-.sell-property-form .btn-secondary:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.sell-property-form .btn-primary:focus-visible,
-.sell-property-form .btn-secondary:focus-visible {
-  outline: none;
-  box-shadow: var(--spf-focus-ring);
-}
-
-/* ── Reduced motion ──────────────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  .sell-property-form .spf-progress__track::after,
-  .sell-property-form .rera-fields {
-    transition: none;
-    animation: none;
+/* ── Container widths ────────────────────────────────────────────────────── */
+/* Wide (≈1100px screens and up): form + sticky right rail */
+@container spf (min-width: 860px) {
+  .sell-property-form .spf-layout {
+    grid-template-columns: minmax(0, 1fr) 320px;
+    align-items: start;
+  }
+  .sell-property-form .spf-rail {
+    position: sticky;
+    top: 24px;
   }
 }
 
-/* ── Responsive ──────────────────────────────────────────────────────────── */
-@media (max-width: 900px) {
-  .sell-property-form .spf-progress-wrapper {
-    top: 70px;
+/* Medium: tighter page padding */
+@container spf (max-width: 859px) {
+  .sell-property-form .spf-page {
+    padding: 24px;
   }
 }
 
-@media (max-width: 640px) {
-  .sell-property-form .spf-sections {
-    padding: 0 .75rem;
+/* Phone: one column, full-width actions */
+@container spf (max-width: 640px) {
+  .sell-property-form .spf-page {
+    padding: 16px 16px 32px;
   }
-
-  .sell-property-form .form-section {
-    padding: 1.25rem 1rem;
+  .sell-property-form .spf-page-header__title {
+    font-size: var(--text-xl, 1.375rem);
   }
-
+  .sell-property-form .spf-page-header__actions {
+    justify-content: stretch;
+    width: 100%;
+  }
+  .sell-property-form .spf-page-header__hint {
+    flex-basis: 100%;
+  }
+  .sell-property-form .spf-page-header__actions .spf-btn {
+    flex: 1;
+  }
+  .sell-property-form .spf-card__toggle,
+  .sell-property-form .spf-card.is-open .spf-card__toggle {
+    padding: 16px;
+  }
+  .sell-property-form .spf-card__body {
+    padding: 16px;
+  }
+  .sell-property-form .spf-card__foot {
+    padding: 12px 16px;
+  }
+  .sell-property-form .spf-card__foot .spf-btn {
+    width: 100%;
+  }
   .sell-property-form .form-row,
   .sell-property-form .form-row--3col {
     grid-template-columns: 1fr;
   }
-
-  .sell-property-form .property-type-grid {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  .sell-property-form .form-col--narrow,
+  .sell-property-form .form-col--half {
+    max-width: none;
   }
+}
 
-  .sell-property-form .form-col--narrow {
-    max-width: 100%;
-  }
-
-  .sell-property-form .spf-footer {
-    padding: 0 .75rem;
-  }
-
-  .sell-property-form .form-actions {
-    flex-direction: column;
-  }
-
-  .sell-property-form .btn-primary,
-  .sell-property-form .btn-secondary {
-    width: 100%;
-    text-align: center;
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sell-property-form * {
+    animation: none !important;
+    transition: none !important;
   }
 }
