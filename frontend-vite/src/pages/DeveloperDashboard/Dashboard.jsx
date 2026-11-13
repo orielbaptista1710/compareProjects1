@@ -94,47 +94,46 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-layout">
+    <div className="dashboard-shell">
+      <DashboardNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        user={user}
+        handleLogout={handleLogout}
+      />
 
-        <DashboardNav
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          user={user}
-          handleLogout={handleLogout}
-        />
+      {/* The one scroll container for all tab content on desktop */}
+      <main className="dashboard-main">
 
-        <div className="dashboard-panel">
+        {activeTab === 'sell' && (
+          <SellPropertyForm
+            formData={formData}
+            editingId={editingId}
+            isAdding={isAdding}
+            isUpdating={isUpdating}
+            onSubmit={handleSubmit}
+            handleCancelEdit={handleCancelEdit}
+            onShowListings={() => setActiveTab('properties')}
+          />
+        )}
 
-          {activeTab === 'sell' && (
-            <SellPropertyForm
-              formData={formData}
-              editingId={editingId}
-              isAdding={isAdding}
-              isUpdating={isUpdating}
-              onSubmit={handleSubmit}
-              handleCancelEdit={handleCancelEdit}
+        {activeTab === 'properties' && (
+          <div className="dashboard-tab-content">
+            <h1 className="dashboard-tab-title">Listings</h1>
+            <DevPropertyList
+              properties={properties}
+              isLoading={isLoading}
+              isError={isError}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              formatIndianPrice={formatIndianPrice}
             />
-          )}
+          </div>
+        )}
 
-          {activeTab === 'properties' && (
-            <div className="dashboard-tab-content">
-              <h2 className="dashboard-tab-title">My Properties</h2>
-              <DevPropertyList
-                properties={properties}
-                isLoading={isLoading}
-                isError={isError}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                formatIndianPrice={formatIndianPrice}
-              />
-            </div>
-          )}
+        {activeTab === 'support' && <DeveloperSupport />}
 
-          {activeTab === 'support' && <DeveloperSupport />}
-
-        </div>
-      </div>
+      </main>
     </div>
   );
 };

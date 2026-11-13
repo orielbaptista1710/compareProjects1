@@ -1,262 +1,202 @@
-/* DashboardNav.css */
+/* DashboardNav.css
+   Scoped under .dnav. Colours, fonts and sizes from styles/tokens.css +
+   styles/colors.css. Flat: 1px borders, no shadows. */
 
-.dnav__sidebar {
-  --nav-purple:      #5B21B6;
-  --nav-purple-dark: #4C1D95;
-  --nav-yellow:      #f5a623;
-  --nav-white:       #ffffff;
-  --nav-white-dim:   rgba(255,255,255,0.65);
-  --nav-white-faint: rgba(255,255,255,0.08);
-  --nav-active-bg:   rgba(255,255,255,0.13);
-  --nav-width:       260px;
-
-  width: var(--nav-width);
-  min-width: var(--nav-width);
-  background: var(--nav-purple);
+.dnav {
   display: flex;
   flex-direction: column;
+  width: var(--sidebar-width, 232px);
   flex-shrink: 0;
-
-  /* fills the full height of .dashboard-layout which is min-height:100vh */
-  align-self: stretch;
-
-  /* shadow to separate from content panel */
-  box-shadow: 2px 0 10px rgba(0,0,0,0.15);
-  position: relative;
-  z-index: 50;
+  background: var(--color-surface, #fff);
+  border-right: 1px solid var(--color-line, #e2e1ea);
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+  color: var(--color-ink, #1c1a33);
+  box-sizing: border-box;
 }
 
-/* ── Inner layout ────────────────────────────────────────────── */
-.dnav__inner {
-  display: flex;
-  flex-direction: column;
-  height: 100%;    
-  /* //kdcsldnclsdkcnlkcnlkdcnlc Chech=k thisj ckjsd c */
-  position: sticky;
-  top: 70px;
-  overflow-y: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.dnav__inner::-webkit-scrollbar { display: none; }
-
-/* ── Header / user ───────────────────────────────────────────── */
-.dnav__header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 95px 16px 20px;
-  background: var(--nav-purple-dark);
-  border-bottom: 1px solid var(--nav-white-faint);
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.dnav__portal-label {
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--nav-yellow);
-  margin-bottom: 12px;
-}
-
-.dnav__avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--nav-white);
-  color: var(--nav-purple);
-  font-size: 1.2rem;
-  font-weight: 700;
+/* ── Brand ───────────────────────────────────────────────────────────────── */
+.dnav__top {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-  box-shadow: 0 0 0 3px var(--nav-yellow);
-  flex-shrink: 0;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 16px 16px;
 }
 
-.dnav__name {
-  font-size: 0.9rem;
+.dnav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.dnav__logo {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm, 8px);
+  background: var(--color-primary, #7c3aed);
+}
+
+.dnav__brand-name {
+  font-family: var(--font-heading, "Poppins", system-ui, sans-serif);
+  font-size: var(--text-lg, 1.125rem);
   font-weight: 600;
-  color: var(--nav-white);
-  margin: 0 0 3px;
-  line-height: 1.2;
+  white-space: nowrap;
 }
 
-.dnav__role {
-  font-size: 0.7rem;
-  color: var(--nav-white-dim);
-  margin: 0;
+.dnav__menu-btn {
+  display: none; /* phone only */
 }
 
-/* ── Nav body ────────────────────────────────────────────────── */
-.dnav__body {
-  flex: 1;
-  padding: 18px 10px 12px;
+/* ── Menu ────────────────────────────────────────────────────────────────── */
+.dnav__menu {
   display: flex;
+  flex: 1;
   flex-direction: column;
+  min-height: 0;
 }
 
-.dnav__group-label {
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--nav-white-dim);
-  padding: 0 10px;
-  margin-bottom: 6px;
-  display: block;
+.dnav__menu nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
 }
 
 .dnav__list {
-  list-style: none;
-  margin: 0 0 4px;
-  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-/* ── Nav item ────────────────────────────────────────────────── */
 .dnav__item {
-  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 14px 11px 16px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--nav-white-dim);
-  font-size: 0.88rem;
+  width: 100%;
+  min-height: var(--control-height, 44px);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-sm, 8px);
+  background: none;
+  font: inherit;
+  font-size: var(--text-body, 0.9375rem);
   font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  position: relative;
+  color: var(--color-ink-muted, #5a5872);
   text-align: left;
-  transition: background 150ms ease, color 150ms ease;
+  cursor: pointer;
 }
-
 .dnav__item:hover {
-  background: var(--nav-white-faint);
-  color: var(--nav-white);
+  background: var(--color-bg-page, #f5f5f8);
+  color: var(--color-ink, #1c1a33);
 }
-
-.dnav__item--active {
-  background: var(--nav-active-bg);
-  color: var(--nav-white);
+.dnav__item.is-active {
+  background: var(--color-surface-tint-strong, #ede9fe);
+  color: var(--color-primary-dark, #6d28d9);
   font-weight: 600;
 }
 
-/* yellow left bar */
-.dnav__item-indicator {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 0;
-  border-radius: 0 3px 3px 0;
-  background: var(--nav-yellow);
-  transition: height 150ms ease;
-}
-
-.dnav__item--active .dnav__item-indicator { height: 60%; }
-
-/* MUI icon sizing */
-.dnav__item-icon {
-  flex-shrink: 0;
-  opacity: 0.7;
-  font-size: 1.15rem !important;
-  width: 20px !important;
-  height: 20px !important;
-  transition: opacity 150ms ease, color 150ms ease;
-}
-
-.dnav__item--active .dnav__item-icon,
-.dnav__item:hover .dnav__item-icon { opacity: 1; }
-
-.dnav__item--active .dnav__item-icon { color: var(--nav-yellow); }
-
-.dnav__item-label {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* logout */
-.dnav__item--logout { color: rgba(255,120,120,0.8); }
-.dnav__item--logout:hover { background: rgba(217,4,41,0.15); color: #ff8080; }
-.dnav__item--logout .dnav__item-icon { color: #ff8080; }
-
-/* ── Divider ─────────────────────────────────────────────────── */
-.dnav__divider {
-  border: none;
-  border-top: 1px solid var(--nav-white-faint);
-  margin: 10px 0;
-}
-
-
-/* ── Hamburger — always rendered, visible only on mobile ─────── */
-.dnav__hamburger {
-  display: none;   /* shown via media query below */
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  z-index: 300;
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
-  border: none;
-  background: #5B21B6;
-  color: #fff;
-  cursor: pointer;
+/* ── Account ─────────────────────────────────────────────────────────────── */
+.dnav__account {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-  transition: background 150ms ease;
+  gap: 4px 10px;
+  padding: 16px;
+  border-top: 1px solid var(--color-line, #e2e1ea);
 }
-.dnav__hamburger:hover { background: #4C1D95; }
 
-/* ── Backdrop ────────────────────────────────────────────────── */
-.dnav__backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  z-index: 150;
+.dnav__avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full, 999px);
+  background: var(--color-surface-tint-strong, #ede9fe);
+  color: var(--color-primary-dark, #6d28d9);
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
 }
-.dnav__backdrop--visible { display: block; }
 
-/* ── Mobile ──────────────────────────────────────────────────── */
-@media (max-width: 900px) {
-  /* show the hamburger */
-  .dnav__hamburger { display: flex; }
+.dnav__name {
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dnav__role {
+  margin: 0;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--color-ink-muted, #5a5872);
+}
 
-  /* sidebar: off-screen by default, slides in when open */
-  .dnav__sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    z-index: 200;
-    transform: translateX(-100%);
-    transition: transform 240ms ease;
-    box-shadow: none;
+.dnav__signout {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--control-height, 44px);
+  margin-top: 8px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-sm, 8px);
+  background: none;
+  font: inherit;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-ink-muted, #5a5872);
+  cursor: pointer;
+}
+.dnav__signout:hover {
+  background: var(--color-bg-page, #f5f5f8);
+  color: var(--color-ink, #1c1a33);
+}
+
+.dnav :where(button):focus-visible {
+  outline: 2px solid var(--color-primary, #7c3aed);
+  outline-offset: 2px;
+}
+
+/* ── Phone: top menu bar ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .dnav {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid var(--color-line, #e2e1ea);
   }
 
-  .dnav__sidebar--open {
-    transform: translateX(0);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.3);
+  .dnav__top {
+    padding: 12px 16px;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .dnav__sidebar,
-  .dnav__item,
-  .dnav__item-indicator,
-  .dnav__hamburger { transition: none; }
+  .dnav__menu-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: var(--control-height, 44px);
+    padding: 0 12px;
+    border: 1px solid var(--color-line-strong, #cfcdda);
+    border-radius: var(--radius-sm, 8px);
+    background: var(--color-surface, #fff);
+    font: inherit;
+    font-size: var(--text-sm, 0.875rem);
+    font-weight: 500;
+    color: var(--color-ink, #1c1a33);
+    cursor: pointer;
+  }
+
+  .dnav__menu {
+    display: none;
+    border-top: 1px solid var(--color-line, #e2e1ea);
+  }
+  .dnav__menu.is-open {
+    display: flex;
+  }
 }
