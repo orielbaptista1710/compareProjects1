@@ -175,9 +175,9 @@ geo: {
   reraApproved: { type: Boolean, default: false },//if data contains reraNumber or not 
   reraNumber: { type: String , required: false },
   reraDate: { type: Date }, //reraDate of Completion
-
   reraQR: {type: String },
-
+  
+  
   possessionStatus: { 
     type: String,
     enum: ["Ready to Move", "Under Construction", "Immediate", "New Launch", "Pre Launch", "Upcoming"],
