@@ -1,329 +1,307 @@
 /* ==========================================================================
-   auth-form.css
+   auth-form.css — fields, password rules, buttons for the customer/agent
+   login + signup pages. Prefixed cauth- (see auth-layout.css).
    ========================================================================== */
 
-/* ── Card heading ── */
-.auth-card h2,
-.auth-title {
-  font-size: clamp(1.6rem, 2.5vw, 2rem);
-  font-weight: 800;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  margin-bottom: 0.4rem;
-}
-
-.auth-subtitle,
-.subheading {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  line-height: 1.55;
-  margin-bottom: 2rem;
-}
-
-/* ── Form layout ── */
-.auth-form,
-.signup-form {
+.cauth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   width: 100%;
 }
 
-.form-group {
-  margin-bottom: 1.1rem;
+/* Signup: two columns; full-width rows span both. */
+.cauth-form--signup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
+.cauth-form--signup .cauth-confirm,
+.cauth-form--signup .cauth-field--full,
+.cauth-form--signup .cauth-terms,
+.cauth-form--signup .cauth-error--global,
+.cauth-form--signup .cauth-submit,
+.cauth-form--signup .cauth-switch {
+  grid-column: 1 / -1;
 }
 
-/* ── Inputs — pill shaped, soft grey fill like reference ── */
-.form-group input {
+.cauth-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.cauth-field label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+}
+
+.cauth-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+/* ── Inputs ── */
+.cauth-input {
   width: 100%;
-  height: 52px;
-  padding: 0 1.25rem;
-  border: 1.5px solid var(--border);
-  border-radius: 100px;
-  background: #f5f5f7;
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  font-family: inherit;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-  -webkit-appearance: none;
+  height: var(--control-height);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  color: var(--color-ink);
   box-sizing: border-box;
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 
-.form-group input::placeholder {
-  color: var(--text-muted);
-}
+.cauth-input::placeholder { color: var(--color-placeholder); }
 
-.form-group input:focus {
+.cauth-input:focus {
   outline: none;
-  border-color: var(--brand-600);
-  box-shadow: var(--shadow-input-focus);
-  background: #ffffff;
+  border-color: var(--color-ink-muted);
+  box-shadow: 0 0 0 1px var(--color-ink-muted);
 }
 
-/* ── Phone wrapper ── */
-.phone-input-wrapper {
+/* ── +91 phone ── */
+.cauth-phone {
   display: flex;
   align-items: stretch;
-  border: 1.5px solid var(--border);
-  border-radius: 100px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
   overflow: hidden;
-  background: #f5f5f7;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
 
-.phone-input-wrapper:focus-within {
-  border-color: var(--brand-600);
-  box-shadow: var(--shadow-input-focus);
-  background: #ffffff;
+.cauth-phone:focus-within {
+  border-color: var(--color-ink-muted);
+  box-shadow: 0 0 0 1px var(--color-ink-muted);
 }
 
-.country-code {
+.cauth-phone-code {
   display: flex;
   align-items: center;
-  padding: 0 0.85rem 0 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  flex-shrink: 0;
+  padding: 0 var(--space-4);
+  border-right: 1px solid var(--color-line-strong);
+  background: var(--color-ink-fill);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
   user-select: none;
 }
 
-.phone-input-wrapper input {
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  background: transparent !important;
+.cauth-phone .cauth-input {
   flex: 1;
-  padding-left: 0.25rem;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
-/* ── Password input ── */
-.password-input-wrapper {
-  position: relative;
-}
+/* ── Password + Show/Hide ── */
+.cauth-password { position: relative; }
 
-.password-input-wrapper input {
-  padding-right: 3rem;
-}
+.cauth-password .cauth-input { padding-right: var(--space-7); }
 
-.toggle-eye {
+.cauth-show {
   position: absolute;
-  top: 50%;
-  right: 1.1rem;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  cursor: pointer;
-  line-height: 0;
-}
-
-/* Hide browser's native password reveal (Chrome/Edge) */
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-  display: none;
-}
-
-input::-webkit-credentials-auto-fill-button,
-input::-webkit-textfield-decoration-container {
-  display: none !important;
-}
-
-/* ── Password strength bar ── */
-.password-strength {
-  margin-top: 0.5rem;
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: var(--text-secondary);
+  top: 0;
+  right: 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  height: 100%;
+  padding: 0 var(--space-4);
+  border: 0;
+  background: none;
+  color: var(--color-ink-muted);
+  cursor: pointer;
 }
 
-.password-strength::before {
-  content: "";
-  display: inline-block;
-  height: 4px;
-  border-radius: 100px;
-  flex-shrink: 0;
-  width: 60px;
-  background: var(--border);
-  transition: background var(--transition-med);
-}
+.cauth-show:hover { color: var(--color-ink); }
 
-.password-strength.very-weak::before { background: #ef4444; width: 15px; }
-.password-strength.weak::before      { background: #f97316; width: 25px; }
-.password-strength.fair::before      { background: #eab308; width: 38px; }
-.password-strength.good::before      { background: #22c55e; width: 50px; }
-.password-strength.strong::before    { background: #16a34a; width: 60px; }
+/* Hide the browser's own reveal/autofill buttons so only ours shows. */
+.cauth-page input[type="password"]::-ms-reveal,
+.cauth-page input[type="password"]::-ms-clear { display: none; }
 
-.password-strength.very-weak strong { color: #ef4444; }
-.password-strength.weak      strong { color: #f97316; }
-.password-strength.fair      strong { color: #ca8a04; }
-.password-strength.good      strong { color: #16a34a; }
-.password-strength.strong    strong { color: #15803d; }
+.cauth-page input::-webkit-credentials-auto-fill-button { display: none !important; }
 
-/* ── Password requirements checklist ── */
-.password-requirements {
-  margin-top: 0.6rem;
+/* ── Password rules ── */
+.cauth-rules {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.3rem 0.5rem;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.requirement {
+.cauth-rule {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.775rem;
-  color: var(--text-muted);
+  gap: var(--space-2);
+  font-size: var(--text-help);
+  color: var(--color-ink-muted);
 }
 
-.requirement .valid   { color: var(--success); flex-shrink: 0; }
-.requirement .invalid { color: #d1d5db;        flex-shrink: 0; }
-.requirement:has(.valid) { color: var(--text-secondary); }
+.cauth-rule.is-met { color: var(--color-success); }
 
-/* ── Forgot password ── */
-.forgot-password {
-  margin-top: 0.45rem;
-  text-align: right;
+.cauth-rule-dot {
+  flex-shrink: 0;
+  width: 4px;
+  height: 4px;
+  margin: 0 5px;
+  border-radius: var(--radius-full);
+  background: var(--color-ink-muted);
 }
 
-.forgot-link {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--brand-700);
-  cursor: pointer;
+.cauth-rule-mark { flex-shrink: 0; }
+
+.cauth-strength {
+  margin: 0;
+  font-size: var(--text-help);
+  color: var(--color-ink-muted);
 }
 
-.reset-sent {
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--success);
-}
+.cauth-strength--very-weak strong,
+.cauth-strength--weak strong { color: var(--color-error-text); }
+.cauth-strength--fair strong { color: var(--color-ink); }
+.cauth-strength--good strong,
+.cauth-strength--strong strong { color: var(--color-success); }
 
-/* ── Helper text under a field ── */
-.auth-field-hint {
-  font-size: 0.8rem;
-  color: #6b7280;
-  margin-top: 0.35rem;
-}
-
-/* ── Error messages ── */
-.error {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--danger);
-  margin-top: 0.35rem;
-}
-
-.global-error {
-  padding: 0.7rem 1rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+/* ── "I'm the owner / I'm an agent" confirmation ── */
+.cauth-confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-line);
   border-radius: var(--radius-sm);
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
+  background: var(--color-surface-subtle);
 }
 
-/* ── CTA button — pill shaped, matches reference ── */
-.auth-btn,
-.signup-btn {
-  width: 100%;
-  height: 52px;
-  margin-top: 0.75rem;
-  border: none;
-  border-radius: 100px;
-  background: var(--brand-700);
-  color: #ffffff;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+.cauth-confirm input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--color-ink);
   cursor: pointer;
-  transition: background var(--transition-fast);
 }
 
-.auth-btn:hover:not(:disabled),
-.signup-btn:hover:not(:disabled) {
-  background: var(--brand-800);
+.cauth-confirm label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: 1.45;
+  color: var(--color-ink);
+  cursor: pointer;
 }
 
-.auth-btn:disabled,
-.signup-btn:disabled {
+.cauth-confirm .cauth-hint,
+.cauth-confirm .cauth-error { margin-top: var(--space-1); }
+
+/* ── Help, terms, errors ── */
+.cauth-hint {
+  margin: 0;
+  font-size: var(--text-help);
+  color: var(--color-ink-muted);
+}
+
+.cauth-terms {
+  margin: 0;
+  font-size: var(--text-help);
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+.cauth-terms a {
+  color: var(--color-primary);
+  font-weight: var(--weight-medium);
+  text-decoration: underline;
+}
+
+.cauth-error {
+  margin: 0;
+  font-size: var(--text-help);
+  font-weight: var(--weight-medium);
+  color: var(--color-error-text);
+}
+
+.cauth-error--global {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-error-text);
+  border-radius: var(--radius-sm);
+  background: var(--color-error-bg);
+  font-size: var(--text-sm);
+}
+
+/* ── Buttons and links ── */
+.cauth-submit {
+  width: 100%;
+  height: var(--control-height);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-on-dark);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.cauth-submit:hover:not(:disabled) { background: var(--color-primary-dark); }
+
+.cauth-submit:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
 
-/* ── Redirect link ── */
-.auth-redirect,
-.login-redirect {
-  text-align: center;
-  margin-top: 1.4rem;
-  font-size: 0.875rem;
-  color: var(--text-muted);
-}
-
-.auth-redirect span,
-.login-redirect span {
-  color: var(--brand-700);
-  font-weight: 600;
+.cauth-textlink,
+.cauth-switch button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary);
   cursor: pointer;
 }
 
-/* ==========================================================================
-   Signup form — 2-column grid to reduce vertical length
-   ========================================================================== */
-
-.signup-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 1rem;
+.cauth-textlink {
+  font-size: var(--text-help);
+  color: var(--color-ink);
 }
 
-/* Full-width items */
-.signup-form .form-group.full,
-.signup-form .global-error,
-.signup-form .signup-btn,
-.signup-form .login-redirect {
-  grid-column: 1 / -1;
+.cauth-textlink:hover,
+.cauth-switch button:hover { text-decoration: underline; }
+
+.cauth-reset-sent {
+  font-size: var(--text-help);
+  font-weight: var(--weight-medium);
+  color: var(--color-success);
 }
 
-/* Password block spans full width since it has the rules checklist */
-.signup-form .form-group.password-group {
-  grid-column: 1 / -1;
+.cauth-switch {
+  margin: 0;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
 }
 
-/* Tighten spacing on signup since grid adds visual separation */
-.signup-form .form-group {
-  margin-bottom: 0.85rem;
-}
+.cauth-switch button { font-size: var(--text-sm); }
 
-/* Compact the password requirements on signup */
-.signup-form .password-requirements {
-  grid-template-columns: 1fr 1fr;
-  margin-top: 0.4rem;
-  gap: 0.2rem 0.5rem;
-}
-
-.signup-form .password-strength {
-  margin-top: 0.35rem;
-}
-
-.signup-form .subheading {
-  margin-bottom: 1.25rem;
-}
-
-/* Collapse to single column on narrow right panel */
-@media (max-width: 780px) {
-  .signup-form {
-    grid-template-columns: 1fr;
-  }
-
-  .signup-form .form-group.password-group {
-    grid-column: 1;
-  }
+.cauth-show:focus-visible,
+.cauth-submit:focus-visible,
+.cauth-textlink:focus-visible,
+.cauth-switch button:focus-visible,
+.cauth-terms a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }

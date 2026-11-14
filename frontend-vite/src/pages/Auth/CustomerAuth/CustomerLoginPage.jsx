@@ -122,24 +122,37 @@ const CustomerLoginPage = ({ isAgent = false }) => {
 
   // ── Render ───────────────────────────────────────────────────
   return (
-    <div className="auth-page">
+    <div className="cauth-page">
+      <AuthMarketingPanel isAgent={isAgent} />
 
-      {/* Left — Marketing */}
-      <AuthMarketingPanel />
+      <main className="cauth-main">
+        <div className="cauth-card">
+          <h1 className="cauth-title">{isAgent ? "Agent Login" : "Customer Login"}</h1>
+          <p className="cauth-subtitle">
+            Access your account to continue. Owners and agents log in with the same account.
+          </p>
 
-      {/* Right — Login Form */}
-      <div className="auth-right">
+          {/* Looks like tabs; each one just opens the matching existing page. No
+              Owner/Agent toggle here: login is the same for both, the account decides. */}
+          <nav className="cauth-tabs" aria-label="Account">
+            <button
+              type="button"
+              className="cauth-tab"
+              onClick={() => navigate(isAgent ? "/agent-signup" : "/customer-signup")}
+            >
+              Create account
+            </button>
+            <button type="button" className="cauth-tab is-active" aria-current="page">
+              Log in
+            </button>
+          </nav>
 
-        <div className="auth-card">
-          <h2 className="auth-title">{isAgent ? "Agent Login" : "Customer Login"}</h2>
-          <p className="auth-subtitle">Access your account to continue</p>
+          <form onSubmit={handleSubmit} className="cauth-form" noValidate>
 
-          <form onSubmit={handleSubmit} className="auth-form" noValidate>
-
-            {/* Email */}
-            <div className="form-group">
+            <div className="cauth-field">
               <label htmlFor="emailOrPhone">Email Address</label>
               <input
+                className="cauth-input"
                 name="emailOrPhone"
                 id="emailOrPhone"
                 type="email"
@@ -151,68 +164,67 @@ const CustomerLoginPage = ({ isAgent = false }) => {
               />
             </div>
 
-            {/* Password */}
-            <div className="form-group">
-              <label htmlFor="customerPassword">Password</label>
-              <div className="password-input-wrapper">
+            <div className="cauth-field">
+              <div className="cauth-label-row">
+                <label htmlFor="customerPassword">Password</label>
+                {resetSent ? (
+                  <span className="cauth-reset-sent" role="status">
+                    Reset email sent — check your inbox
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="cauth-textlink"
+                    onClick={handleForgotPassword}
+                  >
+                    {resetLoading ? "Sending..." : "Forgot password?"}
+                  </button>
+                )}
+              </div>
+              <div className="cauth-password">
                 <input
+                  className="cauth-input"
                   name="customerPassword"
                   id="customerPassword"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder="Your password"
                   value={form.customerPassword}
                   onChange={handleChange}
                   autoComplete="current-password"
                   required
                 />
-                {showPassword
-                  ? <EyeOff className="toggle-eye" size={18} onClick={() => setShowPassword(false)} />
-                  : <Eye    className="toggle-eye" size={18} onClick={() => setShowPassword(true)}  />
-                }
-              </div>
-
-              {/* Forgot password */}
-              <div className="forgot-password">
-                {resetSent ? (
-                  <span className="reset-sent">
-                     Reset email sent — check your inbox
-                  </span>
-                ) : (
-                  <span
-                    onClick={handleForgotPassword}
-                    className="forgot-link"
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => e.key === "Enter" && handleForgotPassword()}
-                  >
-                    {resetLoading ? "Sending..." : "Forgot password?"}
-                  </span>
-                )}
+                <button
+                  type="button"
+                  className="cauth-show"
+                  aria-label="Show password"
+                  aria-pressed={showPassword}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword
+                    ? <EyeOff size={18} aria-hidden="true" />
+                    : <Eye size={18} aria-hidden="true" />}
+                </button>
               </div>
             </div>
 
-            {/* Error */}
-            {error && <p className="error">{error}</p>}
+            {error && <p className="cauth-error cauth-error--global" role="alert">{error}</p>}
 
             <button
               type="submit"
-              className="auth-btn"
+              className="cauth-submit"
               disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}
             </button>
 
-            <p className="auth-redirect">
+            <p className="cauth-switch">
               Don't have an account?{" "}
-              <span onClick={() => navigate(isAgent ? "/agent-signup" : "/customer-signup")}>Sign up</span>
+              <button type="button" onClick={() => navigate(isAgent ? "/agent-signup" : "/customer-signup")}>Sign up</button>
             </p>
 
           </form>
         </div>
-
-      </div>
-
-    
+      </main>
     </div>
   );
 };

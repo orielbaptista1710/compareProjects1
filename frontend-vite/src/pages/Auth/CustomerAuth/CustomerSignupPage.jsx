@@ -12,7 +12,7 @@ import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/
 import { CustomerAuth } from "../../../config/firebase";
 import toast from "react-hot-toast";
 
-import { Check, X, Eye, EyeOff } from "lucide-react";
+import { Check, Eye, EyeOff } from "lucide-react";
 
 const FIREBASE_ERRORS = {
   "auth/email-already-in-use":    "This email is already registered. Please login.",
@@ -40,6 +40,13 @@ const CustomerSignupPage = ({ isAgent = false }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm]   = useState(false);
   const [submitting, setSubmitting]     = useState(false);
+  // Which account type the user ticked "yes, that's me" for. Stored as the role
+  // (not true/false) so switching Owner <-> Agent un-ticks it automatically —
+  // the choice can't be undone after signup, so it must be confirmed for the
+  // page they're actually on.
+  const [confirmedAs, setConfirmedAs]   = useState(null);
+  const role = isAgent ? "agent" : "owner";
+  const confirmedRole = confirmedAs === role;
   const navigate = useNavigate();
   // Optional: the page is also rendered without the provider in tests.
   const auth = useContext(AuthContext);
@@ -86,6 +93,10 @@ const CustomerSignupPage = ({ isAgent = false }) => {
       errs.agencyName = "Enter your agency name";
     if (isAgent && form.reraAgentId.trim().length < 3)
       errs.reraAgentId = "Enter your RERA agent registration number";
+    if (!confirmedRole)
+      errs.confirmedRole = isAgent
+        ? "Please confirm you're a RERA-registered agent"
+        : "Please confirm you're the owner";
     return errs;
   };
 
@@ -160,165 +171,252 @@ const CustomerSignupPage = ({ isAgent = false }) => {
   };
 
   return (
-    <div className="auth-page">
-      <AuthMarketingPanel />
+    <div className="cauth-page">
+      <AuthMarketingPanel isAgent={isAgent} />
 
-      <div className="auth-right">
-        <div className="auth-card">
-          <h2>{isAgent ? "Create agent account" : "Create new account"}</h2>
-          <p className="subheading">
+      <main className="cauth-main">
+        <div className="cauth-card">
+          <h1 className="cauth-title">Post your property</h1>
+          <p className="cauth-subtitle">
             {isAgent
               ? "Sign up as a real estate agent. Our team verifies your RERA registration before you can post listings as an agent."
               : "Sign up to compare projects, save favorites, and unlock deals."}
           </p>
 
-          <form onSubmit={handleSubmit} className="signup-form" noValidate>
+          {/* Look like tabs/toggle; each one just opens the matching existing page. */}
+          <nav className="cauth-tabs" aria-label="Account">
+            <button type="button" className="cauth-tab is-active" aria-current="page">
+              Create account
+            </button>
+            <button
+              type="button"
+              className="cauth-tab"
+              onClick={() => navigate(isAgent ? "/agent-login" : "/customer-login")}
+            >
+              Log in
+            </button>
+          </nav>
 
-            {/* Row 1: Name + Email */}
-            <div className="form-group">
+          <div className="cauth-toggle" role="group" aria-label="I am an">
+            <button
+              type="button"
+              className={`cauth-toggle-btn ${!isAgent ? "is-active" : ""}`}
+              aria-pressed={!isAgent}
+              onClick={() => navigate("/customer-signup")}
+            >
+              Owner
+            </button>
+            <button
+              type="button"
+              className={`cauth-toggle-btn ${isAgent ? "is-active" : ""}`}
+              aria-pressed={isAgent}
+              onClick={() => navigate("/agent-signup")}
+            >
+              Agent
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="cauth-form cauth-form--signup" noValidate>
+
+            <div className="cauth-field">
               <label htmlFor="customerName">Full Name</label>
               <input
+                className="cauth-input"
                 name="customerName" id="customerName"
                 placeholder="Your full name"
                 value={form.customerName}
                 onChange={handleChange}
                 autoComplete="name"
               />
-              {error.customerName && <p className="error">{error.customerName}</p>}
+              {error.customerName && <p className="cauth-error">{error.customerName}</p>}
             </div>
 
-            <div className="form-group">
+            <div className="cauth-field">
               <label htmlFor="customerEmail">Email Address</label>
               <input
+                className="cauth-input"
                 name="customerEmail" id="customerEmail" type="email"
                 placeholder="Your email"
                 value={form.customerEmail}
                 onChange={handleChange}
                 autoComplete="email"
               />
-              {error.customerEmail && <p className="error">{error.customerEmail}</p>}
+              {error.customerEmail && <p className="cauth-error">{error.customerEmail}</p>}
             </div>
 
-            {/* Row 2: Phone (full width) */}
-            <div className="form-group full">
+            <div className="cauth-field cauth-field--full">
               <label htmlFor="customerPhone">WhatsApp Number</label>
-              <div className="phone-input-wrapper">
-                <span className="country-code">+91</span>
+              <div className="cauth-phone">
+                <span className="cauth-phone-code">+91</span>
                 <input
+                  className="cauth-input"
                   name="customerPhone" id="customerPhone"
                   placeholder="10-digit number"
                   value={form.customerPhone}
                   onChange={handleChange}
                   maxLength={10}
-                  autoComplete="tel"
+                  inputMode="numeric"
+                  autoComplete="tel-national"
                   aria-describedby="customerPhone-hint"
                 />
               </div>
               {error.customerPhone
-                ? <p className="error">{error.customerPhone}</p>
-                : <p className="auth-field-hint" id="customerPhone-hint">Buyers will contact you on this number.</p>}
+                ? <p className="cauth-error">{error.customerPhone}</p>
+                : <p className="cauth-hint" id="customerPhone-hint">Buyers will contact you on this number.</p>}
             </div>
 
             {isAgent && (
               <>
-                <div className="form-group">
+                <div className="cauth-field">
                   <label htmlFor="agencyName">Agency Name</label>
                   <input
+                    className="cauth-input"
                     name="agencyName" id="agencyName"
                     placeholder="Your agency or firm"
                     value={form.agencyName}
                     onChange={handleChange}
                     autoComplete="organization"
                   />
-                  {error.agencyName && <p className="error">{error.agencyName}</p>}
+                  {error.agencyName && <p className="cauth-error">{error.agencyName}</p>}
                 </div>
 
-                <div className="form-group">
+                <div className="cauth-field">
                   <label htmlFor="reraAgentId">RERA Agent Registration No.</label>
                   <input
+                    className="cauth-input"
                     name="reraAgentId" id="reraAgentId"
                     placeholder="e.g. A51800012345"
                     value={form.reraAgentId}
                     onChange={handleChange}
                   />
-                  {error.reraAgentId && <p className="error">{error.reraAgentId}</p>}
+                  {error.reraAgentId && <p className="cauth-error">{error.reraAgentId}</p>}
                 </div>
               </>
             )}
 
-            {/* Row 3: Password + Confirm side by side */}
-            <div className="form-group">
+            <div className="cauth-field">
               <label htmlFor="customerPassword">Password</label>
-              <div className="password-input-wrapper">
+              <div className="cauth-password">
                 <input
+                  className="cauth-input"
                   name="customerPassword" id="customerPassword"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create password"
+                  placeholder="Create a password"
                   value={form.customerPassword}
                   onChange={handleChange}
                   autoComplete="new-password"
                 />
-                {showPassword
-                  ? <EyeOff className="toggle-eye" size={18} onClick={() => setShowPassword(false)} />
-                  : <Eye    className="toggle-eye" size={18} onClick={() => setShowPassword(true)}  />
-                }
+                <button
+                  type="button"
+                  className="cauth-show"
+                  aria-label="Show password"
+                  aria-pressed={showPassword}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword
+                    ? <EyeOff size={18} aria-hidden="true" />
+                    : <Eye size={18} aria-hidden="true" />}
+                </button>
               </div>
-              {error.customerPassword && <p className="error">{error.customerPassword}</p>}
+              {error.customerPassword && <p className="cauth-error">{error.customerPassword}</p>}
             </div>
 
-            <div className="form-group">
+            <div className="cauth-field">
               <label htmlFor="confirmPassword">Confirm Password</label>
-              <div className="password-input-wrapper">
+              <div className="cauth-password">
                 <input
+                  className="cauth-input"
                   name="confirmPassword" id="confirmPassword"
                   type={showConfirm ? "text" : "password"}
-                  placeholder="Confirm password"
+                  placeholder="Repeat the password"
                   value={form.confirmPassword}
                   onChange={handleChange}
                   autoComplete="new-password"
                 />
-                {showConfirm
-                  ? <EyeOff className="toggle-eye" size={18} onClick={() => setShowConfirm(false)} />
-                  : <Eye    className="toggle-eye" size={18} onClick={() => setShowConfirm(true)}  />
-                }
+                <button
+                  type="button"
+                  className="cauth-show"
+                  aria-label="Show confirm password"
+                  aria-pressed={showConfirm}
+                  onClick={() => setShowConfirm(!showConfirm)}
+                >
+                  {showConfirm
+                    ? <EyeOff size={18} aria-hidden="true" />
+                    : <Eye size={18} aria-hidden="true" />}
+                </button>
               </div>
-              {error.confirmPassword && <p className="error">{error.confirmPassword}</p>}
+              {error.confirmPassword && <p className="cauth-error">{error.confirmPassword}</p>}
             </div>
 
-            {/* Password rules — full width, below both password fields */}
-            <div className="form-group password-group">
-              {form.customerPassword && (
-                <div className={`password-strength ${strength.label.toLowerCase().replace(" ", "-")}`}>
-                  Strength: <strong>{strength.label}</strong>
-                </div>
+            {/* Rules show only while the password is too weak for validate() (score < 3). */}
+            <div className="cauth-field cauth-field--full">
+              {form.customerPassword && strength.score < 3 && (
+              <ul className="cauth-rules">
+                {passwordRules.map((rule, idx) => {
+                  const met = rule.test(form.customerPassword);
+                  return (
+                    <li className={`cauth-rule ${met ? "is-met" : ""}`} key={idx}>
+                      {met
+                        ? <Check className="cauth-rule-mark" size={13} strokeWidth={3} aria-hidden="true" />
+                        : <span className="cauth-rule-dot" aria-hidden="true" />}
+                      <span>{rule.label}</span>
+                    </li>
+                  );
+                })}
+              </ul>
               )}
-              <div className="password-requirements">
-                {passwordRules.map((rule, idx) => (
-                  <div className="requirement" key={idx}>
-                    {rule.test(form.customerPassword)
-                      ? <Check className="valid"   size={13} />
-                      : <X     className="invalid" size={13} />
-                    }
-                    <span>{rule.label}</span>
-                  </div>
-                ))}
+              {form.customerPassword && (
+                <p className={`cauth-strength cauth-strength--${strength.label.toLowerCase().replace(" ", "-")}`}>
+                  Strength: <strong>{strength.label}</strong>
+                </p>
+              )}
+            </div>
+
+            <div className="cauth-confirm">
+              <input
+                type="checkbox"
+                id="confirmedRole"
+                checked={confirmedRole}
+                onChange={(e) => {
+                  setConfirmedAs(e.target.checked ? role : null);
+                  if (error.confirmedRole) {
+                    setError((prev) => { const next = { ...prev }; delete next.confirmedRole; return next; });
+                  }
+                }}
+                aria-describedby="confirmedRole-note"
+              />
+              <div>
+                <label htmlFor="confirmedRole">
+                  {isAgent
+                    ? "I'm a RERA-registered real estate agent listing properties for clients."
+                    : "I'm selling or renting my own property — I'm not an agent or broker."}
+                </label>
+                <p className="cauth-hint" id="confirmedRole-note">This can't be changed later.</p>
+                {error.confirmedRole && <p className="cauth-error">{error.confirmedRole}</p>}
               </div>
             </div>
 
-            {error.global && <p className="error global-error">{error.global}</p>}
+            <p className="cauth-terms">
+              By creating an account you agree to the{" "}
+              <a href="/terms" target="_blank" rel="noopener noreferrer">terms</a> and{" "}
+              <a href="/privacy-policy" target="_blank" rel="noopener noreferrer">privacy policy</a>,
+              and to buyers contacting you on WhatsApp about your listings.
+            </p>
 
-            <button type="submit" className="signup-btn" disabled={submitting}>
-              {submitting ? "Creating account..." : "SIGN UP"}
+            {error.global && <p className="cauth-error cauth-error--global" role="alert">{error.global}</p>}
+
+            <button type="submit" className="cauth-submit" disabled={submitting}>
+              {submitting ? "Creating account..." : "Sign up"}
             </button>
 
-            <p className="login-redirect">
+            <p className="cauth-switch">
               Already have an account?{" "}
-              <span onClick={() => navigate(isAgent ? "/agent-login" : "/customer-login")}>Login</span>
+              <button type="button" onClick={() => navigate(isAgent ? "/agent-login" : "/customer-login")}>Login</button>
             </p>
 
           </form>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
