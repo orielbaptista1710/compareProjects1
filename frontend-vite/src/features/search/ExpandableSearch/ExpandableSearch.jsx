@@ -54,6 +54,7 @@ const ExpandableSearch = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
   const [prevDebouncedQuery, setPrevDebouncedQuery] = useState("");
+  const [prevCity, setPrevCity] = useState(city);
 
   const wrapperRef = useRef(null);
   // Stable array so useOutsideClick doesn't re-subscribe on every render.
@@ -61,8 +62,10 @@ const ExpandableSearch = () => {
 
   const debouncedQuery = useDebounce(query, 350);
 
-  if (debouncedQuery !== prevDebouncedQuery) {
+  // A new query or a new city means a different list, so drop the old highlight.
+  if (debouncedQuery !== prevDebouncedQuery || city !== prevCity) {
     setPrevDebouncedQuery(debouncedQuery);
+    setPrevCity(city);
     setHighlightIndex(-1);
   }
 
@@ -197,8 +200,8 @@ const ExpandableSearch = () => {
               aria-label="Search properties"
               role="combobox"
               aria-autocomplete="list"
-              aria-expanded={shouldShowDropdown}
-              aria-controls={shouldShowDropdown ? listboxId : undefined}
+              aria-expanded={hasItems}
+              aria-controls={hasItems ? listboxId : undefined}
               aria-activedescendant={
                 showResults && highlightIndex >= 0
                   ? `${idPrefix}-option-${highlightIndex}`
@@ -237,28 +240,30 @@ const ExpandableSearch = () => {
             </div>
           )}
 
-          <div
-            id={listboxId}
-            className="search-results-list"
-            role="listbox"
-            aria-label="Property search results"
-          >
-            {showResults && items.map((property, i) => (
-              <div
-                key={property._id}
-                id={`${idPrefix}-option-${i}`}
-                className={`property-result-item ${i === highlightIndex ? "highlighted" : ""}`}
-                role="option"
-                aria-selected={i === highlightIndex}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigateToProperty(property._id);
-                }}
-              >
-                <MemoizedPropertyCard property={property} disableNavigation />
-              </div>
-            ))}
-          </div>
+          {hasItems && (
+            <div
+              id={listboxId}
+              className="search-results-list"
+              role="listbox"
+              aria-label="Property search results"
+            >
+              {items.map((property, i) => (
+                <div
+                  key={property._id}
+                  id={`${idPrefix}-option-${i}`}
+                  className={`property-result-item ${i === highlightIndex ? "highlighted" : ""}`}
+                  role="option"
+                  aria-selected={i === highlightIndex}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateToProperty(property._id);
+                  }}
+                >
+                  <MemoizedPropertyCard property={property} disableNavigation />
+                </div>
+              ))}
+            </div>
+          )}
 
           {hasItems && (
             <div className="search-results-footer">
