@@ -176,11 +176,13 @@ const CustomerSignupPage = ({ isAgent = false }) => {
 
       <main className="cauth-main">
         <div className="cauth-card">
-          <h1 className="cauth-title">Post your property</h1>
+          <h1 className="cauth-title">
+            {isAgent ? "Sign up as an agent" : "Sign up as an owner"}
+          </h1>
           <p className="cauth-subtitle">
             {isAgent
               ? "Sign up as a real estate agent. Our team verifies your RERA registration before you can post listings as an agent."
-              : "Sign up to compare projects, save favorites, and unlock deals."}
+              : "Browse, compare and save properties, and list your own whenever you're ready."}
           </p>
 
           {/* Look like tabs/toggle; each one just opens the matching existing page. */}
@@ -389,7 +391,7 @@ const CustomerSignupPage = ({ isAgent = false }) => {
                 <label htmlFor="confirmedRole">
                   {isAgent
                     ? "I'm a RERA-registered real estate agent listing properties for clients."
-                    : "I'm selling or renting my own property — I'm not an agent or broker."}
+                    : "I'm an individual property owner — I'm not an agent or broker."}
                 </label>
                 <p className="cauth-hint" id="confirmedRole-note">This can't be changed later.</p>
                 {error.confirmedRole && <p className="cauth-error">{error.confirmedRole}</p>}
