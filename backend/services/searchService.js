@@ -113,7 +113,7 @@ const FILTER_WORDS = new Set([
 // Keeps payloads lean; the full property is only fetched on the property page.
 // The card only needs one gallery image as a fallback for a missing cover.
 const SEARCH_PROJECTION = {
-  title: 1, locality: 1, city: 1, state: 1, price: 1,
+  title: 1, projectName: 1, locality: 1, city: 1, state: 1, price: 1,
   coverImage: 1, galleryImages: { $slice: 1 },
   propertyType: 1, bhk: 1, furnishing: 1, reraApproved: 1,
   possessionStatus: 1, area: 1, ageOfProperty: 1, developerName: 1,
