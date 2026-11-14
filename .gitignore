@@ -19,6 +19,8 @@ property-validator/node_modules/
 .env.*
 !.env.example
 
+backend/uploads/
+
 # ── OS / editor ────── Remove if have vscode extensition or configs u want to share
 .vscode/
 
