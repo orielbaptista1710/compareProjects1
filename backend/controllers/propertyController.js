@@ -276,7 +276,7 @@ const getFeaturedProperties = asyncHandler(async (req, res) => {
     .select(
       'title city locality price bhk furnishing area reraDate coverImage ' +
       'pricePerSqft slug developerName propertyType galleryImages reraNumber ' +
-      'possessionStatus description'
+      'possessionStatus description listedBy projectName'
     )
     .sort({ createdAt: -1 })
     .limit(limit)
@@ -301,7 +301,8 @@ const getRecentProperties = asyncHandler(async (req, res) => {
   const properties = await Property.find(query)
     .select(
       'title city locality price bhk furnishing area coverImage ' +
-      'developerName propertyType slug createdAt'
+      'developerName propertyType slug createdAt ' +
+      'listedBy projectName possessionStatus'
     )
     .sort({ createdAt: -1 })
     .limit(limit)
