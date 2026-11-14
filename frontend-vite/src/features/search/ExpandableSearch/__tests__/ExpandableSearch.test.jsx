@@ -16,6 +16,12 @@ vi.mock("../../../../contexts/CompareContext", () => ({
   useCompare: () => ({ addToCompare }),
 }));
 
+// The header's selected city; null = none picked.
+const cityState = vi.hoisted(() => ({ city: "Mumbai" }));
+vi.mock("../../../../contexts/CityContext", () => ({
+  useCity: () => ({ city: cityState.city }),
+}));
+
 const PropertyPage = () => <div>Property page {useParams().id}</div>;
 
 // Fresh client per test so cached search results never leak between tests.
@@ -42,6 +48,7 @@ const deferred = () => {
 };
 
 beforeEach(() => {
+  cityState.city = "Mumbai";
   API.get.mockReset();
   addToCompare.mockReset();
 });
@@ -221,6 +228,95 @@ describe("ExpandableSearch", () => {
 
     expect(await screen.findByText("Lodha Park")).toBeInTheDocument();
     expect(API.get).toHaveBeenCalledTimes(2);
+  });
+
+  it("shows the project name when there is one, otherwise the title", async () => {
+    API.get.mockResolvedValue(
+      respond([
+        { ...property("p1", "3 BHK Apartments in Lodha Park, Worli"), projectName: "Lodha Park" },
+        property("p2", "Prestige Lakeside"),
+      ])
+    );
+    const user = userEvent.setup();
+    renderSearch();
+
+    await user.type(screen.getByRole("combobox"), "lodha");
+
+    expect(await screen.findByText("Lodha Park")).toBeInTheDocument();
+    expect(screen.queryByText("3 BHK Apartments in Lodha Park, Worli")).not.toBeInTheDocument();
+    expect(screen.getByText("Prestige Lakeside")).toBeInTheDocument();
+  });
+
+  it("links 'See all results' to the listings search for the typed text", async () => {
+    API.get.mockResolvedValue(respond([property("p1", "Lodha Park")]));
+    const user = userEvent.setup();
+    renderSearch();
+
+    await user.type(screen.getByRole("combobox"), "lodha park");
+
+    const link = await screen.findByRole("link", { name: /see all results/i });
+    expect(link).toHaveAttribute("href", "/properties?search=lodha%20park");
+    expect(screen.getByText(/1 match/)).toBeInTheDocument();
+  });
+
+  // Search finds nothing; /featured and /recent answer with the given lists.
+  const mockNoMatches = ({ featured = [], recent = [] } = {}) =>
+    API.get.mockImplementation(async (url) => {
+      if (url.startsWith("/api/properties/featured")) return { data: featured };
+      if (url.startsWith("/api/properties/recent")) return { data: recent };
+      return respond([]);
+    });
+
+  it("recommends featured listings in the selected city when nothing matches", async () => {
+    mockNoMatches({ featured: [property("f1", "Featured Heights")] });
+    const user = userEvent.setup();
+    renderSearch();
+
+    await user.type(screen.getByRole("combobox"), "zzzz");
+
+    expect(await screen.findByText("Featured Heights")).toBeInTheDocument();
+    expect(screen.getByText('No exact matches for "zzzz" — you might like')).toBeInTheDocument();
+    expect(screen.queryByText("No properties found")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /see all results/i })).not.toBeInTheDocument();
+
+    const featuredCall = API.get.mock.calls.find(([url]) => url.startsWith("/api/properties/featured"));
+    expect(featuredCall[0]).toContain("city=Mumbai");
+    expect(featuredCall[0]).toContain("limit=3");
+  });
+
+  it("recommends site-wide listings when no city is picked", async () => {
+    cityState.city = null;
+    mockNoMatches({ featured: [property("f1", "Featured Heights")] });
+    const user = userEvent.setup();
+    renderSearch();
+
+    await user.type(screen.getByRole("combobox"), "zzzz");
+
+    expect(await screen.findByText("Featured Heights")).toBeInTheDocument();
+    const featuredCall = API.get.mock.calls.find(([url]) => url.startsWith("/api/properties/featured"));
+    expect(featuredCall[0]).toBe("/api/properties/featured?limit=3"); // no city filter at all
+  });
+
+  it("falls back to recently added listings when none are featured", async () => {
+    mockNoMatches({ recent: [property("r1", "Brand New Towers")] });
+    const user = userEvent.setup();
+    renderSearch();
+
+    await user.type(screen.getByRole("combobox"), "zzzz");
+
+    expect(await screen.findByText("Brand New Towers")).toBeInTheDocument();
+  });
+
+  it("opens a recommendation with the arrow keys and Enter", async () => {
+    mockNoMatches({ featured: [property("f1", "Featured Heights"), property("f2", "Second Pick")] });
+    const user = userEvent.setup();
+    renderSearch();
+
+    await user.type(screen.getByRole("combobox"), "zzzz");
+    await screen.findByText("Second Pick");
+    await user.keyboard("{ArrowDown}{ArrowDown}{Enter}");
+
+    expect(await screen.findByText("Property page f2")).toBeInTheDocument();
   });
 
   it("shows a generic error when the request fails", async () => {

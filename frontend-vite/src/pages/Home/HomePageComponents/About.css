@@ -1,6 +1,9 @@
 /* ===== Container ===== */
 .about-container {
   width: 100%;
+  /* The decoration circles sit partly outside the illustration; on phones that
+     pushed the page ~4px wider than the screen (sideways wobble + header grew). */
+  overflow-x: clip;
   padding: 48px 18px; /* reduced */
   display: flex;
   align-items: center;

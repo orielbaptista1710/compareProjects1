@@ -2,15 +2,16 @@
 import React, { useState,
   useRef, useMemo, useId,
   useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Send, Home } from "lucide-react";
+import { ArrowRight, Home, Search } from "lucide-react";
 import PropertyCardSmall from "../Propertycardsmall/PropertyCardSmall";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
 import { useEscapeKey } from "../../../hooks/useEscapeKey";
 import { useDebounce } from "../../../hooks/useDebounceHook";
 
 import API from "../../../api/api";
+import { useCity } from "../../../contexts/CityContext";
 import "./ExpandableSearch.css";
 
 const MemoizedPropertyCard = React.memo(PropertyCardSmall);
@@ -29,8 +30,23 @@ const fetchSearchResults = async ({ queryKey: [, query], signal }) => {
     : { results: data.properties || [], fuzzy: Boolean(data.fuzzy) };
 };
 
+// Shown instead of a dead-end "No properties found": admin-picked Featured
+// listings for the selected city, or the newest listings if none are featured.
+// Reuses the public /featured and /recent endpoints — no search-specific API.
+const fetchRecommendations = async ({ queryKey: [, city], signal }) => {
+  const qs = new URLSearchParams({ limit: "3" });
+  if (city) qs.set("city", city);
+  const get = async (path) => {
+    const { data } = await API.get(`${path}?${qs}`, { signal });
+    return Array.isArray(data) ? data : [];
+  };
+  const featured = await get("/api/properties/featured");
+  return featured.length ? featured : get("/api/properties/recent");
+};
+
 const ExpandableSearch = () => {
   const navigate = useNavigate();
+  const { city } = useCity();
   const idPrefix = useId();
   const listboxId = `${idPrefix}-listbox`;
 
@@ -38,6 +54,7 @@ const ExpandableSearch = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
   const [prevDebouncedQuery, setPrevDebouncedQuery] = useState("");
+  const [prevCity, setPrevCity] = useState(city);
 
   const wrapperRef = useRef(null);
   // Stable array so useOutsideClick doesn't re-subscribe on every render.
@@ -45,8 +62,10 @@ const ExpandableSearch = () => {
 
   const debouncedQuery = useDebounce(query, 350);
 
-  if (debouncedQuery !== prevDebouncedQuery) {
+  // A new query or a new city means a different list, so drop the old highlight.
+  if (debouncedQuery !== prevDebouncedQuery || city !== prevCity) {
     setPrevDebouncedQuery(debouncedQuery);
+    setPrevCity(city);
     setHighlightIndex(-1);
   }
 
@@ -72,9 +91,31 @@ const ExpandableSearch = () => {
   // Busy while the debounce hasn't caught up with the input, or while the
   // debounced query is being fetched.
   const isPendingDebounce = trimmedRawQuery !== trimmedQuery;
-  const isBusy =
+  const isSearchBusy =
     trimmedRawQuery.length >= 2 &&
     (isPendingDebounce || (trimmedQuery.length >= 2 && isFetching));
+
+  // The current query's search finished and found nothing.
+  const searchEmpty =
+    trimmedRawQuery.length >= 2 && !isSearchBusy && !queryError &&
+    Boolean(data) && results.length === 0;
+
+  const { data: recData, isFetching: recFetching } = useQuery({
+    // null = no city picked → site-wide (the fetcher reads the city from the key).
+    queryKey: ["search-recommendations", city || null],
+    queryFn: fetchRecommendations,
+    enabled: searchEmpty,
+    staleTime: 5 * 60_000,
+    // A failed recommendation fetch just falls back to "No properties found".
+    retry: false,
+  });
+
+  const recommendations = searchEmpty && recData ? recData : NO_RESULTS;
+  const isRecommending = recommendations.length > 0;
+  // What the list, arrow keys and Enter act on: results, else recommendations.
+  const items = isRecommending ? recommendations : results;
+
+  const isBusy = isSearchBusy || (searchEmpty && recFetching && !recData);
 
   // Gate visibility off the raw query length too, so clearing the input
   // hides the dropdown immediately instead of waiting for the debounce.
@@ -116,7 +157,7 @@ const ExpandableSearch = () => {
       refetch(); // Enter retries a failed search
       return;
     }
-    const target = results[highlightIndex] ?? results[0];
+    const target = items[highlightIndex] ?? items[0];
     if (target) navigateToProperty(target._id);
   };
 
@@ -127,21 +168,23 @@ const ExpandableSearch = () => {
       setIsOpen(true);
       return;
     }
-    if (isBusy || !results.length) return;
+    if (isBusy || !items.length) return;
     if (e.key === "ArrowDown") {
-      setHighlightIndex((i) => Math.min(i + 1, results.length - 1));
+      setHighlightIndex((i) => Math.min(i + 1, items.length - 1));
     } else {
       setHighlightIndex((i) => Math.max(i - 1, 0));
     }
   };
 
   const showResults = shouldShowDropdown && !isBusy && !error;
+  const hasItems = showResults && items.length > 0;
 
   return (
     <div className="search-wrapper" ref={wrapperRef}>
       <div className="ai-search-container">
         <form className="ai-search-form" onSubmit={handleSubmit} role="search">
           <div className="ai-input-wrapper">
+            <Search size={18} className="ai-search-icon" aria-hidden="true" />
             <input
               id="property-search-input"
               value={query}
@@ -157,8 +200,8 @@ const ExpandableSearch = () => {
               aria-label="Search properties"
               role="combobox"
               aria-autocomplete="list"
-              aria-expanded={shouldShowDropdown}
-              aria-controls={shouldShowDropdown ? listboxId : undefined}
+              aria-expanded={hasItems}
+              aria-controls={hasItems ? listboxId : undefined}
               aria-activedescendant={
                 showResults && highlightIndex >= 0
                   ? `${idPrefix}-option-${highlightIndex}`
@@ -169,13 +212,13 @@ const ExpandableSearch = () => {
             />
           </div>
           <button className="ai-search-submit" type="submit" aria-label="Search">
-            <Send size={16} />
+            <ArrowRight size={18} aria-hidden="true" />
           </button>
         </form>
       </div>
 
       {shouldShowDropdown && (
-        <div id={listboxId} className="search-results-dropdown" role="listbox" aria-label="Property search results">
+        <div className="search-results-dropdown">
           {isBusy && (
             <div className="search-loading" role="status" aria-live="polite">
               <span className="loading-spinner" aria-hidden="true" />
@@ -183,30 +226,68 @@ const ExpandableSearch = () => {
             </div>
           )}
           {error && !isBusy && <div className="search-error" role="alert">{error}</div>}
-          {showResults && results.length === 0 && (
+          {showResults && items.length === 0 && (
             <div className="no-results" role="status">
               <Home size={28} aria-hidden="true" />
               <p>No properties found</p>
             </div>
           )}
-          {showResults && isFuzzy && results.length > 0 && (
-            <div className="fuzzy-indicator" aria-live="polite">Showing best matches</div>
-          )}
-          {showResults && results.map((property, i) => (
-            <div
-              key={property._id}
-              id={`${idPrefix}-option-${i}`}
-              className={`property-result-item ${i === highlightIndex ? "highlighted" : ""}`}
-              role="option"
-              aria-selected={i === highlightIndex}
-              onClick={(e) => {
-                e.stopPropagation();
-                navigateToProperty(property._id);
-              }}
-            >
-              <MemoizedPropertyCard property={property} disableNavigation />
+          {hasItems && (
+            <div className="search-results-header" aria-live="polite">
+              {isRecommending
+                ? `No exact matches for "${trimmedQuery}" — you might like`
+                : isFuzzy ? "Showing best matches" : "Properties matching your search"}
             </div>
-          ))}
+          )}
+
+          {hasItems && (
+            <div
+              id={listboxId}
+              className="search-results-list"
+              role="listbox"
+              aria-label="Property search results"
+            >
+              {items.map((property, i) => (
+                <div
+                  key={property._id}
+                  id={`${idPrefix}-option-${i}`}
+                  className={`property-result-item ${i === highlightIndex ? "highlighted" : ""}`}
+                  role="option"
+                  aria-selected={i === highlightIndex}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateToProperty(property._id);
+                  }}
+                >
+                  <MemoizedPropertyCard property={property} disableNavigation />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {hasItems && (
+            <div className="search-results-footer">
+              <span className="search-results-hint">
+                {items.length}{" "}
+                {isRecommending
+                  ? items.length === 1 ? "suggestion" : "suggestions"
+                  : items.length === 1 ? "match" : "matches"}
+                <span className="search-results-keys" aria-hidden="true">
+                  {" · "}<kbd>↑</kbd><kbd>↓</kbd> to move, Enter to open
+                </span>
+              </span>
+              {/* Nothing matched, so there's no wider result list to link to. */}
+              {!isRecommending && (
+                <Link
+                  to={`/properties?search=${encodeURIComponent(trimmedQuery)}`}
+                  className="search-results-all"
+                  onClick={closeDropdown}
+                >
+                  See all results →
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

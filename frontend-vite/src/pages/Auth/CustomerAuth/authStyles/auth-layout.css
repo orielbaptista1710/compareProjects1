@@ -1,126 +1,175 @@
 /* ==========================================================================
-   auth-layout.css
+   auth-layout.css — customer/agent login + signup page shell.
+   Photo panel on the left, form on the right. All classes are prefixed
+   cauth- so these global styles can't leak into other routes.
    ========================================================================== */
 
-:root {
-  --brand-900: #3b1f72;
-  --brand-800: #4b2a84;
-  --brand-700: #5d3b9e;
-  --brand-600: #6f42c1;
-  --brand-400: #9b72d8;
-  --brand-100: #ede9fb;
-  --brand-50:  #f5f3ff;
-
-  --text-primary:   #0f0e17;
-  --text-secondary: #4b5563;
-  --text-muted:     #9ca3af;
-
-  --surface:  #ffffff;
-  --border:   #e5e7eb;
-  --danger:   #dc2626;
-  --success:  #16a34a;
-
-  --radius-sm: 8px;
-  --shadow-input-focus: 0 0 0 3px rgba(111,66,193,0.18);
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-med:  220ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ── Page shell ── */
-.auth-page {
-  display: flex;
+/* padding-top: the site header (shared/Header) is fixed over the page. */
+.cauth-page {
+  display: grid;
+  grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
+  box-sizing: border-box;
   min-height: 100dvh;
+  padding-top: var(--site-header-height);
   width: 100%;
-  overflow: hidden;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-body);
 }
 
-/* ── Left panel — dark purple gradient, full height ── */
-.auth-left {
-  flex: 0 0 46%;
-  max-width: 700px;
-  position: relative;
+/* ── Left: photo with a dark card ── */
+.cauth-panel {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(2.5rem, 5vw, 5rem) clamp(2rem, 4vw, 4.5rem);
-  overflow: hidden;
-
-    background: url(/src/assests/images/landingpage.webp) no-repeat center center / cover;
-
-  color: #ffffff;
+  align-items: flex-end;
+  padding: var(--space-6);
+  background: var(--color-bg-page) url("../../../../assests/images/landingpage.webp") no-repeat center / cover;
 }
 
-.signup-content {
-  position: relative;
-  z-index: 1;
+.cauth-panel-card {
   width: 100%;
-  max-width: 460px;
+  max-width: 560px;
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--color-ink);
+  color: var(--color-on-dark);
 }
 
-.auth-left h1 {
-  font-size: clamp(1.75rem, 3vw, 2.75rem);
-  font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: #ffffff;
-  margin-bottom: 2rem;
+.cauth-panel-eyebrow {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-surface-tint-strong);
 }
 
-.auth-left h1 span {
-  color: rgba(255, 255, 255, 0.6);
+.cauth-panel-title {
+  margin: 0 0 var(--space-5);
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: 1.2;
+  color: var(--color-on-dark);
 }
 
-/* ── Benefits list ── */
-.benefits-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.cauth-panel-list {
   display: flex;
   flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.benefits-list li {
+.cauth-panel-list li {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 13px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.975rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.88);
+  gap: var(--space-3);
+  font-size: var(--text-md);
   line-height: 1.45;
+  color: var(--color-on-dark-muted);
 }
 
-.benefits-list li:last-child {
-  border-bottom: none;
-}
-
-.check-icon {
+.cauth-panel-check {
   flex-shrink: 0;
   margin-top: 2px;
-  color: #a8edaf;
+  color: var(--color-surface-tint-strong);
 }
 
-/* ── Right panel — pure white ── */
-.auth-right {
-  flex: 1;
+/* ── Right: the form ── */
+.cauth-main {
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: clamp(2rem, 4vw, 4rem) clamp(2rem, 5vw, 5rem);
-  overflow-y: auto;
-  background: #ffffff;
+  align-items: flex-start;
+  padding: var(--space-7) var(--page-gutter);
 }
 
-.auth-card {
+.cauth-card {
   width: 100%;
-  max-width: 550px;
-  padding: 2.5rem;
-  border: 1.5px solid var(--border);
-  border-radius: 24px;
-  background: #ffffff;
+  max-width: 560px;
 }
 
-.mobile-auth-banner {
-  display: none;
+.cauth-title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-semibold);
+  line-height: 1.15;
+  color: var(--color-ink);
+}
+
+.cauth-subtitle {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-body);
+  line-height: 1.55;
+  color: var(--color-ink-muted);
+}
+
+/* ── Create account / Log in tabs ── */
+.cauth-tabs {
+  display: flex;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.cauth-tab {
+  margin-bottom: -1px;
+  padding: var(--space-3) 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+
+.cauth-tab:hover { color: var(--color-ink); }
+
+.cauth-tab.is-active {
+  border-bottom-color: var(--color-primary);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+  cursor: default;
+}
+
+/* ── Owner / Agent toggle ── */
+.cauth-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-1);
+  margin-bottom: var(--space-5);
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--color-ink-fill);
+}
+
+.cauth-toggle-btn {
+  height: var(--control-height);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.cauth-toggle-btn:hover { color: var(--color-ink); }
+
+.cauth-toggle-btn.is-active {
+  border-color: var(--color-line);
+  background: var(--color-surface);
+  font-weight: var(--weight-semibold);
+  color: var(--color-ink);
+  cursor: default;
+}
+
+.cauth-tab:focus-visible,
+.cauth-toggle-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }

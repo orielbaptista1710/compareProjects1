@@ -15,7 +15,11 @@
   },
   "overrides": [
     {
-      "files": ["src/shared/Header/**/*.css"],
+      "files": [
+        "src/shared/Header/**/*.css",
+        "src/shared/Popups/DeveloperPopup.css",
+        "src/pages/Auth/CustomerAuth/authStyles/*.css"
+      ],
       "rules": {
         "color-no-hex": [true, { "severity": "error" }],
         "function-disallowed-list": [["rgb", "rgba", "hsl", "hsla"], { "severity": "error" }],

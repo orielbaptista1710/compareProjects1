@@ -68,6 +68,43 @@
   }
 }
 
+/* Small phones: logo + City + ☰ don't fit in one row, so the trigger becomes
+   a square pin button. The city name is hidden visually only — it stays the
+   button's accessible name for screen readers. */
+@media (max-width: 420px) {
+  .city-trigger {
+    width: var(--control-height);
+    max-width: none;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .city-trigger-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .city-trigger-chevron {
+    display: none;
+  }
+
+  /* Open full-width under the header instead of from the small button,
+     which would push it off the right edge. (.city-wrapper raises the
+     specificity: the base .city-dropdown rule comes later in this file.) */
+  .city-wrapper .city-dropdown {
+    position: fixed;
+    top: calc(var(--site-header-height) + var(--space-2));
+    left: var(--space-4);
+    right: var(--space-4);
+    width: auto;
+    max-width: none;
+  }
+}
+
 /* -----------------------------------------
    DROPDOWN CONTAINER
 ------------------------------------------ */

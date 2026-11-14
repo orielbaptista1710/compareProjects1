@@ -56,6 +56,7 @@ async function fillAndSubmit() {
   // length >= 8, an uppercase letter, a number, a special character.
   await user.type(screen.getByLabelText("Password"), "Passw0rd!");
   await user.type(screen.getByLabelText("Confirm Password"), "Passw0rd!");
+  await user.click(screen.getByRole("checkbox"));
   await user.click(screen.getByRole("button", { name: /sign up/i }));
 }
 
@@ -136,6 +137,7 @@ describe("CustomerSignupPage — agent variant (/agent-signup)", () => {
     if (reraAgentId) await user.type(screen.getByLabelText("RERA Agent Registration No."), reraAgentId);
     await user.type(screen.getByLabelText("Password"), "Passw0rd!");
     await user.type(screen.getByLabelText("Confirm Password"), "Passw0rd!");
+    await user.click(screen.getByRole("checkbox"));
     await user.click(screen.getByRole("button", { name: /sign up/i }));
   }
 
@@ -203,5 +205,58 @@ describe("CustomerSignupPage — agent variant (/agent-signup)", () => {
 
     await waitFor(() => expect(screen.getByText(/signup failed/i)).toBeInTheDocument());
     expect(credential.user.delete).not.toHaveBeenCalled();
+  });
+});
+
+// Owner vs agent can't be changed after signup, so the user must confirm which
+// one they are before anything is created.
+describe("CustomerSignupPage — confirm owner/agent before signup", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  async function fillWithoutConfirming(props = {}) {
+    const user = userEvent.setup({ delay: null });
+    const view = render(<CustomerSignupPage {...props} />);
+    await user.type(screen.getByLabelText("Full Name"), "Asha");
+    await user.type(screen.getByLabelText("Email Address"), "asha@example.com");
+    await user.type(screen.getByLabelText("WhatsApp Number"), "9876543210");
+    if (props.isAgent) {
+      await user.type(screen.getByLabelText("Agency Name"), "Prime Realty");
+      await user.type(screen.getByLabelText("RERA Agent Registration No."), "A51800012345");
+    }
+    await user.type(screen.getByLabelText("Password"), "Passw0rd!");
+    await user.type(screen.getByLabelText("Confirm Password"), "Passw0rd!");
+    return { user, ...view };
+  }
+
+  it.each([
+    [{}, "Please confirm you're the owner"],
+    [{ isAgent: true }, "Please confirm you're a RERA-registered agent"],
+  ])("with props %o: refuses to create the account until confirmed", async (props, message) => {
+    const { user } = await fillWithoutConfirming(props);
+    await user.click(screen.getByRole("button", { name: /sign up/i }));
+
+    expect(screen.getByText(message)).toBeInTheDocument();
+    expect(createUserWithEmailAndPassword).not.toHaveBeenCalled();
+  });
+
+  it("asks owners and agents to confirm different things", () => {
+    const { unmount } = render(<CustomerSignupPage />);
+    expect(screen.getByRole("checkbox", { name: /not an agent or broker/i })).toBeInTheDocument();
+    unmount();
+
+    render(<CustomerSignupPage isAgent />);
+    expect(screen.getByRole("checkbox", { name: /RERA-registered real estate agent/i })).toBeInTheDocument();
+  });
+
+  it("un-ticks the confirmation when the page switches between owner and agent", async () => {
+    const { user, rerender } = await fillWithoutConfirming();
+    await user.click(screen.getByRole("checkbox"));
+    expect(screen.getByRole("checkbox")).toBeChecked();
+
+    rerender(<CustomerSignupPage isAgent />);
+
+    expect(screen.getByRole("checkbox")).not.toBeChecked();
   });
 });

@@ -47,6 +47,7 @@
 
   /* Layout */
   --site-header-height: 70px; /* shared/Header is fixed at this height */
+  --site-navbar-height: 60px; /* shared/NavigationBar, fixed under the header from 1200px up */
   --sidebar-width: 232px;
 
   /* Colours not in colors.css. Brand purple stays --color-primary (#7c3aed). */
@@ -71,6 +72,7 @@
   --color-on-dark-fill: rgba(255, 255, 255, 0.08); /* hover fill on ink */
   --color-ink-fill: rgba(28, 26, 51, 0.06);      /* --color-ink at 6%: pills on white */
   --color-overlay: rgba(28, 26, 51, 0.5);        /* scrim behind drawers/modals */
+  --color-primary-scrim: rgba(46, 16, 101, 0.82); /* --color-primary-deep at 82%: purple wash over photos */
 
   /* Elevation: menus, dialogs and popovers only — cards are flat */
   --shadow-pop: 0 12px 32px rgba(17, 24, 39, 0.14);

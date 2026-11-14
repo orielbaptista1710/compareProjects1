@@ -195,6 +195,15 @@ describe("CustomerLoginPage", () => {
       expect(mockNavigate).toHaveBeenCalledWith("/agent-signup");
     });
 
+    it.each([{}, { isAgent: true }])(
+      "with props %o: has no Owner/Agent choice (the account decides, not the login page)",
+      (props) => {
+        renderPage(props);
+        expect(screen.queryByRole("button", { name: "Owner" })).not.toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Agent" })).not.toBeInTheDocument();
+      }
+    );
+
     it("the customer page sends 'Sign up' to /customer-signup", async () => {
       const user = userEvent.setup();
       renderPage();

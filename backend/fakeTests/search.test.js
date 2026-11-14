@@ -126,11 +126,13 @@ describe("GET /api/properties/search", () => {
   it("returns only card fields and at most one gallery image", async () => {
     await listing({
       title: "Kalpataru Vista",
+      projectName: "Vista",
       galleryImages: [{ url: "a.jpg" }, { url: "b.jpg" }, { url: "c.jpg" }],
     });
 
     const [result] = (await search("kalpataru")).body.properties;
 
+    expect(result.projectName).toBe("Vista"); // the dropdown's short name
     expect(result.galleryImages).toHaveLength(1);
     expect(result).not.toHaveProperty("userId");
     expect(result).not.toHaveProperty("address");

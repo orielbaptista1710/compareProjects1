@@ -1,117 +1,38 @@
 /* ==========================================================================
-   auth-responsive.css
+   auth-responsive.css — breakpoints for the customer/agent auth pages.
    ========================================================================== */
 
-/* ── 1100px ── */
-@media (max-width: 1100px) {
-  .auth-left { flex: 0 0 42%; }
-}
-
-/* ── 900px — stack vertically ── */
+/* Tablet and below: form only, the photo panel is dropped. */
 @media (max-width: 900px) {
-  .auth-page {
-    flex-direction: column;
-    overflow-y: auto;
-    min-height: 100dvh;
-  }
+  .cauth-page { grid-template-columns: 1fr; }
 
-  .auth-left {
-    flex: none;
-    width: 100%;
-    max-width: 100%;
-    padding: 2.5rem 2rem;
-    align-items: flex-start;
-  }
+  .cauth-panel { display: none; }
 
-  .signup-content {
-    max-width: 620px;
-    margin: 0 auto;
-  }
-
-  .auth-left h1 {
-    font-size: clamp(1.5rem, 4vw, 2rem);
-    margin-bottom: 1.25rem;
-  }
-
-  .benefits-list {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.4rem 1.5rem;
-  }
-
-  .benefits-list li {
-    border-bottom: none;
-    font-size: 0.9rem;
-    padding: 6px 0;
-  }
-
-  .auth-right {
-    flex: none;
-    width: 100%;
-    padding: 2.5rem 2rem 3rem;
-    justify-content: center;
-  }
-
-  .auth-card {
-    max-width: 500px;
-    margin: 0 auto;
-  }
+  .cauth-main { padding: var(--space-6) var(--page-gutter) var(--space-7); }
 }
 
-/* ── 640px — mobile ── */
-@media (max-width: 640px) {
-  .auth-left {
-    padding: 1.75rem 1.25rem;
-  }
+/* Phones */
+@media (max-width: 560px) {
+  .cauth-title { font-size: var(--text-2xl); }
 
-  .auth-left h1 {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
-  }
+  .cauth-form--signup { grid-template-columns: 1fr; }
 
-  .benefits-list {
-    grid-template-columns: 1fr;
-  }
-
-  .auth-right {
-    padding: 1.75rem 1.25rem 2.5rem;
-  }
-
-  .auth-card { max-width: 100%; }
-
-  /* 16px minimum prevents iOS auto-zoom */
-  .form-group input { font-size: 16px; }
-
-  .password-requirements { grid-template-columns: 1fr 1fr; }
-
-  .auth-subtitle,
-  .subheading { margin-bottom: 1.5rem; }
+  /* 16px+ stops iOS zooming into the field on focus. */
+  .cauth-input { font-size: var(--text-md); }
 }
 
-/* ── 480px ── */
-@media (max-width: 480px) {
-  .auth-left  { padding: 1.5rem 1rem; }
-  .auth-right { padding: 1.5rem 1rem 2.5rem; }
-  .country-code { padding: 0 0.65rem; font-size: 0.875rem; }
-  .password-requirements { grid-template-columns: 1fr; }
+@media (max-width: 380px) {
+  .cauth-rules { grid-template-columns: 1fr; }
 }
 
-/* ── 360px ── */
-@media (max-width: 360px) {
-  .auth-left h1   { font-size: 1.2rem; }
-  .form-group input { height: 46px; }
-  .auth-btn, .signup-btn { height: 50px; }
-}
-
-/* ── Touch targets ── */
+/* Touch: bigger tap area for the small text buttons. */
 @media (hover: none) and (pointer: coarse) {
-  .toggle-eye  { padding: 8px; right: 0.5rem; }
-  .forgot-link { padding: 4px 0; display: inline-block; }
+  .cauth-textlink,
+  .cauth-switch button { padding: var(--space-2) 0; }
 }
 
-/* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    transition-duration: 0ms !important;
-  }
+  .cauth-page *,
+  .cauth-page *::before,
+  .cauth-page *::after { transition-duration: 0ms !important; }
 }

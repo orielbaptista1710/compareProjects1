@@ -1,59 +1,162 @@
+/* src/features/search/MainSearchBar/MainSearchBar.css
+   Home hero search card: Location | Property type | Search on top,
+   "or describe it", then the quick property lookup (ExpandableSearch). */
+
 .mainsearch-bar {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.mainsearch-card {
+  position: relative; /* the quick-search results open from the whole card */
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  max-width: 900px;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  text-align: left; /* the hero centres its text; the card shouldn't */
 }
 
-.main-search-container-section {
-  position: relative;
-  width: 100%;
-}
+/* ---------- Top row ---------- */
 
-.main-search-container {
+.mainsearch-row {
   display: flex;
-  align-items: center;
-  background: #fff;
-  border: 1px solid #e2d9f3;
-  border-radius: 999px;
-  padding: 6px 6px 6px 20px;
-  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.08);
-  gap: 8px;
+  align-items: stretch;
+  gap: var(--space-3);
 }
 
-.search-field {
-  flex: 1;
+.mainsearch-field {
+  position: relative; /* anchors the icon and the field's dropdown */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-1);
   min-width: 0;
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-6);
 }
 
-.search-divider {
+.mainsearch-field-location {
+  flex: 1 1 auto;
+}
+
+.mainsearch-field-type {
+  flex: 0 1 260px;
+}
+
+.mainsearch-field-label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-muted);
+  line-height: 1.2;
+}
+
+/* Icons sit at the field's left edge, centred across label + input, and the
+   dropdowns open from the whole field rather than the inner input. */
+.mainsearch-field .lsb-wrapper,
+.mainsearch-field .ptp-wrapper {
+  position: static;
+}
+
+.mainsearch-field .lsb-icon,
+.mainsearch-field .ptp-trigger-icon {
+  position: absolute;
+  left: var(--space-2);
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.mainsearch-divider {
   width: 1px;
-  height: 28px;
-  background: #e5e0ee;
+  align-self: stretch;
+  background: var(--color-line);
   flex-shrink: 0;
 }
 
-.search-field-type {
-  flex: 0 0 auto;
-}
-
 .mainsearch-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #7c3aed;
-  color: #fff;
+  flex-shrink: 0;
+  align-self: stretch;
+  min-height: var(--control-height);
+  padding: 0 var(--space-5);
+  background: var(--color-primary);
+  color: var(--color-surface);
   border: none;
-  border-radius: 999px;
-  padding: 12px 26px;
-  font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
   white-space: nowrap;
-  transition: background 0.15s ease;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
 }
 
 .mainsearch-btn:hover {
-  background: #6d28d9;
+  background: var(--color-primary-dark);
+}
+
+.mainsearch-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- "or describe it" ---------- */
+
+.mainsearch-or {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-ink-muted);
+}
+
+.mainsearch-or::before,
+.mainsearch-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-line);
+}
+
+/* ---------- Quick-search results: same width as the card, just below it ----------
+   The wrapper stops being the positioning box, so the dropdown anchors to
+   .mainsearch-card instead of the grey input. Its z-index (1000) still keeps it
+   above the page; the Location/Type dropdowns (z 60) still sit above the
+   input because the wrapper no longer forms its own layer. */
+.mainsearch-card .search-wrapper {
+  position: static;
+  isolation: auto;
+}
+
+.mainsearch-card .search-results-dropdown {
+  top: calc(100% + var(--space-3));
+  left: -1px; /* cover the card's 1px border so the edges line up */
+  width: calc(100% + 2px);
+}
+
+/* ---------- Phones: stack the top row ---------- */
+
+@media (max-width: 600px) {
+  .mainsearch-row {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .mainsearch-field-type {
+    flex: 0 0 auto;
+  }
+
+  .mainsearch-divider {
+    width: auto;
+    height: 1px;
+  }
+
+  .mainsearch-btn {
+    width: 100%;
+  }
 }

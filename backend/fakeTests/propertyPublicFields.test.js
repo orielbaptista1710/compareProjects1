@@ -124,6 +124,36 @@ describe("public property endpoints hide private fields (SEC-01)", () => {
     all.forEach(expectNoPrivateData);
   });
 
+  // The search dropdown's no-results suggestions reuse these two endpoints and
+  // render the same small card as search results: "Posted by …", the short
+  // project name and the possession tag all come from these fields.
+  it("/featured and /recent return the fields the small property card needs", async () => {
+    await createSensitiveProperty({
+      listedBy: "agent",
+      projectName: "Vista",
+      possessionStatus: "Ready to Move",
+      developerName: undefined,
+    });
+
+    const [featured, recent] = await Promise.all([
+      request(app).get("/api/properties/featured"),
+      request(app).get("/api/properties/recent"),
+    ]);
+
+    for (const res of [featured, recent]) {
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveLength(1);
+      expect(res.body[0]).toMatchObject({
+        listedBy: "agent",
+        projectName: "Vista",
+        possessionStatus: "Ready to Move",
+      });
+      expectNoPrivateData(res.body[0]);
+      // posterOf() only needs listedBy — ownerModel stays server-side.
+      expect(res.body[0]).not.toHaveProperty("ownerModel");
+    }
+  });
+
   it("/related returns the full list fields the compare page needs", async () => {
     const created = await createSensitiveProperty();
     await createSensitiveProperty({
