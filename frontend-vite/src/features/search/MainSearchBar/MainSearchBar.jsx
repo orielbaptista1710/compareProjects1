@@ -1,7 +1,6 @@
 // src/pages/Home/HeroSearch/MainSearchBar.jsx
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search } from "lucide-react"; // add Search
 import ExpandableSearch from "../ExpandableSearch/ExpandableSearch";
 import LocationSearchBar from "../LocationSearchBar/LocationSearchBar";
 import PropertyTypePills from "../PropertyTypePills/PropertyTypePills";
@@ -50,31 +49,34 @@ export default function MainSearchBar() {
 
   return (
     <div className="mainsearch-bar">
-      
-
-      {/* Structured search — builds a /properties listing query. */}
-      <div className="main-search-container-section">
-        <div className="main-search-container">
-          <div className="search-field">
+      <div className="mainsearch-card">
+        {/* Structured search — builds a /properties listing query. */}
+        <div className="mainsearch-row">
+          <div className="mainsearch-field mainsearch-field-location">
+            <span className="mainsearch-field-label">Location</span>
             <LocationSearchBar onSelect={setLocation} />
           </div>
 
-          <span className="search-divider" />
+          <span className="mainsearch-divider" aria-hidden="true" />
 
-          <div className="search-field-type">
+          <div className="mainsearch-field mainsearch-field-type">
+            <span className="mainsearch-field-label">Property type</span>
             <PropertyTypePills valueMap={pillFilters} onChange={handlePillChange} />
           </div>
 
           <button type="button" className="mainsearch-btn" onClick={handleSearch}>
-            <Search size={18} />
             Search
           </button>
         </div>
-      </div>
 
-      {/* Quick lookup — finds a specific property/project by name and
-          navigates straight to it. Independent of the filter bar below. */}
-      <ExpandableSearch />
+        <div className="mainsearch-or" aria-hidden="true">
+          <span>or describe it</span>
+        </div>
+
+        {/* Quick lookup — finds a specific property/project by name and
+            navigates straight to it. Independent of the filter row above. */}
+        <ExpandableSearch />
+      </div>
     </div>
   );
 }

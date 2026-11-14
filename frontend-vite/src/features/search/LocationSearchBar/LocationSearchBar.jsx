@@ -1,6 +1,6 @@
 // src/pages/Home/HomePageComponents/LocationSearchBar.jsx
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MapPin, Search, Loader2 } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 
 import API from "../../../api/api";
 import { useDebounce } from "../../../hooks/useDebounceHook";
@@ -140,7 +140,7 @@ const clearSelection = () => {
 
   return (
   <div className="lsb-wrapper" ref={wrapperRef}>
-    <Search size={18} className="lsb-icon" />
+    <MapPin size={18} className="lsb-icon" aria-hidden="true" />
 
     {selectedItem && (
       <span className="lsb-chip">

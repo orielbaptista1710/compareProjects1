@@ -86,6 +86,8 @@ const AppContent = () => {
   "/admin",
   "/customer-signup",
   "/customer-login",
+  "/agent-signup",
+  "/agent-login",
   "/customer-profile",
 ];
 
@@ -104,9 +106,14 @@ const hideBreadcrumbRoutes = [
   "/login",
   "/customer-login",
   "/customer-signup",
+  "/agent-login",
+  "/agent-signup",
   "/admin",
   "/customer-profile",
   "/dashboard",
+  "/agent-signup",
+  "/agent-login",
+  "/post-property",
 
 ];
 

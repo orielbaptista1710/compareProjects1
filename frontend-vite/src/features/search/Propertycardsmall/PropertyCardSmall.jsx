@@ -1,13 +1,8 @@
-// frontend-vite/src/pages/Home/HomePageComponents/PropertyCardSmall.jsx
+// frontend-vite/src/features/search/Propertycardsmall/PropertyCardSmall.jsx
+// One result row in the home search dropdown (ExpandableSearch).
 import { memo } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Home,
-  BedDouble,
-  Ruler, 
-  BedIcon,
-  HourglassIcon,
-} from "lucide-react";
+import { MapPin, Plus } from "lucide-react";
 import "./PropertyCardSmall.css";
 import { useCompare } from "../../../contexts/CompareContext";
 import { posterOf, POSTER, POSTER_LABELS } from "../../../constants/roles";
@@ -21,8 +16,16 @@ const PropertyCardSmall = ({ property, disableNavigation = false }) => {
   const { addToCompare } = useCompare();
   const navigate = useNavigate();
 
-  // Sized for the 100×80 desktop slot and the full-width 120px mobile one.
-  const imageUrl = getOptimizedPropertyImage(property, { width: 400, height: 240 });
+  // Sized for the 112×84 thumbnail at 2x.
+  const imageUrl = getOptimizedPropertyImage(property, { width: 240, height: 180 });
+
+  // Short project name when the poster gave one, otherwise the listing title.
+  const name = property?.projectName || property?.title || "Untitled Property";
+  const place = [property?.locality, property?.city].filter(Boolean).join(", ");
+  const poster =
+    posterOf(property) === POSTER.BUILDER && property?.developerName
+      ? `by ${property.developerName}`
+      : `Posted by ${POSTER_LABELS[posterOf(property)]}`;
 
   const handleCardClick = () => {
     if (!disableNavigation) {
@@ -38,17 +41,16 @@ const PropertyCardSmall = ({ property, disableNavigation = false }) => {
 
   return (
     <div
-      className="modern-property-card"
+      className="psm-card"
       role={disableNavigation ? "presentation" : "button"}
       tabIndex={disableNavigation ? -1 : 0}
       onClick={handleCardClick}
       onKeyDown={handleKeyPress}
     >
-      {/* IMAGE */}
-      <div className="modern-property-image">
+      <div className="psm-image">
         <img
           src={imageUrl}
-          alt={property?.title || "Property"}
+          alt={name}
           loading="lazy"
           decoding="async"
           onError={(e) => {
@@ -57,79 +59,39 @@ const PropertyCardSmall = ({ property, disableNavigation = false }) => {
         />
       </div>
 
-      {/* CONTENT */}
-      <div className="modern-property-content">
-        {/* Header */}
-        <div className="modern-property-header">
-          <h3 className="small-property-title">
-            {property?.title || "Untitled Property"}
-          </h3>
+      <div className="psm-content">
+        <h3 className="psm-title">{name}</h3>
 
-          <p className="property-sub">
-            <span className="span_propertytype">
-              {property?.propertyType || "Apartment NA"} |{" "}
-            </span>
-            <span className="span_developerName">
-              {posterOf(property) === POSTER.BUILDER && property?.developerName
-                ? `by ${property.developerName}`
-                : `Posted by ${POSTER_LABELS[posterOf(property)]}`}
-            </span>
-          </p>
-        </div>
-
-        {/* Features */}
-        <div className="property-features">
-          {/* Possession */}
-          <span className="small-feature">
-            <Home size={16} strokeWidth={1.8} aria-hidden="true" />
-            {property?.possessionStatus || "NA"}
+        <p className="psm-meta">
+          <MapPin size={14} aria-hidden="true" className="psm-meta-icon" />
+          <span className="psm-meta-text">
+            {place && <>{place} · </>}
+            {poster}
           </span>
+        </p>
 
-          {/* Locality */}
-          <span className="small-feature">
-            <BedDouble size={16} strokeWidth={1.8} aria-hidden="true" />
-            {property?.locality || "NA"}
-          </span>
-
-          {/* Area — only if exists */}
-          {property?.area?.value && (
-            <span className="small-feature">
-              <Ruler size={16} strokeWidth={1.8} aria-hidden="true" />
-              {property.area.value}
-              {property.area.unit ? ` ${property.area.unit}` : " sq ft"}
-            </span>
-          )}
-
-          {/* BHK */}
-          <span className="small-feature">
-            <BedIcon size={16} strokeWidth={1.8} aria-hidden="true" />
-            {property?.bhk || "NA"} BHK
-          </span>
-
-          {/* Age of Property */}
-          <span className="small-feature">
-            <HourglassIcon size={16} strokeWidth={1.8} aria-hidden="true" />
-            {property?.ageOfProperty || "NA"}
-          </span>
-        </div>
+        {(property?.possessionStatus || property?.bhk) && (
+          <div className="psm-facts">
+            {property?.possessionStatus && (
+              <span className="psm-tag">{property.possessionStatus}</span>
+            )}
+            {property?.bhk ? <span className="psm-fact">{property.bhk} BHK</span> : null}
+          </div>
+        )}
       </div>
 
-      {/* RIGHT SIDE: PRICE + COMPARE */}
-      <div className="modern-property-side">
-        {/* Price */}
-        <div className="modern-property-price">
-          {formatCurrencyShort(property?.price)}
-        </div>
+      <div className="psm-side">
+        <div className="psm-price">{formatCurrencyShort(property?.price)}</div>
 
-        {/* Compare Button */}
         <button
-          className="small-compare-btn"
+          className="psm-compare-btn"
           type="button"
           onClick={(e) => {
             e.stopPropagation(); // prevent card click / parent click
             addToCompare(property);
           }}
         >
+          <Plus size={14} aria-hidden="true" />
           Compare
         </button>
       </div>
