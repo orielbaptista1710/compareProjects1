@@ -111,8 +111,6 @@ const hideBreadcrumbRoutes = [
   "/admin",
   "/customer-profile",
   "/dashboard",
-  "/agent-signup",
-  "/agent-login",
   "/post-property",
 
 ];
