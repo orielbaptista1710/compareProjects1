@@ -6,95 +6,270 @@ datasource db {
   provider = "postgresql"
 }
 
-enum LeadType {
-  customer
-  developer
-  agent
-  owner
+// ── Enums ────────────────────────────────────────────────────────────────
+
+enum LeadCategory {
+  buyer
+  developer_partner
 }
 
 enum LeadStage {
   new
   contacted
   qualified
+  site_visit
+  negotiation
+  handed_over
   converted
-  rejected
+  lost
 }
 
 enum CrmRole {
   admin
-  sales_manager
+  crm_manager
+  zonal_manager
   sales_rep
 }
 
-model CrmUser {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      CrmRole
-  isActive  Boolean  @default(true) @map("is_active")
-  createdAt DateTime @default(now()) @map("created_at")
+enum Channel {
+  web
+  app
+  meta
+  whatsapp
+}
 
+// Mirrors LISTED_BY in backend/constants/roles.js
+enum ListerType {
+  owner
+  agent
+  developer
+}
+
+enum ActivityType {
+  call
+  note
+  stage_change
+  assignment
+  email
+  whatsapp
+  reveal
+}
+
+enum VisitStatus {
+  scheduled
+  completed
+  cancelled
+  no_show
+}
+
+// ── Staff (isolated from Mongo users/customers) ──────────────────────────
+
+model CrmUser {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  name         String
+  password     String // hash only, never plain text
+  role         CrmRole
+  isActive     Boolean   @default(true) @map("is_active")
+  failedLogins Int       @default(0) @map("failed_logins")
+  lockedUntil  DateTime? @map("locked_until")
+  lastLoginAt  DateTime? @map("last_login_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  sessions   CrmSession[]
   leads      Lead[]
   activities LeadActivity[]
   siteVisits SiteVisit[]
+  tasks      Task[]
+  zones      ZoneStaff[]
+  auditLogs  AuditLog[]
 
   @@map("crm_users")
 }
 
-model Lead {
-  id             String    @id @default(uuid())
-  leadType       LeadType  @map("lead_type")
-  name           String
-  email          String
-  phone          String
-  source         String
-  propertyId     String?   @map("property_id")   // Mongo ObjectId as text — not a real FK, properties live in a different DB
-  propertyTitle  String?   @map("property_title")
-  contactConsent Boolean   @default(true) @map("contact_consent")
-  stage          LeadStage @default(new)
-  assignedTo     String?   @map("assigned_to")
-  assignee       CrmUser?  @relation(fields: [assignedTo], references: [id])
-  metadata       Json      @default("{}")
-  pageUrl        String?   @map("page_url")
-  ipAddress      String?   @map("ip_address")
-  userAgent      String?   @map("user_agent")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
+// Revocable server-side sessions (no Redis needed at this scale)
+model CrmSession {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  user      CrmUser   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique @map("token_hash") // store a hash, never the raw token
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  ip        String?
+  userAgent String?   @map("user_agent")
+  createdAt DateTime  @default(now()) @map("created_at")
 
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("crm_sessions")
+}
+
+// ── Zones (pincode groups) ───────────────────────────────────────────────
+
+model Zone {
+  id        String   @id @default(uuid())
+  name      String
+  city      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  areas ZoneArea[]
+  staff ZoneStaff[]
+  leads Lead[]
+
+  @@unique([city, name])
+  @@map("zones")
+}
+
+model ZoneArea {
+  id      String @id @default(uuid())
+  zoneId  String @map("zone_id")
+  zone    Zone   @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  pincode String @unique // one pincode belongs to exactly one zone
+
+  @@index([zoneId])
+  @@map("zone_areas")
+}
+
+model ZoneStaff {
+  zoneId    String  @map("zone_id")
+  zone      Zone    @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  userId    String  @map("user_id")
+  user      CrmUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isManager Boolean @default(false) @map("is_manager")
+
+  @@id([zoneId, userId])
+  @@index([userId])
+  @@map("zone_staff")
+}
+
+// ── Leads ────────────────────────────────────────────────────────────────
+
+// The person. One row per buyer, deduped by normalized phone (+91XXXXXXXXXX).
+model Lead {
+  id               String       @id @default(uuid())
+  category         LeadCategory @default(buyer)
+  name             String
+  phone            String       @unique
+  email            String?
+  stage            LeadStage    @default(new)
+  lostReason       String?      @map("lost_reason")
+  assignedTo       String?      @map("assigned_to")
+  assignee         CrmUser?     @relation(fields: [assignedTo], references: [id], onDelete: SetNull)
+  zoneId           String?      @map("zone_id") // null = Unzoned queue
+  zone             Zone?        @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  firstContactedAt DateTime?    @map("first_contacted_at")
+  lastActivityAt   DateTime?    @map("last_activity_at")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  enquiries  Enquiry[]
   activities LeadActivity[]
   siteVisits SiteVisit[]
+  tasks      Task[]
 
-  @@index([email])
-  @@index([phone])
-  @@index([createdAt])
-  @@index([source])
+  @@index([stage, assignedTo])
+  @@index([zoneId, stage])
   @@index([assignedTo])
+  @@index([createdAt])
   @@map("leads")
 }
 
-model LeadActivity {
-  id           String   @id @default(uuid())
-  leadId       String   @map("lead_id")
-  lead         Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  crmUserId    String   @map("crm_user_id")
-  crmUser      CrmUser  @relation(fields: [crmUserId], references: [id])
-  activityType String   @map("activity_type")
-  notes        String?
-  createdAt    DateTime @default(now()) @map("created_at")
+// One row per form submission. Append-only: staff never edit or delete these.
+// This table is the single source of truth for what the customer actually sent.
+model Enquiry {
+  id                   String      @id @default(uuid())
+  leadId               String      @map("lead_id")
+  lead                 Lead        @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  channel              Channel
+  source               String // form id, e.g. quick_links_property_page_form
+  idempotencyKey       String      @unique @map("idempotency_key")
+  propertyId           String?     @map("property_id") // Mongo ObjectId as text, not a real FK (different DB)
+  propertyTitle        String?     @map("property_title")
+  listerType           ListerType? @map("lister_type") // set server-side from Mongo, never from the client
+  listerId             String?     @map("lister_id") // set server-side
+  city                 String?
+  locality             String?
+  pincode              String?
+  budget               String?
+  propertyTypeInterest String?     @map("property_type_interest")
+  message              String?
+  loanInterest         Boolean?    @map("loan_interest")
+  consentVersion       String      @map("consent_version")
+  consentAt            DateTime    @map("consent_at")
+  utm                  Json?
+  rawPayload           Json        @map("raw_payload")
+  ip                   String?
+  userAgent            String?     @map("user_agent")
+  createdAt            DateTime    @default(now()) @map("created_at")
 
+  @@index([leadId, createdAt])
+  @@index([propertyId])
+  @@index([listerType, listerId, createdAt])
+  @@index([createdAt])
+  @@map("enquiries")
+}
+
+// ── Work on a lead ───────────────────────────────────────────────────────
+
+model LeadActivity {
+  id           String       @id @default(uuid())
+  leadId       String       @map("lead_id")
+  lead         Lead         @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  crmUserId    String       @map("crm_user_id")
+  crmUser      CrmUser      @relation(fields: [crmUserId], references: [id], onDelete: Restrict)
+  activityType ActivityType @map("activity_type")
+  notes        String?
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  @@index([leadId, createdAt])
+  @@index([crmUserId])
   @@map("lead_activities")
 }
 
-model SiteVisit {
-  id          String   @id @default(uuid())
-  leadId      String   @map("lead_id")
-  lead        Lead     @relation(fields: [leadId], references: [id])
-  crmUserId   String   @map("crm_user_id")
-  crmUser     CrmUser  @relation(fields: [crmUserId], references: [id])
-  scheduledAt DateTime @map("scheduled_at")
-  status      String   @default("scheduled")
-  createdAt   DateTime @default(now()) @map("created_at")
+model Task {
+  id         String    @id @default(uuid())
+  leadId     String    @map("lead_id")
+  lead       Lead      @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  assigneeId String    @map("assignee_id")
+  assignee   CrmUser   @relation(fields: [assigneeId], references: [id], onDelete: Restrict)
+  title      String
+  dueAt      DateTime  @map("due_at")
+  doneAt     DateTime? @map("done_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
 
+  @@index([assigneeId, dueAt])
+  @@index([leadId])
+  @@map("tasks")
+}
+
+model SiteVisit {
+  id          String      @id @default(uuid())
+  leadId      String      @map("lead_id")
+  lead        Lead        @relation(fields: [leadId], references: [id], onDelete: Restrict)
+  crmUserId   String      @map("crm_user_id")
+  crmUser     CrmUser     @relation(fields: [crmUserId], references: [id], onDelete: Restrict)
+  propertyId  String?     @map("property_id") // Mongo ObjectId as text
+  scheduledAt DateTime    @map("scheduled_at")
+  status      VisitStatus @default(scheduled)
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  @@index([leadId])
+  @@index([crmUserId, scheduledAt])
   @@map("site_visits")
+}
+
+// Who viewed/revealed/exported/reassigned what. Never store contact details here.
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String   @map("actor_id")
+  actor      CrmUser  @relation(fields: [actorId], references: [id], onDelete: Restrict)
+  action     String // e.g. lead.reveal, lead.assign, lead.export
+  targetType String   @map("target_type")
+  targetId   String?  @map("target_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
