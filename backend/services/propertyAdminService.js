@@ -3,6 +3,7 @@
 import mongoose from 'mongoose';
 import Property from '../models/Property.js';
 import Customer from '../models/Customer.js';
+import User from '../models/User.js';
 import { AGENT_STATUS, LISTED_BY, LISTING_STATUS, OWNER_MODEL } from '../constants/roles.js';
 import { invalidatePropertyCaches } from '../utils/propertyCache.js';
 import { withCache } from '../utils/withCache.js';
@@ -271,20 +272,28 @@ const buildReviewUpdate = (status, adminId, rejectionReason, storedStatus = stat
 };
 
 /* --------------------------------------------------
- * Listings that must stay hidden even when approved: already hidden by an
- * agent suspension, or posted by an agent who is suspended right now. They
- * only go live when the agent is reinstated (agentAdminService).
+ * Listings that must stay hidden even when approved: already hidden
+ * ('suspended'), posted by an agent who is suspended right now, or by a
+ * developer account that is deactivated. They only go live when the agent is
+ * reinstated (agentAdminService) or the developer reactivated
+ * (developerAccountService).
  * -------------------------------------------------- */
+// Listings saved before ownerModel existed are developer listings
+const ownerIdsOf = (listings, model) =>
+  listings.filter((p) => (p.ownerModel ?? OWNER_MODEL.USER) === model).map((p) => p.userId);
+
 const findHeldListingIds = async (listings) => {
-  const customerOwnerIds = listings
-    .filter((p) => p.ownerModel === OWNER_MODEL.CUSTOMER)
-    .map((p) => p.userId);
-  const suspendedOwners = customerOwnerIds.length
-    ? await Customer.find({ _id: { $in: customerOwnerIds }, "agent.status": AGENT_STATUS.SUSPENDED })
-        .select("_id")
-        .lean()
-    : [];
-  const suspended = new Set(suspendedOwners.map((c) => String(c._id)));
+  const customerOwnerIds = ownerIdsOf(listings, OWNER_MODEL.CUSTOMER);
+  const developerOwnerIds = ownerIdsOf(listings, OWNER_MODEL.USER);
+  const [suspendedAgents, inactiveDevelopers] = await Promise.all([
+    customerOwnerIds.length
+      ? Customer.find({ _id: { $in: customerOwnerIds }, "agent.status": AGENT_STATUS.SUSPENDED }).select("_id").lean()
+      : [],
+    developerOwnerIds.length
+      ? User.find({ _id: { $in: developerOwnerIds }, isActive: false }).select("_id").lean()
+      : [],
+  ]);
+  const suspended = new Set([...suspendedAgents, ...inactiveDevelopers].map((owner) => String(owner._id)));
 
   return new Set(
     listings

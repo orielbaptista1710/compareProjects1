@@ -210,6 +210,23 @@ describe("deactivating a developer account", () => {
     expect((await saved(live)).status).toBe("approved");
   });
 
+  it("keeps a deactivated developer's listing hidden when an admin approves it", async () => {
+    const admin = await createAdminUser();
+    const developer = await createUser({ role: "developer" });
+    const waiting = await createProperty({ userId: developer._id, status: "pending" });
+    await deactivateDeveloper(developer.username);
+
+    const res = await request(app)
+      .put(`/api/admin/approve/${waiting._id}`)
+      .set("Authorization", `Bearer ${signToken(admin)}`)
+      .send({ version: 0 });
+
+    expect(res.status).toBe(200);
+    expect((await saved(waiting)).status).toBe("suspended");
+    await reactivateDeveloper(developer.username);
+    expect((await saved(waiting)).status).toBe("approved");
+  });
+
   it("returns null for an unknown username", async () => {
     expect(await deactivateDeveloper("nobody-here")).toBeNull();
   });
