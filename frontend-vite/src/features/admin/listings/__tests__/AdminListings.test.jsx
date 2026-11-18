@@ -60,11 +60,24 @@ describe("AdminListings", () => {
     await screen.findByText("Test Property");
     expect(propertiesParams()).toMatchObject({
       status: "pending",
-      sortBy: "latest",
+      sortBy: "waiting", // the review queue is oldest-waiting-first
       propertyType: undefined,
       imageFilter: undefined,
       listedBy: undefined,
     });
+  });
+
+  it("works the pending queue oldest-waiting-first, but lists other statuses newest first", async () => {
+    mockApi();
+    renderListings("/admin");
+    await screen.findByText("Test Property");
+    expect(propertiesParams()).toMatchObject({ status: "pending", sortBy: "waiting" });
+
+    vi.clearAllMocks();
+    mockApi({ properties: [listing({ status: "approved" })] });
+    renderListings("/admin?status=approved");
+    await screen.findAllByText("Test Property");
+    expect(propertiesParams()).toMatchObject({ status: "approved", sortBy: "latest" });
   });
 
   it("keeps known filters from the URL, including status=all", async () => {
@@ -129,7 +142,55 @@ describe("AdminListings", () => {
     expect(dialog).toHaveTextContent("1 selected listing is already approved or hidden and will be skipped.");
     await user.click(within(dialog).getByRole("button", { name: /^approve$/i }));
 
-    await waitFor(() => expect(API.put).toHaveBeenCalledWith("/api/admin/bulk-approve", { ids: ["p2"] }));
+    await waitFor(() => expect(API.put).toHaveBeenCalledWith("/api/admin/bulk-approve", { ids: ["p2"], versions: { p2: 0 } }));
+  }, 15000);
+
+  it("approves the version the row shows, and reloads when the listing was edited since", async () => {
+    mockApi({ properties: [listing({ contentVersion: 2 })] });
+    API.put.mockRejectedValue({
+      response: { status: 409, data: { message: "This listing was edited after you opened it. Reload it and review the latest version." } },
+    });
+    const user = userEvent.setup({ delay: null });
+    renderListings();
+
+    await screen.findByText("Test Property");
+    const listCalls = () => API.get.mock.calls.filter(([url]) => url === "/api/admin/properties").length;
+    const before = listCalls();
+    await user.click(screen.getByRole("button", { name: /^approve$/i }));
+    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: /^approve$/i }));
+
+    await waitFor(() => expect(API.put).toHaveBeenCalledWith("/api/admin/approve/prop-1", { version: 2 }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith(expect.stringMatching(/edited after you opened it/)));
+    await waitFor(() => expect(listCalls()).toBeGreaterThan(before));
+    expect(toast.success).not.toHaveBeenCalled();
+  }, 15000);
+
+  it("says how many selected listings were skipped because they were edited", async () => {
+    mockApi({
+      properties: [
+        listing({ _id: "p1", title: "First", contentVersion: 1 }),
+        listing({ _id: "p2", title: "Second" }),
+      ],
+    });
+    API.put.mockResolvedValue({ data: { modified: 1, hidden: 0, changed: 1 } });
+    const user = userEvent.setup({ delay: null });
+    renderListings();
+
+    await screen.findByText("Second");
+    const [, first, second] = screen.getAllByRole("checkbox");
+    await user.click(first);
+    await user.click(second);
+    const bar = screen.getByText("2 selected").closest("div");
+    await user.click(within(bar).getByRole("button", { name: /^approve$/i }));
+    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: /^approve$/i }));
+
+    await waitFor(() =>
+      expect(API.put).toHaveBeenCalledWith("/api/admin/bulk-approve", { ids: ["p1", "p2"], versions: { p1: 1, p2: 0 } })
+    );
+    expect(toast.success).toHaveBeenCalledWith("1 property approved");
+    expect(toast.error).toHaveBeenCalledWith(
+      "1 selected listing was edited after this page loaded and was skipped. Review it again."
+    );
   }, 15000);
 
   it("never shows (or acts on) a listing after a newer one was opened", async () => {

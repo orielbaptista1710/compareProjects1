@@ -8,6 +8,9 @@ info:
     need a PR to this file approved by both owners.
     All endpoints live under /api/crm and authenticate with the CRM session cookie only.
     Responses are automatically scoped to the caller's role; out-of-scope ids return 404.
+    The crm_session cookie is HttpOnly, Secure and SameSite=Strict, so the app and API must be same-site.
+    Every request must send JSON (Content-Type: application/json) with credentials included; the server
+    rejects state-changing requests from any other origin.
 servers:
   - url: http://localhost:5000/api/crm
     description: Local backend
@@ -17,6 +20,8 @@ servers:
 tags:
   - name: auth
   - name: leads
+  - name: staff
+  - name: zones
 
 components:
   securitySchemes:
@@ -193,8 +198,8 @@ paths:
         - { name: zoneId, in: query, schema: { type: string, format: uuid } }
         - { name: assignedTo, in: query, schema: { type: string, format: uuid } }
         - { name: unassigned, in: query, schema: { type: boolean } }
-        - { name: q, in: query, description: Name or phone search., schema: { type: string, maxLength: 50 } }
-        - { name: cursor, in: query, schema: { type: string } }
+        - { name: q, in: query, description: 'Name or phone search. For roles that see masked contacts (admin) it matches the name only, so a masked number cannot be recovered by searching.', schema: { type: string, maxLength: 50 } }
+        - { name: cursor, in: query, description: 'Opaque string: pass back exactly the nextCursor you received. Never build or parse it.', schema: { type: string } }
         - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 25 } }
       responses:
         '200':
@@ -235,6 +240,76 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
+  /leads/{leadId}/reveal:
+    post:
+      tags: [leads]
+      summary: Admin only. Return the unmasked phone and email. Every call is written to the audit log.
+      security: [{ crmSession: [] }]
+      parameters:
+        - { name: leadId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200':
+          description: Unmasked contact details.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  phone: { type: string, example: '+919876543210' }
+                  email: { type: string, nullable: true }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+  /staff:
+    get:
+      tags: [staff]
+      summary: Staff the caller may assign leads to (for the assign picker). crm_manager and zonal_manager only.
+      description: crm_manager gets all reps; zonal_manager gets reps in their own zones.
+      security: [{ crmSession: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, name, role]
+                      properties:
+                        id: { type: string, format: uuid }
+                        name: { type: string }
+                        role: { $ref: '#/components/schemas/CrmRole' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+  /zones:
+    get:
+      tags: [zones]
+      summary: Zones the caller may see (for the zone filter). Scoped by role.
+      security: [{ crmSession: [] }]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, name]
+                      properties:
+                        id: { type: string, format: uuid }
+                        name: { type: string, example: North Bengaluru }
+                        city: { type: string, example: Bengaluru }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
   /leads/{leadId}/assign:
     post:
       tags: [leads]

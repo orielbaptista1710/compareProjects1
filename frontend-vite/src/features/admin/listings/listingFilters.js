@@ -3,21 +3,26 @@
 // used by the filter bar (AdminFilters) and by AdminListings, which also
 // checks filters read from the URL against these lists so a stale or edited
 // link can't make every request fail.
-import { LISTED_BY } from "../../../constants/roles";
+import { LISTED_BY, LISTING_STATUS } from "../../../constants/roles";
 import { LISTING_STATUS_LABELS, isListingStatus } from "../listingStatus";
+
+// The review queue (pending) is worked oldest-waiting-first; every other view
+// is newest-first, since "waiting" means nothing for a listing already decided.
+export const defaultSortFor = (status) => (status === LISTING_STATUS.PENDING ? "waiting" : "latest");
 
 export const DEFAULT_LISTING_FILTERS = Object.freeze({
   search:       "",
   propertyType: "",
-  status:       "pending",
+  status:       LISTING_STATUS.PENDING,
   listedBy:     "",
   city:         "",
   locality:     null,
   imageFilter:  "",
-  sortBy:       "latest",
+  sortBy:       defaultSortFor(LISTING_STATUS.PENDING),
 });
 
-// Keep in sync with the types the backend accepts (adminController VALID_TYPES).
+// The same eight types as backend/models/propertyType.js (which is what the
+// backend's admin filter accepts); a test checks it against the listing form's list.
 export const PROPERTY_TYPES = [
   "Flats/Apartments",
   "Villa",
@@ -45,6 +50,7 @@ export const IMAGE_OPTIONS = [
 ];
 
 export const SORT_OPTIONS = [
+  { value: "waiting",   label: "Oldest waiting first" },
   { value: "latest",    label: "Latest first" },
   { value: "oldest",    label: "Oldest first" },
   { value: "priceHigh", label: "Price: high → low" },
@@ -60,14 +66,16 @@ const oneOf = (value, options, fallback) =>
 export function readFiltersFromParams(params) {
   const D = DEFAULT_LISTING_FILTERS;
   const rawStatus = params.get("status");
+  const status = rawStatus === "all" ? "" : (isListingStatus(rawStatus) ? rawStatus : D.status);
   return {
     search:       params.get("search") || D.search,
     propertyType: oneOf(params.get("propertyType"), PROPERTY_TYPES, D.propertyType),
-    status:       rawStatus === "all" ? "" : (isListingStatus(rawStatus) ? rawStatus : D.status),
+    status,
     listedBy:     oneOf(params.get("listedBy"), POSTED_BY_OPTIONS, D.listedBy),
     city:         params.get("city") || D.city,
     locality:     params.get("locality") || D.locality,
     imageFilter:  oneOf(params.get("imageFilter"), IMAGE_OPTIONS, D.imageFilter),
-    sortBy:       oneOf(params.get("sortBy"), SORT_OPTIONS, D.sortBy),
+    // Not in the URL means the default order for this status
+    sortBy:       oneOf(params.get("sortBy"), SORT_OPTIONS, defaultSortFor(status)),
   };
 }

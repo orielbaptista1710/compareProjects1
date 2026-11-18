@@ -28,6 +28,16 @@ export const AGENT_STATUS = Object.freeze({
   SUSPENDED: 'suspended',
 });
 
+// Property.status. A listing is 'pending' until an admin decides ('approved' or
+// 'rejected'); 'suspended' is an approved listing hidden while its posting
+// agent is suspended. Only 'approved' is public.
+export const LISTING_STATUS = Object.freeze({
+  PENDING: 'pending',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  SUSPENDED: 'suspended',
+});
+
 // Property.ownerModel: which collection Property.userId points to.
 export const OWNER_MODEL = Object.freeze({
   USER: 'User',

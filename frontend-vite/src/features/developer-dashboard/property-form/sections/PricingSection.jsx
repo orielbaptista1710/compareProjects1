@@ -1,18 +1,21 @@
 // sections/PricingSection.jsx
+// Price (amount + Lakh / Crore, stored as rupees: FORM-06), EMI, negotiable,
+// and area with its unit and optional type (FORM-07).
 
 import React from "react";
 import { useFormContext, useWatch, Controller } from "react-hook-form";
-import { AREA_UNITS } from "../../../../assests/constants/propertyFormConstants"; 
+import { AREA_UNITS } from "../../../../assests/constants/propertyFormConstants";
+import { AREA_TYPES } from "../../../../constants/listingRules";
+import { formatRupees } from "../../../listings/price";
+import PriceInput from "../components/PriceInput";
 
-/** Formats number as Indian currency string for display only */
-const formatINR = (val) => {
-  if (!val && val !== 0) return "";
-  const num = Number(String(val).replace(/[^\d]/g, ""));
-  if (isNaN(num)) return "";
-  if (num >= 1_00_00_000) return `₹${(num / 1_00_00_000).toFixed(2)} Cr`;
-  if (num >= 1_00_000)    return `₹${(num / 1_00_000).toFixed(2)} L`;
-  return `₹${num.toLocaleString("en-IN")}`;
-};
+// Labels for the stored area types (constants/listingRules.js)
+const AREA_TYPE_LABELS = Object.freeze({
+  carpet: "Carpet area",
+  built_up: "Built-up area",
+  super_built_up: "Super built-up area",
+  plot: "Plot area",
+});
 
 const PricingSection = () => {
   const {
@@ -22,8 +25,7 @@ const PricingSection = () => {
   } = useFormContext();
 
   // useWatch (not watch) so typing re-renders only this section, not the form
-  const priceRaw = useWatch({ control, name: "price" });
-  const emiRaw   = useWatch({ control, name: "emiStarts" });
+  const emiRaw = useWatch({ control, name: "emiStarts" });
 
   return (
     <section aria-labelledby="pricing-section-title" className="form-section">
@@ -35,23 +37,26 @@ const PricingSection = () => {
       <div className="form-row">
         <div className="form-col">
           <label htmlFor="price">
-            Total Price (₹) <span className="required">*</span>
+            Total Price <span className="required">*</span>
           </label>
-          <input
-            id="price"
-            {...register("price")}
-            type="number"
-            min="0"
-            placeholder="e.g. 7500000"
-            inputMode="numeric"
+          <Controller
+            name="price"
+            control={control}
+            render={({ field }) => (
+              <PriceInput
+                id="price"
+                name={field.name}
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                inputRef={field.ref}
+                invalid={Boolean(errors.price)}
+                describedBy={errors.price ? "price-error" : "price-amount"}
+              />
+            )}
           />
-          {priceRaw && (
-            <span className="field-hint" aria-live="polite">
-              {formatINR(priceRaw)}
-            </span>
-          )}
           {errors.price && (
-            <span className="field-error" role="alert">{errors.price.message}</span>
+            <span id="price-error" className="field-error" role="alert">{errors.price.message}</span>
           )}
         </div>
 
@@ -64,13 +69,14 @@ const PricingSection = () => {
             id="emiStarts"
             {...register("emiStarts")}
             type="number"
-            min="0"
+            min="1"
+            step="1"
             placeholder="e.g. 45000"
             inputMode="numeric"
           />
           {emiRaw > 0 && (
             <span className="field-hint" aria-live="polite">
-              {formatINR(emiRaw)} / month
+              {formatRupees(emiRaw)} / month
             </span>
           )}
           {errors.emiStarts && (
@@ -128,6 +134,21 @@ const PricingSection = () => {
           </div>
           {errors.area?.value && (
             <span className="field-error" role="alert">{errors.area.value.message}</span>
+          )}
+        </div>
+
+        <div className="form-col">
+          <label htmlFor="areaType">
+            Area type <span className="optional">(optional)</span>
+          </label>
+          <select id="areaType" {...register("area.type")}>
+            <option value="">Not specified</option>
+            {AREA_TYPES.map((t) => (
+              <option key={t} value={t}>{AREA_TYPE_LABELS[t]}</option>
+            ))}
+          </select>
+          {errors.area?.type && (
+            <span className="field-error" role="alert">{errors.area.type.message}</span>
           )}
         </div>
       </div>

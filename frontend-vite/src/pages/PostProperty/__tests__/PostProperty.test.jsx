@@ -5,6 +5,10 @@ import { MemoryRouter } from "react-router-dom";
 import { AuthContext } from "../../../contexts/AuthContext";
 import PostProperty from "../PostProperty";
 
+// Owner/agent posting is off here whatever the local .env says (the flag-on
+// behaviour is in PostProperty.listingsOn.test.jsx).
+vi.mock("../../../config/features", () => ({ CUSTOMER_LISTINGS_ENABLED: false }));
+
 const mockNavigate = vi.fn();
 vi.mock("react-router-dom", async (importOriginal) => ({
   ...(await importOriginal()),

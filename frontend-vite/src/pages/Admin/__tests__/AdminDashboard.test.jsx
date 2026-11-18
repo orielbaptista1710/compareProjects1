@@ -99,7 +99,7 @@ describe("AdminDashboard - double submit protection (end-to-end)", () => {
     await expect(user.click(pendingButton)).rejects.toThrow(/pointer-events/i);
 
     expect(API.put).toHaveBeenCalledTimes(1);
-    expect(API.put).toHaveBeenCalledWith("/api/admin/approve/prop-1");
+    expect(API.put).toHaveBeenCalledWith("/api/admin/approve/prop-1", { version: 0 });
 
     resolveApprove({ data: { property: makeProperty({ status: "approved" }) } });
   }, 15000);
@@ -128,7 +128,7 @@ describe("AdminDashboard - bulk selection", () => {
     await user.click(within(dialog).getByRole("button", { name: /^approve$/i }));
 
     await waitFor(() => {
-      expect(API.put).toHaveBeenCalledWith("/api/admin/bulk-approve", { ids: ["prop-1"] });
+      expect(API.put).toHaveBeenCalledWith("/api/admin/bulk-approve", { ids: ["prop-1"], versions: { "prop-1": 0 } });
     });
   }, 15000);
 });
@@ -184,7 +184,7 @@ describe("AdminDashboard - review feedback", () => {
     await user.click(confirm);
 
     await waitFor(() =>
-      expect(API.put).toHaveBeenCalledWith("/api/admin/reject/prop-1", { rejectionReason: "Price looks wrong" })
+      expect(API.put).toHaveBeenCalledWith("/api/admin/reject/prop-1", { rejectionReason: "Price looks wrong", version: 0 })
     );
   }, 15000);
 
@@ -278,4 +278,74 @@ describe("AdminDashboard - tabs", () => {
       expect(API.get).toHaveBeenCalledWith("/api/admin/agents", expect.objectContaining({ params: expect.anything() }))
     );
   });
+});
+
+describe("AdminDashboard - pending badge on the Listings tab", () => {
+  const COUNTS_URL = "/api/admin/properties/counts";
+  const countsCalls = () => API.get.mock.calls.filter(([url]) => url === COUNTS_URL).length;
+
+  // The usual mocks, with the counts endpoint answered by `counts()`
+  const withCounts = (counts) => {
+    setupApiMocks();
+    const base = API.get.getMockImplementation();
+    API.get.mockImplementation((url, ...rest) => (url === COUNTS_URL ? counts() : base(url, ...rest)));
+  };
+
+  it("shows how many listings are waiting, and how many of them were edited", async () => {
+    withCounts(() => Promise.resolve({ data: { pending: 4, pendingEdited: 1 } }));
+    renderDashboard();
+
+    const tab = await screen.findByRole("tab", { name: "Listings, 4 waiting for review (1 edited)" });
+    expect(tab).toHaveTextContent("4");
+  });
+
+  it("leaves out the 'edited' part when none of them were", async () => {
+    withCounts(() => Promise.resolve({ data: { pending: 2, pendingEdited: 0 } }));
+    renderDashboard();
+
+    expect(await screen.findByRole("tab", { name: "Listings, 2 waiting for review" })).toBeInTheDocument();
+  });
+
+  it("shows no number when nothing is waiting", async () => {
+    withCounts(() => Promise.resolve({ data: { pending: 0, pendingEdited: 0 } }));
+    renderDashboard();
+
+    const tab = await screen.findByRole("tab", { name: "Listings" });
+    await waitFor(() => expect(countsCalls()).toBe(1));
+    expect(tab).not.toHaveTextContent(/\d/);
+  });
+
+  it("caps a long queue at 99+", async () => {
+    withCounts(() => Promise.resolve({ data: { pending: 250, pendingEdited: 0 } }));
+    renderDashboard();
+
+    expect(await screen.findByRole("tab", { name: /Listings, 250 waiting/ })).toHaveTextContent("99+");
+  });
+
+  it("is a plain 'Listings' tab, and the page still works, if the count can't be loaded", async () => {
+    withCounts(() => Promise.reject(new Error("network")));
+    renderDashboard();
+
+    expect(await screen.findByRole("tab", { name: "Listings" })).toBeInTheDocument();
+    expect(await screen.findByText("Test Property")).toBeInTheDocument();
+  });
+
+  it("refreshes the count after a listing is approved", async () => {
+    let pending = 1;
+    withCounts(() => Promise.resolve({ data: { pending, pendingEdited: 0 } }));
+    API.put.mockImplementation(async () => {
+      pending = 0; // the server now has nothing waiting
+      return { data: { property: makeProperty({ status: "approved" }) } };
+    });
+    const user = userEvent.setup({ delay: null });
+    renderDashboard();
+    await screen.findByRole("tab", { name: "Listings, 1 waiting for review" });
+    const before = countsCalls();
+
+    await user.click(await screen.findByRole("button", { name: /^approve$/i }));
+    await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: /^approve$/i }));
+
+    await waitFor(() => expect(countsCalls()).toBeGreaterThan(before));
+    expect(await screen.findByRole("tab", { name: "Listings" })).toBeInTheDocument();
+  }, 15000);
 });

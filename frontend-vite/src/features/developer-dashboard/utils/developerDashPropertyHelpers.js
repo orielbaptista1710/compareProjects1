@@ -1,4 +1,6 @@
 //pages/DeveloperDashboard/utils/developerDashPropertyHelpers.js
+import { floorText } from "../../listings/floor";
+
 export const REQUIRED_FIELDS = [
   "developerName",
   "title",
@@ -9,7 +11,7 @@ export const REQUIRED_FIELDS = [
   "address",
   "pincode",
   "propertyType",
-  "furnishing",
+  // furnishing: required for flats and villas only, checked by propertySchema.js (FORM-08)
   "possessionStatus",
   "price",
   "unitsAvailable",
@@ -29,9 +31,8 @@ export const initialFormData = {
   locality:         "",
   address:          "",
   pincode:          "",
-  mapLink:          "",
   // Nested area shape — matches Mongoose schema and propertySchema.js
-  area:             { value: "", unit: "sqft" },
+  area:             { value: "", unit: "sqft", type: "" },
   reraApproved:     false,
   reraNumber:       "",
   reraDate:         null,
@@ -73,10 +74,10 @@ export const normalizePropertyData = (property = {}) => ({
   // Handles both: { area: { value: 1200, unit: "sqft" } } (correct)
   //          and: { areaValue: 1200, areaUnit: "sqft" }     (legacy flat)
   area: property.area?.value != null
-    ? { value: property.area.value, unit: property.area.unit || "sqft" }
+    ? { value: property.area.value, unit: property.area.unit || "sqft", type: property.area.type || "" }
     : property.areaValue != null
-    ? { value: property.areaValue, unit: property.areaUnit || "sqft" }
-    : { value: "", unit: "sqft" },
+    ? { value: property.areaValue, unit: property.areaUnit || "sqft", type: "" }
+    : { value: "", unit: "sqft", type: "" },
  
   // Parkings: Mongoose stores as String, form expects Array
   // "Open Parking, Covered Parking" → ["Open Parking", "Covered Parking"]
@@ -86,8 +87,8 @@ export const normalizePropertyData = (property = {}) => ({
     ? property.parkings.split(",").map((s) => s.trim()).filter(Boolean)
     : [],
  
-  // Ensure floor is a string for the text input
-  floor: property.floor != null ? String(property.floor) : "",
+  // Floor as the text input shows it: 0 → "Ground", -1 → "B1"
+  floor: property.floor != null ? String(floorText(property.floor)) : "",
  
   // Ensure media arrays exist
   galleryImages:   property.galleryImages   || [],

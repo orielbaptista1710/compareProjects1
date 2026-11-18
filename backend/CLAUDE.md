@@ -13,7 +13,7 @@ Rules for writing backend code. These are durable rules. Current open findings l
 - **Errors:** `next(err)` into `middleware/errorMiddleware.js`. Never return `err.message` or stack traces to the client for 500s. Send a generic message and log the details.
 - **Logging:** use `utils/logger.js` only; no `console.log` in app code. Never log `req.body`, passwords, tokens, cookies, or contact details (phone/email). Log caught errors as `logger.error('…', safeErrorMeta(err))` from `utils/safeError.js`, never the raw `err`: duplicate-key and validation errors carry the customer's email/phone in their message and stack.
 - **Secrets:** config comes from `process.env` only. No hard-coded credentials, and no `|| 'fallback-secret'` defaults outside tests.
-- Don't mount `routes/mediaUpload.js` (or any upload route) without `protect` + a limiter + file type/size limits.
+- Never add an upload route without auth (`protect` or `protectCustomer`) + a limiter + file type/size limits. Listing media uses signed direct uploads (`services/mediaStorage.js`), not files through the API.
 
 ## Performance
 

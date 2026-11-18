@@ -1,7 +1,16 @@
 //src/pages/CustomerProfileDashboard/CustomerProfileDashComponents/ProfileSidebar.jsx
 import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { AGENT_STATUS } from "../../../constants/roles";
+import "./ProfileSidebarCta.css";
 
-const ProfileSidebar = ({ currentUser, collapsed, setCollapsed, activeTab, menuItems, onLogout }) => {
+// "Agent account" for anyone who signed up as an agent (whatever their approval
+// status; Profile spells that out), "Customer account" for everyone else.
+const accountLabel = (user) =>
+  (user?.agent?.status ?? AGENT_STATUS.NONE) === AGENT_STATUS.NONE ? "Customer account" : "Agent account";
+
+// cta: optional { label, icon, action } — the prominent button above the menu
+const ProfileSidebar = ({ currentUser, collapsed, setCollapsed, activeTab, menuItems, onLogout, cta }) => {
+  const CtaIcon = cta?.icon;
   const initials = currentUser?.customerName
     ? currentUser.customerName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "?";
@@ -21,6 +30,19 @@ const ProfileSidebar = ({ currentUser, collapsed, setCollapsed, activeTab, menuI
         <div className="sidebar-brand">
           <span className="brand-name">Dashboard</span>
         </div>
+      )}
+
+      {cta && (
+        <button
+          type="button"
+          className={`sidebar-cta ${activeTab === cta.key ? "is-active" : ""}`}
+          onClick={cta.action}
+          aria-label={cta.label}
+          aria-current={activeTab === cta.key ? "page" : undefined}
+        >
+          {CtaIcon && <CtaIcon size={18} strokeWidth={2.25} aria-hidden="true" />}
+          {!collapsed && <span>{cta.label}</span>}
+        </button>
       )}
 
       <div className="sidebar-top">
@@ -78,7 +100,7 @@ const ProfileSidebar = ({ currentUser, collapsed, setCollapsed, activeTab, menuI
             {!collapsed && (
               <div className="user-info">
                 <p className="user-name">{currentUser.customerName}</p>
-                <p className="user-email">{currentUser.customerEmail}</p>
+                <p className="user-email" title={currentUser.customerEmail}>{accountLabel(currentUser)}</p>
               </div>
             )}
           </div>

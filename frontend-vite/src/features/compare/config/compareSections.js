@@ -3,6 +3,7 @@
 // Rows where every property is empty are dropped by buildCompareModel.
 import { formatCurrencyShort, formatIndianNumber, fmtArea, fmtDate } from "../../../utils/formatters";
 import { getAreaInSqft } from "../../../utils/compareScoring";
+import { floorText } from "../../listings/floor";
 
 export const getPricePerSqft = (p) => {
   const value = p.pricePerSqft ?? (p.price > 0 ? p.price / getAreaInSqft(p.area) : null);
@@ -61,7 +62,11 @@ export const COMPARE_SECTIONS = [
       {
         id: "floor",
         label: "Floor",
-        get: (p) => (p.floor != null ? (p.totalFloors ? `${p.floor} of ${p.totalFloors}` : p.floor) : null),
+        get: (p) => {
+          if (p.floor == null || p.floor === "") return null;
+          const floor = floorText(p.floor); // 0 → Ground, -1 → B1
+          return p.totalFloors ? `${floor} of ${p.totalFloors}` : floor;
+        },
       },
       { id: "wing", label: "Wing / Tower", get: (p) => [p.wing, p.tower].filter(Boolean).join(" / ") },
       { id: "phase", label: "Phase", get: (p) => p.phase },

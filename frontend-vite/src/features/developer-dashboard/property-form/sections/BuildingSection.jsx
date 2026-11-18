@@ -1,14 +1,19 @@
 // sections/BuildingSection.jsx
-// Total floors, floor of unit, wing, phase, tower, units available.
+// Total floors, floor of unit, wing, phase, tower, units available. Fields the
+// property type doesn't have are hidden (a Plot has no floors, FORM-08).
 
 import React from "react";
 import { useFormContext } from "react-hook-form";
+import { TEXT_LIMITS as MAX } from "../../../../constants/listingRules";
+import { useTypeFields } from "../hooks/useTypeFields";
 
-const BuildingSection = () => {
+// unitsRequired: developers must give units available; agents may (roleConfig.js)
+const BuildingSection = ({ unitsRequired = true }) => {
   const {
     register,
     formState: { errors },
   } = useFormContext();
+  const { skips } = useTypeFields();
 
   return (
     <section aria-labelledby="building-section-title" className="form-section">
@@ -16,7 +21,9 @@ const BuildingSection = () => {
         Building Details
       </h3>
 
+      {!(skips("totalFloors") && skips("floor")) && (
       <div className="form-row">
+        {!skips("totalFloors") && (
         <div className="form-col">
           <label htmlFor="totalFloors">Total Floors in Building</label>
           <input
@@ -31,22 +38,28 @@ const BuildingSection = () => {
             <span className="field-error" role="alert">{errors.totalFloors.message}</span>
           )}
         </div>
+        )}
 
+        {!skips("floor") && (
         <div className="form-col">
           <label htmlFor="floor">Unit Floor</label>
           <input
             id="floor"
             {...register("floor")}
             type="text"
-            placeholder="e.g. 12 or Ground"
+            placeholder="e.g. 12, Ground or B1"
+            aria-invalid={errors.floor ? "true" : undefined}
           />
           {errors.floor && (
             <span className="field-error" role="alert">{errors.floor.message}</span>
           )}
         </div>
+        )}
       </div>
+      )}
 
       <div className="form-row">
+        {!skips("wing") && (
         <div className="form-col">
           <label htmlFor="wing">
             Wing <span className="optional">(optional)</span>
@@ -59,6 +72,7 @@ const BuildingSection = () => {
             maxLength={10}
           />
         </div>
+        )}
 
         <div className="form-col">
           <label htmlFor="phase">
@@ -73,6 +87,7 @@ const BuildingSection = () => {
           />
         </div>
 
+        {!skips("tower") && (
         <div className="form-col">
           <label htmlFor="tower">
             Tower <span className="optional">(optional)</span>
@@ -80,18 +95,25 @@ const BuildingSection = () => {
           <input
             id="tower"
             {...register("tower")}
-            type="number"
-            min="1"
-            placeholder="e.g. 3"
-            inputMode="numeric"
+            type="text"
+            placeholder="e.g. A or T2"
+            maxLength={MAX.tower}
+            aria-invalid={errors.tower ? "true" : undefined}
           />
+          {errors.tower && (
+            <span className="field-error" role="alert">{errors.tower.message}</span>
+          )}
         </div>
+        )}
       </div>
 
       <div className="form-row">
         <div className="form-col form-col--narrow">
           <label htmlFor="unitsAvailable">
-            Units Available <span className="required">*</span>
+            Units Available{" "}
+            {unitsRequired
+              ? <span className="required">*</span>
+              : <span className="optional">(optional)</span>}
           </label>
           <input
             id="unitsAvailable"

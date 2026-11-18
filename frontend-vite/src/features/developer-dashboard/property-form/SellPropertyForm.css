@@ -198,9 +198,33 @@
   border: 1px solid var(--spf-line);
   border-radius: var(--spf-r-md);
 }
+/* Heads-up above the form (e.g. saving a live listing sends it back for review) */
+.sell-property-form .spf-notice {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  background: var(--color-primary-tint);
+  border: 1px solid var(--spf-line);
+  border-radius: var(--spf-r-md);
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-ink);
+}
 .sell-property-form .spf-draft p {
   margin: 0;
   font-size: var(--text-sm, 0.875rem);
+}
+.sell-property-form .spf-draft .spf-draft__note {
+  margin-top: 2px;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
+}
+/* Quiet line under the header: work is saved automatically */
+.sell-property-form .spf-autosave {
+  margin: 0 0 16px;
+  font-size: var(--text-help, 0.8125rem);
+  color: var(--spf-muted);
+}
+.sell-property-form .spf-autosave.is-error {
+  color: var(--color-error-text);
 }
 .sell-property-form .spf-draft__actions {
   display: flex;
@@ -438,35 +462,6 @@
   background: var(--spf-subtle);
 }
 
-/* Segmented control (category) */
-.sell-property-form .spf-segmented {
-  display: flex;
-  padding: 3px;
-  border: 1px solid var(--spf-line-strong);
-  border-radius: var(--spf-r-sm);
-  background: var(--spf-surface);
-  box-sizing: border-box;
-}
-.sell-property-form .spf-segmented button {
-  flex: 1;
-  min-height: 36px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 6px;
-  background: none;
-  font: inherit;
-  font-size: var(--text-sm, 0.875rem);
-  font-weight: var(--weight-medium);
-  color: var(--spf-ink);
-  cursor: pointer;
-  transition: background-color var(--spf-fast), color var(--spf-fast);
-}
-.sell-property-form .spf-segmented button[aria-pressed="true"] {
-  background: var(--spf-accent);
-  color: #fff;
-  font-weight: var(--weight-semibold);
-}
-
 /* Single checkbox + label */
 .sell-property-form .checkbox-row {
   display: flex;
@@ -597,6 +592,15 @@
   margin: 8px 0 16px;
   font-size: var(--text-help, 0.8125rem);
   color: var(--spf-muted);
+}
+.sell-property-form .map-pin-remove {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* RERA details appear once, when the box is ticked */

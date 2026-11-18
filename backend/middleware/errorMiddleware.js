@@ -28,10 +28,16 @@ const errorHandler = (err, req, res, next) => {
   // the caller's mistake, so a 400 naming the fields — not a 500 that
   // production masks as "Server error". Field names only, never the values.
   if (err.name === "ValidationError" || err.name === "CastError") {
-    const fields = err.name === "ValidationError" ? Object.keys(err.errors ?? {}) : [err.path];
+    const fields = (err.name === "ValidationError" ? Object.keys(err.errors ?? {}) : [err.path]).filter(Boolean);
+    // { field: reason } so a form can mark the field; the reason comes from
+    // the kind of failure, never from the rejected value.
+    const errors = Object.fromEntries(
+      fields.map((f) => [f, err.errors?.[f]?.kind === "required" ? "This field is required" : "Invalid value"])
+    );
     return res.status(400).json({
       success: false,
-      message: `Invalid fields: ${fields.filter(Boolean).join(", ") || "body"}`,
+      message: `Invalid fields: ${fields.join(", ") || "body"}`,
+      errors,
     });
   }
 

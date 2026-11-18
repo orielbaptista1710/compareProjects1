@@ -7,6 +7,7 @@
 // needsVisit: nothing in the section is required, so it only counts as done
 //   once the lister has opened it (or it already has values, in edit mode).
 // comingSoon: shown, but not counted in the progress total.
+import { MEDIA_UPLOAD_ENABLED } from "../../../config/features";
 
 export const SECTIONS = [
   {
@@ -14,14 +15,14 @@ export const SECTIONS = [
     title: "Basic information",
     next: "basic information",
     description: "What you're listing and the words buyers read first.",
-    fields: ["propertyType", "developerName", "projectName", "title", "description", "long_description"],
+    fields: ["propertyType", "developerName", "projectName", "description", "long_description"],
   },
   {
     id: "location",
     title: "Location",
     next: "location",
     description: "Address, locality and map pin.",
-    fields: ["state", "city", "locality", "address", "pincode", "mapLink", "lat", "lng"],
+    fields: ["state", "city", "locality", "address", "pincode", "lat", "lng"],
   },
   {
     id: "pricing",
@@ -63,13 +64,13 @@ export const SECTIONS = [
     id: "media",
     title: "Photos and documents",
     next: "photos and documents",
-    description: "Photos, floor plans and brochure.",
-    fields: [],
-    comingSoon: true,
+    description: "Photos, video link and brochure.",
+    // Stays "coming soon" until uploads are switched on (config/features.js).
+    ...(MEDIA_UPLOAD_ENABLED
+      ? { fields: ["coverImage", "galleryImages", "brochure", "videoUrl"], needsVisit: true }
+      : { fields: [], comingSoon: true }),
   },
 ];
-
-export const COUNTED_SECTIONS = SECTIONS.filter((s) => !s.comingSoon);
 
 // Property.js possessionStatus enum
 export const POSSESSION_OPTIONS = [

@@ -286,7 +286,7 @@ describe("GET /api/discover/localities (footer popular searches)", () => {
     expect(allLabels(before.body.data)).not.toContain("Villas in Baner");
 
     const approve = await request(app)
-      .put(`/api/admin/approve/${pending._id}`)
+      .put(`/api/admin/approve/${pending._id}`).send({ version: 0 })
       .set("Authorization", `Bearer ${signToken(admin)}`);
     expect(approve.status).toBe(200);
 

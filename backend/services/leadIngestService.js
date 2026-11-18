@@ -83,8 +83,9 @@ export async function ingestEnquiry({
       const lead = existing
         ? await tx.lead.update({
             where: { id: existing.id },
-            // Never overwrite name, stage or assignee; fill a missing email.
-            data: { lastActivityAt: now, email: existing.email ?? email },
+            // A public form can't change who the person is: name, email, stage and
+            // assignee stay as they are. The submitted email lives on the enquiry.
+            data: { lastActivityAt: now },
           })
         : await tx.lead.create({
             data: { category, name: person.name, phone, email, zoneId: area?.zoneId ?? null, lastActivityAt: now },

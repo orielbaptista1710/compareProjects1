@@ -29,14 +29,14 @@ const INDIA_CENTER = { lat: 20.5937, lng: 78.9629 };
 // so it's ready by the time the developer scrolls to it.
 const PRELOAD_MARGIN = "600px 0px";
 
-// Places autofill can set a city/locality that isn't in the static list;
+// Places autofill can set a state or city that isn't in the static list;
 // keep it selectable so the <select> doesn't show "Select …" with a value set.
 const withCurrent = (options, current) =>
   current && !options.includes(current) ? [current, ...options] : options;
 
 // Only mounted once the section is near the viewport, so the Maps script
 // (several hundred KB) isn't downloaded on every dashboard visit.
-const MapPicker = ({ autocompleteRef, coordinates, onPlaceChanged, onMapClick }) => {
+const MapPicker = ({ autocompleteRef, coordinates, onPlaceChanged, onMapClick, onRemovePin }) => {
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries: MAPS_LIBRARIES,
@@ -47,7 +47,7 @@ const MapPicker = ({ autocompleteRef, coordinates, onPlaceChanged, onMapClick })
   if (loadError) {
     return (
       <div className="alert alert--error" role="alert">
-        Google Maps failed to load. Fill address fields manually.
+        The map could not be loaded. You can still fill in the address fields below.
       </div>
     );
   }
@@ -61,8 +61,8 @@ const MapPicker = ({ autocompleteRef, coordinates, onPlaceChanged, onMapClick })
       <div className="form-row">
         <div className="form-col">
           <label htmlFor="maps-search">
-            Search on Map{" "}
-            <span className="optional">(auto-fills fields below)</span>
+            Search on the map{" "}
+            <span className="optional">(fills in the fields below)</span>
           </label>
           <Autocomplete
             onLoad={(ref) => (autocompleteRef.current = ref)}
@@ -72,7 +72,7 @@ const MapPicker = ({ autocompleteRef, coordinates, onPlaceChanged, onMapClick })
             <input
               id="maps-search"
               type="search"
-              placeholder="Type project address or locality…"
+              placeholder="Type the address, project or locality…"
               className="maps-search-input"
               autoComplete="off"
             />
@@ -88,13 +88,23 @@ const MapPicker = ({ autocompleteRef, coordinates, onPlaceChanged, onMapClick })
           mapContainerStyle={MAP_CONTAINER_STYLE}
           options={MAP_OPTIONS}
         >
-          {coordinates && <Marker position={coordinates} />}
+          {coordinates && (
+            <Marker position={coordinates} draggable onDragEnd={onMapClick} title="Property location" />
+          )}
         </GoogleMap>
       </div>
       <p className="map-hint">
         {coordinates
-          ? "Click the map to move the pin."
-          : "Search above to auto-fill the address, or click the map to pin the location."}
+          ? "Drag the pin or click the map to move it."
+          : "Search above to fill in the address, or click the map to pin the location."}
+        {coordinates && onRemovePin && (
+          <>
+            {" "}
+            <button type="button" className="map-pin-remove" onClick={onRemovePin}>
+              Remove pin
+            </button>
+          </>
+        )}
       </p>
     </>
   );
@@ -105,6 +115,7 @@ const SellProLocationSection = ({
   coordinates,
   onPlaceChanged,
   onMapClick,
+  onRemovePin,
 }) => {
   const {
     register,
@@ -137,25 +148,36 @@ const SellProLocationSection = ({
 
   // Reset dependent fields when parent selection changes
   const handleStateChange = (e) => {
-    setValue("state", e.target.value, { shouldValidate: true });
-    setValue("city", "", { shouldValidate: false });
-    setValue("locality", "", { shouldValidate: false });
+    setValue("state", e.target.value, { shouldValidate: true, shouldDirty: true });
+    setValue("city", "", { shouldDirty: true });
+    setValue("locality", "", { shouldDirty: true });
   };
 
   const handleCityChange = (e) => {
-    setValue("city", e.target.value, { shouldValidate: true });
-    setValue("locality", "", { shouldValidate: false });
+    setValue("city", e.target.value, { shouldValidate: true, shouldDirty: true });
+    setValue("locality", "", { shouldDirty: true });
   };
 
   const states = withCurrent(Object.keys(locationData), selectedState);
-  const cities = withCurrent(
-    selectedState ? Object.keys(locationData[selectedState] || {}) : [],
-    selectedCity
-  );
-  const localities = withCurrent(
-    selectedState && selectedCity ? locationData[selectedState]?.[selectedCity] || [] : [],
-    selectedLocality
-  );
+  // A city or locality we have no list for (the map search can return any
+  // place in India) is typed instead of picked, so the poster is never left
+  // with an empty dropdown on a required field.
+  const listedCities = selectedState ? Object.keys(locationData[selectedState] || {}) : [];
+  const listedLocalities =
+    selectedState && selectedCity ? locationData[selectedState]?.[selectedCity] || [] : [];
+  const cities = withCurrent(listedCities, selectedCity);
+  const localities = withCurrent(listedLocalities, selectedLocality);
+  const typeCity = Boolean(selectedState) && listedCities.length === 0;
+  const typeLocality = Boolean(selectedCity) && listedLocalities.length === 0;
+
+  // The three dropdowns take their value from the form (value=…) instead of
+  // being left to the browser: a map search can set a place whose <option>
+  // only exists after the next render, and an uncontrolled <select> would
+  // keep showing "Select …" for it.
+  const invalid = (name) => ({
+    "aria-invalid": errors[name] ? "true" : undefined,
+    "aria-describedby": errors[name] ? `${name}-error` : undefined,
+  });
 
   return (
     <section
@@ -173,6 +195,7 @@ const SellProLocationSection = ({
           coordinates={coordinates}
           onPlaceChanged={onPlaceChanged}
           onMapClick={onMapClick}
+          onRemovePin={onRemovePin}
         />
       ) : (
         <p className="map-hint">Map loads as you scroll here…</p>
@@ -181,6 +204,12 @@ const SellProLocationSection = ({
       {/* Hidden coordinate fields — written by map handlers */}
       <input type="hidden" {...register("lat")} />
       <input type="hidden" {...register("lng")} />
+      {/* e.g. the API's "Place the pin inside India" (FORM-10) */}
+      {(errors.lat || errors.lng) && (
+        <span id="lat-error" className="field-error" role="alert">
+          {(errors.lat ?? errors.lng).message}
+        </span>
+      )}
 
       {/* Cascading Dropdowns */}
       <div className="form-row form-row--3col">
@@ -191,15 +220,17 @@ const SellProLocationSection = ({
           <select
             id="state"
             {...register("state")}
+            value={selectedState || ""}
             onChange={handleStateChange}
+            {...invalid("state")}
           >
-            <option value="">Select State</option>
+            <option value="">Select state</option>
             {states.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
           {errors.state && (
-            <span className="field-error" role="alert">{errors.state.message}</span>
+            <span id="state-error" className="field-error" role="alert">{errors.state.message}</span>
           )}
         </div>
 
@@ -207,19 +238,33 @@ const SellProLocationSection = ({
           <label htmlFor="city">
             City <span className="required">*</span>
           </label>
-          <select
-            id="city"
-            {...register("city")}
-            onChange={handleCityChange}
-            disabled={!selectedState}
-          >
-            <option value="">Select City</option>
-            {cities.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+          {typeCity ? (
+            <input
+              id="city"
+              {...register("city")}
+              type="text"
+              placeholder="City or town"
+              maxLength={100}
+              autoComplete="address-level2"
+              {...invalid("city")}
+            />
+          ) : (
+            <select
+              id="city"
+              {...register("city")}
+              value={selectedCity || ""}
+              onChange={handleCityChange}
+              disabled={!selectedState}
+              {...invalid("city")}
+            >
+              <option value="">Select city</option>
+              {cities.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          )}
           {errors.city && (
-            <span className="field-error" role="alert">{errors.city.message}</span>
+            <span id="city-error" className="field-error" role="alert">{errors.city.message}</span>
           )}
         </div>
 
@@ -227,18 +272,32 @@ const SellProLocationSection = ({
           <label htmlFor="locality">
             Locality <span className="required">*</span>
           </label>
-          <select
-            id="locality"
-            {...register("locality")}
-            disabled={!selectedCity}
-          >
-            <option value="">Select Locality</option>
-            {localities.map((l) => (
-              <option key={l} value={l}>{l}</option>
-            ))}
-          </select>
+          {typeLocality ? (
+            <input
+              id="locality"
+              {...register("locality")}
+              type="text"
+              placeholder="Area or neighbourhood"
+              maxLength={100}
+              autoComplete="address-level3"
+              {...invalid("locality")}
+            />
+          ) : (
+            <select
+              id="locality"
+              {...register("locality")}
+              value={selectedLocality || ""}
+              disabled={!selectedCity}
+              {...invalid("locality")}
+            >
+              <option value="">Select locality</option>
+              {localities.map((l) => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
+          )}
           {errors.locality && (
-            <span className="field-error" role="alert">{errors.locality.message}</span>
+            <span id="locality-error" className="field-error" role="alert">{errors.locality.message}</span>
           )}
         </div>
       </div>
@@ -255,24 +314,11 @@ const SellProLocationSection = ({
             placeholder="6-digit pincode"
             inputMode="numeric"
             maxLength={6}
+            autoComplete="postal-code"
+            {...invalid("pincode")}
           />
           {errors.pincode && (
-            <span className="field-error" role="alert">{errors.pincode.message}</span>
-          )}
-        </div>
-
-        <div className="form-col">
-          <label htmlFor="mapLink">
-            Google Maps Link <span className="optional">(optional)</span>
-          </label>
-          <input
-            id="mapLink"
-            {...register("mapLink")}
-            type="url"
-            placeholder="https://maps.google.com/…"
-          />
-          {errors.mapLink && (
-            <span className="field-error" role="alert">{errors.mapLink.message}</span>
+            <span id="pincode-error" className="field-error" role="alert">{errors.pincode.message}</span>
           )}
         </div>
       </div>
@@ -280,16 +326,19 @@ const SellProLocationSection = ({
       <div className="form-row">
         <div className="form-col">
           <label htmlFor="address">
-            Full Address <span className="required">*</span>
+            Full address <span className="required">*</span>
           </label>
           <textarea
             id="address"
             {...register("address")}
-            placeholder="Auto-filled by map search, or type manually"
+            placeholder="Filled in by the map search, or type it yourself"
             rows={3}
+            maxLength={300}
+            autoComplete="street-address"
+            {...invalid("address")}
           />
           {errors.address && (
-            <span className="field-error" role="alert">{errors.address.message}</span>
+            <span id="address-error" className="field-error" role="alert">{errors.address.message}</span>
           )}
         </div>
       </div>

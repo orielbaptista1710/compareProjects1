@@ -1,0 +1,84 @@
+/* features/listings/components/ListingsGrid.css
+   lg- prefixed (see ListingCard.css). Tokens only. */
+
+.lg-grid {
+  display: grid;
+  /* One full-width row per listing; the card lays itself out horizontally */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.lg-skeleton {
+  min-height: 24rem;
+  border-radius: var(--radius-md);
+  background: var(--color-ink-fill);
+}
+
+/* ── Empty state ── */
+.lg-empty {
+  max-width: 36rem;
+  padding: var(--space-5);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: var(--font-body);
+  color: var(--color-ink);
+}
+.lg-empty__title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+}
+.lg-empty__text {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-body);
+  color: var(--color-ink-muted);
+}
+.lg-empty__action { flex: none; }
+
+.lg-error {
+  margin: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+}
+
+/* ── Delete confirmation ── */
+.lg-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--color-overlay);
+}
+.lg-dialog {
+  width: min(100%, 26rem);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-pop);
+  font-family: var(--font-body);
+  color: var(--color-ink);
+}
+.lg-dialog__title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+.lg-dialog__body {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+  overflow-wrap: anywhere;
+}
+.lg-dialog__body strong { color: var(--color-ink); }
+.lg-dialog__actions { display: flex; gap: var(--space-2); }

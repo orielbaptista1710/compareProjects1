@@ -3,7 +3,7 @@
 // block. Below 768px it collapses into a top menu bar with a Menu button.
 // Sign out calls the handleLogout passed in by Dashboard, unchanged.
 import React, { useState, useCallback } from "react";
-import { House, List, SquarePlus, LifeBuoy, LogOut, Menu, X } from "lucide-react";
+import {  List, SquarePlus, LifeBuoy, LogOut, Menu, X } from "lucide-react";
 import "./DashboardNav.css";
 
 const NAV_ITEMS = [
@@ -37,10 +37,7 @@ const DashboardNav = ({ activeTab, setActiveTab, user, handleLogout }) => {
     <aside className="dnav" aria-label="Dashboard">
       <div className="dnav__top">
         <div className="dnav__brand">
-          <span className="dnav__logo" aria-hidden="true">
-            <House size={17} strokeWidth={2} color="#fff" />
-          </span>
-          <span className="dnav__brand-name">CompareProjects</span>
+          <span className="dnav__brand-name">Dashboard</span>
         </div>
 
         <button

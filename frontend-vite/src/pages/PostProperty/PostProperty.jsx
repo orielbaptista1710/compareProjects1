@@ -54,7 +54,10 @@ const getStep = (role, currentUser) => {
   }
 
   const isAgentAccount = (currentUser?.agent?.status ?? AGENT_STATUS.NONE) !== AGENT_STATUS.NONE;
-  const profile = { label: "Go to my profile", to: "/customer-profile" };
+  // With posting on, a logged-in customer goes straight to the Post tab
+  const profile = CUSTOMER_LISTINGS_ENABLED
+    ? { label: "Post a property", to: "/customer-profile?tab=post" }
+    : { label: "Go to my profile", to: "/customer-profile" };
 
   if (role === LISTED_BY.AGENT) {
     if (!currentUser) {

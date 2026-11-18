@@ -11,7 +11,9 @@ import {
   readLimiter,
   publicLimiter,
   developerActionLimiter,
+  mediaSignLimiter,
 } from '../middleware/rateLimiters.js';
+import { signUploads } from '../controllers/mediaController.js';
 import {
   getFilterOptions,
   getPropertiesByType, 
@@ -45,6 +47,7 @@ router.get('/search', searchLimiter, searchProperties);//Full-text search — us
 // admins review listings via /api/admin/*, they don't submit their own) ─────
 // Owners/agents use the same handlers via /api/customers/listings.
 router.post('/add', protect, isDeveloper, developerListingOwner, addPropertyLimiter, addProperty);
+router.post('/media/sign', protect, isDeveloper, developerListingOwner, mediaSignLimiter, signUploads);//Upload links for listing photos/brochure
 router.get('/my-properties', protect, isDeveloper, developerListingOwner, developerActionLimiter, getMyProperties);//Fetch the logged-in developer's own properties
 router.put('/update/:id', protect, isDeveloper, developerListingOwner, developerActionLimiter, updateProperty);
 router.delete('/delete/:id', protect, isDeveloper, developerListingOwner, developerActionLimiter, deleteProperty);

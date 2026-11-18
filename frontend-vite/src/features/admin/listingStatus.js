@@ -1,14 +1,12 @@
 // features/admin/listingStatus.js
 // Listing review states as the admin screens show them, and which review
 // actions each state allows. Shared by the table, the details modal and the
-// filters so they can't disagree. Mirrors Property.status in the backend.
+// filters so they can't disagree. The status values themselves live in
+// constants/roles.js (mirroring the backend); re-exported so admin code can keep
+// importing them from here.
+import { LISTING_STATUS } from "../../constants/roles";
 
-export const LISTING_STATUS = Object.freeze({
-  PENDING: "pending",
-  APPROVED: "approved",
-  REJECTED: "rejected",
-  SUSPENDED: "suspended",
-});
+export { LISTING_STATUS };
 
 export const LISTING_STATUS_LABELS = Object.freeze({
   [LISTING_STATUS.PENDING]: "Pending",

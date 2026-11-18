@@ -20,9 +20,9 @@ const PASSWORD_ERRORS = {
   "auth/network-request-failed": "Network error. Check your connection and try again.",
 };
 
-const SettingsTab = () => {
+const SettingsTab = ({ initialSection = "account" }) => {
   const { currentUser } = useContext(AuthContext);
-  const [settingsTab, setSettingsTab] = useState("account");
+  const [settingsTab, setSettingsTab] = useState(initialSection);
 
   const [accountForm, setAccountForm] = useState({
     customerName: currentUser?.customerName || "",

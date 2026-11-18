@@ -6,6 +6,7 @@ import { signOut } from "firebase/auth";
 
 import { CustomerAuth } from "../config/firebase";
 import API from "../api/api";
+import { clearListingDrafts } from "../features/listings/draftStorage";
 
 export const AuthContext = createContext();
 
@@ -116,6 +117,9 @@ export function AuthProvider({ children }) {
     } catch {
       // storage unavailable (private mode) — nothing to clear
     }
+    // Same for unfinished listings (address, description): wiped for everyone
+    // on this browser, so the next person on a shared computer doesn't get them.
+    clearListingDrafts();
 
     try {
       await signOut(CustomerAuth);

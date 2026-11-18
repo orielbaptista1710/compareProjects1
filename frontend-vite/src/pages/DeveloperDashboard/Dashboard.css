@@ -40,6 +40,42 @@
   color: var(--color-ink, #1c1a33);
 }
 
+/* Listings header: title with the "New listing" button */
+.dashboard-tab-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.dashboard-tab-head .dashboard-tab-title {
+  margin: 0;
+}
+
+.dashboard-new-btn {
+  min-height: var(--control-height);
+  padding: 0 var(--space-5);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-on-dark);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+.dashboard-new-btn:hover {
+  background: var(--color-primary-dark);
+}
+
+.dashboard-new-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 /* ── Phone ───────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .dashboard-shell {

@@ -34,6 +34,9 @@ export default defineConfig({
     globals: true,
     setupFiles: "./src/test/setup.js",
     css: true,
+    // Tests describe the form with uploads switched off unless a test turns
+    // them on itself, whatever a developer's local .env says.
+    env: { VITE_ENABLE_MEDIA_UPLOAD: "false" },
   },
 
   build: {

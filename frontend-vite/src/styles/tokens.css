@@ -63,6 +63,11 @@
   --color-success: #15803d;
   --color-success-bg: #f0fdf4;
   --color-highlight: #fbbf24; /* "Featured" tag and ★ rating only */
+  /* Amber tints — currently only for the customer profile's "Approval pending"
+     banner (an owner-approved exception to the rule above). */
+  --color-highlight-tint: #fffbeb; /* banner fill */
+  --color-highlight-line: #fde68a; /* banner border */
+  --color-highlight-ink: #92400e;  /* text on the tint (7:1) */
 
   /* Tints of the three standard colours — not new colours. Use these instead
      of writing rgba() in feature CSS. */

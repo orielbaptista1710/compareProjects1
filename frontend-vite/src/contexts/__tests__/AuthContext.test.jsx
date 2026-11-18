@@ -550,6 +550,29 @@ describe("AuthProvider", () => {
     ).toHaveTextContent("no-user");
   });
 
+  it("wipes unfinished listing drafts from this browser on logout", async () => {
+    signOut.mockResolvedValue();
+    API.get.mockResolvedValue({ data: { customer: { name: "Momotaro" } } });
+    window.localStorage.setItem(
+      "spf-draft:c1:new",
+      JSON.stringify({ savedAt: Date.now(), values: { title: "My flat" } })
+    );
+    window.localStorage.setItem("unrelated-key", "keep");
+
+    render(
+      <AuthProvider>
+        <AuthConsumer />
+      </AuthProvider>
+    );
+    await authenticateWithUser({ getIdToken: vi.fn().mockResolvedValue("token") });
+
+    fireEvent.click(screen.getByRole("button", { name: "Logout" }));
+
+    await waitFor(() => expect(signOut).toHaveBeenCalled());
+    expect(window.localStorage.getItem("spf-draft:c1:new")).toBeNull();
+    expect(window.localStorage.getItem("unrelated-key")).toBe("keep");
+  });
+
 
   it("throws the Firebase logout error when signOut fails", async () => {
     const consoleSpy = vi

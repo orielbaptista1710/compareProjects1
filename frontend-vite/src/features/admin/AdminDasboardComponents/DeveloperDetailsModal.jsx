@@ -18,6 +18,8 @@ import { formatCurrency, fmtDate } from "../../../utils/formatters";
 import { POSTER, posterOf } from "../../../constants/roles";
 import { posterLabel, posterName } from "../poster";
 import { LISTING_STATUS, LISTING_STATUS_LABELS, LISTING_STATUS_COLORS } from "../listingStatus";
+import { describeChangedFields } from "../changedFields";
+import { floorText } from "../../listings/floor";
 
 import PropertyMediaSection from "./PropertyMediaSection";
 
@@ -54,8 +56,76 @@ function formatArea(area) {
   return `${value} ${unit}`;
 }
 
-// floor 0 is the ground floor, not "missing"
-const formatFloor = (floor) => (floor === 0 ? "Ground" : floor ?? "N/A");
+// floor 0 is the ground floor, not "missing"; -1 is B1
+const formatFloor = (floor) => (floor == null || floor === "" ? "N/A" : floorText(floor));
+
+const formatWhen = (value) => (value ? new Date(value).toLocaleString("en-IN") : "N/A");
+
+// reviewHistory entries: { action, by: { displayName } | id | null, at, reason }.
+// `by` is an id only when the reviewer's account no longer exists.
+const reviewerName = (entry) => (typeof entry?.by === "object" && entry.by?.displayName) || "an admin";
+
+// Newest first. The backend keeps the last 20 decisions.
+const historyNewestFirst = (property) =>
+  Array.isArray(property?.reviewHistory) ? [...property.reviewHistory].reverse() : [];
+
+// A pending listing the poster edited after it had been reviewed: say so, say
+// what changed, and remind the reviewer what was decided last time.
+const EditedNotice = ({ property }) => {
+  const changed = describeChangedFields(property?.changedFields);
+  const last = historyNewestFirst(property)[0];
+
+  return (
+    <Box
+      role="note"
+      sx={{ mb: 3, p: 2, borderRadius: 1, border: 1, borderColor: "info.main", bgcolor: "action.hover" }}
+    >
+      <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+        Edited listing: check what changed
+      </Typography>
+      <Typography variant="body2" sx={{ mb: changed.length ? 1 : 0 }}>
+        The poster edited this listing on {formatWhen(property.lastEditedAt)}, after an earlier review.
+      </Typography>
+      {changed.length > 0 && (
+        <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, mb: 1 }} aria-label="Changed fields">
+          {changed.map(({ key, label, priority }) => (
+            <Chip
+              key={key}
+              size="small"
+              label={label}
+              color={priority ? "warning" : "default"}
+              variant={priority ? "filled" : "outlined"}
+            />
+          ))}
+        </Stack>
+      )}
+      {last && (
+        <Typography variant="body2" color="text.secondary">
+          Last decision: {LISTING_STATUS_LABELS[last.action] ?? last.action} by {reviewerName(last)} on{" "}
+          {formatWhen(last.at)}
+          {last.reason ? `. Reason: ${last.reason}` : ""}
+        </Typography>
+      )}
+    </Box>
+  );
+};
+
+const ReviewHistory = ({ property }) => {
+  const entries = historyNewestFirst(property);
+  if (!entries.length) return <Typography>No decisions yet.</Typography>;
+
+  return (
+    <Stack component="ol" spacing={1} sx={{ listStyle: "none", p: 0, m: 0 }}>
+      {entries.map((entry, i) => (
+        <Typography component="li" variant="body2" key={`${entry.at}-${i}`}>
+          <strong>{LISTING_STATUS_LABELS[entry.action] ?? entry.action}</strong> by {reviewerName(entry)} on{" "}
+          {formatWhen(entry.at)}
+          {entry.reason ? `. Reason: ${entry.reason}` : ""}
+        </Typography>
+      ))}
+    </Stack>
+  );
+};
 
 // Who posted the listing and how to reach them. userId is the populated
 // poster: a developer (User) or an owner/agent (Customer).
@@ -149,6 +219,11 @@ function DeveloperDetailsModal({
       </DialogTitle>
 
       <DialogContent dividers sx={{ py: 3, maxHeight: "70vh", overflowY: "auto" }}>
+        {/* An edit, not a new listing */}
+        {!loading && property?.status === LISTING_STATUS.PENDING && property?.lastEditedAt && (
+          <EditedNotice property={property} />
+        )}
+
         {/* Who posted it */}
         <Section title="Posted by">
           {loading ? (
@@ -247,22 +322,8 @@ function DeveloperDetailsModal({
                 <strong>Pincode:</strong> {property?.pincode ?? "N/A"}
               </Typography>
               <Typography>
-                <strong>Available Date:</strong> {fmtDate(property?.reraDate)}
+                <strong>Completion date:</strong> {fmtDate(property?.reraDate)}
               </Typography>
-
-
-              <Section title="Additional Details">
-  <Typography><strong>Possession Status:</strong> {property?.possessionStatus || "N/A"}</Typography>
-  <Typography><strong>Bathrooms:</strong> {property?.bathrooms ?? "N/A"}</Typography>
-  <Typography><strong>Balconies:</strong> {property?.balconies ?? "N/A"}</Typography>
-  <Typography><strong>Parking:</strong> {property?.parkings || "N/A"}</Typography>
-  <Typography><strong>Facing:</strong> {property?.facing || "N/A"}</Typography>
-  <Typography><strong>Age of Property:</strong> {property?.ageOfProperty || "N/A"}</Typography>
-  <Typography><strong>Floor:</strong> {formatFloor(property?.floor)}</Typography>
-  <Typography><strong>Wing:</strong> {property?.wing || "N/A"}</Typography>
-  <Typography><strong>Units Available:</strong> {property?.unitsAvailable ?? "N/A"}</Typography>
-</Section>
-
 
               {safeMapLink && (
                 <Typography>
@@ -294,6 +355,27 @@ function DeveloperDetailsModal({
                   <Typography mt={1}>None</Typography>
                 )}
               </Box>
+            </>
+          )}
+        </Section>
+
+        <Section title="Additional Details">
+          {loading ? (
+            <Skeleton width="50%" />
+          ) : (
+            <>
+              <Typography><strong>Possession Status:</strong> {property?.possessionStatus || "N/A"}</Typography>
+              <Typography><strong>Bathrooms:</strong> {property?.bathrooms ?? "N/A"}</Typography>
+              <Typography><strong>Balconies:</strong> {property?.balconies ?? "N/A"}</Typography>
+              <Typography>
+                <strong>Parking:</strong>{" "}
+                {Array.isArray(property?.parkings) ? property.parkings.join(", ") || "N/A" : property?.parkings || "N/A"}
+              </Typography>
+              <Typography><strong>Facing:</strong> {property?.facing || "N/A"}</Typography>
+              <Typography><strong>Age of Property:</strong> {property?.ageOfProperty || "N/A"}</Typography>
+              <Typography><strong>Floor:</strong> {formatFloor(property?.floor)}</Typography>
+              <Typography><strong>Wing:</strong> {property?.wing || "N/A"}</Typography>
+              <Typography><strong>Units Available:</strong> {property?.unitsAvailable ?? "N/A"}</Typography>
             </>
           )}
         </Section>
@@ -336,6 +418,11 @@ function DeveloperDetailsModal({
   ) : <Typography mt={1}>None</Typography>}
 </Section>
 
+
+        {/* Every decision made on this listing, newest first */}
+        <Section title="Review history">
+          {loading ? <Skeleton width="70%" /> : <ReviewHistory property={property} />}
+        </Section>
 
         {/* Moderation */}
         <Section title="Moderation Info">
@@ -457,6 +544,17 @@ DeveloperDetailsModal.propTypes = {
     metadata: PropTypes.object,
     status: PropTypes.string,
     rejectionReason: PropTypes.string,
+    // an edit of a listing that was reviewed before (see backend updateProperty)
+    lastEditedAt: PropTypes.string,
+    changedFields: PropTypes.arrayOf(PropTypes.string),
+    reviewHistory: PropTypes.arrayOf(
+      PropTypes.shape({
+        action: PropTypes.string,
+        by: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+        at: PropTypes.string,
+        reason: PropTypes.string,
+      })
+    ),
     listedBy: PropTypes.string,
     // populated poster: developer (User) or owner/agent (Customer)
     userId: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),

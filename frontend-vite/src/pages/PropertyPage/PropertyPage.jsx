@@ -12,6 +12,7 @@ import { formatCurrencyShort, formatParkingText } from '../../utils/formatters';
 import { useProperty } from '../../hooks/useProperty';
 import { useProjectUnits } from '../../hooks/useProjectUnits';
 import { getDownloadUrl, getOptimizedImageUrl } from '../../utils/propertyHelpers';
+import { floorText } from '../../features/listings/floor';
 
 import './PropertyPage.css';
 
@@ -143,7 +144,7 @@ function PropertyPage() {
       },
       { label: 'Age of Property', value: property.ageOfProperty },
       { label: 'Total Floors',    value: property.totalFloors },
-      { label: 'Floor No.',       value: property.floor },
+      { label: 'Floor No.',       value: property.floor != null ? floorText(property.floor) : null },
       { label: 'Facing',          value: property.facing },
       { label: 'Balconies',       value: property.balconies },
       { label: 'Wing',            value: property.wing },

@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import API from "../../../api/api";
 import toastError from "../../../utils/toastError";
+import { fieldLabel } from "../../admin/changedFields";
 
 export const DEVELOPER_LISTING_ENDPOINTS = {
   queryKey: ["my-properties"],
@@ -28,14 +29,30 @@ export const CUSTOMER_LISTING_ENDPOINTS = {
   remove: (id) => `/api/customers/listings/${id}`,
 };
 
-// The listing routes answer 403/429 with a specific reason ("Verify your email
-// to post", "pending listing limit reached"); show it instead of toastError's
-// generic "account deactivated" / "slow down" text.
+// The listing routes answer 403/409/429 with a specific reason ("Verify your
+// email to post", "this listing changed while you were editing it", "pending
+// listing limit reached"); show it instead of toastError's generic text.
 const showListingError = (err, fallback) => {
   const status = err.response?.status;
   const serverMsg = err.response?.data?.message;
-  if ((status === 403 || status === 429) && serverMsg) return toast.error(serverMsg);
+  if ([403, 409, 429].includes(status) && serverMsg) return toast.error(serverMsg);
+  // 400 with { field: reason }: name the fields in words. The form also marks
+  // each one (SellPropertyForm, via the submit's onError).
+  const fieldErrors = status === 400 ? err.response?.data?.errors : null;
+  if (fieldErrors && typeof fieldErrors === "object" && Object.keys(fieldErrors).length) {
+    return toast.error(fieldErrorNote(fieldErrors));
+  }
   return toastError(err, fallback);
+};
+
+export const fieldErrorNote = (fieldErrors) => {
+  const entries = Object.entries(fieldErrors);
+  if (entries.length === 1) {
+    const [[path, reason]] = entries;
+    return `${fieldLabel(path)}: ${reason}`;
+  }
+  const labels = [...new Set(entries.map(([path]) => fieldLabel(path)))];
+  return `Please check: ${labels.join(", ")}`;
 };
 
 /**
@@ -57,8 +74,14 @@ export default function useMyListings(endpoints, { onSaved, enabled = true } = {
 
   const { mutate: addProperty, isPending: isAdding } = useMutation({
     mutationFn: (newProperty) => API.post(endpoints.create, newProperty),
-    onSuccess: () => {
-      toast.success("Property submitted successfully!");
+    onSuccess: (response) => {
+      // A retry of a submission that had already gone through (FORM-11):
+      // the server returned that listing instead of making a copy.
+      toast.success(
+        response?.data?.replayed
+          ? "This listing was already submitted."
+          : "Submitted for review. We'll check it before it goes live."
+      );
       refresh();
       onSaved?.();
     },
@@ -66,13 +89,30 @@ export default function useMyListings(endpoints, { onSaved, enabled = true } = {
   });
 
   const { mutate: updateProperty, isPending: isUpdating } = useMutation({
+    // wasLive isn't sent to the API; it only picks the message below
     mutationFn: ({ id, data }) => API.put(endpoints.update(id), data),
-    onSuccess: () => {
-      toast.success("Property updated successfully");
+    onSuccess: (response, { wasLive }) => {
+      // Nothing changed: the server saved nothing and the listing's status is
+      // as it was (a live listing stays live), so don't say otherwise.
+      if (response?.data?.unchanged) {
+        toast.success("No changes to save.");
+      } else {
+        // Every edit goes back to review, and a live listing is hidden until then
+        toast.success(
+          wasLive
+            ? "Changes saved. This listing is hidden until our team approves them."
+            : "Changes saved and sent for review."
+        );
+      }
       refresh();
       onSaved?.();
     },
-    onError: (err) => showListingError(err, "Failed to update property"),
+    onError: (err) => {
+      showListingError(err, "Failed to update property");
+      // 409: reviewed or edited elsewhere since it was opened. Load the
+      // current version so the poster's next try starts from it.
+      if (err.response?.status === 409) refresh();
+    },
   });
 
   const { mutate: deleteProperty } = useMutation({

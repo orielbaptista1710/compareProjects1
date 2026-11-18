@@ -9,7 +9,12 @@
 import express from 'express';
 import protectCustomer from '../middleware/protectCustomer.js';
 import { customerListingOwner, customerCanPost } from '../middleware/listingOwner.js';
-import { customerActionLimiter, customerAddPropertyLimiter } from '../middleware/rateLimiters.js';
+import {
+  customerActionLimiter,
+  customerAddPropertyLimiter,
+  mediaSignLimiter,
+} from '../middleware/rateLimiters.js';
+import { signUploads } from '../controllers/mediaController.js';
 import {
   addProperty,
   getMyProperties,
@@ -23,6 +28,8 @@ router.use(customerActionLimiter, protectCustomer, customerListingOwner);
 
 router.get('/', getMyProperties);
 router.post('/', customerAddPropertyLimiter, customerCanPost, addProperty);
+// Upload links for photos/brochure: same gates as posting.
+router.post('/media/sign', mediaSignLimiter, customerCanPost, signUploads);
 router.put('/:id', customerCanPost, updateProperty);
 router.delete('/:id', deleteProperty);
 
