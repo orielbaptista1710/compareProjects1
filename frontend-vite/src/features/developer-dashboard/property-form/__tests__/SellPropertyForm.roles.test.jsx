@@ -106,6 +106,16 @@ describe("form roles", () => {
       renderForm({ editingStatus: "approved" }); // adding: no editingId
       expect(screen.queryByText(NOTICE)).not.toBeInTheDocument();
     });
+
+    it("says which fields can't change on a listing approved before", () => {
+      const LOCKED = /Property type, BHK and location .* can't be changed on an approved listing/;
+      const { unmount } = renderForm({ formData: OWNER_LISTING, editingId: "p1", editingLocked: true });
+      expect(screen.getByText(LOCKED)).toBeInTheDocument();
+      unmount();
+
+      renderForm({ formData: OWNER_LISTING, editingId: "p1" });
+      expect(screen.queryByText(LOCKED)).not.toBeInTheDocument();
+    });
   });
 
   describe("developer (default)", () => {

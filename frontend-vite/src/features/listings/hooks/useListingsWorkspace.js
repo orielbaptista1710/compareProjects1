@@ -60,9 +60,20 @@ export default function useListingsWorkspace({
 
   // Status of the listing being edited (e.g. to warn that a live one will be
   // sent back for review). Undefined when adding or before the list has loaded.
-  const editingStatus = editingId
-    ? properties.find((p) => p._id === editingId)?.status
-    : undefined;
+  const editingListing = editingId ? properties.find((p) => p._id === editingId) : undefined;
+  const editingStatus = editingListing?.status;
+  // Approved at least once (server: LOCKED_AFTER_APPROVAL in listingRules.js).
+  // Older listings have no firstApprovedAt; their status says it.
+  const editingLocked = Boolean(
+    editingListing &&
+      (editingListing.firstApprovedAt ||
+        [LISTING_STATUS.APPROVED, LISTING_STATUS.SUSPENDED].includes(editingListing.status))
+  );
+
+  // The version of the listing when it was opened. Sent with the save, so a
+  // form left open while the listing changed (another tab, a review) gets a
+  // 409 instead of overwriting the newer version.
+  const openedVersion = useRef(0);
 
   // `onSuccess` runs only once the server has saved the listing (the form uses
   // it to clear its draft); `onError` gets a failed save's error (the form
@@ -79,7 +90,10 @@ export default function useListingsWorkspace({
         const wasLive =
           latest.current.properties.find((p) => p._id === editingId)?.status ===
           LISTING_STATUS.APPROVED;
-        updateProperty({ id: editingId, data, wasLive }, { onSuccess, onError });
+        updateProperty(
+          { id: editingId, data: { ...data, expectedVersion: openedVersion.current }, wasLive },
+          { onSuccess, onError }
+        );
       } else {
         addProperty(data, { onSuccess, onError });
       }
@@ -89,6 +103,7 @@ export default function useListingsWorkspace({
 
   const handleEdit = useCallback((property) => {
     setEditingId(property._id);
+    openedVersion.current = property.contentVersion ?? 0;
     setFormData(normalizePropertyData(property));
     latest.current.onEdit?.(property);
   }, []);
@@ -125,6 +140,7 @@ export default function useListingsWorkspace({
     formData,
     editingId,
     editingStatus,
+    editingLocked,
     isAdding,
     isUpdating,
     handleSubmit,

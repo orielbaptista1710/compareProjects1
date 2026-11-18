@@ -359,6 +359,10 @@ geo: {
   reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   reviewedAt: Date,
   rejectionReason: String,
+  // First admin approval. From then on LOCKED_AFTER_APPROVAL fields can't be
+  // edited (constants/listingRules.js). Older approved listings don't have it;
+  // their status or reviewHistory says the same.
+  firstApprovedAt: Date,
 
   // Audit trail of admin decisions, newest last, capped at 20 entries by the
   // $slice in services/propertyAdminService.js. reviewedBy/reviewedAt above

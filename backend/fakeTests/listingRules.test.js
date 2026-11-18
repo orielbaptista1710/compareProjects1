@@ -71,6 +71,7 @@ describe("the shared rules file", () => {
       ...Object.keys(backendRules.TEXT_MINIMUMS),
       ...Object.values(backendRules.REQUIRED_FIELDS).flat(),
       ...Object.values(backendRules.FIELDS_NOT_FOR_TYPE).flat(),
+      ...backendRules.LOCKED_AFTER_APPROVAL,
     ];
     expect(Object.keys(backendRules.FIELDS_NOT_FOR_TYPE).sort()).toEqual(
       propertyInputSchema.shape.propertyType.unwrap().options.slice().sort()

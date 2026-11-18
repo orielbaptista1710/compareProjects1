@@ -82,6 +82,19 @@ export const FIELDS_NOT_FOR_TYPE = Object.freeze({
 // Homes must say how they're furnished; for shops and offices it's optional.
 export const FURNISHING_REQUIRED_TYPES = Object.freeze(["Flats/Apartments", "Villa"]);
 
+// Once a listing has been approved these say which property it is, so an edit
+// can't change them (a different property needs a new listing). Filling in one
+// that was never set is allowed. Price and area stay editable.
+export const LOCKED_AFTER_APPROVAL = Object.freeze([
+  "propertyType",
+  "bhk",
+  "state",
+  "city",
+  "locality",
+  "pincode",
+  "coordinates",
+]);
+
 // Fields every listing must have, whoever posts it. Furnishing depends on the
 // type (FURNISHING_REQUIRED_TYPES).
 const COMMON_REQUIRED = Object.freeze([

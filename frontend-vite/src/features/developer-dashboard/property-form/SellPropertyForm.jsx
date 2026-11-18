@@ -46,6 +46,7 @@ const SellPropertyForm = ({
   onShowListings,
   editingId,
   editingStatus, // status of the listing being edited; "approved" shows a warning
+  editingLocked = false, // approved before: type, BHK and location can't change
   isAdding,
   isUpdating,
   draftOwner,
@@ -289,6 +290,14 @@ const SellPropertyForm = ({
             <p className="spf-notice" role="note">
               This listing is live. Saving your changes sends it back for review, and buyers
               won&apos;t see it until our team approves it again.
+            </p>
+          )}
+
+          {isEditing && editingLocked && (
+            <p className="spf-notice" role="note">
+              Property type, BHK and location (state, city, locality, pincode and map pin)
+              can&apos;t be changed on an approved listing. For a different property, post a
+              new listing.
             </p>
           )}
 

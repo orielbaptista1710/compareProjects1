@@ -34,6 +34,7 @@ const PostPropertyTab = ({ workspace, posterRole, gate, currentUser, onNavigateT
       formData={workspace.formData}
       editingId={workspace.editingId}
       editingStatus={workspace.editingStatus}
+      editingLocked={workspace.editingLocked}
       isAdding={workspace.isAdding}
       isUpdating={workspace.isUpdating}
       draftOwner={currentUser._id}

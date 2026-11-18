@@ -13,7 +13,8 @@ import { changedFields } from '../utils/changedFields.js';
 import { verifyListingMedia } from '../services/listingMedia.js';
 import logger from '../utils/logger.js';
 import { safeErrorMeta } from '../utils/safeError.js';
-import { currentVersion, versionMatch } from '../utils/contentVersion.js';
+import { currentVersion, versionMatch, readVersion } from '../utils/contentVersion.js';
+import { LOCKED_AFTER_APPROVAL } from '../constants/listingRules.js';
 
 // ─────────────────────────────────────────────
 // Constants
@@ -756,6 +757,25 @@ const isCleared = (value) => Boolean(value) && !value.url;
 // listing stores coordinates.source by default, so "has a pin" means lat AND lng.
 const hasPin = (coordinates) => coordinates?.lat != null && coordinates?.lng != null;
 
+// Approved at least once: now, hidden by a suspension, or before an edit sent
+// it back to review. Older listings have no firstApprovedAt.
+const wasApprovedOnce = (saved) =>
+  Boolean(saved.firstApprovedAt) ||
+  [LISTING_STATUS.APPROVED, LISTING_STATUS.SUSPENDED].includes(saved.status) ||
+  (saved.reviewHistory ?? []).some((entry) => entry.action === LISTING_STATUS.APPROVED);
+
+const hasValue = (field, value) =>
+  field === 'coordinates' ? hasPin(value) : value !== undefined && value !== null && value !== '';
+
+// The changed fields an approved listing may not change: those in
+// LOCKED_AFTER_APPROVAL that already had a value.
+const lockedChanges = (saved, changed) =>
+  wasApprovedOnce(saved)
+    ? changed.filter((field) => LOCKED_AFTER_APPROVAL.includes(field) && hasValue(field, saved[field]))
+    : [];
+
+const LOCKED_MESSAGE = "Can't be changed after approval. For a different property, post a new listing.";
+
 // Fields that don't apply to the listing's type (bhk on a Plot, FORM-08) are
 // ignored, whatever the client sent. Changes `listing` in place.
 const dropFieldsNotForType = (listing, propertyType) => {
@@ -772,6 +792,20 @@ const dropBlankAreaType = (body) => {
 // Owners and agents post through the Firebase customer account; each may have
 // this many listings waiting for review at once (spam guard).
 const MAX_PENDING_CUSTOMER_LISTINGS = 10;
+
+// Throws 429 when this customer already has the most listings waiting for
+// review. Used for new listings and for edits that send a listing back to review.
+const refuseIfPendingCapReached = async (res, owner) => {
+  if (owner.model !== OWNER_MODEL.CUSTOMER) return;
+  const pending = await Property.countDocuments({ ...ownerFilter(owner), status: LISTING_STATUS.PENDING });
+  if (pending >= MAX_PENDING_CUSTOMER_LISTINGS) {
+    res.status(429);
+    throw new Error(
+      `You already have ${MAX_PENDING_CUSTOMER_LISTINGS} listings waiting for review. ` +
+      'Please wait for them to be reviewed before adding or editing more.'
+    );
+  }
+};
 
 // Owners sell their own home, which is always a resale. Agents may choose,
 // defaulting to resale. Developers choose freely (unchanged).
@@ -833,16 +867,7 @@ const addProperty = asyncHandler(async (req, res) => {
   dropBlankAreaType(safeBody);
   if (!meetsListingRules(res, safeBody, owner.listedBy)) return;
 
-  if (owner.model === OWNER_MODEL.CUSTOMER) {
-    const pending = await Property.countDocuments({ ...ownerFilter(owner), status: 'pending' });
-    if (pending >= MAX_PENDING_CUSTOMER_LISTINGS) {
-      res.status(429);
-      throw new Error(
-        `You already have ${MAX_PENDING_CUSTOMER_LISTINGS} listings waiting for review. ` +
-        'Please wait for them to be reviewed before adding more.'
-      );
-    }
-  }
+  await refuseIfPendingCapReached(res, owner);
 
   if (!(await mediaIsValid(res, safeBody, owner, null))) return;
   for (const field of CLEARABLE_MEDIA) {
@@ -916,6 +941,9 @@ const getMyProperties = asyncHandler(async (req, res) => {
  *     reviewedAt / reviewedBy are cleared (it stays in reviewHistory).
  * listedBy and ownerModel stay as they were when the listing was created.
  */
+const STALE_EDIT_MESSAGE =
+  'This listing changed while you were editing it (it may have just been reviewed). Reload it and make your changes again.';
+
 // Most field names recorded per edit (there are ~45 editable fields)
 const MAX_CHANGED_FIELDS = 50;
 
@@ -937,6 +965,16 @@ const updateProperty = asyncHandler(async (req, res) => {
   if (!safeBody) return;
 
   const saved = property.toObject({ virtuals: false, getters: false, transform: false });
+
+  // The version the form opened. If the listing has changed since (an edit
+  // from another tab, or a review), saving would overwrite that. Optional, so
+  // a form that doesn't send it still works.
+  const expectedVersion = readVersion(req.body?.expectedVersion);
+  if (expectedVersion !== null && expectedVersion !== currentVersion(saved)) {
+    res.status(409);
+    throw new Error(STALE_EDIT_MESSAGE);
+  }
+
   // Removing a pin the listing never had changes nothing
   if (safeBody.coordinates === null && !hasPin(saved.coordinates)) delete safeBody.coordinates;
   const propertyType = safeBody.propertyType ?? saved.propertyType;
@@ -951,12 +989,25 @@ const updateProperty = asyncHandler(async (req, res) => {
     return;
   }
 
+  const locked = lockedChanges(saved, changed);
+  if (locked.length) {
+    res.status(400).json({
+      success: false,
+      message: `These can't be changed on an approved listing: ${locked.join(', ')}`,
+      errors: Object.fromEntries(locked.map((field) => [field, LOCKED_MESSAGE])),
+    });
+    return;
+  }
+
   // Checked on the listing as it would be saved, so an edit can't empty a
   // required field either. Rules follow who posted it (older listings without
   // listedBy are developer listings), not who is logged in now.
   const listedBy = saved.listedBy ?? LISTED_BY.DEVELOPER;
   const asSaved = dropFieldsNotForType({ ...saved, ...safeBody }, propertyType);
   if (!meetsListingRules(res, asSaved, listedBy)) return;
+
+  // An edit puts a reviewed listing back in the queue, so it counts like a new one
+  if (property.status !== LISTING_STATUS.PENDING) await refuseIfPendingCapReached(res, owner);
 
   if (!(await mediaIsValid(res, safeBody, owner, saved))) return;
 
@@ -1012,10 +1063,7 @@ const updateProperty = asyncHandler(async (req, res) => {
   } catch (err) {
     if (err instanceof mongoose.Error.DocumentNotFoundError) {
       res.status(409);
-      throw new Error(
-        'This listing changed while you were editing it (it may have just been reviewed). Reload it and make your changes again.',
-        { cause: err }
-      );
+      throw new Error(STALE_EDIT_MESSAGE, { cause: err });
     }
     throw err;
   }

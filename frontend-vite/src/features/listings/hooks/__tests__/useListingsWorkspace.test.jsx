@@ -72,10 +72,36 @@ describe("useListingsWorkspace", () => {
 
     act(() => result.current.handleSubmit(FULL));
     expect(listings.updateProperty).toHaveBeenCalledWith(
-      { id: "p1", data: FULL, wasLive: false },
+      { id: "p1", data: { ...FULL, expectedVersion: 0 }, wasLive: false },
       { onSuccess: undefined }
     );
     expect(listings.addProperty).not.toHaveBeenCalled();
+  });
+
+  it("sends the version the listing had when it was opened", () => {
+    const { result } = renderHook(() => useListingsWorkspace({ endpoints: ENDPOINTS }));
+
+    act(() => result.current.handleEdit({ _id: "p1", title: "Saved", contentVersion: 3 }));
+    act(() => result.current.handleSubmit(FULL));
+
+    expect(listings.updateProperty.mock.calls[0][0].data.expectedVersion).toBe(3);
+  });
+
+  it("marks a listing approved before as locked, and a never-approved one as not", () => {
+    listings.properties = [
+      { _id: "live", status: "approved" },
+      { _id: "re-review", status: "pending", firstApprovedAt: "2026-11-01T00:00:00Z" },
+      { _id: "new", status: "pending" },
+    ];
+    const { result } = renderHook(() => useListingsWorkspace({ endpoints: ENDPOINTS }));
+    expect(result.current.editingLocked).toBe(false);
+
+    act(() => result.current.handleEdit(listings.properties[0]));
+    expect(result.current.editingLocked).toBe(true);
+    act(() => result.current.handleEdit(listings.properties[1]));
+    expect(result.current.editingLocked).toBe(true);
+    act(() => result.current.handleEdit(listings.properties[2]));
+    expect(result.current.editingLocked).toBe(false);
   });
 
   it("developers must fill developer name; owners don't", () => {
@@ -160,14 +186,14 @@ describe("useListingsWorkspace", () => {
       act(() => result.current.handleEdit(LIVE));
       act(() => result.current.handleSubmit(FULL));
       expect(listings.updateProperty).toHaveBeenLastCalledWith(
-        { id: "p1", data: FULL, wasLive: true },
+        { id: "p1", data: { ...FULL, expectedVersion: 0 }, wasLive: true },
         { onSuccess: undefined }
       );
 
       act(() => result.current.handleEdit(PENDING));
       act(() => result.current.handleSubmit(FULL));
       expect(listings.updateProperty).toHaveBeenLastCalledWith(
-        { id: "p2", data: FULL, wasLive: false },
+        { id: "p2", data: { ...FULL, expectedVersion: 0 }, wasLive: false },
         { onSuccess: undefined }
       );
     });

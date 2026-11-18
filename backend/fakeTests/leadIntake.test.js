@@ -19,7 +19,7 @@ const prismaMock = vi.hoisted(() => {
 });
 vi.mock("../config/prisma.js", () => ({ default: prismaMock }));
 
-const propertyMock = vi.hoisted(() => ({ findById: vi.fn() }));
+const propertyMock = vi.hoisted(() => ({ findOne: vi.fn() }));
 vi.mock("../models/Property.js", () => ({ default: propertyMock }));
 
 const { default: leadRoutes } = await import("../routes/leadRoutes.js");
@@ -63,7 +63,7 @@ const PROPERTY = {
   userId: "64b7f0c2a1b2c3d4e5f60999",
 };
 const mongoReturns = (doc) =>
-  propertyMock.findById.mockReturnValue({ select: () => ({ lean: () => Promise.resolve(doc) }) });
+  propertyMock.findOne.mockReturnValue({ select: () => ({ lean: () => Promise.resolve(doc) }) });
 
 const createdEnquiry = () => prismaMock.enquiry.create.mock.calls[0][0].data;
 const createdLead = () => prismaMock.lead.create.mock.calls[0][0].data;
@@ -142,8 +142,18 @@ describe("lead and enquiry storage", () => {
     });
   });
 
+  it("links the enquiry only to a live (approved) listing", async () => {
+    mongoReturns(null); // pending, rejected or suspended: no approved match
+
+    const res = await request(app).post("/api/leads/customer").send(CUSTOMER);
+
+    expect(res.status).toBe(201);
+    expect(propertyMock.findOne).toHaveBeenCalledWith({ _id: CUSTOMER.propertyId, status: "approved" });
+    expect(createdEnquiry()).toMatchObject({ listerType: null, listerId: null });
+  });
+
   it("still stores the enquiry when the property lookup fails", async () => {
-    propertyMock.findById.mockImplementation(() => {
+    propertyMock.findOne.mockImplementation(() => {
       throw new Error("mongo down");
     });
 

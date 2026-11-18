@@ -59,7 +59,7 @@ const Dashboard = () => {
   // customer dashboards (useListingsWorkspace); this page only owns its tabs.
   const {
     properties, isLoading, isError,
-    formData, editingId, editingStatus, isAdding, isUpdating,
+    formData, editingId, editingStatus, editingLocked, isAdding, isUpdating,
     handleSubmit, handleEdit, handleStartNew, handleCancelEdit, handleDelete,
   } = useListingsWorkspace({
     endpoints: DEVELOPER_LISTING_ENDPOINTS,
@@ -91,6 +91,7 @@ const Dashboard = () => {
             formData={formData}
             editingId={editingId}
             editingStatus={editingStatus}
+            editingLocked={editingLocked}
             isAdding={isAdding}
             isUpdating={isUpdating}
             draftOwner={user?.username}

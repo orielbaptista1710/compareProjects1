@@ -259,6 +259,8 @@ const buildReviewUpdate = (status, adminId, rejectionReason, storedStatus = stat
       reviewedAt: at,
       ...(reason !== undefined && { rejectionReason: reason }),
     },
+    // Kept from the first approval on ($min never moves it later)
+    ...(status === "approved" && { $min: { firstApprovedAt: at } }),
     $push: {
       reviewHistory: {
         $each: [{ action: status, by: adminId, at, ...(reason && { reason }) }],

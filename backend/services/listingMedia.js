@@ -10,7 +10,9 @@
 // Links the listing already had are left alone, so older listings with
 // Cloudinary photos can still be edited.
 //
-// Does nothing while media storage is off (services/mediaStorage.js).
+// While media storage is off (services/mediaStorage.js) nothing can be
+// uploaded, so only links the listing already had are accepted. Any other link
+// points at a file we don't control, which could be swapped after review.
 import { MEDIA_KINDS } from '../constants/media.js';
 import { headObject, isMediaStorageEnabled, keyFromPublicUrl, ownerKeyPrefix } from './mediaStorage.js';
 
@@ -37,9 +39,14 @@ const fail = (status, message) => ({ status, message });
  * @returns {Promise<null | { status: number, message: string }>} null when fine
  */
 export const verifyListingMedia = async (data, owner, existing = null) => {
-  if (!isMediaStorageEnabled()) return null;
-
   const known = new Set(mediaRefs(existing ?? {}).map((ref) => ref.url));
+
+  if (!isMediaStorageEnabled()) {
+    return mediaRefs(data).every(({ url }) => known.has(url))
+      ? null
+      : fail(400, 'Photo and document uploads are switched off right now. Remove the new ones and save again.');
+  }
+
   const prefix = ownerKeyPrefix(owner);
   const toCheck = new Map(); // key → kind
 

@@ -189,12 +189,24 @@ describe("links and media must point at trusted hosts (SEC-09)", () => {
     expect(saved.mapLink).toBeUndefined();
   });
 
-  it("accepts Cloudinary and YouTube links", async () => {
+  it("refuses a new photo link while uploads are switched off", async () => {
     const dev = await createUser();
 
     const res = await addAs(dev, {
       ...VALID_NEW_LISTING,
       coverImage: { url: "https://res.cloudinary.com/demo/image/upload/cover.jpg" },
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/uploads are switched off/);
+    expect(await Property.countDocuments()).toBe(0);
+  });
+
+  it("accepts a YouTube video link", async () => {
+    const dev = await createUser();
+
+    const res = await addAs(dev, {
+      ...VALID_NEW_LISTING,
       virtualTours: [{ type: "video", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }],
     });
 

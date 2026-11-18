@@ -8,7 +8,8 @@ import prisma from "../config/prisma.js";
 import Property from "../models/Property.js";
 import logger from "../utils/logger.js";
 import { safeErrorMeta } from "../utils/safeError.js";
-import { LISTED_BY } from "../constants/roles.js";
+import { isValidObjectId } from "mongoose";
+import { LISTED_BY, LISTING_STATUS } from "../constants/roles.js";
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -18,9 +19,11 @@ const CONSENT_VERSION = "v1-2026-11";
 
 // A Mongo failure must not lose the lead: store the enquiry without the snapshot.
 async function snapshotProperty(propertyId) {
-  if (!propertyId) return {};
+  if (!propertyId || !isValidObjectId(propertyId)) return {};
   try {
-    const p = await Property.findById(propertyId)
+    // Only live listings: an enquiry naming a pending, rejected or suspended
+    // listing's id is stored without a lister, so it never reaches that poster.
+    const p = await Property.findOne({ _id: propertyId, status: LISTING_STATUS.APPROVED })
       .select("title city locality pincode listedBy userId")
       .lean();
     if (!p) return {};
