@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: CompareProjects CRM API
-  version: 0.2.0
+  version: 0.2.1
   description: >
     Draft contract (Phase 0), shared by the backend and the CRM frontend.
     Additive changes (new fields/endpoints) are free. Breaking changes (rename, remove, enum change)
@@ -79,7 +79,7 @@ components:
         locality: { type: string, nullable: true, example: Whitefield }
         pincode: { type: string, nullable: true, example: '560066' }
         budget: { type: string, nullable: true, example: 1 to 1.5 Cr }
-        message: { type: string, nullable: true, example: Is a weekend site visit possible? }
+        message: { type: string, nullable: true, example: Is a weekend site visit possible?, description: 'Null when contactMasked (admin): free text often contains a phone or email.' }
         loanInterest: { type: boolean, nullable: true, example: true }
         createdAt: { type: string, format: date-time, example: '2026-11-16T08:15:00Z' }
     LeadSummary:
@@ -111,6 +111,7 @@ components:
             lostReason: { type: string, nullable: true }
             enquiries:
               type: array
+              description: Newest first, at most 100 (enquiryCount has the full total).
               items: { $ref: '#/components/schemas/Enquiry' }
     LeadList:
       type: object

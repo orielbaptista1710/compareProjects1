@@ -11,6 +11,12 @@ import { crmApiLimiter } from "../middleware/rateLimiters.js";
 
 const router = express.Router();
 
+// CRM responses carry buyers' contact details: never let a browser or proxy keep a copy.
+router.use((req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
+
 // Login is public; logout and me guard themselves inside the auth router.
 router.use("/auth", crmAuthRoutes);
 

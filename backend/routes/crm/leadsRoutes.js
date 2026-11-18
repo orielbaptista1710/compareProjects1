@@ -1,21 +1,13 @@
 // backend/routes/crm/leadsRoutes.js
-//
-// Read/update access to Lead records (backend/prisma/schema.prisma).
-// These leads are created by the public website's contact/enquiry forms
-// (backend/controllers/leadController.js, POST /api/leads/*) — this
-// namespace is for viewing and managing them from the CRM side only.
-// Never duplicate or re-ingest lead data here; this is the same `leads`
-// table, read/written through Prisma.
-//
-// Expected to grow into something like:
-//   GET  /            — list/filter leads (by stage, source, assignedTo, etc.)
-//   GET  /:id         — single lead detail
-//   PATCH /:id        — update stage, assignedTo, etc.
-//
-// Handlers should live in backend/controllers/crm/leadsController.js.
-
+// CRM lead inbox and detail. Mounted in routes/crmRoutes.js behind
+// crmApiLimiter + requireCrmAuth, so req.crmUser is always set here.
+// Leads are created only by the website forms (POST /api/leads/*).
 import express from "express";
+import { listLeadsHandler, getLeadHandler } from "../../controllers/crm/leadsController.js";
 
 const router = express.Router();
+
+router.get("/", listLeadsHandler);
+router.get("/:leadId", getLeadHandler);
 
 export default router;
