@@ -12,7 +12,7 @@
 // exactly what submit will accept.
 import { useFormState, useWatch } from "react-hook-form";
 import { propertySchema } from "../../../../components/DevDashboardPageComponents/SellPropertyFormComponents/propertySchema";
-import { SECTIONS, COUNTED_SECTIONS, sectionOfField } from "../sectionConfig";
+import { SECTIONS, sectionOfField } from "../sectionConfig";
 
 const hasValue = (v) =>
   Array.isArray(v) ? v.length > 0 : v !== undefined && v !== null && v !== "" && v !== false;
@@ -29,13 +29,18 @@ const isDefault = (field, v) =>
   (field === "ageOfProperty" && v === "New") ||
   (field === "area" && !hasValue(v?.value));
 
-export const useSectionStatus = (control, { openId, visited }) => {
+// sections / schema: the poster's role config (roleConfig.js, propertySchemas);
+// both default to the developer form.
+export const useSectionStatus = (
+  control,
+  { openId, visited, sections = SECTIONS, schema = propertySchema }
+) => {
   const values = useWatch({ control });
   const { errors } = useFormState({ control });
 
   // Not memoised on purpose: RHF mutates its errors object in place, so a
   // cache keyed on it can go stale. One parse of ~40 fields is cheap.
-  const result = propertySchema.safeParse(values);
+  const result = schema.safeParse(values);
   const issueSections = new Set();
   if (!result.success) {
     for (const issue of result.error.issues) {
@@ -47,7 +52,8 @@ export const useSectionStatus = (control, { openId, visited }) => {
   if (values?.reraApproved && !String(values.reraNumber || "").trim()) issueSections.add("rera");
 
   const byId = {};
-  for (const s of SECTIONS) {
+  const counted = sections.filter((s) => !s.comingSoon);
+  for (const s of sections) {
     if (s.comingSoon) {
       byId[s.id] = { state: "soon", errorCount: 0 };
       continue;
@@ -62,11 +68,11 @@ export const useSectionStatus = (control, { openId, visited }) => {
     byId[s.id] = { state, errorCount };
   }
 
-  const done = COUNTED_SECTIONS.filter((s) => byId[s.id].state === "done").length;
+  const done = counted.filter((s) => byId[s.id].state === "done").length;
   return {
     byId,
     done,
-    total: COUNTED_SECTIONS.length,
+    total: counted.length,
     canPublish: result.success && !issueSections.has("rera"),
   };
 };

@@ -2,11 +2,13 @@
 // "How buyers will see it": the listing's column in the compare view, bound
 // to the live form values. Watches only the fields it shows, so typing
 // elsewhere doesn't re-render it. Everything renders as plain text.
+import { memo } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { AREA_UNIT_LABELS } from "../../../../assests/constants/propertyFormConstants";
+import { listingTitleFor } from "../../../listings/listingTitle";
 
 const WATCHED = [
-  "title", "price", "area", "bhk", "propertyType",
+  "projectName", "price", "area", "bhk", "propertyType",
   "locality", "city", "possessionStatus", "reraDate", "reraApproved", "reraNumber",
 ];
 
@@ -41,16 +43,18 @@ const BuildingsDrawing = () => (
   </svg>
 );
 
-const BuyerPreview = () => {
+// saved: the listing as last saved, so a hand-written title is shown as kept
+const BuyerPreview = ({ saved }) => {
   const { control } = useFormContext();
   const [
-    title, price, area, bhk, propertyType,
+    projectName, price, area, bhk, propertyType,
     locality, city, possessionStatus, reraDate, reraApproved, reraNumber,
   ] = useWatch({ control, name: WATCHED });
 
   const areaText = area?.value
     ? `${Number(area.value).toLocaleString("en-IN")} ${AREA_UNIT_LABELS[area.unit] || area.unit || ""}`.trim()
     : "";
+  const title = listingTitleFor({ projectName, bhk, propertyType, locality, city }, saved);
   const config = [bhk && `${bhk} BHK`, propertyType].filter(Boolean).join(" ");
   const possession = [possessionStatus, formatDate(reraApproved ? reraDate : "")].filter(Boolean).join(", ");
 
@@ -77,7 +81,7 @@ const BuyerPreview = () => {
         </div>
         <div className="spf-preview__head">
           <span className="spf-preview__tag">For sale</span>
-          <p className="spf-preview__title">{title?.trim() || "Your listing title"}</p>
+          <p className="spf-preview__title">{title || "Your listing title"}</p>
         </div>
         <dl className="spf-preview__rows">
           {rows.map(([label, value]) => (
@@ -92,4 +96,5 @@ const BuyerPreview = () => {
   );
 };
 
-export default BuyerPreview;
+// With memo it re-renders only when a field it shows changes
+export default memo(BuyerPreview);

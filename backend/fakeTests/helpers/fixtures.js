@@ -50,7 +50,17 @@ export async function createProperty(overrides = {}) {
     pincode: "400001",
     price: 5000000,
     propertyType: "Villa",
+    furnishing: "Unfurnished",
+    possessionStatus: "Ready to Move",
+    unitsAvailable: 1,
     status: "pending",
     ...overrides,
   });
+}
+
+// Bulk approve/reject body with every listing at the version a freshly
+// created one has (contentVersion 0), as the admin table would send it.
+export function withVersions(body, version = 0) {
+  const ids = Array.isArray(body.ids) ? body.ids : [];
+  return { ...body, versions: Object.fromEntries(ids.map((id) => [String(id), version])) };
 }

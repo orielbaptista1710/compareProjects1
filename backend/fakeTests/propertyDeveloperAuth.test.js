@@ -105,6 +105,9 @@ describe("server-managed fields are ignored", () => {
         pincode: "400001",
         price: 5000000,
         propertyType: "Villa",
+        furnishing: "Unfurnished",
+        possessionStatus: "Ready to Move",
+        unitsAvailable: 1,
         userId: other._id.toString(),
         ...TAMPERED,
       });

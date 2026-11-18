@@ -115,6 +115,23 @@ export const developerActionLimiter = rateLimit({
 });
 
 // ---------------------------------------------------------------------------
+// Upload links for listing photos/brochures  —  150 req / 60 min per account
+// ---------------------------------------------------------------------------
+// Each request can ask for up to MAX_SIGN_BATCH links, so this caps one
+// account at a few hundred uploads an hour: plenty for real listings, and a
+// limit on how much storage a stolen or abusive account can fill. Runs after
+// the listingOwner middleware, so it is keyed by account rather than IP.
+// Applied to: POST /api/properties/media/sign, POST /api/customers/listings/media/sign
+export const mediaSignLimiter = rateLimit({
+  ...sharedOptions,
+  windowMs: 60 * 60_000,
+  max: 150,
+  keyGenerator: (req) =>
+    req.listingOwner ? `media:${req.listingOwner.model}:${req.listingOwner.id}` : clientIp(req),
+  message: { error: 'Too many uploads. Please try again later.' },
+});
+
+// ---------------------------------------------------------------------------
 // Auth endpoints  —  10 req / 15 min
 // ---------------------------------------------------------------------------
 // Hard cap for login / register / password-reset to limit credential stuffing.

@@ -33,6 +33,9 @@ const VALID_NEW_LISTING = {
   pincode: "400001",
   price: 5000000,
   propertyType: "Villa",
+  furnishing: "Unfurnished",
+  possessionStatus: "Ready to Move",
+  unitsAvailable: 1,
 };
 
 // What a malicious developer could put in the body to game moderation/ranking.
@@ -118,12 +121,23 @@ describe("developer can only set allowlisted fields (SEC-04)", () => {
   it("data the model rejects is a 400 naming the field, not a 500", async () => {
     const dev = await createUser();
 
-    const res = await addAs(dev, { ...VALID_NEW_LISTING, pincode: "12345", furnishing: "Palace" });
+    // furnishing passes the validator (free text) and is refused by the model's enum
+    const res = await addAs(dev, { ...VALID_NEW_LISTING, furnishing: "Palace" });
 
     expect(res.status).toBe(400);
-    expect(res.body.message).toContain("pincode");
     expect(res.body.message).toContain("furnishing");
-    expect(res.body.message).not.toContain("12345"); // field names, not values
+    expect(res.body.errors).toEqual({ furnishing: "Invalid value" });
+    expect(JSON.stringify(res.body)).not.toContain("Palace"); // field names, not values
+  });
+
+  it("a malformed pincode is a 400 with the reason, not the value", async () => {
+    const dev = await createUser();
+
+    const res = await addAs(dev, { ...VALID_NEW_LISTING, pincode: "12345" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.errors).toEqual({ pincode: "Pincode must be exactly 6 digits" });
+    expect(JSON.stringify(res.body)).not.toContain("12345");
   });
 
   it("accepts the dashboard form's payload shape (empty strings, comma-joined parkings)", async () => {
@@ -132,7 +146,6 @@ describe("developer can only set allowlisted fields (SEC-04)", () => {
     const res = await addAs(dev, {
       ...VALID_NEW_LISTING,
       long_description: "",
-      mapLink: "",
       reraNumber: "",
       wing: "",
       phase: "",
@@ -153,8 +166,6 @@ describe("developer can only set allowlisted fields (SEC-04)", () => {
 
 describe("links and media must point at trusted hosts (SEC-09)", () => {
   it.each([
-    ["mapLink", { mapLink: "https://attacker.example/maps/embed/login" }],
-    ["mapLink", { mapLink: "http://www.google.com/maps/embed?pb=1" }], // not https
     ["coverImage.url", { coverImage: { url: "https://evil.example/cover.jpg" } }],
     ["galleryImages.0.url", { galleryImages: [{ url: "javascript:alert(1)" }] }],
     ["virtualTours.0.url", { virtualTours: [{ type: "video", url: "https://evil.example/tour" }] }],
@@ -168,14 +179,35 @@ describe("links and media must point at trusted hosts (SEC-09)", () => {
     expect(await Property.countDocuments()).toBe(0);
   });
 
-  it("accepts Google Maps, Cloudinary and YouTube links", async () => {
+  it("drops a map link from posters (scraped listings keep theirs)", async () => {
+    const dev = await createUser();
+
+    const res = await addAs(dev, { ...VALID_NEW_LISTING, mapLink: "https://attacker.example/maps/embed/login" });
+
+    expect(res.status).toBe(201);
+    const saved = await Property.findById(res.body.property._id).lean();
+    expect(saved.mapLink).toBeUndefined();
+  });
+
+  it("refuses a new photo link while uploads are switched off", async () => {
     const dev = await createUser();
 
     const res = await addAs(dev, {
       ...VALID_NEW_LISTING,
-      mapLink: "https://maps.app.goo.gl/abc123",
       coverImage: { url: "https://res.cloudinary.com/demo/image/upload/cover.jpg" },
-      virtualTours: [{ type: "video", url: "https://www.youtube.com/watch?v=abc" }],
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/uploads are switched off/);
+    expect(await Property.countDocuments()).toBe(0);
+  });
+
+  it("accepts a YouTube video link", async () => {
+    const dev = await createUser();
+
+    const res = await addAs(dev, {
+      ...VALID_NEW_LISTING,
+      virtualTours: [{ type: "video", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }],
     });
 
     expect(res.status).toBe(201);

@@ -1,95 +1,119 @@
 // features/developer-dashboard/property-form/hooks/useDraft.js
-// "Save draft" keeps the form in this browser only (localStorage), one slot
-// per developer for a new listing and one per listing being edited. Nothing
-// is sent to the server. Storage can be blocked (private mode, full quota),
-// so every access is wrapped and the form works the same without it.
+// Autosave for the listing form. What you type is saved in this browser a moment
+// after you stop (see ../../../listings/draftStorage.js for where and for how
+// long), and offered back the next time the form opens.
+//
+// When a saved draft exists the form first asks what to do with it (continue,
+// or start over / use the latest version). Autosave is paused until you answer,
+// so a stray keystroke can't overwrite the draft you haven't looked at yet.
 import { useCallback, useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { readDraft, writeDraft, removeDraft, removeStaleDrafts } from "../../../listings/draftStorage";
+import { pickFormFields, serializeValues } from "../draftValues";
 
-const PREFIX = "spf-draft:";
+const SAVE_DELAY_MS = 800;
 
-// Scoped to the signed-in developer so a shared browser never offers one
-// account's draft to another. No owner yet (still loading) → no draft slot.
-export const draftKeyFor = (owner, editingId) =>
-  owner ? `${PREFIX}${owner}:${editingId ?? "new"}` : null;
+// The listing changed on the server after this draft was saved (another device
+// or tab), so the draft may overwrite newer work.
+export const isStaleDraft = (draft, baseVersion) =>
+  Boolean(draft?.baseVersion && baseVersion && draft.baseVersion !== baseVersion);
 
-// Drafts saved before they were scoped per developer ("spf-draft:new").
-const isLegacyKey = (key) => key?.startsWith(PREFIX) && !key.slice(PREFIX.length).includes(":");
+/**
+ * @param {object}   args
+ * @param {string|null} args.draftKey   storage slot (null while the account loads: no drafts)
+ * @param {string}   args.baseline      serializeValues() of what the form starts from;
+ *                                      a form still equal to it has nothing to save
+ * @param {string|null} args.baseVersion  the listing's last-changed time (edit), else null
+ * @param {Function} args.getValues     react-hook-form
+ * @param {Function} args.reset         react-hook-form
+ * @param {Function} args.watch         react-hook-form (callback form)
+ * @param {Function} [args.onRestore]   state outside the form (the map pin) follows a restore
+ * @param {object}   [args.submittedRef] ref set to true once the server has saved the listing,
+ *                                      so a pending autosave can't bring the draft back
+ * @returns {{ pending, stale, status, restore, discard }}
+ *   pending: the draft waiting for an answer, or null
+ *   status:  "idle" (nothing saved yet) | "saved" | "failed" (storage full or blocked)
+ */
+export const useDraft = ({
+  draftKey,
+  baseline,
+  baseVersion,
+  getValues,
+  reset,
+  watch,
+  onRestore,
+  submittedRef,
+}) => {
+  useEffect(() => {
+    removeStaleDrafts();
+  }, []);
 
-const isDraft = (d) =>
-  d !== null &&
-  typeof d === "object" &&
-  d.values !== null &&
-  typeof d.values === "object" &&
-  Number.isFinite(d.savedAt);
+  // The form is remounted per slot (key={draftKey}), so this is read once per
+  // open: whatever was saved when this form (or listing) opened.
+  const [pending, setPending] = useState(() => readDraft(draftKey));
+  const [status, setStatus] = useState("idle");
 
-const readDraft = (key) => {
-  if (!key) return null;
-  try {
-    const parsed = JSON.parse(window.localStorage.getItem(key) || "null");
-    return isDraft(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
-};
+  // ── Autosave ──
+  useEffect(() => {
+    if (!draftKey || pending) return undefined;
 
-export const removeDraft = (key) => {
-  if (!key) return;
-  try {
-    window.localStorage.removeItem(key);
-  } catch {
-    /* storage unavailable — nothing to remove */
-  }
-};
+    let timer = null;
 
-const removeLegacyDrafts = () => {
-  try {
-    const keys = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i));
-    keys.filter(isLegacyKey).forEach((k) => window.localStorage.removeItem(k));
-  } catch {
-    /* storage unavailable */
-  }
-};
+    const save = () => {
+      timer = null;
+      if (submittedRef?.current) return;
+      const values = pickFormFields(getValues());
+      if (serializeValues(values) === baseline) {
+        // Back to where it started (or never changed): nothing worth keeping
+        removeDraft(draftKey);
+        setStatus("idle");
+        return;
+      }
+      setStatus(writeDraft(draftKey, { values, baseVersion }) ? "saved" : "failed");
+    };
 
-export const useDraft = ({ draftKey, getValues, reset, onRestore }) => {
-  useEffect(removeLegacyDrafts, []);
+    const schedule = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(save, SAVE_DELAY_MS);
+    };
 
-  // The banner offers whatever was saved when this form (or listing) opened
-  const [slot, setSlot] = useState(() => ({ key: draftKey, draft: readDraft(draftKey) }));
-  let draft = slot.draft;
-  if (slot.key !== draftKey) {
-    // Switched between add and edit (or the owner loaded): show that slot's draft
-    draft = readDraft(draftKey);
-    setSlot({ key: draftKey, draft });
-  }
+    // Save right away if the form is about to go (tab switch, closing the page)
+    const flush = () => {
+      if (!timer) return;
+      clearTimeout(timer);
+      save();
+    };
 
-  const saveDraft = useCallback(() => {
-    try {
-      if (!draftKey) throw new Error("No draft owner");
-      window.localStorage.setItem(
-        draftKey,
-        JSON.stringify({ savedAt: Date.now(), values: getValues() })
-      );
-      toast.success("Draft saved in this browser");
-    } catch {
-      toast.error("Couldn't save the draft. Browser storage is full or blocked.");
-    }
-  }, [draftKey, getValues]);
+    const subscription = watch(schedule);
+    window.addEventListener("pagehide", flush);
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("pagehide", flush);
+      flush();
+    };
+  }, [draftKey, pending, baseline, baseVersion, getValues, watch, submittedRef]);
 
-  const restoreDraft = useCallback(() => {
-    if (!draft) return;
+  const restore = useCallback(() => {
+    if (!pending) return;
+    const values = pickFormFields(pending.values);
     // keepDefaultValues: the saved listing stays the "clean" baseline
-    reset(draft.values, { keepDefaultValues: true });
-    // State outside RHF (the map pin) has to follow the restored values too
-    onRestore?.(draft.values);
-    setSlot({ key: draftKey, draft: null });
-    toast.success("Draft restored");
-  }, [draft, draftKey, reset, onRestore]);
+    reset(values, { keepDefaultValues: true });
+    // State outside the form (the map pin) has to follow the restored values too
+    onRestore?.(values);
+    setPending(null);
+    setStatus("saved");
+  }, [pending, reset, onRestore]);
 
-  const discardDraft = useCallback(() => {
+  const discard = useCallback(() => {
     removeDraft(draftKey);
-    setSlot({ key: draftKey, draft: null });
+    setPending(null);
+    setStatus("idle");
   }, [draftKey]);
 
-  return { draft, saveDraft, restoreDraft, discardDraft };
+  return {
+    pending,
+    stale: isStaleDraft(pending, baseVersion),
+    status,
+    restore,
+    discard,
+  };
 };

@@ -8,10 +8,19 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import express from "express";
 import request from "supertest";
 
-const prismaMock = vi.hoisted(() => ({
-  lead: { findFirst: vi.fn(), create: vi.fn() },
-}));
+const prismaMock = vi.hoisted(() => {
+  const m = {
+    enquiry: { findFirst: vi.fn(), create: vi.fn() },
+    lead: { findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
+    zoneArea: { findUnique: vi.fn() },
+  };
+  m.$transaction = vi.fn((fn) => fn(m)); // the callback gets the same mock
+  return m;
+});
 vi.mock("../config/prisma.js", () => ({ default: prismaMock }));
+
+const propertyMock = vi.hoisted(() => ({ findOne: vi.fn() }));
+vi.mock("../models/Property.js", () => ({ default: propertyMock }));
 
 const { default: leadRoutes } = await import("../routes/leadRoutes.js");
 const { leadLimiter, leadPhoneLimiter, leadPhoneKey, clientIp, LEAD_PHONE_LIMIT } = await import(
@@ -40,18 +49,33 @@ const DEVELOPER = {
   source: "developer_popup",
 };
 
-// What Prisma hands back: the full row, including fields a visitor mustn't see.
-const STORED_ROW = {
-  id: "lead-uuid-1",
-  ipAddress: "203.0.113.9",
-  userAgent: "Mozilla/5.0",
-  stage: "new",
-  assignedTo: null,
+// What Prisma hands back for the new enquiry (only the id is selected).
+const STORED_ROW = { id: "enquiry-uuid-1" };
+const LEAD_ROW = { id: "lead-uuid-1", email: null, zoneId: null };
+
+// The Mongo property the snapshot is read from.
+const PROPERTY = {
+  title: "3 BHK in Whitefield",
+  city: "Bengaluru",
+  locality: "Whitefield",
+  pincode: "560066",
+  listedBy: "agent",
+  userId: "64b7f0c2a1b2c3d4e5f60999",
 };
+const mongoReturns = (doc) =>
+  propertyMock.findOne.mockReturnValue({ select: () => ({ lean: () => Promise.resolve(doc) }) });
+
+const createdEnquiry = () => prismaMock.enquiry.create.mock.calls[0][0].data;
+const createdLead = () => prismaMock.lead.create.mock.calls[0][0].data;
 
 beforeEach(() => {
-  prismaMock.lead.findFirst.mockReset().mockResolvedValue(null);
-  prismaMock.lead.create.mockReset().mockResolvedValue(STORED_ROW);
+  prismaMock.enquiry.findFirst.mockReset().mockResolvedValue(null);
+  prismaMock.enquiry.create.mockReset().mockResolvedValue(STORED_ROW);
+  prismaMock.lead.findUnique.mockReset().mockResolvedValue(null);
+  prismaMock.lead.create.mockReset().mockResolvedValue(LEAD_ROW);
+  prismaMock.lead.update.mockReset().mockResolvedValue(LEAD_ROW);
+  prismaMock.zoneArea.findUnique.mockReset().mockResolvedValue(null);
+  mongoReturns(PROPERTY);
 });
 
 describe("customer lead consent (SEC-07)", () => {
@@ -66,14 +90,15 @@ describe("customer lead consent (SEC-07)", () => {
     const res = await request(app).post("/api/leads/customer").send(body);
 
     expect(res.status).toBe(400);
-    expect(prismaMock.lead.create).not.toHaveBeenCalled();
+    expect(prismaMock.enquiry.create).not.toHaveBeenCalled();
   });
 
-  it("stores the lead with the consent the user actually gave", async () => {
+  it("records which consent wording applied and when", async () => {
     const res = await request(app).post("/api/leads/customer").send(CUSTOMER);
 
     expect(res.status).toBe(201);
-    expect(prismaMock.lead.create.mock.calls[0][0].data.contactConsent).toBe(true);
+    expect(createdEnquiry().consentVersion).toEqual(expect.any(String));
+    expect(createdEnquiry().consentAt).toBeInstanceOf(Date);
   });
 
   it("rejects a developer lead without consent", async () => {
@@ -82,7 +107,7 @@ describe("customer lead consent (SEC-07)", () => {
       .send({ ...DEVELOPER, developerContactConsent: false });
 
     expect(res.status).toBe(400);
-    expect(prismaMock.lead.create).not.toHaveBeenCalled();
+    expect(prismaMock.enquiry.create).not.toHaveBeenCalled();
   });
 });
 
@@ -95,10 +120,71 @@ describe("customer lead input rules", () => {
     expect(res.status).toBe(400);
   });
 
-  it("lowercases the email so dedupe can match it", async () => {
+  it("lowercases the email and stores the phone as +91 E.164", async () => {
     await request(app).post("/api/leads/customer").send(CUSTOMER);
 
-    expect(prismaMock.lead.create.mock.calls[0][0].data.email).toBe("asha@example.com");
+    expect(createdLead().email).toBe("asha@example.com");
+    expect(createdLead().phone).toBe("+919876543210");
+  });
+});
+
+describe("lead and enquiry storage", () => {
+  it("takes lister and location from Mongo, not from the client", async () => {
+    await request(app)
+      .post("/api/leads/customer")
+      .send({ ...CUSTOMER, listerType: "developer", listerId: "evil", city: "Elsewhere" });
+
+    expect(createdEnquiry()).toMatchObject({
+      listerType: "agent",
+      listerId: PROPERTY.userId,
+      city: "Bengaluru",
+      pincode: "560066",
+    });
+  });
+
+  it("links the enquiry only to a live (approved) listing", async () => {
+    mongoReturns(null); // pending, rejected or suspended: no approved match
+
+    const res = await request(app).post("/api/leads/customer").send(CUSTOMER);
+
+    expect(res.status).toBe(201);
+    expect(propertyMock.findOne).toHaveBeenCalledWith({ _id: CUSTOMER.propertyId, status: "approved" });
+    expect(createdEnquiry()).toMatchObject({ listerType: null, listerId: null });
+  });
+
+  it("still stores the enquiry when the property lookup fails", async () => {
+    propertyMock.findOne.mockImplementation(() => {
+      throw new Error("mongo down");
+    });
+
+    const res = await request(app).post("/api/leads/customer").send(CUSTOMER);
+
+    expect(res.status).toBe(201);
+    expect(createdEnquiry().listerType).toBeNull();
+  });
+
+  it("puts the lead in the zone that owns the property's pincode", async () => {
+    prismaMock.zoneArea.findUnique.mockResolvedValue({ zoneId: "zone-1" });
+
+    await request(app).post("/api/leads/customer").send(CUSTOMER);
+
+    expect(createdLead().zoneId).toBe("zone-1");
+  });
+
+  it("adds an enquiry to the existing lead for the same phone, keeping its name", async () => {
+    prismaMock.lead.findUnique.mockResolvedValue({ ...LEAD_ROW, name: "First Name" });
+
+    await request(app).post("/api/leads/customer").send(CUSTOMER);
+
+    expect(prismaMock.lead.create).not.toHaveBeenCalled();
+    expect(prismaMock.lead.update.mock.calls[0][0].data.name).toBeUndefined();
+    expect(createdEnquiry().leadId).toBe(LEAD_ROW.id);
+  });
+
+  it("files a developer popup as a developer_partner lead", async () => {
+    await request(app).post("/api/leads/developer").send(DEVELOPER);
+
+    expect(createdLead().category).toBe("developer_partner");
   });
 });
 
@@ -106,25 +192,25 @@ describe("lead spam protection (SEC-08)", () => {
   it("dedupes customer leads on phone OR email for the same property", async () => {
     await request(app).post("/api/leads/customer").send(CUSTOMER);
 
-    const { where } = prismaMock.lead.findFirst.mock.calls[0][0];
-    expect(where.OR).toEqual([{ email: "asha@example.com" }, { phone: "9876543210" }]);
+    const { where } = prismaMock.enquiry.findFirst.mock.calls[0][0];
+    expect(where.lead.OR).toEqual([{ phone: "+919876543210" }, { email: "asha@example.com" }]);
     expect(where.propertyId).toBe(CUSTOMER.propertyId);
   });
 
   it("dedupes developer leads on phone OR email", async () => {
     await request(app).post("/api/leads/developer").send(DEVELOPER);
 
-    const { where } = prismaMock.lead.findFirst.mock.calls[0][0];
-    expect(where.OR).toEqual([{ email: DEVELOPER.developerEmail }, { phone: DEVELOPER.developerPhone }]);
+    const { where } = prismaMock.enquiry.findFirst.mock.calls[0][0];
+    expect(where.lead.OR).toEqual([{ phone: "+919123456780" }, { email: DEVELOPER.developerEmail }]);
   });
 
-  it("doesn't create a second lead when a recent one exists", async () => {
-    prismaMock.lead.findFirst.mockResolvedValue(STORED_ROW);
+  it("doesn't create a second enquiry when a recent one exists", async () => {
+    prismaMock.enquiry.findFirst.mockResolvedValue(STORED_ROW);
 
     const res = await request(app).post("/api/leads/customer").send(CUSTOMER);
 
     expect(res.status).toBe(200);
-    expect(prismaMock.lead.create).not.toHaveBeenCalled();
+    expect(prismaMock.enquiry.create).not.toHaveBeenCalled();
   });
 
   it.each([

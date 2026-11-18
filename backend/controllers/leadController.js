@@ -1,10 +1,15 @@
 //controllers/leadController.js
-import prisma from "../config/prisma.js";
+// Thin adapters: validate + sanitize the website form, then hand off to the
+// single ingest service (services/leadIngestService.js).
 import { customerLeadValidator } from "../validators/customerFormLeadValidator.js";
 import { developerLeadValidator } from "../validators/developerFormLeadValidator.js";
 import { sanitizeObject } from "../utils/sanitizeInput.js";
+import { ingestEnquiry } from "../services/leadIngestService.js";
 
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+const clientMeta = (req) => ({
+  ip: req.ip, // trust proxy is set in server.js
+  userAgent: (req.headers["user-agent"] || "").slice(0, 300),
+});
 
 //    CUSTOMER LEAD CONTROLLER
 export const createCustomerLead = async (req, res, next) => {
@@ -27,54 +32,35 @@ export const createCustomerLead = async (req, res, next) => {
       source,
       propertyId,
       propertyTitle,
-      userType,
       budget,
       propertyType,
       locality,
       city,
       message,
       loanInterest,
-      customerContactConsent,
     } = cleanData;
 
-    //    DUPLICATE CHECK (24H) — same phone OR email, so rotating emails
-    //    doesn't get round it (docs/review SEC-08)
-    const existingLead = await prisma.lead.findFirst({
-      where: {
-        leadType: "customer",
-        OR: [{ email: customerEmail }, { phone: customerPhone }],
-        propertyId: propertyId || null,
-        createdAt: { gte: new Date(Date.now() - ONE_DAY_MS) },
-      },
+    const result = await ingestEnquiry({
+      channel: "web",
+      source,
+      category: "buyer",
+      person: { name: customerName, phone: customerPhone, email: customerEmail },
+      propertyId: propertyId || null,
+      propertyTitle: propertyTitle || null,
+      preferences: { budget, propertyType, locality, city, message, loanInterest },
+      rawPayload: cleanData,
+      client: clientMeta(req),
     });
 
-    if (existingLead) {
+    if (result.status === "duplicate") {
       return res.status(200).json({
         success: true,
         message: "Lead already submitted recently",
       });
     }
 
-    const lead = await prisma.lead.create({
-      data: {
-        leadType: "customer",
-        name: customerName,
-        email: customerEmail,
-        phone: customerPhone,
-        source,
-        propertyId: propertyId || null,
-        propertyTitle: propertyTitle || null,
-        contactConsent: customerContactConsent,
-        metadata: { userType, budget, propertyType, locality, city, message, loanInterest },
-        ipAddress: req.ip, //req.ip depends on trust proxy in server.js CHECK THIS
-        userAgent: req.headers["user-agent"] || "",
-        pageUrl: req.headers.referer || "",
-      },
-    });
-
-    // Only the id: echoing the row leaked ipAddress, userAgent and CRM fields.
-    return res.status(201).json({ success: true, id: lead.id });
-
+    // Only the id: never echo stored fields (ip, userAgent, CRM state).
+    return res.status(201).json({ success: true, id: result.id });
   } catch (error) {
     next(error);
   }
@@ -99,45 +85,30 @@ export const createDeveloperLead = async (req, res, next) => {
       developerFullName,
       developerEmail,
       developerPhone,
-      developerContactConsent,
       source,
-      companyName,
       projectLocation,
       message,
     } = cleanData;
 
-    const existingLead = await prisma.lead.findFirst({
-      where: {
-        leadType: "developer",
-        OR: [{ email: developerEmail }, { phone: developerPhone }],
-        createdAt: { gte: new Date(Date.now() - ONE_DAY_MS) },
-      },
+    const result = await ingestEnquiry({
+      channel: "web",
+      source,
+      category: "developer_partner",
+      person: { name: developerFullName, phone: developerPhone, email: developerEmail },
+      // companyName has no column; it stays in rawPayload.
+      preferences: { message, locality: projectLocation },
+      rawPayload: cleanData,
+      client: clientMeta(req),
     });
 
-    if (existingLead) {
+    if (result.status === "duplicate") {
       return res.status(200).json({
         success: true,
         message: "Enquiry already submitted recently",
       });
     }
 
-    const lead = await prisma.lead.create({
-      data: {
-        leadType: "developer",
-        name: developerFullName,
-        email: developerEmail,
-        phone: developerPhone,
-        source,
-        contactConsent: developerContactConsent,
-        metadata: { companyName, projectLocation, message },
-        ipAddress: req.ip,
-        userAgent: req.headers["user-agent"] || "",
-        pageUrl: req.headers.referer || "",
-      },
-    });
-
-    return res.status(201).json({ success: true, id: lead.id });
-
+    return res.status(201).json({ success: true, id: result.id });
   } catch (error) {
     next(error);
   }

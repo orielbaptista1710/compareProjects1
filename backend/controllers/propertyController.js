@@ -6,11 +6,15 @@ import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from '../models/propertyType.js';
 import { COMMON_AMENITIES, COMMON_SECURITY } from '../constants/amenities.js';
 import { invalidatePropertyCaches } from '../utils/propertyCache.js';
 import { PUBLIC_LIST_FIELDS, PUBLIC_DETAIL_FIELDS } from '../constants/propertyProjections.js';
-import { parsePropertyInput } from '../validators/propertyInputValidator.js';
+import { parsePropertyInput, listingRuleErrors, fieldsNotForType } from '../validators/propertyInputValidator.js';
 import { ownerFilter } from '../middleware/listingOwner.js';
-import { LISTED_BY, OWNER_MODEL } from '../constants/roles.js';
+import { LISTED_BY, LISTING_STATUS, OWNER_MODEL } from '../constants/roles.js';
+import { changedFields } from '../utils/changedFields.js';
+import { verifyListingMedia } from '../services/listingMedia.js';
 import logger from '../utils/logger.js';
 import { safeErrorMeta } from '../utils/safeError.js';
+import { currentVersion, versionMatch, readVersion } from '../utils/contentVersion.js';
+import { LOCKED_AFTER_APPROVAL } from '../constants/listingRules.js';
 
 // ─────────────────────────────────────────────
 // Constants
@@ -714,19 +718,94 @@ const getPropertyById = asyncHandler(async (req, res) => {
 // Posters may only set the fields allowlisted in validators/propertyInputValidator.js.
 // Everything else (userId, ownerModel, listedBy, status, featured, metadata.*,
 // review fields…) is dropped — the edit form sends the whole saved property back.
-// Responds 400 and returns null when the body has invalid fields.
+// Responds 400 and returns null when the body has invalid fields. `errors`
+// maps each field to its reason so the form can mark it (FORM-15).
 const parseListingInput = (req, res) => {
-  const { data, error } = parsePropertyInput(req.body);
+  const { data, error, errors } = parsePropertyInput(req.body);
   if (error) {
-    res.status(400).json({ success: false, message: error });
+    res.status(400).json({ success: false, message: error, errors });
     return null;
   }
   return data;
 };
 
+// The shared rules the whole listing must meet: this poster's required fields
+// and minimum lengths (constants/listingRules.js, the same ones the form uses).
+// Responds 400 and returns false when it doesn't.
+const meetsListingRules = (res, listing, listedBy) => {
+  const errors = listingRuleErrors(listing, listedBy);
+  const fields = Object.keys(errors);
+  if (!fields.length) return true;
+  res.status(400).json({ success: false, message: `Invalid fields: ${fields.join(', ')}`, errors });
+  return false;
+};
+
+// Photo/brochure links must be the poster's own finished uploads
+// (services/listingMedia.js). Responds and returns false when they aren't.
+const mediaIsValid = async (res, data, owner, existing) => {
+  const problem = await verifyListingMedia(data, owner, existing);
+  if (!problem) return true;
+  res.status(problem.status).json({ success: false, message: problem.message });
+  return false;
+};
+
+// The form sends { url: "" } for a cover photo or brochure the poster removed.
+const CLEARABLE_MEDIA = ['coverImage', 'brochure'];
+const isCleared = (value) => Boolean(value) && !value.url;
+
+// The form sends coordinates: null when the poster removed the map pin. Every
+// listing stores coordinates.source by default, so "has a pin" means lat AND lng.
+const hasPin = (coordinates) => coordinates?.lat != null && coordinates?.lng != null;
+
+// Approved at least once: now, hidden by a suspension, or before an edit sent
+// it back to review. Older listings have no firstApprovedAt.
+const wasApprovedOnce = (saved) =>
+  Boolean(saved.firstApprovedAt) ||
+  [LISTING_STATUS.APPROVED, LISTING_STATUS.SUSPENDED].includes(saved.status) ||
+  (saved.reviewHistory ?? []).some((entry) => entry.action === LISTING_STATUS.APPROVED);
+
+const hasValue = (field, value) =>
+  field === 'coordinates' ? hasPin(value) : value !== undefined && value !== null && value !== '';
+
+// The changed fields an approved listing may not change: those in
+// LOCKED_AFTER_APPROVAL that already had a value.
+const lockedChanges = (saved, changed) =>
+  wasApprovedOnce(saved)
+    ? changed.filter((field) => LOCKED_AFTER_APPROVAL.includes(field) && hasValue(field, saved[field]))
+    : [];
+
+const LOCKED_MESSAGE = "Can't be changed after approval. For a different property, post a new listing.";
+
+// Fields that don't apply to the listing's type (bhk on a Plot, FORM-08) are
+// ignored, whatever the client sent. Changes `listing` in place.
+const dropFieldsNotForType = (listing, propertyType) => {
+  for (const field of fieldsNotForType(propertyType)) delete listing[field];
+  return listing;
+};
+
+// The form sends area.type "" when the poster clears it. It only matters for
+// telling an edit changed something; it is never stored.
+const dropBlankAreaType = (body) => {
+  if (body.area?.type === '') delete body.area.type;
+};
+
 // Owners and agents post through the Firebase customer account; each may have
 // this many listings waiting for review at once (spam guard).
 const MAX_PENDING_CUSTOMER_LISTINGS = 10;
+
+// Throws 429 when this customer already has the most listings waiting for
+// review. Used for new listings and for edits that send a listing back to review.
+const refuseIfPendingCapReached = async (res, owner) => {
+  if (owner.model !== OWNER_MODEL.CUSTOMER) return;
+  const pending = await Property.countDocuments({ ...ownerFilter(owner), status: LISTING_STATUS.PENDING });
+  if (pending >= MAX_PENDING_CUSTOMER_LISTINGS) {
+    res.status(429);
+    throw new Error(
+      `You already have ${MAX_PENDING_CUSTOMER_LISTINGS} listings waiting for review. ` +
+      'Please wait for them to be reviewed before adding or editing more.'
+    );
+  }
+};
 
 // Owners sell their own home, which is always a resale. Agents may choose,
 // defaulting to resale. Developers choose freely (unchanged).
@@ -735,6 +814,31 @@ const resolveListingType = (owner, requested) => {
   if (owner.listedBy === LISTED_BY.AGENT) return requested || 'resale';
   return requested;
 };
+
+// ── Retry protection on create (FORM-11) ──
+// The form sends a random UUID with a new listing and reuses it if it has to
+// send again (double click, timeout). Anything that isn't a UUID string is
+// ignored, so no client value other than a plain string reaches the query.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const submissionIdFrom = (body) =>
+  typeof body?.submissionId === 'string' && UUID.test(body.submissionId) ? body.submissionId : null;
+
+const findSubmitted = (owner, submissionId) =>
+  Property.findOne({ ...ownerFilter(owner), submissionId }).select(MY_LISTINGS_HIDDEN_FIELDS);
+
+// Any duplicate key, not only submissionId: two copies of one listing also
+// share a title, and the slug index may be the one Mongo reports first. The
+// lookup that follows decides whether it really was a repeat.
+const isDuplicateKey = (err) => err?.code === 11000;
+
+// The listing this submission already created, not a second copy
+const sendSubmitted = (res, property) =>
+  res.status(200).json({
+    success: true,
+    replayed: true,
+    message: 'This listing was already submitted.',
+    property,
+  });
 
 // Admin-only bookkeeping that the poster's own dashboard doesn't need.
 const MY_LISTINGS_HIDDEN_FIELDS = '-reviewHistory -reviewedBy';
@@ -748,33 +852,51 @@ const MY_LISTINGS_HIDDEN_FIELDS = '-reviewHistory -reviewedBy';
 const addProperty = asyncHandler(async (req, res) => {
   const owner = req.listingOwner;
 
-  const safeBody = parseListingInput(req, res);
-  if (!safeBody) return;
-
-  if (owner.model === OWNER_MODEL.CUSTOMER) {
-    const pending = await Property.countDocuments({ ...ownerFilter(owner), status: 'pending' });
-    if (pending >= MAX_PENDING_CUSTOMER_LISTINGS) {
-      res.status(429);
-      throw new Error(
-        `You already have ${MAX_PENDING_CUSTOMER_LISTINGS} listings waiting for review. ` +
-        'Please wait for them to be reviewed before adding more.'
-      );
-    }
+  // A repeat of a submission that already went through: return that listing.
+  // Checked first, so the pending cap below can't refuse a retry of a save
+  // that succeeded.
+  const submissionId = submissionIdFrom(req.body);
+  if (submissionId) {
+    const earlier = await findSubmitted(owner, submissionId);
+    if (earlier) return sendSubmitted(res, earlier);
   }
 
+  const safeBody = parseListingInput(req, res);
+  if (!safeBody) return;
+  dropFieldsNotForType(safeBody, safeBody.propertyType);
+  dropBlankAreaType(safeBody);
+  if (!meetsListingRules(res, safeBody, owner.listedBy)) return;
+
+  await refuseIfPendingCapReached(res, owner);
+
+  if (!(await mediaIsValid(res, safeBody, owner, null))) return;
+  for (const field of CLEARABLE_MEDIA) {
+    if (isCleared(safeBody[field])) delete safeBody[field];
+  }
+  if (safeBody.coordinates === null) delete safeBody.coordinates; // nothing to remove yet
+
   const listingType = resolveListingType(owner, safeBody.listingType);
-  const property = await Property.create({
-    ...safeBody,
-    ...(listingType && { listingType }),
-    userId: owner.id,
-    ownerModel: owner.model,
-    listedBy: owner.listedBy,
-    status: 'pending',
-  }).catch((err) => {
+  let property;
+  try {
+    property = await Property.create({
+      ...safeBody,
+      ...(listingType && { listingType }),
+      userId: owner.id,
+      ownerModel: owner.model,
+      listedBy: owner.listedBy,
+      status: LISTING_STATUS.PENDING,
+      ...(submissionId && { submissionId }),
+    });
+  } catch (err) {
+    // Two copies of one submission arrived together and the other one won
+    if (submissionId && isDuplicateKey(err)) {
+      const earlier = await findSubmitted(owner, submissionId);
+      if (earlier) return sendSubmitted(res, earlier);
+    }
     // Field names only — values can be personal data (SEC-14).
     logger.warn('[addProperty] create failed', safeErrorMeta(err));
     throw err;
-  });
+  }
 
   res.status(201).json({
     success: true,
@@ -808,9 +930,23 @@ const getMyProperties = asyncHandler(async (req, res) => {
  * Fetch-then-save (not findOneAndUpdate) so the hooks run:
  *   1. pre('validate') → propertyGroup, geo and projectKey recomputed
  *   2. pre('save')     → slug regenerated if the title changed
- * Any edit sends the listing back to 'pending' for admin review. listedBy and
- * ownerModel stay as they were when the listing was created.
+ * What an edit does:
+ *   - changes nothing (same values)  → nothing is saved and nothing goes back to
+ *     review; the response carries `unchanged: true`.
+ *   - the listing hasn't been reviewed yet → stays pending and keeps its place in
+ *     the queue.
+ *   - the listing was already reviewed → goes back to 'pending' as a resubmission:
+ *     submittedAt is reset (queue position), lastEditedAt and changedFields tell
+ *     the admin what to re-check, and the old decision's rejectionReason /
+ *     reviewedAt / reviewedBy are cleared (it stays in reviewHistory).
+ * listedBy and ownerModel stay as they were when the listing was created.
  */
+const STALE_EDIT_MESSAGE =
+  'This listing changed while you were editing it (it may have just been reviewed). Reload it and make your changes again.';
+
+// Most field names recorded per edit (there are ~45 editable fields)
+const MAX_CHANGED_FIELDS = 50;
+
 const updateProperty = asyncHandler(async (req, res) => {
   if (!isValidObjectId(req.params.id)) {
     res.status(400);
@@ -828,12 +964,109 @@ const updateProperty = asyncHandler(async (req, res) => {
   const safeBody = parseListingInput(req, res);
   if (!safeBody) return;
 
+  const saved = property.toObject({ virtuals: false, getters: false, transform: false });
+
+  // The version the form opened. If the listing has changed since (an edit
+  // from another tab, or a review), saving would overwrite that. Optional, so
+  // a form that doesn't send it still works.
+  const expectedVersion = readVersion(req.body?.expectedVersion);
+  if (expectedVersion !== null && expectedVersion !== currentVersion(saved)) {
+    res.status(409);
+    throw new Error(STALE_EDIT_MESSAGE);
+  }
+
+  // Removing a pin the listing never had changes nothing
+  if (safeBody.coordinates === null && !hasPin(saved.coordinates)) delete safeBody.coordinates;
+  const propertyType = safeBody.propertyType ?? saved.propertyType;
+  dropFieldsNotForType(safeBody, propertyType);
+  const changed = changedFields(saved, safeBody);
+  dropBlankAreaType(safeBody);
+
+  // Saving without changing anything must not hide a live listing or put it
+  // back in the review queue.
+  if (!changed.length) {
+    res.json({ ...property.toJSON(), unchanged: true });
+    return;
+  }
+
+  const locked = lockedChanges(saved, changed);
+  if (locked.length) {
+    res.status(400).json({
+      success: false,
+      message: `These can't be changed on an approved listing: ${locked.join(', ')}`,
+      errors: Object.fromEntries(locked.map((field) => [field, LOCKED_MESSAGE])),
+    });
+    return;
+  }
+
+  // Checked on the listing as it would be saved, so an edit can't empty a
+  // required field either. Rules follow who posted it (older listings without
+  // listedBy are developer listings), not who is logged in now.
+  const listedBy = saved.listedBy ?? LISTED_BY.DEVELOPER;
+  const asSaved = dropFieldsNotForType({ ...saved, ...safeBody }, propertyType);
+  if (!meetsListingRules(res, asSaved, listedBy)) return;
+
+  // An edit puts a reviewed listing back in the queue, so it counts like a new one
+  if (property.status !== LISTING_STATUS.PENDING) await refuseIfPendingCapReached(res, owner);
+
+  if (!(await mediaIsValid(res, safeBody, owner, saved))) return;
+
+  // Reviewed before: this edit is a resubmission. (Rejected/approved/suspended,
+  // or a pending listing that still carries an earlier decision.)
+  const wasReviewed =
+    property.status !== LISTING_STATUS.PENDING ||
+    Boolean(property.reviewedAt) ||
+    (property.reviewHistory?.length ?? 0) > 0;
+
   Object.assign(property, safeBody);
+  for (const field of CLEARABLE_MEDIA) {
+    if (isCleared(safeBody[field])) property[field] = undefined;
+  }
+  // Pin removed: clear geo as well. The model only recomputes geo from a pin,
+  // so it would otherwise keep the old point and still show up in map searches.
+  if (safeBody.coordinates === null) {
+    property.coordinates = undefined;
+    property.geo = undefined;
+  }
+  // A new type: clear what the old one had that this one doesn't (a Flat's bhk
+  // when it becomes a Plot). Older listings that already carry such a value
+  // keep it until their type changes.
+  if (propertyType !== saved.propertyType) {
+    for (const field of fieldsNotForType(propertyType)) property[field] = undefined;
+  }
   const listingType = resolveListingType(owner, property.listingType);
   if (listingType) property.listingType = listingType;
-  property.status = 'pending';
+  property.status = LISTING_STATUS.PENDING;
+  // Written even when it was already pending: if a review lands between the
+  // read above and this save, the edited content must not end up approved.
+  property.markModified('status');
+  const version = currentVersion(saved);
+  property.contentVersion = version + 1;
+  // Save only if nobody changed the listing since it was read: no review
+  // (status) and no other edit (version), e.g. from a second tab.
+  property.$where = { status: saved.status, contentVersion: versionMatch(version) };
 
-  await property.save();
+  if (wasReviewed) {
+    const now = new Date();
+    property.submittedAt = now;
+    property.lastEditedAt = now;
+    property.changedFields = changed.slice(0, MAX_CHANGED_FIELDS);
+    // The earlier decision stays in reviewHistory; these described the version
+    // that was just edited.
+    property.rejectionReason = undefined;
+    property.reviewedAt = undefined;
+    property.reviewedBy = undefined;
+  }
+
+  try {
+    await property.save();
+  } catch (err) {
+    if (err instanceof mongoose.Error.DocumentNotFoundError) {
+      res.status(409);
+      throw new Error(STALE_EDIT_MESSAGE, { cause: err });
+    }
+    throw err;
+  }
   invalidatePropertyCaches();
 
   res.json(property);

@@ -3,6 +3,7 @@
 // status (computed from real validation in useSectionStatus). Each item
 // opens its section.
 import { SECTIONS } from "../sectionConfig";
+import { useSectionStatusContext } from "../hooks/sectionStatusContext";
 
 const STATUS_LABEL = {
   done: "Done",
@@ -12,8 +13,8 @@ const STATUS_LABEL = {
   soon: "Coming soon",
 };
 
-const PublishChecklist = ({ status, onOpen }) => {
-  const { byId, done, total } = status;
+const PublishChecklist = ({ sections = SECTIONS, onOpen }) => {
+  const { byId, done, total } = useSectionStatusContext();
   const percent = Math.round((done / total) * 100);
 
   return (
@@ -35,7 +36,7 @@ const PublishChecklist = ({ status, onOpen }) => {
       </div>
 
       <ul className="spf-checklist">
-        {SECTIONS.map((s) => {
+        {sections.map((s) => {
           const st = byId[s.id];
           return (
             <li key={s.id}>

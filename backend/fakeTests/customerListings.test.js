@@ -48,6 +48,9 @@ const LISTING = {
   pincode: "400053",
   price: 9500000,
   propertyType: "Villa",
+  furnishing: "Unfurnished",
+  possessionStatus: "Ready to Move",
+  unitsAvailable: 1,
 };
 
 // A listing owned by a customer, created directly (bypassing the API).

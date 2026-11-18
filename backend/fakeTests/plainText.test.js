@@ -30,13 +30,13 @@ describe("listing and agent input are stored as plain text", () => {
       title: "2 & 3 BHK <script>alert(1)</script>",
       description: "<p>Sea view</p>",
       amenities: "Gym, <b>Pool</b>",
-      virtualTours: [{ type: "video", url: "https://www.youtube.com/watch?v=abc&t=10" }],
+      virtualTours: [{ type: "video", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=10" }],
     });
 
     expect(data.title).toBe("2 & 3 BHK");
     expect(data.description).toBe("Sea view");
     expect(data.amenities).toEqual(["Gym", "Pool"]);
-    expect(data.virtualTours[0].url).toBe("https://www.youtube.com/watch?v=abc&t=10");
+    expect(data.virtualTours[0].url).toBe("https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=10");
   });
 
   it("strips markup from agent applications", () => {

@@ -15,6 +15,7 @@ import { X } from "lucide-react";
 import { LISTING_STATUS_LABELS } from "../listingStatus";
 import {
   DEFAULT_LISTING_FILTERS as DEFAULT_FILTERS,
+  defaultSortFor,
   PROPERTY_TYPES,
   STATUS_OPTIONS,
   POSTED_BY_OPTIONS,
@@ -45,7 +46,16 @@ export default function AdminFilters({
   loadingLocalities = false,
 }) {
   const handleChange = (field, value) => {
-    setFilters((prev) => ({ ...prev, [field]: value }));
+    setFilters((prev) => {
+      const next = { ...prev, [field]: value };
+      // The default order follows the status (oldest-waiting for pending, newest
+      // for the rest). Moving between statuses keeps that default, unless the
+      // admin picked an order themselves.
+      if (field === "status" && prev.sortBy === defaultSortFor(prev.status)) {
+        next.sortBy = defaultSortFor(value);
+      }
+      return next;
+    });
   };
 
   const resetFilters = () => setFilters(DEFAULT_FILTERS);

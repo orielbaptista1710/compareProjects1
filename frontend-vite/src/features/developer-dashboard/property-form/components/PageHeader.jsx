@@ -2,18 +2,18 @@
 // Breadcrumb, page title and the form's actions. "Publish listing" is the
 // form's submit button; it stays disabled until propertySchema accepts every
 // field, and the helper text says why.
+import { useSectionStatusContext } from "../hooks/sectionStatusContext";
 
 const PageHeader = ({
   isEditing,
-  canPublish,
-  needsFixes,
   isSubmitting,
   isAdding,
   isUpdating,
-  onSaveDraft,
   onCancel,
   onShowListings,
 }) => {
+  const { canPublish, byId } = useSectionStatusContext();
+  const needsFixes = Object.values(byId).some((s) => s.state === "error");
   const submitLabel = isEditing
     ? isUpdating ? "Updating…" : "Update listing"
     : isAdding ? "Publishing…" : "Publish listing";
@@ -53,9 +53,6 @@ const PageHeader = ({
             Cancel
           </button>
         )}
-        <button type="button" className="spf-btn spf-btn--secondary" onClick={onSaveDraft} disabled={isSubmitting}>
-          Save draft
-        </button>
         <button
           type="submit"
           className="spf-btn spf-btn--primary"

@@ -30,16 +30,6 @@
   min-width: 0;
 }
 
-.dnav__logo {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  flex-shrink: 0;
-  border-radius: var(--radius-sm, 8px);
-  background: var(--color-primary, #7c3aed);
-}
-
 .dnav__brand-name {
   font-family: var(--font-heading, "Poppins", system-ui, sans-serif);
   font-size: var(--text-lg, 1.125rem);

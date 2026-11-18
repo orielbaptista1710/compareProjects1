@@ -1,22 +1,17 @@
 // sections/PropertyInformationSection.jsx
-// Category filter + property type, developer and project name, title and
-// descriptions. Category (Residential/Commercial) only narrows the type list;
-// it isn't sent — the server derives propertyGroup from propertyType.
-import React, { useState } from "react";
+// Property type, developer and project name, and descriptions. The listing
+// title is generated from these details (features/listings/listingTitle.js).
+// The type list is the same one the search bar uses (propertyTypeConfig.js),
+// so every type a buyer can filter by can be posted. The group heading
+// (Residential / Commercial) isn't sent: the server derives propertyGroup
+// from propertyType.
+import React from "react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { PROPERTY_TYPES } from "../../../../assests/constants/propertyFormConstants";
+import { PROPERTY_TYPE_CONFIG } from "../../../../assests/constants/propertyTypeConfig";
 
-// Same split as backend/models/propertyType.js
-const CATEGORY_TYPES = {
-  Residential: ["Flats/Apartments", "Villa", "Plot"],
-  Commercial: PROPERTY_TYPES.map((t) => t.label).filter(
-    (l) => !["Flats/Apartments", "Villa", "Plot"].includes(l)
-  ),
-};
-const CATEGORIES = Object.keys(CATEGORY_TYPES);
-const categoryOf = (type) => (CATEGORY_TYPES.Commercial.includes(type) ? "Commercial" : "Residential");
+const TYPE_GROUPS = PROPERTY_TYPE_CONFIG.filter((g) => g.target === "propertyType");
+const KNOWN_TYPES = new Set(TYPE_GROUPS.flatMap((g) => g.items.map((i) => i.value)));
 
-const TITLE_MAX = 150;
 const DESCRIPTION_MAX = 500;
 const LONG_DESC_MAX = 5000;
 
@@ -25,59 +20,28 @@ const FieldError = ({ id, error }) =>
     <span id={id} className="field-error" role="alert">{error.message}</span>
   ) : null;
 
-const PropertyInformationSection = () => {
+// showDeveloperFields: false for owners and agents (see roleConfig.js)
+const PropertyInformationSection = ({ showDeveloperFields = true }) => {
   const {
     register,
     control,
-    setValue,
-    getValues,
     formState: { errors },
   } = useFormContext();
 
   // useWatch (not watch) so typing re-renders only this section
-  const titleLen = (useWatch({ control, name: "title" }) || "").length;
   const descLen = (useWatch({ control, name: "description" }) || "").length;
   const longDescLen = (useWatch({ control, name: "long_description" }) || "").length;
 
-  // Follows propertyType, so a restored draft or an add/edit switch (reset())
-  // shows the right list. The lister's own pick wins while the type is blank
-  // or fits it, e.g. right after choosing Commercial clears a Villa.
+  // An older listing can carry a type that is no longer offered; keep it
+  // selectable so the dropdown doesn't show "Select a type" with a value set.
   const propertyType = useWatch({ control, name: "propertyType" });
-  const [picked, setPicked] = useState(null);
-  const category =
-    picked && (!propertyType || CATEGORY_TYPES[picked].includes(propertyType))
-      ? picked
-      : categoryOf(propertyType);
-
-  const chooseCategory = (next) => {
-    setPicked(next);
-    // A type from the other category no longer fits — clear it
-    if (!CATEGORY_TYPES[next].includes(getValues("propertyType"))) {
-      setValue("propertyType", "", { shouldDirty: true });
-    }
-  };
+  const legacyType = propertyType && !KNOWN_TYPES.has(propertyType) ? propertyType : null;
 
   return (
     <section aria-labelledby="info-section-title" className="form-section">
       <h3 id="info-section-title" className="section-title">Basic information</h3>
 
       <div className="form-row">
-        <div className="form-col">
-          <span className="field-label" id="category-label">Category</span>
-          <div className="spf-segmented" role="group" aria-labelledby="category-label">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c}
-                type="button"
-                aria-pressed={category === c}
-                onClick={() => chooseCategory(c)}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        </div>
-
         <div className="form-col">
           <label htmlFor="propertyType">
             Property type <span className="required">*</span>
@@ -89,14 +53,20 @@ const PropertyInformationSection = () => {
             aria-describedby={errors.propertyType ? "propertyType-error" : undefined}
           >
             <option value="">Select a type</option>
-            {CATEGORY_TYPES[category].map((t) => (
-              <option key={t} value={t}>{t}</option>
+            {legacyType && <option value={legacyType}>{legacyType}</option>}
+            {TYPE_GROUPS.map((group) => (
+              <optgroup key={group.key} label={group.group}>
+                {group.items.map((item) => (
+                  <option key={item.value} value={item.value}>{item.label}</option>
+                ))}
+              </optgroup>
             ))}
           </select>
           <FieldError id="propertyType-error" error={errors.propertyType} />
         </div>
       </div>
 
+      {showDeveloperFields && (
       <div className="form-row">
         <div className="form-col">
           <label htmlFor="developerName">
@@ -129,29 +99,7 @@ const PropertyInformationSection = () => {
           <FieldError error={errors.projectName} />
         </div>
       </div>
-
-      <div className="form-row">
-        <div className="form-col">
-          <div className="field-label-row">
-            <label htmlFor="title">
-              Listing title <span className="required">*</span>
-            </label>
-            <span className="char-count" aria-hidden="true">{titleLen} / {TITLE_MAX}</span>
-          </div>
-          <input
-            id="title"
-            {...register("title")}
-            placeholder="e.g. 3 BHK apartment in Palava City, Dombivli"
-            maxLength={TITLE_MAX}
-            aria-describedby="title-help"
-            aria-invalid={errors.title ? "true" : undefined}
-          />
-          <span id="title-help" className="field-hint">
-            Include the configuration, project name and locality. Buyers compare by these.
-          </span>
-          <FieldError error={errors.title} />
-        </div>
-      </div>
+      )}
 
       <div className="form-row">
         <div className="form-col">

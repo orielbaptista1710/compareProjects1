@@ -1,0 +1,44 @@
+/* ProfileSidebarCta.css — the "Post a property" button at the top of the
+   profile sidebar. Tokens only; kept out of CustomerProfilePage.css while that
+   file is being migrated. */
+
+.sidebar-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-height);
+  margin: var(--space-4) var(--space-4) 0;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.sidebar-cta:hover,
+.sidebar-cta.is-active { background: var(--color-primary-tint); }
+
+.sidebar-cta:focus-visible {
+  outline: 2px solid var(--color-on-dark);
+  outline-offset: 2px;
+}
+
+/* Collapsed: an icon-only square, centred in the narrow sidebar */
+.sidebar.collapsed .sidebar-cta {
+  width: var(--control-height);
+  height: var(--control-height);
+  margin: var(--space-4) auto 0;
+  padding: 0;
+}
+
+/* Below this width the sidebar becomes a bottom bar; the My listings tab has its
+   own "New listing" button, so the CTA isn't needed there. */
+@media (max-width: 768px) {
+  .sidebar-cta { display: none; }
+}

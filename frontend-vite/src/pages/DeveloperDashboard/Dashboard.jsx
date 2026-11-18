@@ -7,28 +7,24 @@ import SellPropertyForm from '../../features/developer-dashboard/property-form/S
 import DeveloperSupport from "../../features/developer-dashboard/components/DeveloperSupport/DeveloperSupport";
 import DashboardNav from '../../features/developer-dashboard/components/DashboardNav/DashboardNav';
 import API from '../../api/api';
-import DevPropertyList from '../../features/developer-dashboard/components/DevPropertyList/DevPropertyList';
-import '../../features/developer-dashboard/components/DevPropertyList/DevPropertyList.css';
+import ListingsGrid from '../../features/listings/components/ListingsGrid';
+import EmptyListings from '../../features/listings/components/EmptyListings';
 
 import toast from 'react-hot-toast';
-import useMyListings, { DEVELOPER_LISTING_ENDPOINTS } from '../../features/listings/hooks/useMyListings';
-
-import {
-  initialFormData,
-  normalizePropertyData,
-  REQUIRED_FIELDS,
-} from "../../features/developer-dashboard/utils/developerDashPropertyHelpers";
-import { formatCurrency } from "../../utils/formatters";
+import { DEVELOPER_LISTING_ENDPOINTS } from '../../features/listings/hooks/useMyListings';
+import useListingsWorkspace from '../../features/listings/hooks/useListingsWorkspace';
+import { LISTED_BY } from '../../constants/roles';
+import { clearListingDrafts } from '../../features/listings/draftStorage';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState('sell');
-  const [formData, setFormData] = useState(initialFormData);
-  const [editingId, setEditingId] = useState(null);
 
-  const formatIndianPrice = formatCurrency;
+  // Stable, so the form isn't handed a new function on every dashboard render
+  const showForm = useCallback(() => setActiveTab('sell'), []);
+  const showListings = useCallback(() => setActiveTab('properties'), []);
 
   // Logout
   const handleLogout = useCallback(async () => {
@@ -38,6 +34,9 @@ const Dashboard = () => {
     } catch (err) {
       console.error('Logout failed:', err);
     } finally {
+      // Unfinished listings stay on this browser until now; don't leave them for
+      // the next person on a shared computer
+      clearListingDrafts();
       queryClient.clear();
       navigate('/login');
     }
@@ -56,44 +55,24 @@ const Dashboard = () => {
     if (!userLoading && !user) navigate('/login');
   }, [user, userLoading, navigate]);
 
-  // Listings + add/update/delete, shared with the customer "My listings" tab
+  // Listings, the form's values and add/update/delete are shared with the
+  // customer dashboards (useListingsWorkspace); this page only owns its tabs.
   const {
     properties, isLoading, isError,
-    addProperty, isAdding, updateProperty, isUpdating, deleteProperty,
-  } = useMyListings(DEVELOPER_LISTING_ENDPOINTS, {
-    onSaved: () => {
-      setFormData(initialFormData);
-      setActiveTab('properties');
-      setEditingId(null);
-    },
+    formData, editingId, editingStatus, editingLocked, isAdding, isUpdating,
+    handleSubmit, handleEdit, handleStartNew, handleCancelEdit, handleDelete,
+  } = useListingsWorkspace({
+    endpoints: DEVELOPER_LISTING_ENDPOINTS,
+    role: LISTED_BY.DEVELOPER,
+    onSaved: showListings,
+    onEdit: showForm,
   });
 
-  const handleDelete = (id) => {
-      deleteProperty(id);
-  };
-
-  // Form Submit. `onSuccess` runs only once the server has saved the listing
-  // (the form uses it to clear its draft).
-  const handleSubmit = (data, { onSuccess } = {}) => {
-    const missing = REQUIRED_FIELDS.filter((f) => !data[f]);
-    if (missing.length) {
-      toast.error(`Please fill in: ${missing.join(', ')}`);
-      return;
-    }
-    if (editingId) updateProperty({ id: editingId, data }, { onSuccess });
-    else addProperty(data, { onSuccess });
-  };
-
-  const handleEdit = (property) => {
-    setEditingId(property._id);
-    setFormData(normalizePropertyData(property));
-    setActiveTab('sell');
-  };
-
-  const handleCancelEdit = () => {
-    setEditingId(null);
-    setFormData(initialFormData);
-  };
+  // "New listing": a fresh form, not the listing that was being edited
+  const startNew = useCallback(() => {
+    handleStartNew();
+    showForm();
+  }, [handleStartNew, showForm]);
 
   return (
     <div className="dashboard-shell">
@@ -111,25 +90,39 @@ const Dashboard = () => {
           <SellPropertyForm
             formData={formData}
             editingId={editingId}
+            editingStatus={editingStatus}
+            editingLocked={editingLocked}
             isAdding={isAdding}
             isUpdating={isUpdating}
             draftOwner={user?.username}
             onSubmit={handleSubmit}
             handleCancelEdit={handleCancelEdit}
-            onShowListings={() => setActiveTab('properties')}
+            onShowListings={showListings}
           />
         )}
 
         {activeTab === 'properties' && (
           <div className="dashboard-tab-content">
-            <h1 className="dashboard-tab-title">Listings</h1>
-            <DevPropertyList
-              properties={properties}
+            <div className="dashboard-tab-head">
+              <h1 className="dashboard-tab-title">Listings</h1>
+              <button type="button" className="dashboard-new-btn" onClick={startNew}>
+                New listing
+              </button>
+            </div>
+            <ListingsGrid
+              listings={properties}
               isLoading={isLoading}
               isError={isError}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              formatIndianPrice={formatIndianPrice}
+              empty={
+                <EmptyListings
+                  title="No listings yet"
+                  text="Add your first property and we'll review it."
+                  actionLabel="New listing"
+                  onAction={startNew}
+                />
+              }
             />
           </div>
         )}

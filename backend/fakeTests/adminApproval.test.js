@@ -4,7 +4,7 @@ import request from "supertest";
 import mongoose from "mongoose"; 
 import app from "./helpers/testApp.js";
 import { startTestDb, stopTestDb, clearTestDb } from "./helpers/db.js";
-import { createAdminUser, createUser, createProperty, createCustomer, signToken } from "./helpers/fixtures.js";
+import { createAdminUser, createUser, createProperty, createCustomer, signToken, withVersions } from "./helpers/fixtures.js";
 import Property from "../models/Property.js";
 
 beforeAll(async () => {
@@ -32,7 +32,7 @@ describe("admin approval workflow - correctness", () => {
       const property = await createProperty({ status: "pending" });
 
       const res = await request(app)
-        .put(`/api/admin/approve/${property._id}`)
+        .put(`/api/admin/approve/${property._id}`).send({ version: 0 })
         .set("Authorization", `Bearer ${token}`);
 
       expect(res.status).toBe(200);
@@ -47,7 +47,7 @@ describe("admin approval workflow - correctness", () => {
       const longReason = "x".repeat(600);
 
       const res = await request(app)
-        .put(`/api/admin/reject/${property._id}`)
+        .put(`/api/admin/reject/${property._id}`).send({ version: 0 })
         .set("Authorization", `Bearer ${token}`)
         .send({ rejectionReason: `  ${longReason}  ` });
 
@@ -62,7 +62,7 @@ describe("admin approval workflow - correctness", () => {
       const property = await createProperty({ status: "pending" });
 
       const res = await request(app)
-        .put(`/api/admin/reject/${property._id}`)
+        .put(`/api/admin/reject/${property._id}`).send({ version: 0 })
         .set("Authorization", `Bearer ${token}`)
         .send({});
 
@@ -92,7 +92,8 @@ describe("admin approval workflow - correctness", () => {
         const missingId = new mongoose.Types.ObjectId();
         const missing = await request(app)[method](
           urlFor(missingId.toString()))
-          .set("Authorization", `Bearer ${token}`);
+          .set("Authorization", `Bearer ${token}`)
+          .send(method === "put" ? { version: 0 } : undefined);
         expect(missing.status).toBe(404);
         expect(missing.body.success).toBe(false);
       }
@@ -109,7 +110,7 @@ describe("admin approval workflow - correctness", () => {
       const res = await request(app)
         .put("/api/admin/bulk-approve")
         .set("Authorization", `Bearer ${token}`)
-        .send({
+        .send(withVersions({
           ids: [
             propA._id.toString(),
             propB._id.toString(),
@@ -117,7 +118,7 @@ describe("admin approval workflow - correctness", () => {
             nonexistentId.toString(), // well-formed but missing
             "not-an-object-id", // malformed
           ],
-        });
+        }));
 
       expect(res.status).toBe(200);
       expect(res.body.matched).toBe(2);
@@ -135,10 +136,10 @@ describe("admin approval workflow - correctness", () => {
       const res = await request(app)
         .put("/api/admin/bulk-reject")
         .set("Authorization", `Bearer ${token}`)
-        .send({
+        .send(withVersions({
           ids: [propA._id.toString(), propB._id.toString()],
           rejectionReason: "  Incomplete listing  ",
-        });
+        }));
 
       expect(res.status).toBe(200);
       expect(res.body.matched).toBe(2);
@@ -157,7 +158,7 @@ describe("admin approval workflow - correctness", () => {
       const res = await request(app)
         .put("/api/admin/bulk-approve")
         .set("Authorization", `Bearer ${token}`)
-        .send({ ids: [] });
+        .send(withVersions({ ids: [] }));
 
       expect(res.status).toBe(400);
     });
@@ -174,7 +175,7 @@ describe("admin approval workflow - correctness", () => {
       const res = await request(app)
         .put("/api/admin/bulk-approve")
         .set("Authorization", `Bearer ${token}`)
-        .send({ ids });
+        .send(withVersions({ ids }));
 
       expect(res.status).toBe(200);
       expect(res.body.matched).toBe(100);
@@ -189,7 +190,7 @@ describe("admin approval workflow - correctness", () => {
       const own = await createProperty({ status: "pending", userId: admin._id });
 
       const res = await request(app)
-        .put(`/api/admin/approve/${own._id}`)
+        .put(`/api/admin/approve/${own._id}`).send({ version: 0 })
         .set("Authorization", `Bearer ${token}`);
 
       expect(res.status).toBe(403);
@@ -203,7 +204,7 @@ describe("admin approval workflow - correctness", () => {
       const own = await createProperty({ status: "pending", userId: admin._id });
 
       const res = await request(app)
-        .put(`/api/admin/reject/${own._id}`)
+        .put(`/api/admin/reject/${own._id}`).send({ version: 0 })
         .set("Authorization", `Bearer ${token}`)
         .send({ rejectionReason: "test" });
 
@@ -216,7 +217,7 @@ describe("admin approval workflow - correctness", () => {
       const someoneElses = await createProperty({ status: "pending" });
 
       const res = await request(app)
-        .put(`/api/admin/approve/${someoneElses._id}`)
+        .put(`/api/admin/approve/${someoneElses._id}`).send({ version: 0 })
         .set("Authorization", `Bearer ${token}`);
 
       expect(res.status).toBe(200);
@@ -231,7 +232,7 @@ describe("admin approval workflow - correctness", () => {
       const res = await request(app)
         .put("/api/admin/bulk-approve")
         .set("Authorization", `Bearer ${token}`)
-        .send({ ids: [ownProperty._id.toString(), othersProperty._id.toString()] });
+        .send(withVersions({ ids: [ownProperty._id.toString(), othersProperty._id.toString()] }));
 
       expect(res.status).toBe(200);
       expect(res.body.matched).toBe(1);
@@ -282,11 +283,11 @@ describe("admin approval workflow - audit trail", () => {
     const property = await createProperty({ status: "pending" });
 
     await request(app)
-      .put(`/api/admin/reject/${property._id}`)
+      .put(`/api/admin/reject/${property._id}`).send({ version: 0 })
       .set("Authorization", `Bearer ${token}`)
       .send({ rejectionReason: "Blurry photos" });
     await request(app)
-      .put(`/api/admin/approve/${property._id}`)
+      .put(`/api/admin/approve/${property._id}`).send({ version: 0 })
       .set("Authorization", `Bearer ${token}`);
 
     const saved = await Property.findById(property._id).lean();
@@ -303,7 +304,7 @@ describe("admin approval workflow - audit trail", () => {
     const res = await request(app)
       .put("/api/admin/bulk-approve")
       .set("Authorization", `Bearer ${token}`)
-      .send({ ids: [String(property._id)] });
+      .send(withVersions({ ids: [String(property._id)] }));
 
     expect(res.status).toBe(200);
     const saved = await Property.findById(property._id).lean();
@@ -316,7 +317,7 @@ describe("admin approval workflow - audit trail", () => {
     const property = await createProperty({ status: "pending" });
 
     const res = await request(app)
-      .put(`/api/admin/reject/${property._id}`)
+      .put(`/api/admin/reject/${property._id}`).send({ version: 0 })
       .set("Authorization", `Bearer ${token}`)
       .send({ rejectionReason: { $gt: "" } });
 
@@ -388,7 +389,7 @@ describe("a decision already made isn't made again", () => {
     const token = await adminToken();
     const property = await createProperty({ status: "approved" });
 
-    const res = await request(app).put(`/api/admin/approve/${property._id}`).set("Authorization", `Bearer ${token}`);
+    const res = await request(app).put(`/api/admin/approve/${property._id}`).send({ version: 0 }).set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(409);
     expect(res.body.message).toMatch(/already approved/);
@@ -399,7 +400,7 @@ describe("a decision already made isn't made again", () => {
     const token = await adminToken();
     const property = await createProperty({ status: "suspended" });
 
-    const res = await request(app).put(`/api/admin/approve/${property._id}`).set("Authorization", `Bearer ${token}`);
+    const res = await request(app).put(`/api/admin/approve/${property._id}`).send({ version: 0 }).set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(409);
     expect(res.body.message).toMatch(/hidden until the posting agent is reinstated/);
@@ -410,7 +411,7 @@ describe("a decision already made isn't made again", () => {
     const property = await createProperty({ status: "rejected", rejectionReason: "Blurry photos" });
 
     const res = await request(app)
-      .put(`/api/admin/reject/${property._id}`)
+      .put(`/api/admin/reject/${property._id}`).send({ version: 0 })
       .set("Authorization", `Bearer ${token}`)
       .send({ rejectionReason: "Something else" });
 
@@ -424,10 +425,10 @@ describe("a decision already made isn't made again", () => {
     const rejected = await createProperty({ status: "rejected" });
 
     const reject = await request(app)
-      .put(`/api/admin/reject/${approved._id}`)
+      .put(`/api/admin/reject/${approved._id}`).send({ version: 0 })
       .set("Authorization", `Bearer ${token}`)
       .send({ rejectionReason: "Price is wrong" });
-    const approve = await request(app).put(`/api/admin/approve/${rejected._id}`).set("Authorization", `Bearer ${token}`);
+    const approve = await request(app).put(`/api/admin/approve/${rejected._id}`).send({ version: 0 }).set("Authorization", `Bearer ${token}`);
 
     expect(reject.status).toBe(200);
     expect(approve.status).toBe(200);
@@ -442,7 +443,7 @@ describe("a decision already made isn't made again", () => {
     const res = await request(app)
       .put("/api/admin/bulk-approve")
       .set("Authorization", `Bearer ${token}`)
-      .send({ ids: [String(done._id), String(waiting._id)] });
+      .send(withVersions({ ids: [String(done._id), String(waiting._id)] }));
 
     expect(res.status).toBe(200);
     expect(res.body.modified).toBe(1);

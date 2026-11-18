@@ -12,6 +12,7 @@ import {
   canReject,
 } from "../listingStatus";
 import { posterLabel, posterName } from "../poster";
+import { waitingLabel } from "../waiting";
 import "./AdminPropertyTable.css";
 
 export default function AdminPropertyTable({
@@ -31,7 +32,23 @@ export default function AdminPropertyTable({
   const rows = data?.data || [];
 
   const columns = useMemo(() => [
-    { field: "title", headerName: "Title", flex: 1 },
+    {
+      field: "title",
+      headerName: "Title",
+      flex: 1,
+      // A pending listing that was reviewed before and then edited: the
+      // reviewer should know it isn't new.
+      renderCell: ({ value, row }) => (
+        <span className="admin-title-cell">
+          <span className="admin-title-cell__text" title={value}>{value}</span>
+          {row.status === LISTING_STATUS.PENDING && row.lastEditedAt && (
+            <Tooltip title={`Edited ${new Date(row.lastEditedAt).toLocaleString()} after an earlier review`}>
+              <Chip size="small" label="Edited" color="info" variant="outlined" />
+            </Tooltip>
+          )}
+        </span>
+      ),
+    },
 
     {
       field: "postedBy",
@@ -78,10 +95,20 @@ export default function AdminPropertyTable({
       field: "submittedAt",
       headerName: "Submitted",
       flex: 1,
+      // For an edited listing this is when it was resubmitted, not first posted
       valueGetter: (value, row) =>
         row?.submittedAt
           ? new Date(row.submittedAt).toLocaleString()
-          : "N/A"
+          : "N/A",
+      renderCell: ({ value, row }) => {
+        const waiting = row.status === LISTING_STATUS.PENDING ? waitingLabel(row.submittedAt) : null;
+        return (
+          <span className="admin-submitted-cell">
+            <span>{value}</span>
+            {waiting && <span className="admin-submitted-cell__waiting">{waiting}</span>}
+          </span>
+        );
+      },
     },
 
     {
@@ -106,7 +133,7 @@ export default function AdminPropertyTable({
         // mutated via `.variables` (the arg passed to .mutate(...)) rather
         // than disabling every row while any one row is in flight.
         const isApprovingThis =
-          approveMutation.isPending && approveMutation.variables === prop._id;
+          approveMutation.isPending && approveMutation.variables?.id === prop._id;
         const isRejectingThis =
           rejectMutation.isPending && rejectMutation.variables?.id === prop._id;
 
@@ -122,7 +149,9 @@ export default function AdminPropertyTable({
                   disabled={!canApprove(prop.status) || isApprovingThis}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleApprove(prop._id);
+                    // The version this row shows: the server refuses if the
+                    // listing was edited after the table loaded.
+                    handleApprove(prop._id, prop.contentVersion ?? 0);
                   }}
                   sx={{ mr: 1 }}
                 >
@@ -138,7 +167,7 @@ export default function AdminPropertyTable({
               disabled={!canReject(prop.status) || isRejectingThis}
               onClick={(e) => {
                 e.stopPropagation();
-                handleOpenReject(prop._id);
+                handleOpenReject(prop._id, prop.contentVersion ?? 0);
               }}
             >
               {isRejectingThis ? "Rejecting…" : "Reject"}

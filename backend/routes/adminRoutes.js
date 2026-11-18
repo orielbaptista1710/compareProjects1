@@ -13,6 +13,9 @@ router.use(adminActionLimiter);
 // GET /api/admin/properties
 router.get('/properties', protect, isAdmin, adminController.getProperties);    //used in AdminDasboard.js
 
+// GET /api/admin/properties/counts - per-status counts for the pending badge
+router.get('/properties/counts', protect, isAdmin, adminController.getStatusCounts);
+
 router.get("/cities", protect, isAdmin, adminController.getCities);            //used in AdminDasboard.js
 router.get("/localities", protect, isAdmin, adminController.getLocalities);    //used in AdminDasboard.js
 

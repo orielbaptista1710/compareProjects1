@@ -55,6 +55,16 @@ export const posterOf = (property) => {
   }
 };
 
+// Property.status (mirrors backend/constants/roles.js). 'pending' until an admin
+// decides; 'suspended' is an approved listing hidden while its agent is
+// suspended. Only 'approved' is public.
+export const LISTING_STATUS = Object.freeze({
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  SUSPENDED: "suspended",
+});
+
 export const AGENT_STATUS = Object.freeze({
   NONE: "none",
   PENDING: "pending",

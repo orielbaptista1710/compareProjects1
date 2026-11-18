@@ -17,7 +17,8 @@ import DeveloperDetailsModal from "../AdminDasboardComponents/DeveloperDetailsMo
 import AdminFilters from "../AdminDasboardComponents/AdminFilters";
 import { canApprove, canReject } from "../listingStatus";
 import RejectListingDialog from "./RejectListingDialog";
-import { DEFAULT_LISTING_FILTERS as DEFAULT_FILTERS, readFiltersFromParams } from "./listingFilters";
+import { DEFAULT_LISTING_FILTERS as DEFAULT_FILTERS, defaultSortFor, readFiltersFromParams } from "./listingFilters";
+import { ADMIN_COUNTS_KEY } from "../hooks/useAdminStatusCounts";
 
 import toast from "react-hot-toast";
 import toastError from "../../../utils/toastError";
@@ -42,33 +43,42 @@ const fetchProperties = async ({ queryKey }) => {
   return data;
 };
 
-const approvePropertyApi = async (id) => {
-  const { data } = await API.put(`/api/admin/approve/${id}`);
+// Every review carries the listing version the admin was looking at
+// (contentVersion). If the poster edited since, the server answers 409 and
+// nothing is decided, so an admin never approves content they didn't see.
+const versionOf = (listing) => listing?.contentVersion ?? 0;
+
+const approvePropertyApi = async ({ id, version }) => {
+  const { data } = await API.put(`/api/admin/approve/${id}`, { version });
   return data;
 };
 
-const rejectPropertyApi = async ({ id, reason }) => {
-  const { data } = await API.put(`/api/admin/reject/${id}`, { rejectionReason: reason });
+const rejectPropertyApi = async ({ id, reason, version }) => {
+  const { data } = await API.put(`/api/admin/reject/${id}`, { rejectionReason: reason, version });
   return data;
 };
 
-const bulkApprovePropertiesApi = async (ids) => {
-  const { data } = await API.put("/api/admin/bulk-approve", { ids });
+const bulkApprovePropertiesApi = async ({ ids, versions }) => {
+  const { data } = await API.put("/api/admin/bulk-approve", { ids, versions });
   return data;
 };
 
-const bulkRejectPropertiesApi = async ({ ids, reason }) => {
-  const { data } = await API.put("/api/admin/bulk-reject", { ids, rejectionReason: reason });
+const bulkRejectPropertiesApi = async ({ ids, reason, versions }) => {
+  const { data } = await API.put("/api/admin/bulk-reject", { ids, rejectionReason: reason, versions });
   return data;
 };
 
 // A 403 here is "you can't review your own listing", not a deactivated
-// account (toastError's generic 403 text), so show the server's reason.
+// account (toastError's generic 403 text), and a 409 is "already decided" or
+// "edited since you opened it", so show the server's reason for both.
 const showReviewError = (err, fallback) => {
   const serverMsg = err.response?.data?.message;
-  if (err.response?.status === 403 && serverMsg) return toast.error(serverMsg);
+  if ([403, 409].includes(err.response?.status) && serverMsg) return toast.error(serverMsg);
   return toastError(err, fallback);
 };
+
+const changedNote = (n) =>
+  `${n} selected ${n === 1 ? "listing was" : "listings were"} edited after this page loaded and ${n === 1 ? "was" : "were"} skipped. Review ${n === 1 ? "it" : "them"} again.`;
 
 const plural = (n) => `${n} propert${n === 1 ? "y" : "ies"}`;
 
@@ -149,7 +159,7 @@ export default function AdminListings() {
     if (filters.city) params.set("city", filters.city);
     if (filters.locality) params.set("locality", filters.locality);
     if (filters.imageFilter) params.set("imageFilter", filters.imageFilter);
-    if (filters.sortBy !== DEFAULT_FILTERS.sortBy) params.set("sortBy", filters.sortBy);
+    if (filters.sortBy !== defaultSortFor(filters.status)) params.set("sortBy", filters.sortBy);
     if (page) params.set("page", String(page));
     if (rowsPerPage !== 20) params.set("limit", String(rowsPerPage));
     setSearchParams(params, { replace: true });
@@ -228,6 +238,13 @@ export default function AdminListings() {
     retryDelay:     1500,
   });
 
+  // Versions of every row seen on any page, so a selection that spans pages
+  // still sends what the admin was shown for each listing.
+  const seenVersions = useRef(new Map());
+  useEffect(() => {
+    for (const row of data?.data ?? []) seenVersions.current.set(row._id, versionOf(row));
+  }, [data]);
+
   const { data: cityList = [] } = useQuery({
     queryKey: ["adminCities"],
     queryFn:  async () => {
@@ -254,6 +271,8 @@ export default function AdminListings() {
 
   const invalidateProperties = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ["adminProperties"] });
+    // The pending badge on the Listings tab
+    queryClient.invalidateQueries({ queryKey: ADMIN_COUNTS_KEY });
   }, [queryClient]);
 
   // Keep an open details modal in step with the review just made, so it
@@ -267,6 +286,19 @@ export default function AdminListings() {
     );
   }, []);
 
+  // After a 409 the list (and an open details view of that listing) is out of
+  // date: reload both so the admin sees the version they'd be deciding on.
+  const selectedIdRef = useRef(null);
+  const reloadDetailsRef = useRef(null);
+  useEffect(() => {
+    selectedIdRef.current = selectedProperty?._id ?? null;
+  }, [selectedProperty]);
+  const reloadAfterConflict = useCallback((err, id) => {
+    if (err.response?.status !== 409) return;
+    invalidateProperties();
+    if (id && selectedIdRef.current === id) reloadDetailsRef.current?.(id);
+  }, [invalidateProperties]);
+
   const approveMutation = useMutation({
     mutationFn: approvePropertyApi,
     onSuccess:  (result) => {
@@ -277,7 +309,11 @@ export default function AdminListings() {
       toast.success(result?.message || "Property approved");
       setConfirmApprove({ open: false, propertyId: null });
     },
-    onError: (err) => showReviewError(err, "Failed to approve property"),
+    onError: (err, { id }) => {
+      showReviewError(err, "Failed to approve property");
+      reloadAfterConflict(err, id);
+      setConfirmApprove({ open: false, propertyId: null });
+    },
   });
 
   const rejectMutation = useMutation({
@@ -288,14 +324,19 @@ export default function AdminListings() {
       toast.success("Property rejected");
       setRejectModal({ open: false, propertyId: null });
     },
-    onError: (err) => showReviewError(err, "Failed to reject property"),
+    onError: (err, { id }) => {
+      showReviewError(err, "Failed to reject property");
+      reloadAfterConflict(err, id);
+      setRejectModal({ open: false, propertyId: null });
+    },
   });
 
   const bulkApproveMutation = useMutation({
     mutationFn: bulkApprovePropertiesApi,
     onSuccess:  (result) => {
       invalidateProperties();
-      toast.success(bulkApprovedMessage(result));
+      if (result.modified || !result.changed) toast.success(bulkApprovedMessage(result));
+      if (result.changed) toast.error(changedNote(result.changed));
       setConfirmApprove({ open: false, propertyId: null });
       clearSelection();
     },
@@ -306,7 +347,8 @@ export default function AdminListings() {
     mutationFn: bulkRejectPropertiesApi,
     onSuccess:  (result) => {
       invalidateProperties();
-      toast.success(`${plural(result.modified)} rejected`);
+      if (result.modified || !result.changed) toast.success(`${plural(result.modified)} rejected`);
+      if (result.changed) toast.error(changedNote(result.changed));
       setRejectModal({ open: false, propertyId: null });
       clearSelection();
     },
@@ -341,6 +383,10 @@ export default function AdminListings() {
     }
   }, []);
 
+  useEffect(() => {
+    reloadDetailsRef.current = (id) => handleRowClick({ _id: id });
+  }, [handleRowClick]);
+
   const handleCloseDetails = useCallback(() => {
     detailsRequest.current += 1; // a still-loading listing must not reopen it
     setDetailsModalOpen(false);
@@ -351,8 +397,9 @@ export default function AdminListings() {
 
   // ── Approve flow (single row or bulk — propertyId can be an id or an array) ──
 
-  const handleApprove = useCallback((id) => {
-    setConfirmApprove({ open: true, propertyId: id });
+  // version: the contentVersion of the row or details the admin acted from
+  const handleApprove = useCallback((id, version) => {
+    setConfirmApprove({ open: true, propertyId: id, version });
   }, []);
 
   // Bulk actions follow the row buttons' rules: re-approving an approved (or
@@ -365,6 +412,12 @@ export default function AdminListings() {
     return { ids, skipped: all.length - ids.length };
   }, [data, selectionModel]);
 
+  // { id: version } for a bulk request. An id never seen on a page is sent
+  // without one, and the server skips it rather than decide it blind.
+  const versionsFor = useCallback((ids) => Object.fromEntries(
+    ids.filter((id) => seenVersions.current.has(id)).map((id) => [id, seenVersions.current.get(id)])
+  ), []);
+
   const handleBulkApproveClick = useCallback(() => {
     const { ids, skipped } = splitSelection(canApprove);
     if (!ids.length) return toast.error("None of the selected listings can be approved");
@@ -372,16 +425,20 @@ export default function AdminListings() {
   }, [splitSelection]);
 
   const handleApproveConfirm = useCallback(() => {
-    if (Array.isArray(confirmApprove.propertyId)) {
-      bulkApproveMutation.mutate(confirmApprove.propertyId);
+    const { propertyId, version } = confirmApprove;
+    if (Array.isArray(propertyId)) {
+      bulkApproveMutation.mutate({ ids: propertyId, versions: versionsFor(propertyId) });
     } else {
-      approveMutation.mutate(confirmApprove.propertyId);
+      approveMutation.mutate({ id: propertyId, version });
     }
-  }, [approveMutation, bulkApproveMutation, confirmApprove.propertyId]);
+  }, [approveMutation, bulkApproveMutation, confirmApprove, versionsFor]);
 
   // ── Reject flow (single row or bulk) ──────────────────────────────────────────
 
-  const handleOpenReject = useCallback((id) => setRejectModal({ open: true, propertyId: id }), []);
+  const handleOpenReject = useCallback(
+    (id, version) => setRejectModal({ open: true, propertyId: id, version }),
+    []
+  );
 
   const handleBulkRejectClick = useCallback(() => {
     const { ids, skipped } = splitSelection(canReject);
@@ -393,12 +450,13 @@ export default function AdminListings() {
   // (RejectListingDialog won't confirm without one).
   const handleRejectConfirm = useCallback((reason) => {
     if (!reason) return;
-    if (Array.isArray(rejectModal.propertyId)) {
-      bulkRejectMutation.mutate({ ids: rejectModal.propertyId, reason });
+    const { propertyId, version } = rejectModal;
+    if (Array.isArray(propertyId)) {
+      bulkRejectMutation.mutate({ ids: propertyId, reason, versions: versionsFor(propertyId) });
     } else {
-      rejectMutation.mutate({ id: rejectModal.propertyId, reason });
+      rejectMutation.mutate({ id: propertyId, reason, version });
     }
-  }, [rejectMutation, bulkRejectMutation, rejectModal.propertyId]);
+  }, [rejectMutation, bulkRejectMutation, rejectModal, versionsFor]);
 
   const closeReject = useCallback(() => setRejectModal({ open: false, propertyId: null }), []);
 
@@ -507,9 +565,9 @@ export default function AdminListings() {
         onClose={handleCloseDetails}
         property={selectedProperty}
         loading={detailsLoading}
-        onApprove={selectedProperty && canApprove(selectedProperty.status) ? () => handleApprove(selectedProperty._id) : undefined}
-        onReject={selectedProperty && canReject(selectedProperty.status) ? () => handleOpenReject(selectedProperty._id) : undefined}
-        isApproving={approveMutation.isPending && approveMutation.variables === selectedProperty?._id}
+        onApprove={selectedProperty && canApprove(selectedProperty.status) ? () => handleApprove(selectedProperty._id, versionOf(selectedProperty)) : undefined}
+        onReject={selectedProperty && canReject(selectedProperty.status) ? () => handleOpenReject(selectedProperty._id, versionOf(selectedProperty)) : undefined}
+        isApproving={approveMutation.isPending && approveMutation.variables?.id === selectedProperty?._id}
         isRejecting={rejectMutation.isPending && rejectMutation.variables?.id === selectedProperty?._id}
       />
 

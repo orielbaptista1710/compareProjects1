@@ -14,6 +14,7 @@ import {
   FACING_OPTIONS,
   PARKING_OPTIONS,
 } from "../../../../assests/constants/propertyFormConstants";
+import { useTypeFields } from "../hooks/useTypeFields";
 
 // ── Reusable RadioGroup ────────────────────────────────────────────────────────
 const RadioGroup = React.memo(({ name, options, withSuffix = "" }) => {
@@ -84,10 +85,12 @@ const MultiCheckboxGroup = React.memo(({ name, options }) => {
 });
 
 // ── Main Section ───────────────────────────────────────────────────────────────
+// Fields the chosen property type doesn't have are hidden (useTypeFields).
 const PropertyDetailsSection = () => {
   const {
     formState: { errors },
   } = useFormContext();
+  const { skips, furnishingRequired } = useTypeFields();
 
   return (
     <section aria-labelledby="details-section-title" className="form-section">
@@ -96,6 +99,7 @@ const PropertyDetailsSection = () => {
       </h3>
 
       {/* BHK */}
+      {!skips("bhk") && (
       <fieldset className="fieldset">
         <legend>BHK Configuration</legend>
         <RadioGroup name="bhk" options={BHK_OPTIONS} withSuffix="BHK" />
@@ -103,18 +107,23 @@ const PropertyDetailsSection = () => {
           <span className="field-error" role="alert">{errors.bhk.message}</span>
         )}
       </fieldset>
+      )}
 
       {/* Bathrooms */}
+      {!skips("bathrooms") && (
       <fieldset className="fieldset">
         <legend>Bathrooms</legend>
         <RadioGroup name="bathrooms" options={BATHROOM_OPTIONS} />
       </fieldset>
+      )}
 
       {/* Balconies */}
+      {!skips("balconies") && (
       <fieldset className="fieldset">
         <legend>Balconies</legend>
         <RadioGroup name="balconies" options={BALCONY_OPTIONS} />
       </fieldset>
+      )}
 
       {/* Facing */}
       <fieldset className="fieldset">
@@ -128,22 +137,29 @@ const PropertyDetailsSection = () => {
         <MultiCheckboxGroup name="parkings" options={PARKING_OPTIONS} />
       </fieldset>
 
-      {/* Furnishing */}
+      {/* Furnishing: required for homes, optional for shops and offices */}
+      {!skips("furnishing") && (
       <fieldset className="fieldset">
         <legend>
-          Furnishing <span className="required">*</span>
+          Furnishing{" "}
+          {furnishingRequired
+            ? <span className="required">*</span>
+            : <span className="optional">(optional)</span>}
         </legend>
         <RadioGroup name="furnishing" options={FURNISHED_OPTIONS} />
         {errors.furnishing && (
           <span className="field-error" role="alert">{errors.furnishing.message}</span>
         )}
       </fieldset>
+      )}
 
       {/* Age of Property */}
+      {!skips("ageOfProperty") && (
       <fieldset className="fieldset">
         <legend>Age of Property</legend>
         <RadioGroup name="ageOfProperty" options={AGE_OF_PROPERTY_OPTIONS} />
       </fieldset>
+      )}
     </section>
   );
 };

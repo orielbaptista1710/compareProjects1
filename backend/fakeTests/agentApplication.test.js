@@ -15,7 +15,7 @@ vi.mock("../config/firebaseAdmin.js", () => ({
 
 const { default: app } = await import("./helpers/roleSystemApp.js");
 const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js");
-const { createCustomer, createUser, createAdminUser, createProperty, signToken } = await import("./helpers/fixtures.js");
+const { createCustomer, createUser, createAdminUser, createProperty, signToken, withVersions } = await import("./helpers/fixtures.js");
 const { default: Customer } = await import("../models/Customer.js");
 const { default: Property } = await import("../models/Property.js");
 
@@ -170,6 +170,8 @@ describe("/api/admin/agents", () => {
         pincode: "400051",
         price: 50000000,
         propertyType: "Villa",
+        furnishing: "Unfurnished",
+        possessionStatus: "Ready to Move",
       });
 
     expect(review.status).toBe(200);
@@ -249,11 +251,11 @@ describe("/api/admin/agents", () => {
     const another = await listing("pending");
     const statusOf = async (p) => (await Property.findById(p._id).lean()).status;
 
-    const single = await request(app).put(`/api/admin/approve/${waiting._id}`).set("Authorization", auth);
+    const single = await request(app).put(`/api/admin/approve/${waiting._id}`).send({ version: 0 }).set("Authorization", auth);
     const bulk = await request(app)
       .put("/api/admin/bulk-approve")
       .set("Authorization", auth)
-      .send({ ids: [String(hidden._id), String(another._id)] });
+      .send(withVersions({ ids: [String(hidden._id), String(another._id)] }));
 
     expect(single.status).toBe(200);
     expect(single.body.message).toMatch(/hidden until the posting agent is reinstated/);

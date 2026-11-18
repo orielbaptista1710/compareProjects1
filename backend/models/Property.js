@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from './propertyType.js';
 import slugify from 'slugify';
 import { buildProjectKey } from '../utils/projectKey.js';
-import { LISTED_BY, OWNER_MODEL } from '../constants/roles.js';
+import { LISTED_BY, LISTING_STATUS, OWNER_MODEL } from '../constants/roles.js';
+import { PHOTO_CATEGORIES } from '../constants/media.js';
+import { SQFT_PER_UNIT, AREA_TYPES } from '../constants/listingRules.js';
 
 const propertySchema = new mongoose.Schema({
 
@@ -31,8 +33,8 @@ const propertySchema = new mongoose.Schema({
   // (services/agentAdminService.js); reinstating the agent sets it back.
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected', 'suspended'],
-    default: 'pending'
+    enum: Object.values(LISTING_STATUS),
+    default: LISTING_STATUS.PENDING
   },
  
   slug: {
@@ -164,11 +166,15 @@ geo: {
 
   area: {
     value: { type: Number, min: 0 },
-    unit: { 
-      type: String,  
-      enum: ['sqft', 'sqmts','guntas', 'hectares', 'acres'],
+    unit: {
+      type: String,
+      enum: Object.keys(SQFT_PER_UNIT),
       default: 'sqft'
-    }
+    },
+    // Carpet, built-up, super built-up or plot area (FORM-07). Optional:
+    // imported listings don't say. Declared as { type: { type } } because
+    // `type` is also Mongoose's own key, same as geo.type below.
+    type: { type: String, enum: AREA_TYPES },
   },
 
   //from the rera website
@@ -235,7 +241,9 @@ geo: {
 
   wing: { type: String  },// the wing of the building where the unit is located eg: G / B1 / 12
   phase: { type: String },// the phase of the building where the unit is located eg: Phase 1 / Phase 2 / Phase 3 etc  //CHECK THIS 
-  tower: { type: Number },// the tower of the building where the unit is located eg: Tower A / Tower B / Tower C etc
+  // The unit's tower, e.g. "A" or "T2". Was a Number, so "Tower A" couldn't be
+  // saved (FORM-18); older listings' numbers are read back as text ("3").
+  tower: { type: String, trim: true },
   unitsAvailable : { type: Number },
   
   amenities: { type: [String] ,default: []},
@@ -245,13 +253,15 @@ geo: {
   // Media (optimized)
   coverImage: {
     url: String,       // CDN URL
-    thumbnail: String  // CDN thumbnail for list view
+    thumbnail: String, // CDN thumbnail for list view
+    category: { type: String, enum: PHOTO_CATEGORIES }
   },
   galleryImages: {
   type: [{
     url: String,
     thumbnail: String,
-    caption: String
+    caption: String,
+    category: { type: String, enum: PHOTO_CATEGORIES } // tab it was uploaded under; older photos have none
   }],
   default: []
 }
@@ -327,11 +337,32 @@ geo: {
 
 
 
-  // Timestamps
-  submittedAt: { type: Date, default: Date.now }, //this is for the time when the property is submitted by developer??
+  // When the listing was last put in front of a reviewer: when it was posted, or
+  // when its poster last edited it after it had already been reviewed. The admin
+  // queue sorts "oldest waiting first" on this.
+  submittedAt: { type: Date, default: Date.now },
+
+  // Set only when a poster edits a listing that was already reviewed (see
+  // updateProperty). Lets an admin tell an edit from a new listing and see what
+  // to re-check. Field NAMES only, taken from the input allowlist (never client
+  // text), so nothing here needs sanitising. Server-only: not in the input validator.
+  lastEditedAt: { type: Date },
+  // +1 on every edit that changes the listing; a review must name the
+  // version it saw (utils/contentVersion.js). Missing on older docs = 0.
+  contentVersion: { type: Number, default: 0, min: 0 },
+  changedFields: { type: [String], default: [] },
+  // Random id the form sends with a new listing (FORM-11). A retry with the
+  // same id (double click, timeout) gets this listing back instead of a second
+  // copy. Unique per account (index below); never sent back to clients.
+  submissionId: { type: String, select: false },
+
   reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   reviewedAt: Date,
   rejectionReason: String,
+  // First admin approval. From then on LOCKED_AFTER_APPROVAL fields can't be
+  // edited (constants/listingRules.js). Older approved listings don't have it;
+  // their status or reviewHistory says the same.
+  firstApprovedAt: Date,
 
   // Audit trail of admin decisions, newest last, capped at 20 entries by the
   // $slice in services/propertyAdminService.js. reviewedBy/reviewedAt above
@@ -440,19 +471,9 @@ propertySchema.pre("save", async function (next) {
 propertySchema.virtual('pricePerSqft').get(function() {
   if (!this.price || !this.area || !this.area.value) return null;
   
-  // Convert all areas to sqft for consistent calculation
-  let areaInSqft = this.area.value;
-  
-  if (this.area.unit === 'sqmts') {
-    areaInSqft = this.area.value * 10.764;
-  } else if (this.area.unit === 'acres') {
-    areaInSqft = this.area.value * 43560;
-  } else if (this.area.unit === 'guntas') {
-    areaInSqft = this.area.value * 1089;
-  } else if (this.area.unit === 'hectares') {
-    areaInSqft = this.area.value * 107639;
-  }
-  
+  // Convert all areas to sqft for consistent calculation (shared table)
+  const areaInSqft = this.area.value * (SQFT_PER_UNIT[this.area.unit] ?? 1);
+
   // Prevent division by zero
   if (areaInSqft <= 0) return null;
   
@@ -466,11 +487,12 @@ propertySchema.set('toJSON', {
     // Remove sensitive or unnecessary fields if needed
     delete ret.__v;
     delete ret.updatedAt;
+    delete ret.submissionId; // FORM-11 retry key, server-side only
     return ret;
   }
 });
 
-propertySchema.set('toObject', { 
+propertySchema.set('toObject', {
   virtuals: true,
   transform: function(doc, ret) {
     // Remove sensitive or unnecessary fields if needed
@@ -525,7 +547,20 @@ propertySchema.index({
 propertySchema.index({
   status: 1,
   createdAt: -1,
-}); 
+});
+
+// Admin review queue: pending listings, oldest waiting first
+propertySchema.index({
+  status: 1,
+  submittedAt: 1,
+});
+
+// One listing per submission per account (FORM-11). Partial: only listings
+// created with a submissionId are indexed, so older ones never clash.
+propertySchema.index(
+  { userId: 1, ownerModel: 1, submissionId: 1 },
+  { unique: true, partialFilterExpression: { submissionId: { $type: 'string' } } }
+);
 
  // For full-text search- 
 propertySchema.index(

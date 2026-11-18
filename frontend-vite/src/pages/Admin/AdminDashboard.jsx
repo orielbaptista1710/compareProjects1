@@ -3,11 +3,12 @@
 // the URL (?tab=agents) so a refresh or shared link opens the same tab.
 import { lazy, Suspense } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Box, Typography, Button, Tabs, Tab, Skeleton } from "@mui/material";
+import { Box, Typography, Button, Tabs, Tab, Skeleton, Badge } from "@mui/material";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
 import API from "../../api/api";
 import AdminListings from "../../features/admin/listings/AdminListings";
+import useAdminStatusCounts from "../../features/admin/hooks/useAdminStatusCounts";
 
 // Only loaded when an admin opens the tab.
 const AgentApplications = lazy(() => import("../../features/admin/agents/AgentApplications"));
@@ -28,6 +29,14 @@ export default function AdminDashboard() {
     staleTime: Infinity,
     retry: false,
   });
+
+  // Listings waiting for review, for the tab badge
+  const { data: counts } = useAdminStatusCounts();
+  const pending = counts?.pending ?? 0;
+  const pendingEdited = counts?.pendingEdited ?? 0;
+  const listingsLabel = pending
+    ? `Listings, ${pending} waiting for review${pendingEdited ? ` (${pendingEdited} edited)` : ""}`
+    : "Listings";
 
   const logoutMutation = useMutation({
     mutationFn: () => API.post("/api/auth/logout"),
@@ -125,7 +134,20 @@ export default function AdminDashboard() {
         sx={{ mb: 3, borderBottom: 1, borderColor: "divider" }}
         aria-label="Admin sections"
       >
-        <Tab value={TABS.LISTINGS} label="Listings" />
+        <Tab
+          value={TABS.LISTINGS}
+          aria-label={listingsLabel}
+          label={
+            <Badge
+              badgeContent={pending || undefined} // nothing waiting: no badge, not even a hidden "0"
+              max={99}
+              color="warning"
+              sx={{ "& .MuiBadge-badge": { right: -16, top: 6 } }}
+            >
+              Listings
+            </Badge>
+          }
+        />
         <Tab value={TABS.AGENTS} label="Agents" />
       </Tabs>
 

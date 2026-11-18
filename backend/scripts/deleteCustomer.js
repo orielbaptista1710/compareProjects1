@@ -125,7 +125,7 @@ const run = async () => {
     : [];
   const listingIds = listings.map((p) => String(p._id));
   const files = listings.reduce((sum, p) => sum + countFiles(p), 0);
-
+ 
   const contactMatches = [
     ...(customerEmail ? [{ email: customerEmail }] : []),
     ...(phone10 ? [{ phone: phone10 }] : []),
