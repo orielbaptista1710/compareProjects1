@@ -109,8 +109,8 @@ export default function useMyListings(endpoints, { onSaved, enabled = true } = {
     },
     onError: (err) => {
       showListingError(err, "Failed to update property");
-      // 409: reviewed or edited elsewhere since it was opened. Load the
-      // current version so the poster's next try starts from it.
+      // 409: reviewed or edited elsewhere since it was opened. Refresh the
+      // list; useListingsWorkspace closes the form so reopening loads it.
       if (err.response?.status === 409) refresh();
     },
   });

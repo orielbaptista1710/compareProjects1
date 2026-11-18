@@ -73,7 +73,7 @@ describe("useListingsWorkspace", () => {
     act(() => result.current.handleSubmit(FULL));
     expect(listings.updateProperty).toHaveBeenCalledWith(
       { id: "p1", data: { ...FULL, expectedVersion: 0 }, wasLive: false },
-      { onSuccess: undefined }
+      { onSuccess: undefined, onError: expect.any(Function) }
     );
     expect(listings.addProperty).not.toHaveBeenCalled();
   });
@@ -85,6 +85,31 @@ describe("useListingsWorkspace", () => {
     act(() => result.current.handleSubmit(FULL));
 
     expect(listings.updateProperty.mock.calls[0][0].data.expectedVersion).toBe(3);
+  });
+
+  it("closes the form after a 409, so the next try starts from the latest version", () => {
+    const onSaved = vi.fn();
+    const onError = vi.fn();
+    const { result } = renderHook(() => useListingsWorkspace({ endpoints: ENDPOINTS, onSaved }));
+    act(() => result.current.handleEdit({ _id: "p1", title: "Saved" }));
+    act(() => result.current.handleSubmit(FULL, { onError }));
+
+    const conflict = { response: { status: 409 } };
+    act(() => listings.updateProperty.mock.calls[0][1].onError(conflict));
+
+    expect(onError).toHaveBeenCalledWith(conflict);
+    expect(result.current.editingId).toBeNull();
+    expect(onSaved).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the form open after any other failed save", () => {
+    const { result } = renderHook(() => useListingsWorkspace({ endpoints: ENDPOINTS }));
+    act(() => result.current.handleEdit({ _id: "p1", title: "Saved" }));
+    act(() => result.current.handleSubmit(FULL));
+
+    act(() => listings.updateProperty.mock.calls[0][1].onError({ response: { status: 400 } }));
+
+    expect(result.current.editingId).toBe("p1");
   });
 
   it("marks a listing approved before as locked, and a never-approved one as not", () => {
@@ -187,14 +212,14 @@ describe("useListingsWorkspace", () => {
       act(() => result.current.handleSubmit(FULL));
       expect(listings.updateProperty).toHaveBeenLastCalledWith(
         { id: "p1", data: { ...FULL, expectedVersion: 0 }, wasLive: true },
-        { onSuccess: undefined }
+        { onSuccess: undefined, onError: expect.any(Function) }
       );
 
       act(() => result.current.handleEdit(PENDING));
       act(() => result.current.handleSubmit(FULL));
       expect(listings.updateProperty).toHaveBeenLastCalledWith(
         { id: "p2", data: { ...FULL, expectedVersion: 0 }, wasLive: false },
-        { onSuccess: undefined }
+        { onSuccess: undefined, onError: expect.any(Function) }
       );
     });
 

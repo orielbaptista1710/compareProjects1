@@ -90,9 +90,21 @@ export default function useListingsWorkspace({
         const wasLive =
           latest.current.properties.find((p) => p._id === editingId)?.status ===
           LISTING_STATUS.APPROVED;
+        // 409: the listing changed since it was opened. Saving again from this
+        // form would 409 every time (it still carries the old version), so
+        // close it and go back to the list; reopening loads the latest version
+        // and the draft bar offers the poster's unsaved changes.
+        const onUpdateError = (err) => {
+          onError?.(err);
+          if (err?.response?.status === 409) {
+            setEditingId(null);
+            setFormData(initialFormData);
+            latest.current.onSaved?.();
+          }
+        };
         updateProperty(
           { id: editingId, data: { ...data, expectedVersion: openedVersion.current }, wasLive },
-          { onSuccess, onError }
+          { onSuccess, onError: onUpdateError }
         );
       } else {
         addProperty(data, { onSuccess, onError });

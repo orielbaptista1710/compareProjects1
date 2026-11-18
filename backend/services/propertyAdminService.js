@@ -251,7 +251,7 @@ export const fetchPropertyById = async (id) => {
 // `at` is passed in by the bulk path so every listing in a batch shares one
 // timestamp (that's how the audit log finds exactly the ones that changed).
 const buildReviewUpdate = (status, adminId, rejectionReason, storedStatus = status, at = new Date()) => {
-  const reason = status === "rejected" ? (rejectionReason || "").trim().slice(0, 500) : undefined;
+  const reason = status === LISTING_STATUS.REJECTED ? (rejectionReason || "").trim().slice(0, 500) : undefined;
 
   return {
     $set: {
@@ -261,7 +261,7 @@ const buildReviewUpdate = (status, adminId, rejectionReason, storedStatus = stat
       ...(reason !== undefined && { rejectionReason: reason }),
     },
     // Kept from the first approval on ($min never moves it later)
-    ...(status === "approved" && { $min: { firstApprovedAt: at } }),
+    ...(status === LISTING_STATUS.APPROVED && { $min: { firstApprovedAt: at } }),
     $push: {
       reviewHistory: {
         $each: [{ action: status, by: adminId, at, ...(reason && { reason }) }],
