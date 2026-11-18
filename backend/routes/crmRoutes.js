@@ -1,32 +1,22 @@
 // backend/routes/crmRoutes.js
-// Top-level mount point for the CRM app's entire API surface (/api/crm/*).
-// Owned by the CRM team. Nothing under here should depend on the site's
-// Mongo-based auth (middleware/protect.js, isDeveloper.js) or vice versa —
-// CrmUser auth is its own thing, built independently against
-// backend/prisma/schema.prisma.
+// Mount point for the CRM API (/api/crm/*). CRM staff auth (CrmUser, Postgres)
+// is separate from the website's: never use protect, isDeveloper or
+// protectCustomer under here.
 import express from "express";
 
 import crmAuthRoutes from "./crm/authRoutes.js";
 import crmLeadsRoutes from "./crm/leadsRoutes.js";
-import crmActivitiesRoutes from "./crm/activitiesRoutes.js";
-import crmSiteVisitsRoutes from "./crm/siteVisitsRoutes.js";
-import crmSalesTeamRoutes from "./crm/salesTeamRoutes.js";
+import { requireCrmAuth } from "../middleware/crm/crmAuth.js";
+import { crmApiLimiter } from "../middleware/rateLimiters.js";
 
 const router = express.Router();
 
-// CrmUser login/session — separate from the site's User/Customer auth
+// Login is public; logout and me guard themselves inside the auth router.
 router.use("/auth", crmAuthRoutes);
 
-// Viewing/updating Lead records ingested from the website's contact/enquiry forms
+// Every route mounted below needs a valid CRM session, so none can forget it.
+router.use(crmApiLimiter, requireCrmAuth);
+
 router.use("/leads", crmLeadsRoutes);
-
-// LeadActivity — status changes, notes, audit trail per lead
-router.use("/activities", crmActivitiesRoutes);
-
-// SiteVisit — scheduling/tracking property visits with a lead
-router.use("/site-visits", crmSiteVisitsRoutes);
-
-// CrmUser management — sales team roster, roles, assignment
-router.use("/sales-team", crmSalesTeamRoutes);
 
 export default router;

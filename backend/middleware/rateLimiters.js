@@ -284,3 +284,31 @@ export const customerActionLimiter = rateLimit({
   max: 60,
   message: { error: 'Too many requests — please slow down.' },
 });
+
+// ---------------------------------------------------------------------------
+// CRM staff login  —  10 req / 15 min per IP
+// ---------------------------------------------------------------------------
+// Separate counter from authLimiter so the website and CRM can't lock each
+// other out. Per-account guessing is capped by the account lockout in
+// services/crm/crmAuthService.js, which holds however many IPs are used.
+// Applied to: POST /api/crm/auth/login
+export const crmLoginLimiter = rateLimit({
+  ...sharedOptions,
+  windowMs: 15 * 60_000,
+  max: 10,
+  message: { success: false, code: 'RATE_LIMITED', message: 'Too many login attempts — please wait 15 minutes.' },
+});
+
+// ---------------------------------------------------------------------------
+// CRM API (logged-in staff)  —  120 req / 60 s per IP
+// ---------------------------------------------------------------------------
+// Routes are already session-gated; this is a backstop against a buggy client
+// loop or a stolen session. Higher than adminActionLimiter because a sales
+// office shares one IP and the inbox polls.
+// Applied to: all /api/crm/* routes except login
+export const crmApiLimiter = rateLimit({
+  ...sharedOptions,
+  windowMs: 60_000,
+  max: 120,
+  message: { success: false, code: 'RATE_LIMITED', message: 'Too many requests — please slow down.' },
+});

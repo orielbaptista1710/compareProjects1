@@ -11,9 +11,9 @@
 // Deletes, in this order (re-running after a partial failure is safe):
 //   1. the Firebase login (so they can't log back in mid-way and recreate it)
 //   2. every listing they posted (Mongo properties, ownerModel 'Customer')
-//   3. enquiries THEY sent as a buyer (Postgres customer leads matching their
-//      verified email or Firebase-verified phone) and those leads' site
-//      visits / activities
+//   3. THEIR buyer lead in the CRM (Postgres leads matching their verified
+//      email or Firebase-verified phone) with its enquiries, activities,
+//      tasks and site visits
 //   4. their Customer record (saved + compare lists live on it)
 // Kept: enquiries OTHER buyers sent about their listings (that's the other
 // buyers' data) — the count is printed. Uploaded photos stay on Cloudinary;
@@ -71,8 +71,8 @@ const maskEmail = (value) => {
 };
 const maskName = (name) => (name ? `${name[0]}***` : '—');
 
-// Leads store a 10-digit number; the customer record stores "+91XXXXXXXXXX".
-const lastTenDigits = (phone) => phone?.replace(/\D/g, '').slice(-10) || null;
+// Leads store "+91XXXXXXXXXX" (Indian mobiles only), the same format Firebase uses.
+const toLeadPhone = (phone) => (/^\+91\d{10}$/.test(phone ?? '') ? phone : null);
 
 // Uploaded files on a listing, for the "left on Cloudinary" count.
 const countFiles = (p) =>
@@ -116,7 +116,7 @@ const run = async () => {
   const customerEmail = emailVerified
     ? (customer?.customerEmail || firebaseUser?.email || email)?.toLowerCase()
     : null;
-  const phone10 = lastTenDigits(firebaseUser?.phoneNumber);
+  const leadPhone = toLeadPhone(firebaseUser?.phoneNumber);
 
   const listings = customer
     ? await Property.find({ userId: customer._id, ownerModel: OWNER_MODEL.CUSTOMER })
@@ -128,23 +128,22 @@ const run = async () => {
  
   const contactMatches = [
     ...(customerEmail ? [{ email: customerEmail }] : []),
-    ...(phone10 ? [{ phone: phone10 }] : []),
+    ...(leadPhone ? [{ phone: leadPhone }] : []),
   ];
-  // Buyer enquiries only — developer partner enquiries are a different person's.
-  const ownLeadFilter = { leadType: 'customer', OR: contactMatches };
+  // Buyer leads only — developer partner leads are a different person's.
   const ownLeads = contactMatches.length
-    ? await prisma.lead.findMany({ where: ownLeadFilter, select: { id: true } })
+    ? await prisma.lead.findMany({ where: { category: 'buyer', OR: contactMatches }, select: { id: true } })
     : [];
   const ownLeadIds = ownLeads.map((l) => l.id);
   const othersLeadsAboutListings = listingIds.length
-    ? await prisma.lead.count({ where: { propertyId: { in: listingIds }, id: { notIn: ownLeadIds } } })
+    ? await prisma.enquiry.count({ where: { propertyId: { in: listingIds }, leadId: { notIn: ownLeadIds } } })
     : 0;
 
   console.log(`\n${args.apply ? 'DELETING' : 'DRY RUN — nothing will be deleted'}\n`);
   console.log(`Firebase login:      ${firebaseUser ? maskEmail(firebaseUser.email ?? firebaseUser.uid) : 'not found (already deleted?)'}`);
   console.log(`Customer record:     ${customer ? `${maskName(customer.customerName)} · ${maskPhone(customer.customerPhone)} · agent: ${customer.agent?.status ?? 'none'}` : 'not found'}`);
   console.log(`Listings:            ${listings.length}`);
-  console.log(`Their enquiries:     ${ownLeadIds.length} (+ their site visits / activities)` +
+  console.log(`Their CRM leads:     ${ownLeadIds.length} (+ their enquiries, activities, tasks, site visits)` +
     (emailVerified ? '' : ' — email not verified, so enquiries are not matched by email'));
   console.log(`Kept — other buyers' enquiries about their listings: ${othersLeadsAboutListings}`);
   console.log(`Left on Cloudinary — uploaded files on those listings: ${files}\n`);
@@ -163,12 +162,17 @@ const run = async () => {
     console.log(`✅ ${deletedCount} listing(s) deleted`);
   }
   if (ownLeadIds.length) {
-    // Site visits have no cascade on the lead relation; activities do.
+    // Nothing cascades from a lead (Restrict), so delete its children first.
+    // Account erasure is the one case where enquiries are deleted.
+    const byLead = { where: { leadId: { in: ownLeadIds } } };
     await prisma.$transaction([
-      prisma.siteVisit.deleteMany({ where: { leadId: { in: ownLeadIds } } }),
+      prisma.enquiry.deleteMany(byLead),
+      prisma.leadActivity.deleteMany(byLead),
+      prisma.task.deleteMany(byLead),
+      prisma.siteVisit.deleteMany(byLead),
       prisma.lead.deleteMany({ where: { id: { in: ownLeadIds } } }),
     ]);
-    console.log(`✅ ${ownLeadIds.length} enquiry(ies) deleted`);
+    console.log(`✅ ${ownLeadIds.length} CRM lead(s) deleted`);
   }
   if (customer) {
     await Customer.deleteOne({ _id: customer._id });
@@ -190,7 +194,7 @@ const run = async () => {
         (await Property.countDocuments({ userId: customer._id, ownerModel: OWNER_MODEL.CUSTOMER })) === 0,
     ],
     [
-      'Their enquiries gone',
+      'Their CRM leads gone',
       !ownLeadIds.length || (await prisma.lead.count({ where: { id: { in: ownLeadIds } } })) === 0,
     ],
   ];

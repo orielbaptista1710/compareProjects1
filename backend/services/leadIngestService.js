@@ -50,7 +50,6 @@ export async function ingestEnquiry({
   category,
   person,
   propertyId = null,
-  propertyTitle = null,
   preferences = {},
   rawPayload,
   client = {},
@@ -75,11 +74,11 @@ export async function ingestEnquiry({
   const pincode = snap.pincode ?? null;
   const now = new Date();
 
-  try {
-    const enquiry = await prisma.$transaction(async (tx) => {
+  const save = () =>
+    prisma.$transaction(async (tx) => {
       // Zone from the property's pincode; no match = Unzoned queue (null).
-      const area = pincode
-        ? await tx.zoneArea.findUnique({ where: { pincode }, select: { zoneId: true } })
+      const zoneId = pincode
+        ? (await tx.zoneArea.findUnique({ where: { pincode }, select: { zoneId: true } }))?.zoneId ?? null
         : null;
 
       const existing = await tx.lead.findUnique({ where: { phone } });
@@ -88,10 +87,11 @@ export async function ingestEnquiry({
             where: { id: existing.id },
             // A public form can't change who the person is: name, email, stage and
             // assignee stay as they are. The submitted email lives on the enquiry.
-            data: { lastActivityAt: now },
+            // An Unzoned lead takes the zone of a later enquiry; a set zone never moves.
+            data: { lastActivityAt: now, ...(!existing.zoneId && zoneId && { zoneId }) },
           })
         : await tx.lead.create({
-            data: { category, name: person.name, phone, email, zoneId: area?.zoneId ?? null, lastActivityAt: now },
+            data: { category, name: person.name, phone, email, zoneId, lastActivityAt: now },
           });
 
       return tx.enquiry.create({
@@ -101,7 +101,8 @@ export async function ingestEnquiry({
           source,
           idempotencyKey: crypto.randomUUID(),
           propertyId,
-          propertyTitle: snap.propertyTitle ?? propertyTitle,
+          // Only from the approved listing; a client-sent title stays in rawPayload.
+          propertyTitle: snap.propertyTitle ?? null,
           listerType: snap.listerType ?? null,
           listerId: snap.listerId ?? null,
           city: snap.city ?? preferences.city ?? null,
@@ -120,10 +121,15 @@ export async function ingestEnquiry({
         select: { id: true },
       });
     });
-    return { status: "created", id: enquiry.id };
+
+  let enquiry;
+  try {
+    enquiry = await save();
   } catch (err) {
-    // Two first-time submissions with the same phone raced; the other won.
-    if (err?.code === "P2002") return { status: "duplicate" };
-    throw err;
+    // Two first-time submissions with the same phone raced and the other created
+    // the lead. Run once more so this enquiry attaches to it instead of being lost.
+    if (err?.code !== "P2002") throw err;
+    enquiry = await save();
   }
+  return { status: "created", id: enquiry.id };
 }

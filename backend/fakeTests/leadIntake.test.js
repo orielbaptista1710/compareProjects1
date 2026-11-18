@@ -186,6 +186,42 @@ describe("lead and enquiry storage", () => {
 
     expect(createdLead().category).toBe("developer_partner");
   });
+
+  it("gives an Unzoned existing lead the zone of a later enquiry", async () => {
+    prismaMock.lead.findUnique.mockResolvedValue({ ...LEAD_ROW, zoneId: null });
+    prismaMock.zoneArea.findUnique.mockResolvedValue({ zoneId: "zone-1" });
+
+    await request(app).post("/api/leads/customer").send(CUSTOMER);
+
+    expect(prismaMock.lead.update.mock.calls[0][0].data.zoneId).toBe("zone-1");
+  });
+
+  it("never moves a lead that already has a zone", async () => {
+    prismaMock.lead.findUnique.mockResolvedValue({ ...LEAD_ROW, zoneId: "zone-1" });
+    prismaMock.zoneArea.findUnique.mockResolvedValue({ zoneId: "zone-2" });
+
+    await request(app).post("/api/leads/customer").send(CUSTOMER);
+
+    expect(prismaMock.lead.update.mock.calls[0][0].data.zoneId).toBeUndefined();
+  });
+
+  it("doesn't store a client-sent title when the listing isn't approved", async () => {
+    mongoReturns(null);
+
+    await request(app).post("/api/leads/customer").send({ ...CUSTOMER, propertyTitle: "Call 9999999999 now" });
+
+    expect(createdEnquiry().propertyTitle).toBeNull();
+  });
+
+  it("keeps the enquiry when another first-time submission created the lead first", async () => {
+    prismaMock.lead.create.mockRejectedValueOnce(Object.assign(new Error("unique"), { code: "P2002" }));
+    prismaMock.lead.findUnique.mockResolvedValueOnce(null).mockResolvedValueOnce(LEAD_ROW);
+
+    const res = await request(app).post("/api/leads/customer").send(CUSTOMER);
+
+    expect(res.status).toBe(201);
+    expect(createdEnquiry().leadId).toBe(LEAD_ROW.id);
+  });
 });
 
 describe("lead spam protection (SEC-08)", () => {

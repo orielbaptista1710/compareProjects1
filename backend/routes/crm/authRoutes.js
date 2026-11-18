@@ -1,19 +1,15 @@
 // backend/routes/crm/authRoutes.js
-//
-// CRM login/session endpoints, against the CrmUser model
-// (backend/prisma/schema.prisma) — completely separate from the site's
-// Mongo-based JWT auth (middleware/protect.js). Build independently;
-// do not reuse or depend on the site's auth middleware or User model.
-//
-// Expected to grow into something like:
-//   POST /login      — CrmUser login (email + password against CrmUser.password)
-//   POST /logout
-//   GET  /me          — current CrmUser session info
-//
-// Handlers should live in backend/controllers/crm/authController.js.
-
+// CRM staff login/session (CrmUser in Postgres). Separate from the website's
+// auth: never use protect, isDeveloper or protectCustomer here.
 import express from "express";
+import { crmLogin, crmLogout, crmMe } from "../../controllers/crm/authController.js";
+import { requireCrmAuth } from "../../middleware/crm/crmAuth.js";
+import { crmLoginLimiter, crmApiLimiter } from "../../middleware/rateLimiters.js";
 
 const router = express.Router();
+
+router.post("/login", crmLoginLimiter, crmLogin);
+router.post("/logout", crmApiLimiter, requireCrmAuth, crmLogout);
+router.get("/me", crmApiLimiter, requireCrmAuth, crmMe);
 
 export default router;

@@ -1,12 +1,16 @@
 openapi: 3.0.3
 info:
   title: CompareProjects CRM API
-  version: 0.1.0
+  version: 0.2.0
   description: >
     Draft contract (Phase 0), shared by the backend and the CRM frontend.
     Additive changes (new fields/endpoints) are free. Breaking changes (rename, remove, enum change)
-    need a PR to this file approved by both owners.
-    All endpoints live under /api/crm and authenticate with the CRM session cookie only.
+    need both owners to agree before they ship.
+    All endpoints live under /api/crm and authenticate with the CRM session cookie only. CRM staff
+    accounts are separate from website accounts: no owner, agent, developer or website admin login
+    works here.
+    Every endpoint can return 429 RATE_LIMITED (login 10 per 15 minutes per IP; everything else
+    120 per minute).
     Responses are automatically scoped to the caller's role; out-of-scope ids return 404.
     The crm_session cookie is HttpOnly, Secure and SameSite=Strict, so the app and API must be same-site.
     Every request must send JSON (Content-Type: application/json) with credentials included; the server
@@ -44,12 +48,13 @@ components:
       enum: [owner, agent, developer]
     Error:
       type: object
-      required: [success, code, message]
+      required: [success, message]
       properties:
         success: { type: boolean, example: false }
         code:
           type: string
-          enum: [VALIDATION_ERROR, UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, RATE_LIMITED, ACCOUNT_LOCKED, INTERNAL]
+          description: Always set on 4xx errors. Unexpected server errors (5xx) send no code; show a generic "something went wrong".
+          enum: [VALIDATION_ERROR, UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, RATE_LIMITED, ACCOUNT_LOCKED]
         message: { type: string }
     CrmUser:
       type: object
@@ -67,7 +72,8 @@ components:
         channel: { type: string, enum: [web, app, meta, whatsapp] }
         source: { type: string, example: quick_links_property_page_form }
         propertyId: { type: string, nullable: true, example: 65f0a1b2c3d4e5f607182930 }
-        propertyTitle: { type: string, nullable: true, example: 3 BHK in Whitefield }
+        propertyTitle: { type: string, nullable: true, example: 3 BHK in Whitefield, description: 'Only set for approved listings.' }
+        companyName: { type: string, nullable: true, example: Prestige Group, description: 'developer_partner enquiries only, as typed by the sender (unverified).' }
         listerType: { allOf: [{ $ref: '#/components/schemas/ListerType' }], nullable: true }
         city: { type: string, nullable: true, example: Bengaluru }
         locality: { type: string, nullable: true, example: Whitefield }
@@ -91,7 +97,9 @@ components:
         category: { $ref: '#/components/schemas/LeadCategory' }
         stage: { $ref: '#/components/schemas/LeadStage' }
         assignedTo: { type: string, format: uuid, nullable: true }
+        assigneeName: { type: string, nullable: true, example: Asha Rao, description: 'Display name of assignedTo. Null when unassigned.' }
         zoneId: { type: string, format: uuid, nullable: true, description: 'null means the Unzoned queue.' }
+        zoneName: { type: string, nullable: true, example: North Bengaluru, description: 'Display name of zoneId. Null when Unzoned.' }
         enquiryCount: { type: integer, example: 2 }
         lastActivityAt: { type: string, format: date-time, nullable: true, example: '2026-11-17T10:30:00Z' }
         createdAt: { type: string, format: date-time, example: '2026-11-16T08:15:00Z' }
@@ -141,7 +149,7 @@ paths:
               required: [email, password]
               properties:
                 email: { type: string, format: email }
-                password: { type: string, minLength: 8, maxLength: 128 }
+                password: { type: string, minLength: 1, maxLength: 128 }
                 mfaCode: { type: string, pattern: '^[0-9]{6}$', description: 'Reserved for Phase 2 (MFA). Ignored for now.' }
       responses:
         '200':
@@ -153,6 +161,9 @@ paths:
                 properties:
                   success: { type: boolean }
                   user: { $ref: '#/components/schemas/CrmUser' }
+        '400':
+          description: Email or password missing or malformed.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '423':
           description: Account locked.
@@ -222,7 +233,10 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
     patch:
       tags: [leads]
-      summary: Change stage (and lost reason). Writes a stage_change activity.
+      summary: Change stage (and lost reason) and/or correct the category. Writes an activity.
+      description: >
+        Send at least one of stage or category. Category is self-declared by the website form
+        (anyone can open the developer popup), so staff correct it after calling the person.
       security: [{ crmSession: [] }]
       requestBody:
         required: true
@@ -230,9 +244,11 @@ paths:
           application/json:
             schema:
               type: object
+              minProperties: 1
               properties:
                 stage: { $ref: '#/components/schemas/LeadStage' }
                 lostReason: { type: string, maxLength: 300, description: Required when stage is lost. }
+                category: { $ref: '#/components/schemas/LeadCategory' }
       responses:
         '200':
           description: Updated.
