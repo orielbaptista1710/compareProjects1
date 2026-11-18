@@ -68,6 +68,7 @@ backend/scripts/*
 !backend/scripts/deactivateUser.js
 !backend/scripts/deleteCustomer.js
 !backend/scripts/migrateRoles.js
+!backend/scripts/seedCrm.js
 !backend/scripts/lib/
 
 # Ignore dependencies, testing, production, and misc files in the frontend

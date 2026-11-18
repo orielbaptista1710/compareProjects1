@@ -12,6 +12,7 @@
     "reactivate-user": "node scripts/reactivateUser.js",
     "delete-customer": "node scripts/deleteCustomer.js",
     "reset-password": "node scripts/resetPassword.js",
+    "seed:crm": "node scripts/seedCrm.js",
     "brokenimg-urls": "node scripts/findBrokenImageUrls.js",
     "backfill-project-key": "node scripts/backfillProjectKey.js",
     "backfill-project-name": "node scripts/backfillProjectNameFromTitle.js"
