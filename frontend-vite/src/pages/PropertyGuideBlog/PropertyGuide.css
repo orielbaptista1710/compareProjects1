@@ -204,7 +204,7 @@
 
 .underline-text {
   text-decoration: underline;
-  text-decoration-color: #6e2fd5;
+  text-decoration-color: var(--color-primary-dark);
   text-decoration-thickness: 4px;
   text-underline-offset: 6px;
 }
@@ -354,7 +354,7 @@
 .download-btn {
   display: inline-block;
   padding: 12px 22px;
-  background: #6e2fd5;
+  background: var(--color-primary-dark);
   color: var(--color-on-dark);
   border-radius: 8px;
   font-size: 14px;

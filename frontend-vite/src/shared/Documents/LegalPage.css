@@ -98,7 +98,7 @@
 }
 
 .toc-item--active {
-  background: #6e2fd5;
+  background: var(--color-primary-dark);
   color: var(--color-on-dark);
   font-weight: 600;
 }
@@ -131,7 +131,7 @@
 }
 
 .legal-section a {
-  color: #6e2fd5;
+  color: var(--color-primary-dark);
   text-decoration: underline;
   text-underline-offset: 3px;
 }

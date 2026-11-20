@@ -40,7 +40,7 @@
 .step-number {
   font-size: 13px;
   font-weight: 700;
-  color: #6e2fd5;
+  color: var(--color-primary-dark);
   letter-spacing: 1.2px;
   text-transform: uppercase;
   margin-bottom: 14px;
@@ -224,7 +224,7 @@
 }
 
 .dl-btn-primary {
-  background: #6e2fd5;
+  background: var(--color-primary-dark);
   color: var(--color-on-dark);
 }
 

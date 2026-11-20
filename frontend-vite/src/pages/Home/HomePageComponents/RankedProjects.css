@@ -32,7 +32,7 @@
 }
 
 .hp-header-h2 .highlight {
-  color: #7b2ff7;
+  color: var(--color-primary);
   text-decoration: underline;
 }
 
@@ -78,7 +78,7 @@
 }
 
 .hp-tab:focus-visible {
-  outline: 2px solid #7b2ff7;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -114,7 +114,7 @@
 }
 
 .hp-card:focus-visible {
-  outline: 3px solid #7b2ff7;
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 

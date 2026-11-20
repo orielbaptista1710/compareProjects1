@@ -179,7 +179,7 @@
 .compare-price {
   font-size: 1rem;
   font-weight: 700;
-  color: #7B2FF7;
+  color: var(--color-primary);
   margin: 0;
 }
 
@@ -221,7 +221,7 @@
 
 /* Compare Button - Purple Gradient */
 .compare-page-btn {
-  background: linear-gradient(135deg, #7B2FF7 0%, var(--color-primary-light) 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   color: var(--color-on-dark);
   box-shadow: 0 4px 12px rgba(123, 47, 247, 0.25);
 }
@@ -404,7 +404,7 @@
 .compare-remove:focus-visible,
 .compare-preview-btn:focus-visible,
 .compare-page-btn:focus-visible {
-  outline: 3px solid #7B2FF7;
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 

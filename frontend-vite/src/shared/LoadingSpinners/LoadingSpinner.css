@@ -13,7 +13,7 @@
 .spinner-text {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #9417E2;
+  color: var(--color-primary);
   letter-spacing: 0.04em;
   margin: 0;
   opacity: 0.8;

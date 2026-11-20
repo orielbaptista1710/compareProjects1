@@ -15,7 +15,7 @@
 /* Top accent bar — matches footer purple */
 .disclaimer-accent {
   height: 3px;
-  background: linear-gradient(90deg, #6e2fd5, #9d4edd, #6e2fd5);
+  background: linear-gradient(90deg, var(--color-primary-dark), #9d4edd, var(--color-primary-dark));
   background-size: 200% 100%;
   animation: disclaimerShimmer 3s linear infinite;
 }
@@ -38,7 +38,7 @@
 }
 
 .disclaimer-text a {
-  color: #6e2fd5;
+  color: var(--color-primary-dark);
   text-decoration: underline;
   text-underline-offset: 2px;
   font-weight: 500;
@@ -51,7 +51,7 @@
 .disclaimer-btn {
   flex-shrink: 0;
   padding: 10px 28px;
-  background: #6e2fd5;
+  background: var(--color-primary-dark);
   color: var(--color-on-dark);
   border: none;
   border-radius: 8px;

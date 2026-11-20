@@ -53,7 +53,7 @@
 .decoration-circle {
   position: absolute;
   border-radius: 50%;
-  background: linear-gradient(135deg, #9417E2, var(--color-primary));
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary));
   opacity: 0.08;
   animation: float 6s ease-in-out infinite;
 }

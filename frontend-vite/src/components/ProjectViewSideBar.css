@@ -24,7 +24,7 @@
 
 .see-more {
   font-size: 15px;
-  color: #9417E2;
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
   transition: all 0.2s ease;
@@ -108,7 +108,7 @@
 .deal-price {
   font-size: 16px;
   font-weight: 700;
-  color: #9417E2;
+  color: var(--color-primary);
   margin-top: auto;
   letter-spacing: -0.01em;
 }

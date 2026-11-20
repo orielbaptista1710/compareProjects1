@@ -5,7 +5,7 @@
 
 /* ── Custom properties ────────────────────────────────────── */
 .ts-section {
-  --ts-accent: #9417E2;
+  --ts-accent: var(--color-primary);
   --ts-accent-light: #f3e8ff;
   --ts-accent-mid: #c084fc;
   --ts-text: var(--color-text-primary);
