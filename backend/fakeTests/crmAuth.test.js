@@ -119,11 +119,11 @@ describe("POST /api/crm/auth/login", () => {
     expect(lock.lockedUntil.getTime()).toBeGreaterThan(Date.now());
   });
 
-  it("returns 423 while locked, even with the right password", async () => {
+  it("answers a locked account like a wrong password (401), even with the right password", async () => {
     prismaMock.crmUser.findUnique.mockResolvedValue({ ...USER, lockedUntil: future() });
     const res = await login({ email: USER.email, password: PASSWORD });
-    expect(res.status).toBe(423);
-    expect(res.body.code).toBe("ACCOUNT_LOCKED");
+    expect(res.status).toBe(401);
+    expect(res.body.code).toBe("UNAUTHENTICATED");
     expect(prismaMock.crmSession.create).not.toHaveBeenCalled();
   });
 

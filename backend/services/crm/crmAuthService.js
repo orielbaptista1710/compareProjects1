@@ -23,15 +23,17 @@ const hashToken = (token) => crypto.createHash("sha256").update(token).digest("h
 
 const publicUser = ({ id, email, name, role }) => ({ id, email, name, role });
 
-// Returns { status: "ok", token, expiresAt, user } | { status: "invalid" } | { status: "locked" }
+// Returns { status: "ok", token, expiresAt, user } | { status: "invalid" }.
+// Unknown email, inactive account, locked account and wrong password all give
+// "invalid", so the response never reveals which emails belong to staff.
 export async function login({ email, password, ip, userAgent }) {
   const user = await prisma.crmUser.findUnique({ where: { email } });
 
-  if (!user || !user.isActive) {
+  const locked = user?.lockedUntil && user.lockedUntil > new Date();
+  if (!user || !user.isActive || locked) {
     await bcrypt.compare(password, DUMMY_HASH);
     return { status: "invalid" };
   }
-  if (user.lockedUntil && user.lockedUntil > new Date()) return { status: "locked" };
 
   if (!(await bcrypt.compare(password, user.password))) {
     // Atomic increment so parallel guesses can't undercount.

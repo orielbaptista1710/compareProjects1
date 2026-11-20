@@ -236,6 +236,18 @@ describe("GET /api/crm/leads/:leadId", () => {
     expect(JSON.stringify(res.body)).not.toContain("developerPhone");
   });
 
+  it("hides the message and company name from an admin (masked contacts)", async () => {
+    loginAs("admin");
+    prismaMock.lead.findFirst.mockResolvedValue({ ...leadRow(), lostReason: null, enquiries: [enquiry] });
+
+    const res = await get(`/api/crm/leads/${LEAD_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.enquiries[0].message).toBeNull();
+    expect(res.body.enquiries[0].companyName).toBeNull();
+    expect(JSON.stringify(res.body)).not.toContain("Acme Developers");
+  });
+
   it("returns 404 for a lead that is missing or outside the caller's scope", async () => {
     loginAs("sales_rep");
     prismaMock.lead.findFirst.mockResolvedValue(null);

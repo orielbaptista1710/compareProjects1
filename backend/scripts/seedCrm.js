@@ -4,11 +4,13 @@
 // built against real endpoints: 2 zones, one staff account per role and
 // 24 fake leads. Never run it against production.
 //
-//   npm run seed:crm                                   # dry run: shows what it would create
-//   npm run seed:crm -- --apply --host <database host> # writes, prints the 4 passwords once
+//   npm run seed:crm                # dry run: shows what it would create
+//   npm run seed:crm -- --apply     # writes, prints the 4 passwords once
 //
-// --host must match the database in DATABASE_URL (the dry run prints it), so
-// a .env pointing somewhere else can't be seeded by accident.
+// --apply only works when CRM_SEED_ALLOWED_HOST in backend/.env equals the
+// database host in DATABASE_URL (the dry run prints it). Set it on the machine
+// that is allowed to seed, and only once staging is a separate database from
+// production, so a .env pointing at real data can't be seeded by accident.
 // Safe to re-run: zones, pincodes and leads that already exist are skipped.
 // It never deletes or changes existing leads. Staff accounts get NEW
 // passwords on every --apply run (use that if a password is lost), and
@@ -37,14 +39,14 @@ const fail = (msg) => {
 };
 
 const { values: args } = parseArgs({
-  options: { apply: { type: 'boolean', default: false }, host: { type: 'string' } },
+  options: { apply: { type: 'boolean', default: false } },
 });
 
 if (process.env.NODE_ENV === 'production') fail('Refusing to seed: NODE_ENV is production.');
 if (!process.env.DATABASE_URL) fail('DATABASE_URL is not set in backend/.env.');
 const dbHost = new URL(process.env.DATABASE_URL).host;
-if (args.apply && args.host !== dbHost) {
-  fail(`--host must match the database being seeded: npm run seed:crm -- --apply --host ${dbHost}`);
+if (args.apply && process.env.CRM_SEED_ALLOWED_HOST !== dbHost) {
+  fail(`Refusing to seed ${dbHost}: set CRM_SEED_ALLOWED_HOST=${dbHost} in backend/.env only if this is the staging database.`);
 }
 
 const ZONES = [
@@ -138,7 +140,7 @@ const run = async () => {
   console.log(`Leads:  ${LEAD_COUNT - haveLead.size} to create, ${haveLead.size} already there (skipped)`);
 
   if (!args.apply) {
-    console.log(`\nTo write: npm run seed:crm -- --apply --host ${dbHost}`);
+    console.log(`\nTo write: set CRM_SEED_ALLOWED_HOST=${dbHost} in backend/.env (staging only), then npm run seed:crm -- --apply`);
     return;
   }
 

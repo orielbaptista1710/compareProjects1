@@ -18,8 +18,9 @@ const requestLogger = (req, res, next) => {
 
     const duration = Date.now() - start;
 
+    // Path only: the query string can hold a buyer's name or number (CRM search `q`).
     const logMessage =
-      `${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)`;
+      `${req.method} ${req.originalUrl.split("?")[0]} ${res.statusCode} (${duration}ms)`;
 
     const metadata = {
       requestId,

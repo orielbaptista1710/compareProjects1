@@ -14,7 +14,7 @@ const originCheck = (allowedOrigins) => (req, res, next) => {
   const origin = req.get('origin');
   if (!origin || allowedOrigins.includes(origin)) return next();
 
-  return res.status(403).json({ success: false, message: 'Request blocked: unknown origin.' });
+  return res.status(403).json({ success: false, code: 'FORBIDDEN', message: 'Request blocked: unknown origin.' });
 };
 
 export default originCheck;

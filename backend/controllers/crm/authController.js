@@ -30,11 +30,8 @@ export const crmLogin = async (req, res, next) => {
       userAgent: (req.headers["user-agent"] || "").slice(0, 300),
     });
 
-    if (result.status === "locked") {
-      return res.status(423).json({ success: false, code: "ACCOUNT_LOCKED", message: "Account locked. Try again in 15 minutes." });
-    }
     if (result.status !== "ok") {
-      return res.status(401).json({ success: false, code: "UNAUTHENTICATED", message: "Invalid email or password." });
+      return res.status(401).json({ success: false, code: "UNAUTHENTICATED", message: "Invalid email or password, or the account is temporarily locked." });
     }
 
     res.cookie(CRM_COOKIE, result.token, { ...cookieOptions, expires: result.expiresAt });

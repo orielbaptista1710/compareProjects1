@@ -69,12 +69,12 @@ const toSummary = (lead, masked) => ({
   createdAt: lead.createdAt,
 });
 
-// The buyer's message is free text that often contains their number or email,
-// so masked callers don't get it.
+// The buyer's message and the company name are free text typed into a public
+// form and can contain a phone number or email, so masked callers get neither.
 const toEnquiry = ({ rawPayload, message, ...enquiry }, masked) => ({
   ...enquiry,
   message: masked ? null : message,
-  companyName: typeof rawPayload?.companyName === "string" ? rawPayload.companyName : null,
+  companyName: !masked && typeof rawPayload?.companyName === "string" ? rawPayload.companyName : null,
 });
 
 // Opaque to the client: base64url of [createdAt, id] of the last row sent.
