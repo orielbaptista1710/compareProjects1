@@ -24,12 +24,12 @@ describe("CityContext", () => {
       }).toThrow("useCity must be used inside CityProvider");
     });
 
-    it("provides a null city when no city is stored", () => {
+    it("defaults to Mumbai when no city is stored", () => {
       const { result } = renderHook(() => useCity(), {
         wrapper,
       });
 
-      expect(result.current.city).toBeNull();
+      expect(result.current.city).toBe("Mumbai");
     });
 
     it("provides a setCity function", () => {

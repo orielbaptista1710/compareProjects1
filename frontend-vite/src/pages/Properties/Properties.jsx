@@ -144,10 +144,18 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
   // browser back/forward, or clearing the location search — none of which currently
   // clear CityContext themselves.
   const { city: contextCity, setCity } = useCity();
+  // A city in the URL wins. With no city in the URL the page falls back to the
+  // selected/default city (Mumbai), written into the URL so the header, filters
+  // and results all agree.
   useEffect(() => {
-    const urlCity = filters.city || null;
-    if (urlCity !== contextCity) setCity(urlCity);
-  }, [filters.city, contextCity, setCity]);
+    if (filters.city) {
+      if (filters.city !== contextCity) setCity(filters.city);
+    } else if (contextCity) {
+      const params = new URLSearchParams(location.search);
+      params.set('city', contextCity);
+      navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+    }
+  }, [filters.city, contextCity, setCity, navigate, location.pathname, location.search]);
 
   // ── Data fetching ──────────────────────────
   const { data, isLoading, isFetching } = useQuery({

@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Search, MapPin, ChevronDown } from "lucide-react";
 import { TOP_SELECTOR_CITIES } from "../../../database/citySelectorData";
 import { useOutsideClick } from "../../../hooks/useOutsideClick";
-import { useCity } from "../../../contexts/CityContext";
+import { useCity, DEFAULT_CITY } from "../../../contexts/CityContext";
 import "./CitySelector.css";
 
 /**
@@ -53,7 +53,7 @@ import "./CitySelector.css";
    * Reset city selection
    */
   const handleResetCity = useCallback(() => {
-    handleSelectCity(null);
+    handleSelectCity(DEFAULT_CITY);
   }, [handleSelectCity]);
 
   /**
@@ -86,7 +86,7 @@ import "./CitySelector.css";
         aria-haspopup="listbox"
       >
         <MapPin size={16} className="city-trigger-pin" aria-hidden="true" />
-        <span className="city-trigger-label">{city || "City"}</span>
+        <span className="city-trigger-label">{city || DEFAULT_CITY}</span>
         <ChevronDown size={16} className="city-trigger-chevron" aria-hidden="true" />
       </button>
 
@@ -112,9 +112,9 @@ import "./CitySelector.css";
               Detect my location
             </button>
 
-            {city && (
+            {city !== DEFAULT_CITY && (
               <button className="reset-btn" onClick={handleResetCity}>
-                Reset City
+                Reset to {DEFAULT_CITY}
               </button>
             )}
           </div>
