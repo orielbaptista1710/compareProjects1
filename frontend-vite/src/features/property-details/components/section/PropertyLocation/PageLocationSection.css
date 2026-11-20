@@ -47,7 +47,7 @@
 }
 
 .ls-map-ext-link {
-  color: #7C3AED;
+  color: var(--color-primary);
   font-size: .8rem;
   text-decoration: none;
 }
@@ -58,7 +58,7 @@
 .ls-open-maps {
   display: inline-block;
   font-size: .78rem;
-  color: #7C3AED;
+  color: var(--color-primary);
   text-decoration: none;
   margin-bottom: 1rem;
 }

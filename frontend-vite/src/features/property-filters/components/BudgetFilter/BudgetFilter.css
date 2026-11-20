@@ -18,9 +18,9 @@
   flex: 1;
   min-width: 0;
   padding: 7px 26px 7px 10px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   border-radius: var(--fp-radius-md);
-  background: #fff;
+  background: var(--color-surface);
   font-size: 12.5px;
   color: var(--fp-text-primary);
   cursor: pointer;
@@ -92,7 +92,7 @@
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--color-surface);
   border: 2.5px solid var(--fp-purple);
   cursor: pointer;
   pointer-events: auto;
@@ -103,7 +103,7 @@
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--color-surface);
   border: 2.5px solid var(--fp-purple);
   cursor: pointer;
   pointer-events: auto;

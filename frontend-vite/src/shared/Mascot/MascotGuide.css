@@ -37,7 +37,7 @@
 /* ── Bubble ──────────────────────────────────────── */
 .mg-bubble {
   position: relative;
-  background: #ffffff;
+  background: var(--color-surface);
   border: 1.5px solid #e5d9f7;
   border-radius: 16px 16px 16px 4px;
   padding: 14px 38px 14px 16px;
@@ -63,7 +63,7 @@
   bottom: 19px;
   border-width: 6px 8px 6px 0;
   border-style: solid;
-  border-color: transparent #ffffff transparent transparent;
+  border-color: transparent var(--color-surface) transparent transparent;
 }
 
 /* ── Meta row ────────────────────────────────────── */
@@ -143,7 +143,7 @@
 .mg-btn-next {
   flex: 1;
   background: #7B2FBE;
-  color: #ffffff;
+  color: var(--color-on-dark);
   border: none;
   border-radius: 8px;
   padding: 6px 14px;

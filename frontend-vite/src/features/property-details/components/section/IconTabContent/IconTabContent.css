@@ -40,7 +40,7 @@
 .icon-tab-pp-grid-item:hover { border-color: #999; }
 
 .icon-tab-pp-icon {
-  color: #7C3AED;
+  color: var(--color-primary);
   font-size: .9rem;
   flex-shrink: 0;
 }

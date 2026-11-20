@@ -5,7 +5,7 @@
   justify-content: center;
   min-height: 100vh;
   text-align: center;
-  background-color: #f9fafb; /* light gray background */
+  background-color: var(--color-surface-muted); /* light gray background */
   padding: 2rem;
   animation: fadeIn 0.4s ease-in-out;
 }
@@ -13,7 +13,7 @@
 .error-boundary-title {
   font-size: 2rem;
   font-weight: 700;
-  color: #dc2626; /* Tailwind red-600 */
+  color: var(--color-error-text); /* Tailwind red-600 */
   margin-bottom: 0.75rem;
 }
 
@@ -48,12 +48,12 @@
 }
 
 .error-boundary-button.secondary {
-  background-color: #e5e7eb; /* Tailwind gray-200 */
+  background-color: var(--color-border); /* Tailwind gray-200 */
   color: #374151; /* Tailwind gray-700 */
 }
 
 .error-boundary-button.secondary:hover {
-  background-color: #d1d5db; /* Tailwind gray-300 */
+  background-color: var(--color-text-disabled); /* Tailwind gray-300 */
   transform: translateY(-2px);
 }
 

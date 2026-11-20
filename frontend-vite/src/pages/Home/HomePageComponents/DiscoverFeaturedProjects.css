@@ -319,7 +319,7 @@
   font-family: 'Cormorant Garamond', serif;
   font-size: clamp(18px, 1.6vw, 24px);
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-on-dark);
   margin: 0 0 6px;
   line-height: 1.25;
   letter-spacing: -0.01em;

@@ -10,11 +10,11 @@
   --brand:        #9417E2;
   --brand-light:  #f5e9ff;
   --brand-mid:    #e9d5ff;
-  --ink:          #111827;
+  --ink:          var(--color-text-primary);
   --ink-2:        #374151;
   --ink-3:        #6b7280;
-  --line:         #e5e7eb;
-  --surface:      #ffffff;
+  --line:         var(--color-border);
+  --surface:      var(--color-surface);
   --surface-2:    #f9fafb;
   --surface-3:    #f3f4f6;
   --success:      #059669;
@@ -161,14 +161,14 @@
 }
 
 .compare-btn--ghost:hover {
-  border-color: #dc2626;
-  color: #dc2626;
+  border-color: var(--color-error-text);
+  color: var(--color-error-text);
   background: #fff5f5;
 }
 
 .compare-btn--primary {
   background: var(--brand);
-  color: #fff;
+  color: var(--color-on-dark);
   border-color: var(--brand);
 }
 

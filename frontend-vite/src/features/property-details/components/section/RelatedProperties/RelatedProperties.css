@@ -42,7 +42,7 @@
   height: 44px;
   border-radius: 50%;
   border: none;
-  background: #fff;
+  background: var(--color-surface);
   color: #1a1a1a;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   display: flex;
@@ -69,7 +69,7 @@
   max-width: 280px;
   border-radius: 14px;
   border: 1px solid #eee;
-  background: #fff;
+  background: var(--color-surface);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -127,7 +127,7 @@
   align-items: center;
   gap: 4px;
   background: rgba(0, 0, 0, 0.72);
-  color: #fff;
+  color: var(--color-on-dark);
   padding: 4px 9px;
   font-size: 12px;
   font-weight: 600;

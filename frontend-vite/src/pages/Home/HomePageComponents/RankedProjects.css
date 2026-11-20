@@ -5,7 +5,7 @@
 
 .ranked-projects {
   padding: 50px 0;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .ranked-projects > * {
@@ -67,12 +67,12 @@
 
 .hp-tab:hover {
   border-color: #111;
-  background: #f9fafb;
+  background: var(--color-surface-muted);
 }
 
 .hp-tab.active {
   background: #1a1a1a;
-  color: #fff;
+  color: var(--color-on-dark);
   border-color: #1a1a1a;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
@@ -104,7 +104,7 @@
 .hp-card {
   min-width: 320px;
   max-width: 320px;
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
@@ -123,7 +123,7 @@
   position: relative;
   height: 210px;
   overflow: hidden;
-  background: #e5e7eb;
+  background: var(--color-border);
 }
 
 .hp-image img {
@@ -166,7 +166,7 @@
 }
 
 .hp-location {
-  color: #6b7280;
+  color: var(--color-text-muted);
   margin: 0 0 10px 0;
   line-height: 1.4;
   overflow: hidden;

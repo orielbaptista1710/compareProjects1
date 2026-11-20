@@ -29,7 +29,7 @@
   width: 100%;
   text-align: center;
   max-width: 1360px;
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .hero-content .h1-hero-content {

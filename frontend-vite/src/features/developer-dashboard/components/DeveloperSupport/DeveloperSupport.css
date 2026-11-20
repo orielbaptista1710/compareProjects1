@@ -16,13 +16,13 @@
   --ds-red-soft:   #FFF0F2;
   --ds-yellow:     #f5a623;
   --ds-yellow-soft:#FFFBEE;
-  --ds-ink:        #111827;
-  --ds-body:       #374151;
-  --ds-muted:      #6B7280;
-  --ds-hint:       #9CA3AF;
-  --ds-border:     #E5E7EB;
-  --ds-surface:    #F9FAFB;
-  --ds-white:      #ffffff;
+  --ds-ink:        var(--color-text-primary);
+  --ds-body:       var(--color-text-secondary);
+  --ds-muted:      var(--color-text-muted);
+  --ds-hint:       var(--color-text-placeholder);
+  --ds-border:     var(--color-border);
+  --ds-surface:    var(--color-surface-muted);
+  --ds-white:      var(--color-surface);
   --ds-shadow-sm:  0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
   --ds-shadow-md:  0 4px 16px rgba(0,0,0,.08);
   --ds-shadow-lg:  0 8px 32px rgba(91,33,182,.12);
@@ -291,7 +291,7 @@
 .ds-faq-item--open .ds-faq-btn__icon {
   background: var(--ds-purple-700);
   border-color: var(--ds-purple-700);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .ds-faq-answer {
@@ -475,7 +475,7 @@ textarea.ds-input {
 
 .ds-btn--primary {
   background: var(--ds-purple-700);
-  color: #fff;
+  color: var(--color-on-dark);
   font-size: 14px;
   padding: 12px 28px;
 }
@@ -566,9 +566,9 @@ textarea.ds-input {
   gap: 10px;
   padding: 14px 16px;
   border-radius: var(--ds-radius);
-  background: #F0FDF4;
+  background: var(--color-success-bg);
   border: 1.5px solid #BBF7D0;
-  color: #15803D;
+  color: var(--color-success);
   font-size: 13px;
   font-weight: 500;
 }

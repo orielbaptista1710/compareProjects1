@@ -125,7 +125,7 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   margin-bottom: 12px;
 }
 
@@ -151,7 +151,7 @@
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-secondary);
   text-decoration: none;
   transition: gap 0.3s ease, color 0.3s ease;
 }
@@ -164,7 +164,7 @@
 
 .read-more:hover {
   gap: 12px;
-  color: #7c3aed;
+  color: var(--color-primary);
 }
 
 
@@ -211,7 +211,7 @@
 
 .section-description {
   font-size: 15px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   line-height: 1.7;
   max-width: 720px;
   margin: 0;
@@ -243,7 +243,7 @@
 .article-image {
   overflow: hidden;
   height: 210px;
-  background-color: #f3f4f6;
+  background-color: var(--color-surface-active);
 }
 
 .article-image img {
@@ -315,7 +315,7 @@
 /* Tools & Checklists Section */
 .tools-section {
   padding: 40px 0 100px;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .tools-grid {
@@ -326,7 +326,7 @@
 }
 
 .tool-card {
-  background: #f9fafb;
+  background: var(--color-surface-muted);
   border-radius: 10px;
   padding: 28px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
@@ -346,7 +346,7 @@
 
 .tool-card p {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   line-height: 1.6;
   margin-bottom: 20px;
 }
@@ -355,7 +355,7 @@
   display: inline-block;
   padding: 12px 22px;
   background: #6e2fd5;
-  color: #ffffff;
+  color: var(--color-on-dark);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;

@@ -90,12 +90,12 @@
 
 .intr-btn--primary {
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .intr-btn--primary:hover {
   background: var(--color-primary-dark);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .intr-btn--primary:disabled {
@@ -152,7 +152,7 @@
 .intr-pill.is-active {
   background: var(--color-ink);
   border-color: var(--color-ink);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .intr-pill__count {

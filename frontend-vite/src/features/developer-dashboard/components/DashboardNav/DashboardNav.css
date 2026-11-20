@@ -7,10 +7,10 @@
   flex-direction: column;
   width: var(--sidebar-width, 232px);
   flex-shrink: 0;
-  background: var(--color-surface, #fff);
-  border-right: 1px solid var(--color-line, #e2e1ea);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-line);
   font-family: var(--font-body, "Inter", system-ui, sans-serif);
-  color: var(--color-ink, #1c1a33);
+  color: var(--color-ink);
   box-sizing: border-box;
 }
 
@@ -77,17 +77,17 @@
   font: inherit;
   font-size: var(--text-body, 0.9375rem);
   font-weight: var(--weight-medium);
-  color: var(--color-ink-muted, #5a5872);
+  color: var(--color-ink-muted);
   text-align: left;
   cursor: pointer;
 }
 .dnav__item:hover {
-  background: var(--color-bg-page, #f5f5f8);
-  color: var(--color-ink, #1c1a33);
+  background: var(--color-bg-page);
+  color: var(--color-ink);
 }
 .dnav__item.is-active {
-  background: var(--color-surface-tint-strong, #ede9fe);
-  color: var(--color-primary-dark, #6d28d9);
+  background: var(--color-surface-tint-strong);
+  color: var(--color-primary-dark);
   font-weight: var(--weight-semibold);
 }
 
@@ -98,7 +98,7 @@
   align-items: center;
   gap: 4px 10px;
   padding: 16px;
-  border-top: 1px solid var(--color-line, #e2e1ea);
+  border-top: 1px solid var(--color-line);
 }
 
 .dnav__avatar {
@@ -107,8 +107,8 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-full, 999px);
-  background: var(--color-surface-tint-strong, #ede9fe);
-  color: var(--color-primary-dark, #6d28d9);
+  background: var(--color-surface-tint-strong);
+  color: var(--color-primary-dark);
   font-size: var(--text-sm, 0.875rem);
   font-weight: var(--weight-semibold);
 }
@@ -124,7 +124,7 @@
 .dnav__role {
   margin: 0;
   font-size: var(--text-help, 0.8125rem);
-  color: var(--color-ink-muted, #5a5872);
+  color: var(--color-ink-muted);
 }
 
 .dnav__signout {
@@ -141,16 +141,16 @@
   font: inherit;
   font-size: var(--text-sm, 0.875rem);
   font-weight: var(--weight-medium);
-  color: var(--color-ink-muted, #5a5872);
+  color: var(--color-ink-muted);
   cursor: pointer;
 }
 .dnav__signout:hover {
-  background: var(--color-bg-page, #f5f5f8);
-  color: var(--color-ink, #1c1a33);
+  background: var(--color-bg-page);
+  color: var(--color-ink);
 }
 
 .dnav :where(button):focus-visible {
-  outline: 2px solid var(--color-primary, #7c3aed);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -159,7 +159,7 @@
   .dnav {
     width: 100%;
     border-right: 0;
-    border-bottom: 1px solid var(--color-line, #e2e1ea);
+    border-bottom: 1px solid var(--color-line);
   }
 
   .dnav__top {
@@ -172,19 +172,19 @@
     gap: 8px;
     min-height: var(--control-height, 44px);
     padding: 0 12px;
-    border: 1px solid var(--color-line-strong, #cfcdda);
+    border: 1px solid var(--color-line-strong);
     border-radius: var(--radius-sm, 8px);
-    background: var(--color-surface, #fff);
+    background: var(--color-surface);
     font: inherit;
     font-size: var(--text-sm, 0.875rem);
     font-weight: var(--weight-medium);
-    color: var(--color-ink, #1c1a33);
+    color: var(--color-ink);
     cursor: pointer;
   }
 
   .dnav__menu {
     display: none;
-    border-top: 1px solid var(--color-line, #e2e1ea);
+    border-top: 1px solid var(--color-line);
   }
   .dnav__menu.is-open {
     display: flex;

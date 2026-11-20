@@ -55,7 +55,7 @@
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
   background: var(--brand);
-  color: #fff;
+  color: var(--color-on-dark);
   font-size: 0.68rem;
   font-weight: 600;
 }
@@ -114,7 +114,7 @@
 
 .rec-slot__add:hover {
   background: var(--brand);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 /* Plain "Add Property" slot (AddSlot.jsx) */
@@ -149,7 +149,7 @@
   justify-content: center;
   width: 2.25rem;
   height: 2.25rem;
-  border: 1.5px dashed #d1d5db;
+  border: 1.5px dashed var(--color-text-disabled);
   border-radius: 50%;
   color: var(--ink-3);
   transition: border-color var(--transition), color var(--transition);

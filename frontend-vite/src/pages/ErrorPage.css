@@ -31,7 +31,7 @@
 
 .error-btn {
   background-color: #d90429;
-  color: #fff;
+  color: var(--color-on-dark);
   border: none;
   padding: 0.75rem 1.75rem;
   border-radius: 8px;

@@ -3,7 +3,7 @@
   position: fixed;
   bottom: 20px;
   left: 0;
-  background: #ffffff;
+  background: var(--color-surface);
   border-right: 1px solid #e5e5e5;
   display: flex;
   flex-direction: column;
@@ -63,7 +63,7 @@
 }
 
 .quick-modal-content {
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 12px;
   padding: 1.8rem 1.5rem 1.6rem;
   width: 350px;
@@ -131,18 +131,18 @@
 }
 
 .quick-form-status--success {
-  color: #15803d;
-  background: #f0fdf4;
+  color: var(--color-success);
+  background: var(--color-success-bg);
 }
 
 .quick-form-status--error {
   color: #b91c1c;
-  background: #fef2f2;
+  background: var(--color-error-bg);
 }
 
 .quick-enquiry-modal-form-submit-btn {
   background: #D90429;
-  color: #fff;
+  color: var(--color-on-dark);
   border: none;
   padding: 0.75rem;
   border-radius: 8px;

@@ -44,7 +44,7 @@
   flex-shrink: 0;
   font-size: .7rem;
   font-weight: 700;
-  color: #7C3AED;
+  color: var(--color-primary);
   min-width: 22px;
 }
 
@@ -64,10 +64,10 @@
 
 .faq-item--open .faq-q__chevron {
   transform: rotate(180deg);
-  color: #7C3AED;
+  color: var(--color-primary);
 }
 
-.faq-item--open .faq-q__text { color: #7C3AED; }
+.faq-item--open .faq-q__text { color: var(--color-primary); }
 
 /* ── Answer — CSS grid height trick ──────────────────────────── */
 .faq-a {
@@ -112,8 +112,8 @@
 .faq-toggle-all:hover { border-color: #999; }
 
 /* Focus */
-.faq-q:focus-visible { outline: 2px solid #7C3AED; outline-offset: 1px; }
-.faq-toggle-all:focus-visible { outline: 2px solid #7C3AED; outline-offset: 2px; }
+.faq-q:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.faq-toggle-all:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 @media (prefers-reduced-motion: reduce) {
   .faq-a, .faq-a__text, .faq-q__chevron { transition: none !important; }

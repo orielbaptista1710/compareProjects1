@@ -1,7 +1,7 @@
 /* ─── Buying Guide Section ─────────────────────────────────────────────────── */
 .buying-guide-section {
   padding: 40px 0 100px;
-  background: #f9fafb;
+  background: var(--color-surface-muted);
 }
 
 .guide-steps-grid {
@@ -13,7 +13,7 @@
 
 /* ─── Step Card — matches the image exactly ────────────────────────────────── */
 .guide-step-card {
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 14px;
   /* Light grey border as seen in the image */
   border: 1.5px solid #e8e8f0;
@@ -50,7 +50,7 @@
 .step-card-title {
   font-size: 20px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 12px;
   line-height: 1.3;
 }
@@ -58,7 +58,7 @@
 /* ─── Description — mid-gray, matches image ────────────────────────────────── */
 .step-card-desc {
   font-size: 14.5px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   line-height: 1.65;
   margin: 0;
   flex: 1;
@@ -148,7 +148,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: #7c3aed;
+  color: var(--color-primary);
 }
 
 .guide-download-icon svg {
@@ -167,12 +167,12 @@
 .guide-download-text strong {
   font-size: 14px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
 }
 
 .guide-download-text span {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   line-height: 1.5;
 }
 
@@ -187,7 +187,7 @@
   display: inline-block;
   font-size: 11px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-muted);
   background: #f5f5f5;
   border: 1px solid #e8e8f0;
   border-radius: 20px;
@@ -225,7 +225,7 @@
 
 .dl-btn-primary {
   background: #6e2fd5;
-  color: #ffffff;
+  color: var(--color-on-dark);
 }
 
 .dl-btn-primary:hover {
@@ -239,12 +239,12 @@
 
 .dl-btn-secondary {
   background: white;
-  color: #374151;
-  border: 1.5px solid #e5e7eb;
+  color: var(--color-text-secondary);
+  border: 1.5px solid var(--color-border);
 }
 
 .dl-btn-secondary:hover {
-  background: #f9fafb;
+  background: var(--color-surface-muted);
   transform: translateY(-1px);
 }
 

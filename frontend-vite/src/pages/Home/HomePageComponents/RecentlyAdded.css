@@ -7,7 +7,7 @@
   padding: 50px 60px;
   max-width: 1500px;
   margin: 0 auto;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 /* Header */
@@ -38,7 +38,7 @@
 
 /* Project Card */
 .project-card {
-  background: #ffffff;
+  background: var(--color-surface);
   border-radius: 16px;
   box-shadow: 0 2px 14px rgba(0, 0, 0, 0.07);
   overflow: hidden;
@@ -115,8 +115,8 @@
 
 /* Button */
 .view-button {
-  background: linear-gradient(135deg, #7b2ff7 0%, #a855f7 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #7b2ff7 0%, var(--color-primary-light) 100%);
+  color: var(--color-on-dark);
   font-weight: 600;
   padding: 10px 18px;
   border: none;

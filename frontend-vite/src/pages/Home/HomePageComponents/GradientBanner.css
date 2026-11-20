@@ -9,7 +9,7 @@
   justify-content: center;
 
   text-align: center;
-  color: #ffffff;
+  color: var(--color-on-dark);
   overflow: hidden;
 
   background-color: #4b1f71;
@@ -43,7 +43,7 @@
   min-width: 140px;
   min-height: 42px;
 
-  background: #ffffff;
+  background: var(--color-surface);
   color: #1f2937;
 
   padding: 10px 24px;
