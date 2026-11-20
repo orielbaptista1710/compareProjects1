@@ -97,7 +97,7 @@
   gap: .4rem;
   width: 100%;
   padding: .65rem 1rem;
-  background: #1a1a1a;
+  background: var(--color-ink);
   color: var(--color-on-dark);
   font-size: .83rem;
   font-weight: 700;

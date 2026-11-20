@@ -5,7 +5,7 @@
 :root {
   --pp-purple:    var(--color-primary);
   --pp-purple-bg: var(--color-primary-tint);
-  --pp-text:      #1a1a1a;
+  --pp-text:      var(--color-ink);
   --pp-sub:       #717171;
   --pp-border:    #EBEBEB;
   --pp-bg:        #F7F7F7;

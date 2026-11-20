@@ -113,7 +113,7 @@
 
 .side-article-content h3 {
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-ink);
   margin: 0 0 10px 0;
   line-height: 1.4;
   flex: 1;
@@ -197,7 +197,7 @@
 
 .guide-section-header h2 {
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-ink);
   margin: 0 0 14px 0;
   letter-spacing: -0.5px;
 }
@@ -264,7 +264,7 @@
 
 .article-content h3 {
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-ink);
   margin: 0 0 16px 0;
   line-height: 1.4;
   min-height: 50px;
@@ -289,7 +289,7 @@
 }
 
 .view-all-btn {
-  background-color: #1a1a1a;
+  background-color: var(--color-ink);
   color: white;
   padding: 15px 50px;
   border: none;
@@ -341,7 +341,7 @@
 .tool-card h3 {
   font-weight: 600;
   margin-bottom: 12px;
-  color: #1a1a1a;
+  color: var(--color-ink);
 }
 
 .tool-card p {

@@ -71,7 +71,7 @@
 .ls-landmarks__heading {
   font-size: .78rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-ink);
   margin: 0 0 .6rem;
 }
 
@@ -100,7 +100,7 @@
 .ls-landmark__name {
   font-size: .8rem;
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--color-ink);
   flex: 1;
   white-space: nowrap;
   overflow: hidden;

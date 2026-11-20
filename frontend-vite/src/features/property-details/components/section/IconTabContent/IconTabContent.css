@@ -48,7 +48,7 @@
 .icon-tab-pp-label {
   font-size: .78rem;
   font-weight: 500;
-  color: #1a1a1a;
+  color: var(--color-ink);
   line-height: 1.3;
 }
 

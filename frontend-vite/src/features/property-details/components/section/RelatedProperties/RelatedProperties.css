@@ -10,7 +10,7 @@
   font-size: 22px;
   font-weight: 600;
   margin-bottom: 16px;
-  color: #1a1a1a;
+  color: var(--color-ink);
 }
 
 /* ===========================
@@ -43,7 +43,7 @@
   border-radius: 50%;
   border: none;
   background: var(--color-surface);
-  color: #1a1a1a;
+  color: var(--color-ink);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
@@ -157,7 +157,7 @@
 .rp-price {
   font-weight: 700;
   font-size: 19px;
-  color: #1a1a1a;
+  color: var(--color-ink);
 }
 
 .rp-sep {
@@ -174,7 +174,7 @@
 .rp-name {
   font-size: 15px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-ink);
   margin-bottom: 3px;
   white-space: nowrap;
   overflow: hidden;
