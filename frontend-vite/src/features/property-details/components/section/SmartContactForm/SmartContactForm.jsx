@@ -146,7 +146,7 @@ const StepCard = styled(Button)({
   transition: "all 0.2s ease",
   boxShadow: "none",
   "&:hover": {
-    borderColor: "#9417E2",
+    borderColor: "var(--color-primary)",
     background: "linear-gradient(135deg, #fcf7ff 0%, #f7efff 100%)",
     transform: "translateY(-1px)",
     boxShadow: "0 8px 20px rgba(148, 23, 226, 0.08)",
@@ -159,7 +159,7 @@ const ContinueButton = styled(Button)({
   fontWeight: 700,
   textTransform: "none",
   fontSize: "14px",
-  background: "linear-gradient(135deg, #9417E2 0%, #7b2cbf 100%)",
+  background: "linear-gradient(135deg, var(--color-primary) 0%, #7b2cbf 100%)",
   color: "#fff",
   boxShadow: "0 10px 24px rgba(148, 23, 226, 0.22)",
   "&:hover": {
@@ -182,9 +182,9 @@ const SecondaryButton = styled(Button)({
   color: "#6b7280",
   background: "#fff",
   "&:hover": {
-    borderColor: "#9417E2",
+    borderColor: "var(--color-primary)",
     background: "#faf5ff",
-    color: "#9417E2",
+    color: "var(--color-primary)",
   },
 });
 
@@ -194,7 +194,7 @@ const StyledTextField = styled(TextField)({
     background: "#ffffff",
     "& fieldset": { borderColor: "#e5e7eb" },
     "&:hover fieldset": { borderColor: "#c084fc" },
-    "&.Mui-focused fieldset": { borderColor: "#9417E2", borderWidth: "2px" },
+    "&.Mui-focused fieldset": { borderColor: "var(--color-primary)", borderWidth: "2px" },
   },
   "& .MuiOutlinedInput-input": {
     padding: "14px",
@@ -367,7 +367,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
             borderRadius: isOpen ? "22px 22px 0 0" : "22px",
             overflow: "hidden",
             border: "1px solid #ececec",
-            background: "linear-gradient(135deg, #9417E2 0%, #7b2cbf 100%)",
+            background: "linear-gradient(135deg, var(--color-primary) 0%, #7b2cbf 100%)",
             color: "#fff",
           }}
         >
@@ -477,7 +477,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                       STEP {step + 1} / {steps.length}
                     </Typography>
 
-                    <Typography fontSize="12px" fontWeight={700} color="#9417E2">
+                    <Typography fontSize="12px" fontWeight={700} color="var(--color-primary)">
                       {Math.round(((step + 1) / steps.length) * 100)}%
                     </Typography>
                   </Box>
@@ -491,7 +491,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                       background: "#f3e8ff",
                       "& .MuiLinearProgress-bar": {
                         borderRadius: 999,
-                        background: "linear-gradient(90deg,#9417E2,#c026d3)",
+                        background: "linear-gradient(90deg,var(--color-primary),#c026d3)",
                       },
                     }}
                   />
@@ -560,7 +560,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                                   setConsentError(false);
                                 }}
                                 disabled={isSubmitting}
-                                sx={{ p: 0.5, mr: 1, "&.Mui-checked": { color: "#9417E2" } }}
+                                sx={{ p: 0.5, mr: 1, "&.Mui-checked": { color: "var(--color-primary)" } }}
                               />
                             }
                             label={
@@ -612,7 +612,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                       background: "#faf5ff",
                     }}
                   >
-                    <ShieldCheck size={16} color="#9417E2" />
+                    <ShieldCheck size={16} color="var(--color-primary)" />
                     <Typography fontSize="11px" color="#6b7280">
                       Your information is secure and never shared.
                     </Typography>
