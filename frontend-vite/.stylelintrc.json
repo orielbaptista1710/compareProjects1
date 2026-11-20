@@ -16,6 +16,7 @@
     {
       "files": [
         "src/shared/Header/**/*.css",
+        "src/shared/NavigationBar/NavigationBar.css",
         "src/shared/Popups/DeveloperPopup.css",
         "src/pages/Auth/CustomerAuth/authStyles/*.css"
       ],
