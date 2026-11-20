@@ -4,7 +4,7 @@
  * after the dashboard chunk is fetched, so bare selectors would restyle other
  * pages. Element rules use :where() to keep specificity at one class.
  *
- * All colours, fonts and sizes come from styles/tokens.css + styles/colors.css.
+ * All colours, fonts and sizes come from styles/tokens.css.
  * Layout responds to the form's own width (container queries), so it works in
  * the developer dashboard and, later, inside owner/agent dashboards.
  *

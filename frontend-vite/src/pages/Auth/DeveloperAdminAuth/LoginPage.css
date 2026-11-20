@@ -1,7 +1,7 @@
 /* src/pages/Auth/DeveloperAdminAuth/LoginPage.css — developer/admin sign in (/login)
    Every class is devlogin- prefixed so it can't collide with other routes'
-   global CSS. Colours, fonts and sizes come from styles/tokens.css +
-   styles/colors.css; the only extra colours are the on-dark ones declared
+   global CSS. Colours, fonts and sizes come from styles/tokens.css
+   (single source); the only extra colours are the on-dark ones declared
    once on .devlogin-page below. Fonts (Poppins/Inter) load in index.html. */
 
 /* shared/Header is fixed and has no spacer, so the page starts below it. */

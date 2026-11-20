@@ -330,7 +330,7 @@
    ===================================================== */
 
 /* ptab- prefix: global CSS leaks across SPA routes, so keep names unique.
-   Tokens only (src/styles/tokens.css + --color-primary from colors.css). */
+   Tokens only (src/styles/tokens.css). */
 .ptab-card {
   background: var(--color-surface);
   border: 1px solid var(--color-line);

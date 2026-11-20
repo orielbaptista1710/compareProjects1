@@ -1,7 +1,7 @@
 /* =========================================
    HEADER
-   All colours, fonts, sizes and spacing come from styles/tokens.css +
-   styles/colors.css — don't add hex/rgba values here. Three colours only:
+   All colours, fonts, sizes and spacing come from styles/tokens.css
+   (single source) — don't add hex/rgba values here. Three colours only:
    brand purple, ink, white (and the --color-on-dark-* tints of white).
 ========================================= */
 

@@ -2,7 +2,6 @@
   "defaultSeverity": "warning",
   "ignoreFiles": [
     "src/styles/tokens.css",
-    "src/styles/colors.css",
     "dist/**",
     "coverage/**"
   ],

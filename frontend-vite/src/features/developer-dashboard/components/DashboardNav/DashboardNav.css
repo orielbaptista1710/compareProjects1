@@ -1,6 +1,6 @@
 /* DashboardNav.css
-   Scoped under .dnav. Colours, fonts and sizes from styles/tokens.css +
-   styles/colors.css. Flat: 1px borders, no shadows. */
+   Scoped under .dnav. Colours, fonts and sizes from styles/tokens.css
+   (single source). Flat: 1px borders, no shadows. */
 
 .dnav {
   display: flex;

@@ -1,7 +1,7 @@
 /* src/pages/SupportAndHelp/SupportHelp.css
    Help centre page. Everything is scoped under the hc- prefix so it can't leak
-   into other routes. Colours, fonts and sizes come from styles/tokens.css and
-   styles/colors.css — don't add new hex values here. */
+   into other routes. Colours, fonts and sizes come from styles/tokens.css
+   (single source) — don't add new hex values here. */
 
 .hc-page {
   background: #fff;

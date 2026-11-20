@@ -1,6 +1,6 @@
 /* src/pages/PostProperty/PostProperty.css
    Every class is pp- prefixed so it can't collide with other routes' global
-   CSS. Colours, fonts and sizes come from styles/tokens.css + styles/colors.css
+   CSS. Colours, fonts and sizes come from styles/tokens.css
    — don't add new hex values here. Cards are flat (no shadows). */
 
 /* Poppins + Inter, only the weights in use. Moves to index.html with the

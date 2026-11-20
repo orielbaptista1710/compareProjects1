@@ -1,7 +1,7 @@
 /* Dashboard.css — developer dashboard shell.
    Sits below the fixed site header (shared/Header, --site-header-height).
    Desktop: sidebar + one scrolling main area. ≤768px: stacked, page scrolls.
-   Colours and sizes from styles/tokens.css + styles/colors.css. */
+   Colours and sizes from styles/tokens.css. */
 
 .dashboard-shell {
   display: flex;

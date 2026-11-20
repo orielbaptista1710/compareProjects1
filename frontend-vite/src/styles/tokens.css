@@ -1,13 +1,51 @@
 /* src/styles/tokens.css
-   Site-wide design tokens: type, spacing, radius, motion, and the colours
-   colors.css doesn't have yet. Variables only — nothing here styles an element,
-   so importing it changes no page until that page opts in with var(--…).
-   Brand colours stay in colors.css (--color-primary #7c3aed etc.).
+   The single source of truth for every colour, font, size, spacing, radius,
+   shadow and motion value on the site. Variables only — nothing here styles an
+   element. Change the palette here; never hardcode hex/rgba in feature CSS.
 
    Fonts: Poppins for headings, prices and buttons; Inter for body, labels,
    forms and tables. Use Inter + font-variant-numeric: tabular-nums for prices
    in tables so the digits line up. */
 :root {
+  /* Brand */
+  --color-primary: #7c3aed;
+  --color-primary-dark: #6d28d9;
+  --color-primary-light: #a855f7;
+  --color-accent: #e12965; /* retired pink — don't use in new code */
+
+  --gradient-brand: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  --gradient-cta: linear-gradient(90deg, #7b2fff 0%, #e12965 100%);
+
+  /* Surfaces */
+  --color-surface: #ffffff;
+  --color-surface-muted: #f9fafb;
+  --color-surface-active: #f3f4f6;
+  --color-surface-tint: #f5f3ff;
+  --color-surface-tint-strong: #ede9fe;
+
+  /* Borders (legacy greys — being folded into --color-line*) */
+  --color-border: #e5e7eb;
+  --color-border-subtle: #f3f4f6;
+
+  /* Text (legacy greys — being folded into --color-ink*) */
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6b7280;
+  --color-text-placeholder: #9ca3af;
+  --color-text-disabled: #d1d5db;
+
+  /* Status */
+  --color-error-bg: #fef2f2;
+  --color-error-text: #dc2626;
+  --color-warning-bg: #fffbeb;
+  --color-warning-text: #92400e;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12);
+  --shadow-brand: 0 4px 12px rgba(124, 58, 237, 0.25);
+
   /* Type */
   --font-heading: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -50,7 +88,7 @@
   --site-navbar-height: 60px; /* shared/NavigationBar, fixed under the header from 1200px up */
   --sidebar-width: 232px;
 
-  /* Colours not in colors.css. Brand purple stays --color-primary (#7c3aed). */
+  /* Standard palette: ink greys, page backgrounds, status */
   --color-ink: #1c1a33;           /* headings and body text */
   --color-ink-muted: #5a5872;     /* secondary text (6.9:1 on white) */
   --color-line: #e2e1ea;          /* card and divider borders */

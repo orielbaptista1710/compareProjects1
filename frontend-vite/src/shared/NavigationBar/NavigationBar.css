@@ -1,6 +1,6 @@
 /* Legacy globals — still read by CompareTable.css and ExpandableSearch.css,
    so they stay here until those files move to tokens.css. The nav itself
-   below uses tokens.css + colors.css only (purple, ink, white). */
+   below uses tokens.css only (purple, ink, white). */
 :root {
   --nav-bg: #ffffff;
   --nav-text: #1a202c;

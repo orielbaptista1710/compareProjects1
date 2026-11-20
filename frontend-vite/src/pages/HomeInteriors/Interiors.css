@@ -1,7 +1,7 @@
 /* Home Interiors page (/interior).
    Every class is prefixed .intr- so nothing leaks into other routes (plain
    CSS stays loaded after SPA navigation). Colours, fonts and sizes come from
-   styles/tokens.css + styles/colors.css. */
+   styles/tokens.css. */
 
 .intr-page {
   background: var(--color-surface);
