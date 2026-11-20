@@ -4,7 +4,7 @@
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #f8f9fb, #eef1f7);
-  color: #333;
+  color: var(--color-ink);
   text-align: center;
   padding: 2rem;
 }
@@ -25,7 +25,7 @@
 }
 
 .error-content p {
-  color: #555;
+  color: var(--color-ink-muted);
   margin-bottom: 2rem;
 }
 

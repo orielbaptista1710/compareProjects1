@@ -125,7 +125,7 @@
 
 .legal-section p {
   font-size: 15px;
-  color: #4b5563;
+  color: var(--color-ink-muted);
   line-height: 1.8;
   margin: 0 0 14px;
 }
@@ -149,7 +149,7 @@
 .legal-section ol li,
 .legal-section ul li {
   font-size: 15px;
-  color: #4b5563;
+  color: var(--color-ink-muted);
   line-height: 1.75;
   margin-bottom: 8px;
 }

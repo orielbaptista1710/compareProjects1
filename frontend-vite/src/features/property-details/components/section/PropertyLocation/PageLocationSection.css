@@ -23,11 +23,11 @@
 .ls-map-frame {
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #EBEBEB;
+  border: 1px solid var(--color-line);
   margin-bottom: .6rem;
   /* Reserve height while iframe loads so layout doesn't jump */
   min-height: 320px;
-  background: #F7F7F7;
+  background: var(--color-surface-subtle);
 }
 
 /* Map unavailable placeholder */
@@ -38,10 +38,10 @@
   align-items: center;
   justify-content: center;
   gap: .5rem;
-  background: #F7F7F7;
-  border: 1px solid #EBEBEB;
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-line);
   border-radius: 8px;
-  color: #aaa;
+  color: var(--color-placeholder);
   font-size: .83rem;
   margin-bottom: .6rem;
 }
@@ -86,8 +86,8 @@
   align-items: center;
   gap: .5rem;
   padding: .6rem .8rem;
-  background: #FAFAFA;
-  border: 1px solid #EBEBEB;
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-line);
   border-radius: 8px;
   text-decoration: none;
   transition: border-color .15s;
@@ -109,7 +109,7 @@
 
 .ls-landmark__arrow {
   font-size: .72rem;
-  color: #aaa;
+  color: var(--color-placeholder);
   flex-shrink: 0;
 }
 

@@ -33,7 +33,7 @@
   align-items: center;
   height: 200px;
   font-size: 1.2rem;
-  color: #555;
+  color: var(--color-ink-muted);
 }
 
 .error-message {
@@ -68,7 +68,7 @@
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
-  color: #666;
+  color: var(--color-ink-muted);
   position: relative;
   transition: all 0.3s ease;
 }
@@ -108,17 +108,17 @@
 
 .property-card h3 {
   margin: 0 0 1rem 0;
-  color: #333;
+  color: var(--color-ink);
 }
 
 .property-card p {
   margin: 0.5rem 0;
-  color: #555;
+  color: var(--color-ink-muted);
   font-size: 0.95rem;
 }
 
 .property-card strong {
-  color: #333;
+  color: var(--color-ink);
   font-weight: 600;
 }
 
@@ -159,7 +159,7 @@
 .no-properties {
   grid-column: 1 / -1;
   text-align: center;
-  color: #666;
+  color: var(--color-ink-muted);
   padding: 2rem;
   font-size: 1.1rem;
 }
@@ -205,7 +205,7 @@
 
 .modal-content h3 {
   margin-top: 0;
-  color: #333;
+  color: var(--color-ink);
 }
 
 .modal-content textarea {
@@ -235,8 +235,8 @@
 }
 
 .modal-buttons button:first-child {
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: var(--color-ink-fill);
+  color: var(--color-ink);
 }
 
 .modal-buttons button:first-child:hover {

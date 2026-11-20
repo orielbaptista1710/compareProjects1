@@ -13,7 +13,7 @@
 .hero p {
   max-width: 600px;
   margin: 0 auto 24px;
-  color: #4b5563;
+  color: var(--color-ink-muted);
   font-size: 18px;
 }
 

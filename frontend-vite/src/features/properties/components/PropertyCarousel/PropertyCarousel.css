@@ -9,7 +9,7 @@
     text-align: center;
     margin-bottom: 30px;
     font-size: 28px;
-    color: #333;
+    color: var(--color-ink);
   }
   
   .carousel-container {
@@ -103,11 +103,11 @@
   .caro-property-title {
     font-size: 20px;
     margin: 0 0 5px 0;
-    color: #333;
+    color: var(--color-ink);
   }
   
   .property-address {
-    color: #666;
+    color: var(--color-ink-muted);
     font-size: 14px;
     margin-bottom: 15px;
   }
@@ -120,7 +120,7 @@
   }
   
   .property-features span {
-    color: #555;
+    color: var(--color-ink-muted);
   }
   
   .property-agent {

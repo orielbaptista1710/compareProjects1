@@ -90,7 +90,7 @@
 
 .sort-dropdown label {
   font-size: 0.9rem;
-  color: #4b5563;
+  color: var(--color-ink-muted);
   white-space: nowrap;
 }
 
@@ -276,7 +276,7 @@
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background: #fafafa;
+  background: var(--color-surface-subtle);
 }
 .form-group input:focus,
 .form-group textarea:focus,
@@ -691,7 +691,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.875rem 1.25rem;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--color-line);
     flex-shrink: 0;
   }
   .contact-sheet__title {

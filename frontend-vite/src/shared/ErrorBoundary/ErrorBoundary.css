@@ -19,7 +19,7 @@
 
 .error-boundary-message {
   font-size: 1.1rem;
-  color: #4b5563; /* Tailwind gray-600 */
+  color: var(--color-ink-muted); /* Tailwind gray-600 */
   margin-bottom: 1.5rem;
 }
 

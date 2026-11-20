@@ -42,7 +42,7 @@
   border-radius: 16px;
   box-shadow: 0 2px 14px rgba(0, 0, 0, 0.07);
   overflow: hidden;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--color-line);
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
@@ -83,7 +83,7 @@
 
 .project-developer {
   font-size: 13px;
-  color: #666;
+  color: var(--color-ink-muted);
   margin: 0 0 10px 0;
 }
 
@@ -95,7 +95,7 @@
 .project-bhk {
   font-size: 14px;
   margin: 0 0 6px 0;
-  color: #333;
+  color: var(--color-ink);
 }
 
 .bhk-highlight {
@@ -106,7 +106,7 @@
 
 .project-location {
   font-size: 13px;
-  color: #666;
+  color: var(--color-ink-muted);
   margin: 0 0 14px 0;
   display: flex;
   align-items: center;

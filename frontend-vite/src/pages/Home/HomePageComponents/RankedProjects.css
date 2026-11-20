@@ -38,7 +38,7 @@
 
 .hp-header p {
   max-width: 900px;
-  color: #555;
+  color: var(--color-ink-muted);
   font-size: 15px;
   line-height: 1.6;
   margin: 0;

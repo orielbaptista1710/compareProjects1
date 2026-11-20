@@ -5,7 +5,7 @@
 .cf-root {
   background: var(--color-surface);
   border-radius: 12px;
-  border: 1px solid #EBEBEB;
+  border: 1px solid var(--color-line);
   overflow: hidden;
   width: 100%;
 }
@@ -13,7 +13,7 @@
 /* ── Header ─────────────────────────────────────────────────── */
 .cf-header {
   padding: 1.1rem 1.2rem .9rem;
-  border-bottom: 1px solid #EBEBEB;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .cf-header__label {
@@ -104,11 +104,11 @@
 .cf-textarea {
   width: 100%;
   padding: .6rem .8rem;
-  border: 1px solid #EBEBEB;
+  border: 1px solid var(--color-line);
   border-radius: 8px;
   font-size: .875rem;
   color: var(--color-ink);
-  background: #FAFAFA;
+  background: var(--color-surface-subtle);
   outline: none;
   font-family: inherit;
   transition: border-color .15s;
@@ -130,10 +130,10 @@
 /* Phone row */
 .cf-phone-row {
   display: flex;
-  border: 1px solid #EBEBEB;
+  border: 1px solid var(--color-line);
   border-radius: 8px;
   overflow: hidden;
-  background: #FAFAFA;
+  background: var(--color-surface-subtle);
   transition: border-color .15s;
 }
 
@@ -144,7 +144,7 @@
   font-size: .875rem;
   font-weight: 600;
   color: var(--color-ink);
-  border-right: 1px solid #EBEBEB;
+  border-right: 1px solid var(--color-line);
   background: var(--color-surface-active);
   display: flex;
   align-items: center;
@@ -195,7 +195,7 @@
 
 .cf-check-text {
   font-size: .78rem;
-  color: #4B5563;
+  color: var(--color-ink-muted);
   line-height: 1.5;
 }
 
@@ -251,7 +251,7 @@
   padding-top: .6rem;
   border-top: 1px solid var(--color-border-subtle);
   font-size: .73rem;
-  color: #aaa;
+  color: var(--color-placeholder);
 }
 
 .cf-footer-nudge svg { color: #aaa; }

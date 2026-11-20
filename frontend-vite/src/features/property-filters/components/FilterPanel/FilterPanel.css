@@ -360,7 +360,7 @@
   background: var(--color-surface);
   font-size: 12px;
   font-weight: 500;
-  color: #555;
+  color: var(--color-ink-muted);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
   line-height: 1;

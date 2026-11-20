@@ -108,7 +108,7 @@
 
   text-decoration: none;
 
-  color: #4b5563;
+  color: var(--color-ink-muted);
 }
 
 .breadcrumbs-home:hover {
