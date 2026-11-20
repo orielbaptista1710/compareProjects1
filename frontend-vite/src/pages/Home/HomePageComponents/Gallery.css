@@ -6,7 +6,7 @@
 
 /* ── Custom properties ────────────────────────────────────── */
 .gal-section {
-  --gal-accent:      #D90429;
+  --gal-accent:      var(--color-accent-red);
   --gal-text:        var(--color-text-primary);
   --gal-text-muted:  var(--color-text-muted);
   --gal-surface:     var(--color-surface);

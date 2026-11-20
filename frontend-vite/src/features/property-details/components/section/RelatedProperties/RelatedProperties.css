@@ -191,7 +191,7 @@
 
 .rp-btn {
   width:255px;
-  background: #D90429;
+  background: var(--color-accent-red);
   color: white;
   border: none;
   padding: 10px;
@@ -202,7 +202,7 @@
 
 .rp-footer {
   margin-top: 12px;
-  color: #D90429;
+  color: var(--color-accent-red);
   font-weight: 500;
   cursor: pointer;
 }

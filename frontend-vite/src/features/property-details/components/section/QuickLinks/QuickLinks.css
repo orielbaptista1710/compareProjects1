@@ -141,7 +141,7 @@
 }
 
 .quick-enquiry-modal-form-submit-btn {
-  background: #D90429;
+  background: var(--color-accent-red);
   color: var(--color-on-dark);
   border: none;
   padding: 0.75rem;
@@ -178,7 +178,7 @@
 }
 
 .quick-modal-close-btn:hover {
-  color: #D90429;
+  color: var(--color-accent-red);
 }
 
 /* Screen-reader-only labels */

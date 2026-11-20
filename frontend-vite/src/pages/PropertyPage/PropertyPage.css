@@ -182,7 +182,7 @@
 }
 
 .pc-icon-btn:hover  { border-color: #999; background: #fafafa; }
-.pc-liked           { border-color: #D90429; background: #FFF1F3; }
+.pc-liked           { border-color: var(--color-like); background: var(--color-accent-red-bg); }
 
 /* Trust strip */
 .pp-trust-strip {
@@ -527,8 +527,8 @@
   gap: .5rem;
   padding: .75rem 1rem;
   border-radius: var(--pp-radius-sm);
-  border: 1px solid #D90429;
-  background: #D90429;
+  border: 1px solid var(--color-accent-red);
+  background: var(--color-accent-red);
   color: var(--color-on-dark);
   font-size: .88rem;
   font-weight: 600;

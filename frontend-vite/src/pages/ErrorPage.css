@@ -15,7 +15,7 @@
 
 .error-content h1 {
   font-weight: 700;
-  color: #d90429;
+  color: var(--color-error-text);
   margin: 0;
   line-height: 1;
 }
@@ -30,7 +30,7 @@
 }
 
 .error-btn {
-  background-color: #d90429;
+  background-color: var(--color-error-text);
   color: var(--color-on-dark);
   border: none;
   padding: 0.75rem 1.75rem;

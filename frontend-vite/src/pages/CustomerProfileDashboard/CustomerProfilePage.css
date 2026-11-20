@@ -1,6 +1,6 @@
 /* =====================================================
    CUSTOMER PROFILE PAGE â€” Production Grade
-   Brand: purple gradient sidebar + #D90429 accent
+   Brand: purple gradient sidebar + red accent
    ===================================================== */
 
 /* â”€â”€ CSS Variables â”€â”€ */
@@ -9,7 +9,7 @@
   --brand-purple:       var(--color-primary);
   --brand-purple-light: rgba(124, 58, 237, 0.08);
   --brand-yellow:       var(--color-highlight);
-  --brand-red:          #D90429;
+  --brand-red:          var(--color-accent-red);
 
   --sidebar-width:      260px;
   --sidebar-collapsed:  72px;

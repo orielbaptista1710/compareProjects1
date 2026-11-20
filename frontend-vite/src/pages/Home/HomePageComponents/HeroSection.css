@@ -5,8 +5,8 @@
 
 /* ── Custom properties ────────────────────────────────────── */
 .why-choose-us {
-  --wc-accent:       #D90429;
-  --wc-accent-light: #fff1f2;
+  --wc-accent:       var(--color-accent-red);
+  --wc-accent-light: var(--color-accent-red-bg);
   --wc-text:         var(--color-text-primary);
   --wc-text-muted:   var(--color-text-muted);
   --wc-surface:      var(--color-surface);

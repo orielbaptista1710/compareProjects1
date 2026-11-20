@@ -12,8 +12,8 @@
   --ds-purple-400: #A78BFA;
   --ds-purple-100: #EDE9FE;
   --ds-purple-50:  #F5F3FF;
-  --ds-red:        #d90429;
-  --ds-red-soft:   #FFF0F2;
+  --ds-red:        var(--color-accent-red);
+  --ds-red-soft:   var(--color-accent-red-bg);
   --ds-yellow:     #f5a623;
   --ds-yellow-soft:#FFFBEE;
   --ds-ink:        var(--color-text-primary);

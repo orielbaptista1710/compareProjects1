@@ -178,7 +178,7 @@
 .clear-all-filters {
   background: none;
   border: none;
-  color: #d90429;
+  color: var(--color-accent-red);
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
