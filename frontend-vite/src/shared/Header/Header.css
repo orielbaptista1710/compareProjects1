@@ -108,9 +108,9 @@
 }
 
 /* "Compare Rentals" duplicates Contact; drawer only */
-.header-nav-link--rentals {
+/* .header-nav-link--rentals {
   display: none;
-}
+} */
 
 /* ── Right nav group ── */
 .nav-right .nav-group {

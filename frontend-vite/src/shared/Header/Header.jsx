@@ -167,17 +167,17 @@ function Header() {
       </li>
       <li>
         <Link to="/properties" className="header-nav-link" onClick={closeMenu}>
-          Properties
+          New Properties
         </Link>
       </li>
       <li>
-        <button className="header-nav-link" onClick={() => handleScrollToSection("contact")}>
+        {/* <button className="header-nav-link" onClick={() => handleScrollToSection("contact")}>
           Contact
-        </button>
+        </button> */}
 
-        <button className="header-nav-link header-nav-link--rentals" onClick={() => handleScrollToSection("contact")}>
+        {/* <button className="header-nav-link header-nav-link--rentals" onClick={() => handleScrollToSection("contact")}>
           Compare Rentals
-        </button>
+        </button> */}
       </li>
     </ul>
   </li>
