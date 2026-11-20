@@ -291,13 +291,13 @@
 
 .pc-config-tile:hover,
 .pc-config-tile:focus-visible {
-  border-color: #6c63d4;
+  border-color: var(--color-primary);
   outline: none;
 }
 
 .pc-config-tile--active {
   background: #f4f2fd;
-  border-color: #6c63d4;
+  border-color: var(--color-primary);
 }
 
 .pc-config-tile__top {
@@ -308,7 +308,7 @@
 }
 
 .pc-config-tile--active .pc-config-tile__top {
-  color: #6c63d4;
+  color: var(--color-primary);
 }
 
 .pc-config-tile__sub {
@@ -443,21 +443,21 @@
 
 .pc-btn-compare {
   background: transparent;
-  color: #6c63d4;
+  color: var(--color-primary);
   border: 1.5px solid #dddaf8;
 }
 
 .pc-btn-compare:hover,
 .pc-btn-compare:focus {
   background: #f4f2fd;
-  border-color: #6c63d4;
+  border-color: var(--color-primary);
   outline: none;
 }
 
 .pc-btn-compare.active {
-  background: #6c63d4;
+  background: var(--color-primary);
   color: var(--color-on-dark);
-  border-color: #6c63d4;
+  border-color: var(--color-primary);
 }
 
 .pc-btn-contact {
@@ -529,7 +529,7 @@
 }
 
 .pc-card:focus-visible {
-  outline: 2px solid #6c63d4;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -539,6 +539,6 @@
 .pc-config-tile:focus-visible,
 .pc-config-nav:focus-visible,
 .pc-read-more:focus-visible {
-  outline: 2px solid #6c63d4;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
