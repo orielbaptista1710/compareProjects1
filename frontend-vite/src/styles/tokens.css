@@ -18,21 +18,21 @@
 
   /* Surfaces */
   --color-surface: #ffffff;
-  --color-surface-muted: #f9fafb;
-  --color-surface-active: #f3f4f6;
+  --color-surface-muted: var(--color-surface-subtle);
+  --color-surface-active: var(--color-ink-fill);
   --color-surface-tint: #f5f3ff;
   --color-surface-tint-strong: #ede9fe;
 
-  /* Borders (legacy greys — being folded into --color-line*) */
-  --color-border: #e5e7eb;
-  --color-border-subtle: #f3f4f6;
+  /* Borders (aliases of --color-line*; names kept so old CSS works) */
+  --color-border: var(--color-line);
+  --color-border-subtle: var(--color-ink-fill);
 
-  /* Text (legacy greys — being folded into --color-ink*) */
-  --color-text-primary: #111827;
-  --color-text-secondary: #374151;
-  --color-text-muted: #6b7280;
-  --color-text-placeholder: #9ca3af;
-  --color-text-disabled: #d1d5db;
+  /* Text (aliases of --color-ink*; names kept so old CSS works) */
+  --color-text-primary: var(--color-ink);
+  --color-text-secondary: var(--color-ink);
+  --color-text-muted: var(--color-ink-muted);
+  --color-text-placeholder: var(--color-placeholder);
+  --color-text-disabled: var(--color-line-strong);
 
   /* Status */
   --color-error-bg: #fef2f2;
