@@ -30,7 +30,7 @@
   --ds-radius-lg:  14px;
   --ds-t:          160ms ease;
 
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   background: var(--ds-white);
   color: var(--ds-ink);
   min-height: 100vh;

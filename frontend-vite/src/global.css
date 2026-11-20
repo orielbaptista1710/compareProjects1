@@ -12,10 +12,9 @@
 
 html{
   height: 100%;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   overflow-y: scroll;
   scrollbar-gutter: stable;
-  /* font-family: 'Inter', sans-serif; */
 }
 
 body, p{
