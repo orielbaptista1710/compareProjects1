@@ -27,3 +27,10 @@ export function leadScope(user) {
 // Admins oversee the system, not buyers: they see masked contacts and must
 // use the audited reveal action to see a number.
 export const contactMasked = (user) => user?.role === CrmRole.admin;
+
+// Who may act on a lead (always together with leadScope, which says which leads).
+// Admins oversee only; they never change a lead.
+export const canWorkLeads = (user) =>
+  [CrmRole.crm_manager, CrmRole.zonal_manager, CrmRole.sales_rep].includes(user?.role);
+export const canAssign = (user) => [CrmRole.crm_manager, CrmRole.zonal_manager].includes(user?.role);
+export const canReveal = (user) => user?.role === CrmRole.admin;

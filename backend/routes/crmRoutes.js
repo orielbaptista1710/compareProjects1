@@ -6,6 +6,7 @@ import express from "express";
 
 import crmAuthRoutes from "./crm/authRoutes.js";
 import crmLeadsRoutes from "./crm/leadsRoutes.js";
+import crmDirectoryRoutes from "./crm/directoryRoutes.js";
 import { requireCrmAuth } from "../middleware/crm/crmAuth.js";
 import { crmApiLimiter } from "../middleware/rateLimiters.js";
 
@@ -24,5 +25,6 @@ router.use("/auth", crmAuthRoutes);
 router.use(crmApiLimiter, requireCrmAuth);
 
 router.use("/leads", crmLeadsRoutes);
+router.use("/", crmDirectoryRoutes);
 
 export default router;

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: CompareProjects CRM API
-  version: 0.2.1
+  version: 0.2.2
   description: >
     Draft contract (Phase 0), shared by the backend and the CRM frontend.
     Additive changes (new fields/endpoints) are free. Breaking changes (rename, remove, enum change)
@@ -125,6 +125,9 @@ components:
           nullable: true
           description: Pass back as `cursor` for the next page. Null on the last page.
   responses:
+    BadRequest:
+      description: VALIDATION_ERROR. A query parameter or body field is invalid, or the body has a field the endpoint doesn't accept.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
     Unauthenticated:
       description: No valid session.
       content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
@@ -217,6 +220,7 @@ paths:
         '200':
           description: OK
           content: { application/json: { schema: { $ref: '#/components/schemas/LeadList' } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
   /leads/{leadId}:
@@ -224,7 +228,7 @@ paths:
       - { name: leadId, in: path, required: true, schema: { type: string, format: uuid } }
     get:
       tags: [leads]
-      summary: Lead detail with all enquiries.
+      summary: Lead detail with its newest enquiries (at most 100).
       security: [{ crmSession: [] }]
       responses:
         '200':
@@ -238,6 +242,9 @@ paths:
       description: >
         Send at least one of stage or category. Category is self-declared by the website form
         (anyone can open the developer popup), so staff correct it after calling the person.
+        crm_manager (all leads), zonal_manager (own zones) and sales_rep (own assigned leads) may call it;
+        admin gets 403. Sending stage lost again with a new lostReason updates the reason.
+        Moving a lead out of lost clears its reason. Sending the current values changes nothing.
       security: [{ crmSession: [] }]
       requestBody:
         required: true
@@ -246,14 +253,16 @@ paths:
             schema:
               type: object
               minProperties: 1
+              additionalProperties: false
               properties:
                 stage: { $ref: '#/components/schemas/LeadStage' }
-                lostReason: { type: string, maxLength: 300, description: Required when stage is lost. }
+                lostReason: { type: string, nullable: true, minLength: 1, maxLength: 300, description: 'Required when stage is lost, and only sent then (otherwise omit it or send null). Stored as plain text: HTML tags are removed.' }
                 category: { $ref: '#/components/schemas/LeadCategory' }
       responses:
         '200':
           description: Updated.
           content: { application/json: { schema: { $ref: '#/components/schemas/LeadDetail' } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/NotFound' }
@@ -307,6 +316,7 @@ paths:
     get:
       tags: [zones]
       summary: Zones the caller may see (for the zone filter). Scoped by role.
+      description: admin and crm_manager get all zones; zonal_manager the zones they manage; sales_rep the zones they belong to.
       security: [{ crmSession: [] }]
       responses:
         '200':
@@ -341,12 +351,16 @@ paths:
             schema:
               type: object
               required: [assigneeId]
+              additionalProperties: false
               properties:
-                assigneeId: { type: string, format: uuid }
+                assigneeId: { type: string, format: uuid, description: 'An id from GET /staff (an active sales_rep the caller may assign to).' }
       responses:
         '200':
-          description: Assigned.
+          description: Assigned. Assigning to the current assignee changes nothing.
           content: { application/json: { schema: { $ref: '#/components/schemas/LeadDetail' } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
-        '404': { $ref: '#/components/responses/NotFound' }
+        '404':
+          description: Lead not found or out of scope, or the assignee is not someone the caller may assign to.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
