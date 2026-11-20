@@ -15,9 +15,12 @@ export const useCity = () => {
 };
 
 
+// City shown/applied when the visitor has not chosen one yet.
+export const DEFAULT_CITY = "Mumbai";
+
 export const CityProvider = ({ children }) => {
   const [city, setCity] = useState(() => {
-    return localStorage.getItem("selectedCity"); 
+    return localStorage.getItem("selectedCity") || DEFAULT_CITY;
   });
 
   useEffect(() => {
