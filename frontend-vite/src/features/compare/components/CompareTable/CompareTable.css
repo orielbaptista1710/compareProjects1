@@ -19,26 +19,26 @@
 
 /* Empty-slot columns */
 /* Data rows only, so the purple section bands still run full width */
-.ct .ct-row td.ct-slot { background: var(--surface-2); }
+.ct .ct-row td.ct-slot { background: var(--color-surface-subtle); }
 
 .ct .ct-corner { vertical-align: top; }
 
 .ct-corner__slots {
   margin: 0.25rem 0 0;
   font-size: 0.8rem;
-  color: var(--ink-3);
+  color: var(--color-ink-muted);
 }
 
 .ct-corner__slots strong {
   font-size: 1.1rem;
-  color: var(--brand);
+  color: var(--color-primary);
 }
 
 .ct-scroll {
   overflow-x: auto;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
   -webkit-overflow-scrolling: touch;
 }
 
@@ -59,7 +59,7 @@
   text-align: left;
   vertical-align: middle;
   overflow-wrap: anywhere;
-  border-bottom: 1px solid var(--surface-3);
+  border-bottom: 1px solid var(--color-ink-fill);
 }
 
 /* Pinned label column */
@@ -69,15 +69,15 @@
   position: sticky;
   left: 0;
   z-index: 1;
-  background: var(--surface);
+  background: var(--color-surface);
 }
 
 .ct th[scope="row"] {
   font-weight: 400;
-  color: var(--ink-3);
+  color: var(--color-ink-muted);
 }
 
-.ct td { color: var(--ink); }
+.ct td { color: var(--color-ink); }
 
 .ct .ct-head {
   vertical-align: top;
@@ -88,7 +88,7 @@
 /* Section header rows */
 .ct-section__head th,
 .ct-section__head td {
-  background: var(--brand-light);
+  background: var(--color-primary-tint);
   border-bottom: none;
   padding: 0.6rem 0.75rem;
 }
@@ -96,12 +96,12 @@
 .ct-section__head th {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--color-ink);
 }
 
 .ct-count {
   font-weight: 500;
-  color: var(--ink-2);
+  color: var(--color-ink);
 }
 
 .ct-yes {
@@ -113,17 +113,17 @@
 .ct-yes svg {
   padding: 2px;
   border-radius: 50%;
-  background: var(--success);
+  background: var(--color-success);
   color: var(--color-on-dark);
 }
 
-.ct-na { color: var(--ink-3); }
+.ct-na { color: var(--color-ink-muted); }
 
 .ct-link {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  color: var(--brand);
+  color: var(--color-primary);
   font-weight: 500;
   text-decoration: none;
 }
@@ -140,7 +140,7 @@
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border-radius: 8px;
-  background: var(--surface-3);
+  background: var(--color-ink-fill);
 }
 
 .header-card__img {
@@ -184,20 +184,20 @@
   margin: 0;
   font-size: 1.05rem;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--color-ink);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.header-card__title:hover { color: var(--brand); }
+.header-card__title:hover { color: var(--color-primary); }
 
 .header-card__type,
 .header-card__loc {
   margin: 0.15rem 0 0;
   font-size: 0.78rem;
-  color: var(--ink-3);
+  color: var(--color-ink-muted);
 }
 
 .header-card__loc {
@@ -210,14 +210,14 @@
   margin: 0.35rem 0 0;
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--brand);
+  color: var(--color-primary);
 }
 
 .header-card__ppsf {
   margin-left: 0.35rem;
   font-size: 0.75rem;
   font-weight: 400;
-  color: var(--ink-3);
+  color: var(--color-ink-muted);
 }
 
 /* ── "Only differences" mode (data-diff-only on an ancestor) ─── */
@@ -227,7 +227,7 @@
   margin-left: 0.5rem;
   font-size: 0.75rem;
   font-weight: 400;
-  color: var(--ink-3);
+  color: var(--color-ink-muted);
 }
 
 [data-diff-only] .ct-same { display: inline; }
@@ -246,13 +246,13 @@
 .ct-mini__bar {
   display: flex;
   height: var(--mini-h);
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-line);
   border-top: none;
-  background: var(--surface);
+  background: var(--color-surface);
   box-shadow: var(--shadow-sm);
   opacity: 0;
   visibility: hidden;
-  transition: opacity var(--transition), visibility var(--transition);
+  transition: opacity var(--dur-fast) var(--ease-out), visibility var(--dur-fast) var(--ease-out);
 }
 
 .ct-mini.is-visible .ct-mini__bar {
@@ -287,13 +287,13 @@
   padding: 0 0.5rem;
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--color-ink);
 }
 
 .ct-mini__cell--empty {
   font-weight: 400;
   font-style: italic;
-  color: var(--ink-3);
+  color: var(--color-ink-muted);
 }
 
 .ct-mini__cell img {

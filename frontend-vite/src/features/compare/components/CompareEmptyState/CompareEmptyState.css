@@ -9,10 +9,8 @@
   justify-content: center;
   text-align: center;
   padding: 5rem 1.5rem;
-  font-family: 'DM Sans', sans-serif;
-
-
-    margin: 0 auto;
+  font-family: var(--font-body);
+  margin: 0 auto;
     max-width: 1400px;
     min-height: 80vh;
     width: 100%;
@@ -40,6 +38,17 @@
   opacity: 0.6;
 }
 
+/* Icon colours live here (not as SVG attributes) so they follow tokens. */
+.empty-compare__icon path { fill: var(--color-primary-tint); }
+.empty-compare__icon rect { fill: var(--color-surface-tint-strong); }
+.empty-compare__icon path,
+.empty-compare__icon rect { stroke: var(--color-primary); }
+
+.empty-compare__icon--ghost path { fill: var(--color-surface-muted); }
+.empty-compare__icon--ghost rect { fill: var(--color-surface-active); }
+.empty-compare__icon--ghost path,
+.empty-compare__icon--ghost rect { stroke: var(--color-text-disabled); }
+
 .empty-compare__plus {
   font-size: 1.5rem;
   font-weight: 300;
@@ -50,8 +59,9 @@
 
 /* ── Text ── */
 .empty-compare__title {
+  font-family: var(--font-heading);
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-text-primary);
   margin: 0 0 0.6rem;
 }
@@ -69,19 +79,19 @@
   align-items: center;
   gap: 0.45rem;
   padding: 0.65rem 1.4rem;
-  background: #9417E2;
+  background: var(--color-primary);
   color: var(--color-on-dark);
   border: none;
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
   transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .empty-compare__btn:hover {
-  background: #7c10c0;
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
 }
 

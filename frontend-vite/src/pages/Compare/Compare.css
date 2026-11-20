@@ -1,29 +1,8 @@
 /* ============================================================
    Compare.css — page shell. Table + header card styles live in
    features/compare/components/CompareTable/CompareTable.css
+   All colours, fonts and sizes come from styles/tokens.css.
    ============================================================ */
-
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
-
-/* ── Variables ─────────────────────────────────────────────── */
-:root {
-  --brand:        #9417E2;
-  --brand-light:  #f5e9ff;
-  --brand-mid:    #e9d5ff;
-  --ink:          var(--color-text-primary);
-  --ink-2:        #374151;
-  --ink-3:        #6b7280;
-  --line:         var(--color-border);
-  --surface:      var(--color-surface);
-  --surface-2:    #f9fafb;
-  --surface-3:    #f3f4f6;
-  --success:      #059669;
-  --radius:       10px;
-  --shadow-sm:    0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:    0 4px 16px rgba(0,0,0,.08);
-  --font-body:    'DM Sans', sans-serif;
-  --transition:   0.15s ease;
-}
 
 /* ── Page shell ─────────────────────────────────────────────── */
 .compare-page {
@@ -35,7 +14,7 @@
   --mini-h: 32px;    /* sticky property mini header */
 
   font-family: var(--font-body);
-  color: var(--ink);
+  color: var(--color-ink);
   max-width: 1440px;
   margin: 0 auto;
   padding: 1rem 1rem 3.5rem;
@@ -69,24 +48,25 @@
   display: inline-flex;
   padding: 0.4rem;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--ink);
+  color: var(--color-ink);
   cursor: pointer;
 }
 
-.compare-topbar__back:hover { background: var(--surface-3); }
+.compare-topbar__back:hover { background: var(--color-ink-fill); }
 
 .compare-topbar__title {
   margin: 0;
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
 }
 
 .compare-topbar__sub {
   margin: 0.15rem 0 0;
-  font-size: 0.85rem;
-  color: var(--ink-3);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
 }
 
 /* ── Free slots strip (phones only; wider screens show slot columns) ── */
@@ -100,11 +80,11 @@
 
   .compare-recs__title {
     margin: 0 0 0.5rem;
-    font-size: 0.85rem;
-    color: var(--ink-3);
+    font-size: var(--text-sm);
+    color: var(--color-ink-muted);
   }
 
-  .compare-recs__title strong { color: var(--ink); }
+  .compare-recs__title strong { color: var(--color-ink); }
 
   .compare-recs__list {
     display: flex;
@@ -145,36 +125,36 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.55rem 1.1rem;
-  border-radius: 8px;
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 500;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: all var(--transition);
+  transition: all var(--dur-fast) var(--ease-out);
   border: 1.5px solid transparent;
 }
 
 .compare-btn--ghost {
   background: transparent;
-  border-color: var(--line);
-  color: var(--ink-3);
+  border-color: var(--color-line);
+  color: var(--color-ink-muted);
 }
 
 .compare-btn--ghost:hover {
   border-color: var(--color-error-text);
   color: var(--color-error-text);
-  background: #fff5f5;
+  background: var(--color-error-bg);
 }
 
 .compare-btn--primary {
-  background: var(--brand);
+  background: var(--color-primary);
   color: var(--color-on-dark);
-  border-color: var(--brand);
+  border-color: var(--color-primary);
 }
 
 .compare-btn--primary:hover:not(:disabled) {
-  background: #7c10c0;
-  border-color: #7c10c0;
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
 }
 
 .compare-btn:disabled {
@@ -183,7 +163,7 @@
 }
 
 @media (max-width: 600px) {
-  .compare-topbar__title { font-size: 1.15rem; }
+  .compare-topbar__title { font-size: var(--text-lg); }
   .compare-actions { justify-content: stretch; }
   .compare-actions .compare-btn { flex: 1; justify-content: center; }
 }
