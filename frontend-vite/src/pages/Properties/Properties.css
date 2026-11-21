@@ -4,8 +4,8 @@
 .properties-page {
   height: 100vh;
   overflow: hidden;
-  background: #f8f9fa;
-  color: #2d3748;
+  background: var(--color-bg-page);
+  color: var(--color-ink);
 }
 
 /* ========================
@@ -162,8 +162,8 @@
   padding: 0.4rem 0.75rem;
   font-size: 0.8rem;
   border-radius: 20px;
-  background: #f5e9ff;
-  border: 1px solid #e9d5ff;
+  background: var(--color-surface-tint);
+  border: 1px solid var(--color-surface-tint-strong);
   color: var(--color-primary);
 }
 
@@ -183,7 +183,7 @@
   font-weight: 500;
   cursor: pointer;
 }
-.clear-all-filters:hover { background: #fff5f5; }
+.clear-all-filters:hover { background: var(--color-accent-red-bg); }
 
 /* ========================
    Property List
@@ -252,7 +252,7 @@
   padding: 1.5rem;
   height: fit-content;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-line);
 }
 
 /* ========================
@@ -303,19 +303,19 @@
   gap: 0.5rem;
 }
 .form-submit-btn:hover {
-  background: #7e14c0;
+  background: var(--color-primary-dark);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(148, 23, 226, 0.25);
 }
 .form-submit-btn:active { transform: translateY(0); }
 
 .contact-form-content ::-webkit-scrollbar { width: 6px; }
-.contact-form-content ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
-.contact-form-content ::-webkit-scrollbar-thumb { background: #d8b4fe; border-radius: 3px; }
-.contact-form-content ::-webkit-scrollbar-thumb:hover { background: #c084fc; }
+.contact-form-content ::-webkit-scrollbar-track { background: var(--color-line); border-radius: 3px; }
+.contact-form-content ::-webkit-scrollbar-thumb { background: var(--color-line-strong); border-radius: 3px; }
+.contact-form-content ::-webkit-scrollbar-thumb:hover { background: var(--color-primary-light); }
 
-.form-success { text-align: center; padding: 2rem 1rem; color: #059669; }
-.form-success-icon { font-size: 3rem; margin-bottom: 1rem; color: #10b981; }
+.form-success { text-align: center; padding: 2rem 1rem; color: var(--color-success); }
+.form-success-icon { font-size: 3rem; margin-bottom: 1rem; color: var(--color-success); }
 
 /* ========================
    States
@@ -348,7 +348,7 @@
   font-weight: 500;
   transition: background 0.2s ease;
 }
-.reset-filters-btn:hover { background: #7e14c0; }
+.reset-filters-btn:hover { background: var(--color-primary-dark); }
 
 /* ========================
    Animations
@@ -501,16 +501,16 @@
     padding: 0;
     line-height: 1;
   }
-  .filter-drawer-back:hover { color: #7e14c0; }
+  .filter-drawer-back:hover { color: var(--color-primary-dark); }
 
   .filter-drawer-chip-count {
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.2rem 0.6rem;
     border-radius: 20px;
-    background: #f5e9ff;
+    background: var(--color-surface-tint);
     color: var(--color-primary);
-    border: 1px solid #e9d5ff;
+    border: 1px solid var(--color-surface-tint-strong);
   }
 
   /* FilterPanel inside the drawer */
@@ -622,7 +622,7 @@
     line-height: 1;
     transition: background 0.15s;
   }
-  .mobile-enquire-btn:hover { background: #7e14c0; }
+  .mobile-enquire-btn:hover { background: var(--color-primary-dark); }
 
   /* ── Property list ── */
   .property-list-container {
@@ -723,7 +723,7 @@
     -webkit-overflow-scrolling: touch;
   }
   .contact-sheet__body::-webkit-scrollbar { width: 4px; }
-  .contact-sheet__body::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
+  .contact-sheet__body::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 2px; }
 }
 
 
