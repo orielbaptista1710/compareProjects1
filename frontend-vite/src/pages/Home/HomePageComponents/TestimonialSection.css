@@ -6,13 +6,13 @@
 /* ── Custom properties ────────────────────────────────────── */
 .ts-section {
   --ts-accent: var(--color-primary);
-  --ts-accent-light: #f3e8ff;
-  --ts-accent-mid: #c084fc;
+  --ts-accent-light: var(--color-surface-tint-strong);
+  --ts-accent-mid: var(--color-primary-light);
   --ts-text: var(--color-text-primary);
   --ts-text-muted: var(--color-text-muted);
   --ts-text-faint: var(--color-text-placeholder);
   --ts-surface: var(--color-surface);
-  --ts-surface-2: #f9fafb;
+  --ts-surface-2: var(--color-surface-subtle);
   --ts-border: var(--color-border);
   --ts-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
   --ts-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
@@ -142,8 +142,8 @@
 }
 
 .ts-star--filled {
-  fill: #f59e0b;
-  stroke: #f59e0b;
+  fill: var(--color-highlight);
+  stroke: var(--color-highlight);
 }
 
 .ts-star--empty {
@@ -275,7 +275,7 @@
 .ts-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--ts-shadow-lg);
-  border-color: #e9d5ff;
+  border-color: var(--color-surface-tint-strong);
 }
 
 /* Quote */

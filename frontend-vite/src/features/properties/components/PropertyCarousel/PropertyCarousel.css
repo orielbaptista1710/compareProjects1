@@ -1,6 +1,6 @@
 .property-carousel {
     padding: 40px 0;
-    background: #f9f9f9;
+    background: var(--color-surface-subtle);
     margin-bottom: 60px;
     position: relative;
   }
@@ -74,7 +74,7 @@
     position: absolute;
     top: 15px;
     left: 15px;
-    background: #2c3e50;
+    background: var(--color-ink);
     color: white;
     padding: 5px 10px;
     border-radius: 4px;
@@ -96,7 +96,7 @@
   .caro-property-price {
     font-size: 22px;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--color-ink);
     margin-bottom: 8px;
   }
   
@@ -127,8 +127,8 @@
     display: flex;
     justify-content: space-between;
     font-size: 13px;
-    color: #777;
-    border-top: 1px solid #eee;
+    color: var(--color-ink-muted);
+    border-top: 1px solid var(--color-line);
     padding-top: 15px;
   }
   
@@ -143,14 +143,14 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: #ccc;
+    background: var(--color-line-strong);
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
   }
   
   .dot.active {
-    background: #2c3e50;
+    background: var(--color-ink);
     transform: scale(1.2);
   }
   

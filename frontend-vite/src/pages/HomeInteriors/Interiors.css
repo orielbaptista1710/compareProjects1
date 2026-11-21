@@ -206,7 +206,7 @@
   aspect-ratio: 16 / 11;
   border-radius: 20px;
   overflow: hidden;
-  background: #dcd6cd;
+  background: var(--color-line);
 }
 
 .intr-hero__media img {
@@ -277,11 +277,11 @@
 }
 
 /* Placeholder tints until real project photos are added. */
-.intr-tone--living { background: #ded6cc; }
-.intr-tone--kitchen { background: #d3d7d7; }
-.intr-tone--bedroom { background: #e0d8d2; }
-.intr-tone--office { background: #cfd3d7; }
-.intr-tone--retail { background: #d7d9cf; }
+.intr-tone--living { background: var(--color-line); }
+.intr-tone--kitchen { background: var(--color-line); }
+.intr-tone--bedroom { background: var(--color-line); }
+.intr-tone--office { background: var(--color-line); }
+.intr-tone--retail { background: var(--color-line); }
 
 .intr-work__tag {
   position: absolute;
