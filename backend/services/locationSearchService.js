@@ -26,7 +26,7 @@ const rankResults = (results, query) => {
       return { ...r, _score: score };
     })
     .sort((a, b) => b._score - a._score)
-        // eslint-disable-next-line no-unused-vars -- destructuring to strip _score off before returning CHECK THIS 
+    // eslint-disable-next-line no-unused-vars -- destructuring strips _score off before returning
     .map(({ _score, ...r }) => r);
 };
 
@@ -97,7 +97,7 @@ const searchLocationsRaw = async (query) => {
 };
 
 export const searchLocations = async (query) => {
-  const trimmed = (query || "").trim();
+  const trimmed = typeof query === "string" ? query.trim() : "";
   if (trimmed.length < MIN_QUERY_LENGTH) return [];
 
   const cacheKey = `location-search:${trimmed.toLowerCase()}`;
