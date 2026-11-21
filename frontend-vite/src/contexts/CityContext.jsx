@@ -18,16 +18,30 @@ export const useCity = () => {
 // City shown/applied when the visitor has not chosen one yet.
 export const DEFAULT_CITY = "Mumbai";
 
+const STORAGE_KEY = "selectedCity";
+
+// localStorage can throw (Safari private mode, blocked site data, full quota).
+// This provider wraps the whole app, so storage problems must never crash it.
+const readStoredCity = () => {
+  try {
+    return localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+};
+
 export const CityProvider = ({ children }) => {
-  const [city, setCity] = useState(() => {
-    return localStorage.getItem("selectedCity") || DEFAULT_CITY;
-  });
+  const [city, setCity] = useState(() => readStoredCity() || DEFAULT_CITY);
 
   useEffect(() => {
-    if (city) {
-      localStorage.setItem("selectedCity", city);
-    } else {
-      localStorage.removeItem("selectedCity");
+    try {
+      if (city) {
+        localStorage.setItem(STORAGE_KEY, city);
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch {
+      // ignore: the city still works for this visit, it just isn't remembered
     }
   }, [city]);
 

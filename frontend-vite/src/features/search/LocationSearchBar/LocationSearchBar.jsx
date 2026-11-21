@@ -11,24 +11,29 @@ const RECENT_KEY = "recentLocationSearches";
 const MAX_RECENT = 5;
 
 /**
- * Retrieves recent items from localStorage
- * @returns {Array} Returns an array of recent items or empty array if not found or error occurs
+ * Recent searches from localStorage. Returns [] when storage is blocked
+ * (private mode, in-app browsers) or holds anything but a list of items with
+ * a text label, so corrupted data can't crash the dropdown.
  */
 const getRecent = () => {
   try {
-    // Try to parse and return the stored data from localStorage
-    // Return empty array if parsing fails or item doesn't exist
-    return JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
+    const stored = JSON.parse(localStorage.getItem(RECENT_KEY));
+    if (!Array.isArray(stored)) return [];
+    return stored.filter((r) => r && typeof r.label === "string" && typeof r.type === "string");
   } catch {
-    // Return empty array if any error occurs during parsing
     return [];
   }
 };
 
+// Best effort: a full or blocked storage must never stop a selection going through.
 const saveRecent = (item) => {
-  const existing = getRecent().filter((r) => r.label !== item.label);
-  const updated = [item, ...existing].slice(0, MAX_RECENT);
-  localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
+  try {
+    const existing = getRecent().filter((r) => r.label !== item.label);
+    const updated = [item, ...existing].slice(0, MAX_RECENT);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
+  } catch {
+    // ignore: recent searches are a convenience only
+  }
 };
 
 /**
