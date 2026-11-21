@@ -5,17 +5,17 @@
 
 /* ── Tokens ─────────────────────────────────────────────────── */
 .ds-root {
-  --ds-purple-900: #3B0764;
-  --ds-purple-800: #4C1D95;
-  --ds-purple-700: #5B21B6;
-  --ds-purple-600: #7C3AED;
-  --ds-purple-400: #A78BFA;
-  --ds-purple-100: #EDE9FE;
-  --ds-purple-50:  #F5F3FF;
+  --ds-purple-900: var(--color-primary-deep);
+  --ds-purple-800: var(--color-primary-dark);
+  --ds-purple-700: var(--color-primary-dark);
+  --ds-purple-600: var(--color-primary);
+  --ds-purple-400: var(--color-primary-light);
+  --ds-purple-100: var(--color-surface-tint-strong);
+  --ds-purple-50:  var(--color-surface-tint);
   --ds-red:        var(--color-accent-red);
   --ds-red-soft:   var(--color-accent-red-bg);
-  --ds-yellow:     #f5a623;
-  --ds-yellow-soft:#FFFBEE;
+  --ds-yellow:     var(--color-highlight);
+  --ds-yellow-soft:var(--color-highlight-tint);
   --ds-ink:        var(--color-text-primary);
   --ds-body:       var(--color-text-secondary);
   --ds-muted:      var(--color-text-muted);
@@ -567,7 +567,7 @@ textarea.ds-input {
   padding: 14px 16px;
   border-radius: var(--ds-radius);
   background: var(--color-success-bg);
-  border: 1.5px solid #BBF7D0;
+  border: 1.5px solid var(--color-success);
   color: var(--color-success);
   font-size: 13px;
   font-weight: 500;

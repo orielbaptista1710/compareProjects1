@@ -5,7 +5,7 @@
 
 /* â”€â”€ CSS Variables â”€â”€ */
 .customer-profile-page {
-  --brand-purple-dark:  #5d3b9e;
+  --brand-purple-dark:  var(--color-primary-dark);
   --brand-purple:       var(--color-primary);
   --brand-purple-light: rgba(124, 58, 237, 0.08);
   --brand-yellow:       var(--color-highlight);
@@ -15,13 +15,13 @@
   --sidebar-collapsed:  72px;
 
   --surface:            var(--color-surface);
-  --surface-2:          #f8f9fb;
-  --surface-3:          #f1f3f6;
-  --border:             #e8eaed;
+  --surface-2:          var(--color-surface-subtle);
+  --surface-3:          var(--color-bg-page);
+  --border:             var(--color-line);
   --border-strong:      var(--color-text-disabled);
 
   --text-primary:       var(--color-text-primary);
-  --text-secondary:     #4b5563;
+  --text-secondary:     var(--color-ink-muted);
   --text-muted:         var(--color-text-placeholder);
 
   /* --radius-sm / --radius-md come from tokens.css (no local override). */
@@ -45,7 +45,7 @@
 
 .sidebar {
   width: 260px;
-  background: linear-gradient(175deg, #5d3b9e 0%, var(--color-primary) 55%, var(--color-primary-dark) 100%);
+  background: linear-gradient(175deg, var(--color-primary-dark) 0%, var(--color-primary) 55%, var(--color-primary-dark) 100%);
   color: var(--color-on-dark);
   display: flex;
   flex-direction: column;
@@ -184,7 +184,7 @@
 
 .sidebar-item-logout:hover {
   background: rgba(217, 4, 41, 0.2);
-  color: #fca5a5;
+  color: var(--color-on-dark-muted);
 }
 
 /* Icon + badge */
@@ -246,7 +246,7 @@
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--brand-red) 0%, #b00020 100%);
+  background: linear-gradient(135deg, var(--brand-red) 0%, var(--color-accent-red) 100%);
   color: var(--color-on-dark);
   font-weight: 700;
   font-size: 0.875rem;
@@ -1732,7 +1732,7 @@
 }
 
 .btn-primary:hover {
-  background: #b8001f;
+  background: var(--color-accent-red);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(217,4,41,0.3);
 }
@@ -1846,7 +1846,7 @@
 .shimmer-card {
   height: 120px;
   border-radius: var(--radius-lg);
-  background: linear-gradient(90deg, var(--surface-3) 25%, #e8eaed 50%, var(--surface-3) 75%);
+  background: linear-gradient(90deg, var(--surface-3) 25%, var(--color-line) 50%, var(--surface-3) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }

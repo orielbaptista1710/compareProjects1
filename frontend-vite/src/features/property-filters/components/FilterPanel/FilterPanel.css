@@ -4,15 +4,15 @@
 :root { 
   --fp-purple:        var(--color-primary);
   --fp-purple-light:  var(--color-primary-tint);
-  --fp-purple-mid:    #a78bfa;
+  --fp-purple-mid:    var(--color-primary-light);
   --fp-purple-dark:   var(--color-primary-dark);
-  --fp-border:        #ebebeb;
-  --fp-border-inner:  #f0f0f0;
-  --fp-text-primary:  #1f2937;
+  --fp-border:        var(--color-line);
+  --fp-border-inner:  var(--color-line);
+  --fp-text-primary:  var(--color-ink);
   --fp-text-muted:    var(--color-text-muted);
   --fp-text-hint:     var(--color-text-placeholder);
   --fp-bg:            var(--color-surface);
-  --fp-hover:         #fafafa;
+  --fp-hover:         var(--color-surface-subtle);
   --fp-radius-sm:     6px;
   --fp-radius-md:     8px;
   --fp-radius-pill:   30px;
@@ -96,7 +96,7 @@
 }
 
 .filter-panel-scroll::-webkit-scrollbar-thumb {
-  background: #e0e0e0;
+  background: var(--color-line);
   border-radius: 3px;
 }
 
@@ -280,7 +280,7 @@
 }
 
 .checkbox-group.scrollable::-webkit-scrollbar-thumb {
-  background: #e0e0e0;
+  background: var(--color-line);
   border-radius: 3px;
 }
 
@@ -303,7 +303,7 @@
   background: var(--color-surface);
   font-size: 12.5px;
   font-weight: 500;
-  color: #444;
+  color: var(--color-ink);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   text-align: left;
@@ -311,7 +311,7 @@
 }
 
 .box-pill:hover {
-  border-color: #c4b5fd;
+  border-color: var(--color-primary-light);
   background: var(--fp-purple-light);
 }
 
@@ -367,7 +367,7 @@
 }
 
 .bhk-pill:hover {
-  border-color: #c4b5fd;
+  border-color: var(--color-primary-light);
   background: var(--fp-purple-light);
 }
 
