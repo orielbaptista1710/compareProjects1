@@ -241,7 +241,7 @@
 }
 
 .cp-badge--pending {
-  background: #fffbeb;
+  background: var(--color-highlight-tint);
   border-color: var(--color-highlight-line);
   color: #d97706;
 }

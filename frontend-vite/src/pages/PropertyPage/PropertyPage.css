@@ -208,7 +208,7 @@
 }
 
 .pp-trust-badge svg        { color: #22C55E; }
-.pp-trust-badge--pill      { color: var(--pp-sub); background: #FFFBEB; border-color: var(--color-highlight-line); }
+.pp-trust-badge--pill      { color: var(--pp-sub); background: var(--color-highlight-tint); border-color: var(--color-highlight-line); }
 
 /* One compact line — possession status, units, parking, bathrooms, facing,
    furnishing — a quick-glance summary in the hero; the fuller breakdown
