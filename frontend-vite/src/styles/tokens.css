@@ -11,13 +11,11 @@
   --color-primary: #7c3aed;
   --color-primary-dark: #6d28d9;
   --color-primary-light: #a855f7;
-  --color-accent: #e12965; /* retired pink — don't use in new code */
   --color-accent-red: #d90429;    /* red accents (CTAs, highlights) — change independently of the heart */
   --color-accent-red-bg: #fff1f3; /* soft tint of the accent red */
   --color-like: #d90429;          /* liked heart only */
 
   --gradient-brand: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-  --gradient-cta: linear-gradient(90deg, #7b2fff 0%, #e12965 100%);
 
   /* Surfaces */
   --color-surface: #ffffff;
