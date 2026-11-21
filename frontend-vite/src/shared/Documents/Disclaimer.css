@@ -6,7 +6,7 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: #faf5ff; /* very light purple-tinted cream — on-brand */
+  background: var(--color-surface-tint); /* very light purple-tinted cream — on-brand */
   box-shadow: 0 -4px 20px rgba(110, 47, 213, 0.12);
   /* Slide up animation */
   animation: disclaimerSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -15,7 +15,7 @@
 /* Top accent bar — matches footer purple */
 .disclaimer-accent {
   height: 3px;
-  background: linear-gradient(90deg, var(--color-primary-dark), #9d4edd, var(--color-primary-dark));
+  background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary-light), var(--color-primary-dark));
   background-size: 200% 100%;
   animation: disclaimerShimmer 3s linear infinite;
 }
@@ -45,7 +45,7 @@
 }
 
 .disclaimer-text a:hover {
-  color: #4c1d95;
+  color: var(--color-primary-dark);
 }
 
 .disclaimer-btn {
@@ -63,7 +63,7 @@
 }
 
 .disclaimer-btn:hover {
-  background: #5b21b6;
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
 }
 

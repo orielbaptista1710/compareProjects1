@@ -153,7 +153,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
-  color: #1f2937;
+  color: var(--color-ink);
 
   font-size: 14px;
   font-weight: 500;
@@ -167,7 +167,7 @@
 -------------------------------- */
 
 .breadcrumbs-link:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-primary);
   outline-offset: 3px;
   border-radius: 3px;
 }

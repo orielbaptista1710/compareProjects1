@@ -20,7 +20,7 @@ import Seo                from '../../database/Seo';
 import API from '../../api/api';
 import { DEFAULT_FILTERS, formatFilterValue, parseFiltersFromURL } from '../../utils/filters.schema';
 import { FILTER_LABELS } from '../../assests/constants/propertyTypeConfig';
-import { useCity } from '../../contexts/CityContext';
+import { useCityUrlSync } from './useCityUrlSync';
 
 import { useEscapeKey } from "../../hooks/useEscapeKey";
 
@@ -139,23 +139,11 @@ const Properties = ({ addToCompare, removeFromCompare, compareList }) => {
   );
 
   // Keep CityContext (read by the header CitySelector + several Home-page sections)
-  // in sync with this page's URL, one direction only (URL -> context). Without this,
-  // the header can keep showing a previously-selected city after a shared link,
-  // browser back/forward, or clearing the location search — none of which currently
-  // clear CityContext themselves.
-  const { city: contextCity, setCity } = useCity();
-  // A city in the URL wins. With no city in the URL the page falls back to the
-  // selected/default city (Mumbai), written into the URL so the header, filters
-  // and results all agree.
-  useEffect(() => {
-    if (filters.city) {
-      if (filters.city !== contextCity) setCity(filters.city);
-    } else if (contextCity) {
-      const params = new URLSearchParams(location.search);
-      params.set('city', contextCity);
-      navigate(`${location.pathname}?${params.toString()}`, { replace: true });
-    }
-  }, [filters.city, contextCity, setCity, navigate, location.pathname, location.search]);
+  // in sync with this page's URL. Without this, the header can keep showing a
+  // previously-selected city after a shared link, browser back/forward, or
+  // clearing the location search. Free-text searches without a city stay
+  // all-India (see the hook).
+  useCityUrlSync(filters);
 
   // ── Data fetching ──────────────────────────
   const { data, isLoading, isFetching } = useQuery({

@@ -12,7 +12,7 @@
   color: var(--color-on-dark);
   overflow: hidden;
 
-  background-color: #4b1f71;
+  background-color: var(--color-primary-deep);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -44,7 +44,7 @@
   min-height: 42px;
 
   background: var(--color-surface);
-  color: #1f2937;
+  color: var(--color-ink);
 
   padding: 10px 24px;
   border: none;

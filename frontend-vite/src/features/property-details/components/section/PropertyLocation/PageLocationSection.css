@@ -8,13 +8,13 @@
   align-items: flex-start;
   gap: .35rem;
   font-size: .85rem;
-  color: #717171;
+  color: var(--color-placeholder);
   margin: 0 0 .9rem;
   line-height: 1.5;
 }
 
 .ls-address__pin {
-  color: #717171;
+  color: var(--color-placeholder);
   margin-top: 2px;
   flex-shrink: 0;
 }
@@ -93,9 +93,9 @@
   transition: border-color .15s;
 }
 
-.ls-landmark:hover { border-color: #999; }
+.ls-landmark:hover { border-color: var(--color-placeholder); }
 
-.ls-landmark__ico { color: #aaa; flex-shrink: 0; }
+.ls-landmark__ico { color: var(--color-line-strong); flex-shrink: 0; }
 
 .ls-landmark__name {
   font-size: .8rem;

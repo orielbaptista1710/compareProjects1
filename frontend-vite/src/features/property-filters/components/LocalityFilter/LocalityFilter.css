@@ -4,10 +4,10 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-line-strong);
   border-radius: 8px;
   margin-bottom: 10px;
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .locality-search input {
@@ -25,5 +25,5 @@
 
 .filter-loading {
   font-size: 13px;
-  color: #888;
+  color: var(--color-ink-muted);
 } */

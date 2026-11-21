@@ -32,7 +32,7 @@
 
 .pagination-btn:hover:not(:disabled),
 .pagination-page:hover:not(:disabled):not(.active) {
-  background: #f5e9ff;
+  background: var(--color-surface-tint);
   border-color: var(--color-primary);
   color: var(--color-primary);
 }

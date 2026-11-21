@@ -18,7 +18,7 @@
 .latest-deals-header h2 {
   font-weight: 700;
   margin: 0;
-  color: #222;
+  color: var(--color-ink);
   letter-spacing: -0.02em;
 }
 
@@ -33,7 +33,7 @@
 }
 
 .see-more:hover {
-  color: #7d13c4;
+  color: var(--color-primary);
   background: rgba(148, 23, 226, 0.06);
 }
 
@@ -57,7 +57,7 @@
 .deal-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  border-color: #d0d0d0;
+  border-color: var(--color-line-strong);
 }
 
 .deal-image {
@@ -85,7 +85,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 650;
-  color: #222;
+  color: var(--color-ink);
   line-height: 1.4;
   letter-spacing: -0.01em;
   display: -webkit-box;

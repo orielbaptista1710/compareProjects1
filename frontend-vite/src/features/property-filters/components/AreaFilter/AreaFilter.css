@@ -37,7 +37,7 @@
 .af-readout-value {
   font-size: 13px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-ink);
 }
 
 .af-readout-sep {
@@ -150,7 +150,7 @@
 }
 
 .af-preset:hover {
-  border-color: #c4b5fd;
+  border-color: var(--color-primary-light);
   background: var(--color-primary-tint);
   color: var(--color-primary-dark);
 }
@@ -199,7 +199,7 @@
 }
 
 .af-unit-btn:hover {
-  border-color: #c4b5fd;
+  border-color: var(--color-primary-light);
   background: var(--color-primary-tint);
   color: var(--color-primary-dark);
 }
@@ -226,6 +226,6 @@
 }
 
 .af-clear:hover {
-  color: #b91c1c;
+  color: var(--color-error-text);
   text-decoration: underline;
 }

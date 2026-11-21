@@ -99,7 +99,7 @@
 }
 
 .bhk-highlight {
-  color: #ff6b35;
+  color: var(--color-primary);
   font-weight: 700;
   font-size: 14px;
 }
@@ -131,7 +131,7 @@
 }
 
 .view-button:hover {
-  background: linear-gradient(135deg, #6b1fe7 0%, #9845e7 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   transform: translateY(-2px);
   box-shadow: 0 5px 18px rgba(123, 47, 247, 0.3);
 }

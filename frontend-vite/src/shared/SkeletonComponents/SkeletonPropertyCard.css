@@ -12,7 +12,7 @@
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #eee, var(--color-ink-fill), #eee);
+  background: linear-gradient(90deg, var(--color-line-strong), var(--color-ink-fill), var(--color-line-strong));
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
   border-radius: 8px;

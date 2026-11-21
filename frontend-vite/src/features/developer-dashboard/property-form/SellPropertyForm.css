@@ -639,7 +639,7 @@
 }
 .sell-property-form .alert--error {
   background: var(--spf-error-bg);
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--color-accent-red);
   color: var(--spf-error);
 }
 
@@ -692,7 +692,7 @@
 .sell-property-form .spf-preview__drawing {
   width: 140px;
   height: auto;
-  color: #8e8ca6;
+  color: var(--color-placeholder);
 }
 .sell-property-form .spf-preview__drawing-accent {
   stroke: var(--spf-accent);

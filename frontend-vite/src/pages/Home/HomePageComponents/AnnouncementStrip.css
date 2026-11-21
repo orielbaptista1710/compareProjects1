@@ -21,7 +21,7 @@
 
 /* Focus State */
 .announcement-strip:focus {
-  outline: 2px solid #ffd166;
+  outline: 2px solid var(--color-highlight);
   outline-offset: -2px;
 }
 
@@ -56,7 +56,7 @@
 }
 
 .announcement-track strong {
-  color: #ffd166;
+  color: var(--color-highlight);
   font-weight: 700;
   text-transform: capitalize;
 }
@@ -209,7 +209,7 @@
   }
 
   .announcement-track strong {
-    color: #ffed4e;
+    color: var(--color-highlight);
     text-decoration: underline;
   }
 }

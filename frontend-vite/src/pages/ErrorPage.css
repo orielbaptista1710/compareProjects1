@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #f8f9fb, #eef1f7);
+  background: linear-gradient(135deg, var(--color-surface-subtle), var(--color-bg-page));
   color: var(--color-ink);
   text-align: center;
   padding: 2rem;
@@ -40,5 +40,5 @@
 }
 
 .error-btn:hover {
-  background-color: #b50322;
+  background-color: var(--color-accent-red);
 }

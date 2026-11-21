@@ -67,7 +67,7 @@
   line-height: 1.6;
   margin: 16px 0 20px;
   opacity: 0.95;
-  color: #e5e5e5;
+  color: var(--color-on-dark-muted);
 }
 
 /* Side Articles Container */
@@ -183,7 +183,7 @@
 }
 
 .featured-overlay .read-more:hover {
-  color: #f0f0f0;
+  color: var(--color-on-dark-muted);
 }
 
 /* Latest Articles Section */
@@ -302,7 +302,7 @@
 }
 
 .view-all-btn:hover {
-  background-color: #2d2d2d;
+  background-color: var(--color-ink);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
@@ -364,7 +364,7 @@
 }
 
 .download-btn:hover {
-  background: #6b2ed4;
+  background: var(--color-primary);
   transform: translateY(-2px);
 }
 

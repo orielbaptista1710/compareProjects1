@@ -33,7 +33,7 @@
 }
 
 .bf-select:hover {
-  border-color: #c4b5fd;
+  border-color: var(--color-primary-light);
 }
 
 .bf-select:focus {
@@ -66,7 +66,7 @@
 .bf-track {
   left: 2px;
   right: 2px;
-  background: #ececec;
+  background: var(--color-line-strong);
 }
 
 .bf-track-fill {

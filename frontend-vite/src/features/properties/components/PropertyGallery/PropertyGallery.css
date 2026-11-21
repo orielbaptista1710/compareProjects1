@@ -6,9 +6,9 @@
 .no-media {
   padding: 60px 20px;
   text-align: center;
-  color: #999;
+  color: var(--color-placeholder);
   font-size: 1rem;
-  background: #f8f8f8;
+  background: var(--color-surface-subtle);
   border-radius: 8px;
   margin-bottom: 20px;
 }
@@ -563,7 +563,7 @@
 /* Focus Styles */
 .main-image:focus-visible,
 .thumbnail:focus-visible {
-  outline: 3px solid #7b68ee;
+  outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 

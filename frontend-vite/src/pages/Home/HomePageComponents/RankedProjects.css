@@ -55,7 +55,7 @@
 .hp-tab {
   padding: 10px 20px;
   border-radius: 14px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-line-strong);
   background: transparent;
   color: var(--color-ink);
   font-size: 14px;
@@ -66,7 +66,7 @@
 }
 
 .hp-tab:hover {
-  border-color: #111;
+  border-color: var(--color-ink);
   background: var(--color-surface-muted);
 }
 
@@ -96,7 +96,7 @@
 }
 
 .hp-cards::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-line-strong);
   border-radius: 3px;
 }
 

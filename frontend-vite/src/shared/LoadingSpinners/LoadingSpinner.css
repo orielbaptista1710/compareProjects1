@@ -20,8 +20,8 @@
 }
 
 .loader-spinner {
-  --color-1: #653fa2;
-  --color-2: #7c3aed;
+  --color-1: var(--color-primary-light);
+  --color-2: var(--color-primary);
   --size: 4px;
 
   width: calc(48 * var(--size));

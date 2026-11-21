@@ -31,7 +31,7 @@
 }
 
 .error-boundary-button {
-  background-color: #7e5bd6; /* purple */
+  background-color: var(--color-primary); /* purple */
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -43,13 +43,13 @@
 }
 
 .error-boundary-button:hover {
-  background-color: #6a48c2;
+  background-color: var(--color-primary-dark);
   transform: translateY(-2px);
 }
 
 .error-boundary-button.secondary {
   background-color: var(--color-border); /* Tailwind gray-200 */
-  color: #374151; /* Tailwind gray-700 */
+  color: var(--color-ink); /* Tailwind gray-700 */
 }
 
 .error-boundary-button.secondary:hover {

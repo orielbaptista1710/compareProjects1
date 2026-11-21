@@ -8,7 +8,7 @@
 .devlogin-page {
   --devlogin-gutter: 24px;
   /* Text, lines and fills on the violet panel and the purple button. */
-  --devlogin-on-dark: #fff;
+  --devlogin-on-dark: var(--color-on-dark);
   --devlogin-on-dark-muted: rgba(255, 255, 255, 0.8);
   --devlogin-on-dark-line: rgba(255, 255, 255, 0.2);
   --devlogin-on-dark-fill: rgba(255, 255, 255, 0.1);
