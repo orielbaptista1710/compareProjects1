@@ -8,7 +8,6 @@ import RecentlyAdded from './HomePageComponents/RecentlyAdded';
 import PostPropertyBanner from './HomePageComponents/PostPropertyBanner';
 import ContactUsBanner from './HomePageComponents/ContactUsBanner';
 import About from './HomePageComponents/About';
-import ContactForm from './HomePageComponents/ContactForm';
 import TestimonialSection from './HomePageComponents/TestimonialSection';
 import HomeHero from './HomePageComponents/HomeHero';
 import CompareBar from '../../shared/CompareBar/CompareBar';
@@ -116,10 +115,6 @@ function Home() {
 
 
       {/* <BaseLayout> */}
-      {/* Contact Section */}
-      <section id="contact-section">
-        <ContactForm />
-      </section>
       {/* </BaseLayout> */}
 
 
