@@ -6,7 +6,6 @@ import Gallery from './HomePageComponents/Gallery';
 import DiscoverFeaturedProjects from './HomePageComponents/DiscoverFeaturedProjects';
 import RecentlyAdded from './HomePageComponents/RecentlyAdded';
 import PostPropertyBanner from './HomePageComponents/PostPropertyBanner';
-import ContactUsBanner from './HomePageComponents/ContactUsBanner';
 import About from './HomePageComponents/About';
 import TestimonialSection from './HomePageComponents/TestimonialSection';
 import HomeHero from './HomePageComponents/HomeHero';
@@ -108,9 +107,6 @@ function Home() {
 
       {/* <FullWidthSection> */}
       {/* Post Property Section */}
-      <section>
-        <ContactUsBanner />
-      </section>
       {/* </FullWidthSection> */}
 
 
