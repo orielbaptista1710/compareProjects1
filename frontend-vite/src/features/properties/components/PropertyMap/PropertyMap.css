@@ -9,7 +9,7 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  background: #ffffff;
+  background: var(--color-surface);
   flex-shrink: 0;
 }
 
@@ -24,7 +24,7 @@
 .leaflet-popup-content-wrapper {
   padding: 0 !important;
   border-radius: 12px !important;
-  background: #ffffff !important;
+  background: var(--color-surface) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -33,17 +33,17 @@
 }
 
 .leaflet-popup-tip {
-  background: #ffffff !important;
+  background: var(--color-surface) !important;
 }
 
 .leaflet-popup-close-button {
-  color: #9ca3af !important;
+  color: var(--color-placeholder) !important;
   font-size: 18px !important;
   padding: 4px !important;
 }
 
 .leaflet-popup-close-button:hover {
-  color: #374151 !important;
+  color: var(--color-ink) !important;
 }
 
 
@@ -52,7 +52,7 @@
   display: flex;
   gap: 12px;
   padding: 12px;
-  background: #ffffff;
+  background: var(--color-surface);
   min-width: 260px;
   max-width: 300px;
   border-radius: 8px;
@@ -80,7 +80,7 @@
 .popup-title {
   font-size: 14px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-ink);
   line-height: 1.3;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -92,7 +92,7 @@
 .popup-price {
   font-size: 15px;
   font-weight: 800;
-  color: #7c3aed;
+  color: var(--color-primary);
 }
 
 .popup-meta {
@@ -100,7 +100,7 @@
   gap: 6px;
   font-size: 11px;
   font-weight: 600;
-  color: #9ca3af;
+  color: var(--color-placeholder);
   text-transform: uppercase;
 }
 
@@ -108,26 +108,26 @@
   display: flex;
   gap: 4px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-ink-muted);
   align-items: flex-start;
 }
 
 .popup-location svg {
   flex-shrink: 0;
   margin-top: 2px;
-  color: #a855f7;
+  color: var(--color-primary-light);
 }
 
 .popup-link {
   font-size: 13px;
   font-weight: 700;
-  color: #7c3aed;
+  color: var(--color-primary);
   cursor: pointer;
   margin-top: 2px;
 }
 
 .popup-link:hover {
-  color: #6d28d9;
+  color: var(--color-primary-dark);
   text-decoration: underline;
 }
 
@@ -137,14 +137,14 @@
 .marker-cluster-medium,
 .marker-cluster-large {
   background-color: rgba(168, 85, 247, 0.15) !important;
-  border: 2px solid #a855f7 !important;
+  border: 2px solid var(--color-primary-light) !important;
 }
 
 .marker-cluster-small div,
 .marker-cluster-medium div,
 .marker-cluster-large div {
-  background: #a855f7 !important;
-  color: #ffffff !important;
+  background: var(--color-primary-light) !important;
+  color: var(--color-surface) !important;
   font-weight: 700 !important;
 }
 

@@ -36,17 +36,17 @@
 }
 
 .compare-tray-items::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--color-line);
   border-radius: 3px;
 }
 
 .compare-tray-items::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-line-strong);
   border-radius: 3px;
 }
 
 .compare-tray-items::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-placeholder);
 }
 
 /* =====================================================
@@ -57,7 +57,7 @@
   min-width: 200px;
   flex-shrink: 0;
   background: var(--color-surface-subtle);
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--color-line);
   border-radius: 12px;
   overflow: hidden;
   position: relative;
@@ -66,7 +66,7 @@
 }
 
 .compare-card:hover {
-  border-color: #dcdcdc;
+  border-color: var(--color-line-strong);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   transform: translateY(-4px);
 }
@@ -120,7 +120,7 @@
 }
 
 .compare-remove:hover {
-  background: #d92228;
+  background: var(--color-accent-red);
   color: white;
   transform: scale(1.1);
 }
@@ -168,7 +168,7 @@
 .compare-location {
   margin: 0 0 12px 0;
   font-size: 0.82rem;
-  color: #e0e0e0;
+  color: var(--color-line);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -186,7 +186,7 @@
 .compare-price small {
   font-size: 0.76rem;
   font-weight: 400;
-  color: #cbd5e1;
+  color: var(--color-line-strong);
 }
 
 /* =====================================================
@@ -214,9 +214,9 @@
 
 /* Preview Button - Outlined */
 .compare-preview-btn {
-  background: #f8f8f8;
-  color: #475569;
-  border: 1px solid #dcdcdc;
+  background: var(--color-surface-subtle);
+  color: var(--color-ink-muted);
+  border: 1px solid var(--color-line-strong);
 }
 
 /* Compare Button - Purple Gradient */
@@ -227,7 +227,7 @@
 }
 
 .compare-page-btn:hover {
-  background: linear-gradient(135deg, #6B1FE7 0%, #9845E7 100%);
+  background: var(--gradient-brand);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(123, 47, 247, 0.35);
 }
@@ -411,11 +411,11 @@
 /* High Contrast Mode */
 @media (prefers-contrast: high) {
   .compare-tray {
-    border: 2px solid #000;
+    border: 2px solid var(--color-ink);
   }
 
   .compare-card {
-    border: 2px solid #000;
+    border: 2px solid var(--color-ink);
   }
 }
 
