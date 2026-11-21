@@ -49,12 +49,12 @@
 }
 
 .compare-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-line-strong);
   border-radius: 3px;
 }
 
 .compare-scroll::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-placeholder);
 }
 
 /* Individual Compare Item */
@@ -105,7 +105,7 @@
 .compare-item-price {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: #6366f1;
+  color: var(--color-primary);
   margin: 0;
 }
 
@@ -171,7 +171,7 @@
 }
 
 .compare-now-btn {
-  background: #6366f1;
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 10px 24px;
@@ -184,7 +184,7 @@
 }
 
 .compare-now-btn:hover {
-  background: #4f46e5;
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
@@ -216,7 +216,7 @@
 }
 
 .compare-close-btn:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -331,7 +331,7 @@
 .compare-remove-btn:focus-visible,
 .compare-clear-btn:focus-visible,
 .compare-now-btn:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 

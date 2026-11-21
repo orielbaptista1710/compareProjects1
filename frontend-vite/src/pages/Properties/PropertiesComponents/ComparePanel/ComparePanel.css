@@ -89,7 +89,7 @@
 }
 
 .cp-body::-webkit-scrollbar { width: 4px; height: 4px; }
-.cp-body::-webkit-scrollbar-track { background: #fafafa; }
+.cp-body::-webkit-scrollbar-track { background: var(--color-surface-subtle); }
 .cp-body::-webkit-scrollbar-thumb { background: var(--color-text-disabled); border-radius: 4px; }
 
 /* ── Table ── */
@@ -229,9 +229,9 @@
 }
 
 .cp-badge--yes {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-  color: #059669;
+  background: var(--color-success-bg);
+  border-color: var(--color-success);
+  color: var(--color-success);
 }
 
 .cp-badge--no {
@@ -243,7 +243,7 @@
 .cp-badge--pending {
   background: var(--color-highlight-tint);
   border-color: var(--color-highlight-line);
-  color: #d97706;
+  color: var(--color-highlight-ink);
 }
 
 /* ── Footer ── */
@@ -283,8 +283,8 @@
 }
 
 .cp-btn--primary:hover {
-  background: #7c10c0;
-  border-color: #7c10c0;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 /* ── Responsive ── */

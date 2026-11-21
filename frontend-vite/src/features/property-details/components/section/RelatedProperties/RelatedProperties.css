@@ -68,7 +68,7 @@
   min-width: 280px;
   max-width: 280px;
   border-radius: 14px;
-  border: 1px solid #eee;
+  border: 1px solid var(--color-line);
   background: var(--color-surface);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   cursor: pointer;
@@ -83,7 +83,7 @@
 }
 
 .rp-card:focus-visible {
-  outline: 3px solid #5b21b6;
+  outline: 3px solid var(--color-primary-dark);
   outline-offset: 2px;
 }
 
@@ -110,8 +110,8 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #f7ecfb;
-  color: #9b8aa8;
+  background: var(--color-surface-tint);
+  color: var(--color-placeholder);
 }
 
 .rp-no-image span {
@@ -143,7 +143,7 @@
 
 .rp-type {
   font-size: 13px;
-  color: #888;
+  color: var(--color-ink-muted);
   margin-bottom: 4px;
 }
 
@@ -161,14 +161,14 @@
 }
 
 .rp-sep {
-  color: #ccc;
+  color: var(--color-line-strong);
   font-size: 14px;
 }
 
 .rp-area {
   font-weight: 600;
   font-size: 14px;
-  color: #444;
+  color: var(--color-ink);
 }
 
 .rp-name {
@@ -183,7 +183,7 @@
 
 .rp-location {
   font-size: 13px;
-  color: #888;
+  color: var(--color-ink-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
