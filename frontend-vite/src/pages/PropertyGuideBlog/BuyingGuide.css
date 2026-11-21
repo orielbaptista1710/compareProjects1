@@ -16,7 +16,7 @@
   background: var(--color-surface);
   border-radius: 14px;
   /* Light grey border as seen in the image */
-  border: 1.5px solid #e8e8f0;
+  border: 1.5px solid var(--color-line);
   /* Reserve left accent space — avoids layout shift on open */
   border-left: 3px solid transparent;
   padding: 28px;
@@ -82,7 +82,7 @@
 }
 
 .step-detail-inner {
-  border-top: 1px solid #f0eafa;
+  border-top: 1px solid var(--color-line);
   padding-top: 16px;
 }
 
@@ -112,24 +112,24 @@
   margin-top: 20px;
   font-size: 14px;
   font-weight: 700;
-  color: #f59e0b;
+  color: var(--color-primary);
   transition: color 0.2s ease, letter-spacing 0.2s ease;
 }
 
 .guide-step-card:hover .step-learn-more {
-  color: #d97706;
+  color: var(--color-primary-dark);
   letter-spacing: 0.2px;
 }
 
 .guide-step-card--open .step-learn-more {
-  color: #d97706;
+  color: var(--color-primary-dark);
 }
 
 /* ─── Download strip ───────────────────────────────────────────────────────── */
 .guide-download-strip {
   margin-top: 36px;
   background: white;
-  border: 1.5px solid #e8e8f0;
+  border: 1.5px solid var(--color-line);
   border-radius: 14px;
   padding: 24px 28px;
   display: flex;
@@ -142,8 +142,8 @@
   width: 46px;
   height: 46px;
   border-radius: 10px;
-  background: #ede9fb;
-  border: 1px solid #c4b5f4;
+  background: var(--color-surface-tint-strong);
+  border: 1px solid var(--color-primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -189,7 +189,7 @@
   font-weight: 600;
   color: var(--color-text-muted);
   background: var(--color-ink-fill);
-  border: 1px solid #e8e8f0;
+  border: 1px solid var(--color-line);
   border-radius: 20px;
   padding: 3px 10px;
   letter-spacing: 0.2px;
@@ -229,7 +229,7 @@
 }
 
 .dl-btn-primary:hover {
-  background: #5b21b6;
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
 }
 

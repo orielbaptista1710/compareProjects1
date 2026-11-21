@@ -6,9 +6,9 @@
   --pp-purple:    var(--color-primary);
   --pp-purple-bg: var(--color-primary-tint);
   --pp-text:      var(--color-ink);
-  --pp-sub:       #717171;
-  --pp-border:    #EBEBEB;
-  --pp-bg:        #F7F7F7;
+  --pp-sub:       var(--color-ink-muted);
+  --pp-border:    var(--color-line);
+  --pp-bg:        var(--color-bg-page);
   --pp-white:     var(--color-surface);
   --pp-radius:    12px;
   --pp-radius-sm: 8px;
@@ -163,7 +163,7 @@
   transition: border-color .18s, background .18s;
 }
 
-.pp-action-btn:hover        { border-color: #999; background: #fafafa; }
+.pp-action-btn:hover        { border-color: var(--color-placeholder); background: var(--color-surface-subtle); }
 .pp-action-btn--active      { background: var(--pp-purple-bg); border-color: var(--pp-purple); color: var(--pp-purple); }
 
 /* Heart icon button */
@@ -181,7 +181,7 @@
   flex-shrink: 0;
 }
 
-.pc-icon-btn:hover  { border-color: #999; background: #fafafa; }
+.pc-icon-btn:hover  { border-color: var(--color-placeholder); background: var(--color-surface-subtle); }
 .pc-liked           { border-color: var(--color-like); background: var(--color-accent-red-bg); }
 
 /* Trust strip */
@@ -207,7 +207,7 @@
   border-radius: 999px;
 }
 
-.pp-trust-badge svg        { color: #22C55E; }
+.pp-trust-badge svg        { color: var(--color-success); }
 .pp-trust-badge--pill      { color: var(--pp-sub); background: var(--color-highlight-tint); border-color: var(--color-highlight-line); }
 
 /* One compact line — possession status, units, parking, bathrooms, facing,
@@ -356,7 +356,7 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  color: #bbb;
+  color: var(--color-placeholder);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -467,7 +467,7 @@
 .pp-desc-text {
   font-size: .9rem;
   line-height: 1.75;
-  color: #444;
+  color: var(--color-ink);
   margin: 0;
 }
 
@@ -537,7 +537,7 @@
 }
 
 .pp-compare-btn:hover       { opacity: .88; }
-.pp-compare-btn.active      { background: #b8001f; border-color: #b8001f; }
+.pp-compare-btn.active      { background: var(--color-accent-red); border-color: var(--color-accent-red); }
 
 /* Price summary */
 .pp-price-summary {
@@ -577,7 +577,7 @@
   font-size: .82rem;
   color: var(--pp-sub);
   padding: .3rem 0;
-  border-bottom: 1px solid #F7F7F7;
+  border-bottom: 1px solid var(--color-bg-page);
 }
 
 .pp-price-summary__row:last-child           { border-bottom: none; }
