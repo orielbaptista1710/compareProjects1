@@ -1,9 +1,14 @@
 // backend/services/locationSearchService.js
 import Property from "../models/Property.js";
-import { withCache } from "../utils/withCache.js";
+import { createCache } from "../utils/withCache.js";
 
 const MAX_RESULTS = 8;
 const MIN_QUERY_LENGTH = 2;
+export const MAX_QUERY_LENGTH = 100; // same cap as sanitiseQuery in searchService.js
+export const LOCATION_CACHE_MAX_KEYS = 2000;
+
+// Own cache: keys are user-typed text, so they mustn't fill the shared cache.
+const withLocationCache = createCache({ name: "location-search", maxKeys: LOCATION_CACHE_MAX_KEYS });
 
 // Matches a trailing directional word so "Andheri East" -> "Andheri".
 // Extend this list if your data uses compound directions (e.g. "North West").
@@ -97,9 +102,11 @@ const searchLocationsRaw = async (query) => {
 };
 
 export const searchLocations = async (query) => {
-  const trimmed = typeof query === "string" ? query.trim() : "";
+  // Trim first, then cap (same order as sanitiseQuery), so leading spaces
+  // don't eat into the length budget.
+  const trimmed = typeof query === "string" ? query.trim().slice(0, MAX_QUERY_LENGTH).trim() : "";
   if (trimmed.length < MIN_QUERY_LENGTH) return [];
 
   const cacheKey = `location-search:${trimmed.toLowerCase()}`;
-  return withCache(cacheKey, () => searchLocationsRaw(trimmed), { ttl: 300 });
+  return withLocationCache(cacheKey, () => searchLocationsRaw(trimmed), { ttl: 300 });
 };

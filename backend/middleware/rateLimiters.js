@@ -36,16 +36,15 @@ const sharedOptions = {
 };
 
 // ---------------------------------------------------------------------------
-// Search / autocomplete  —  60 req / 60 s
+// Search / autocomplete  —  30 req / 60 s
 // ---------------------------------------------------------------------------
-// Generous enough for real users (fast typers hit ~1 req/s at most) with
-// headroom for several people behind one shared mobile-carrier IP; still
+// Generous enough for real users (fast typers hit ~1 req/s at most),
 // painful for bots or scrapers hammering the endpoint.
 // Applied to: GET /api/properties/search, GET /api/properties/location-options
 export const searchLimiter = rateLimit({
   ...sharedOptions,
   windowMs: 60_000,
-  max: 60,
+  max: 30,
   message: { error: 'Too many search requests — please slow down.' },
 });
 
@@ -53,14 +52,19 @@ export const searchLimiter = rateLimit({
 // Location suggestions (home search box)  —  120 req / 60 s
 // ---------------------------------------------------------------------------
 // Separate counter from searchLimiter: this fires on every debounced keystroke
-// and results are cached, so it's cheap. Many Indian mobile users share a
-// carrier IP; a shared budget here would 429 real visitors.
+// and repeat queries are cached. Many Indian mobile users share a carrier IP;
+// a shared budget here would 429 real visitors.
 // Applied to: GET /api/locations/search
-export const locationSuggestLimiter = rateLimit({
-  ...sharedOptions,
+// Exported so a test can build the limiter without the test-mode skip.
+export const LOCATION_SUGGEST_LIMIT = {
   windowMs: 60_000,
   max: 120,
   message: { error: 'Too many search requests — please slow down.' },
+};
+
+export const locationSuggestLimiter = rateLimit({
+  ...sharedOptions,
+  ...LOCATION_SUGGEST_LIMIT,
 });
 
 // ---------------------------------------------------------------------------
