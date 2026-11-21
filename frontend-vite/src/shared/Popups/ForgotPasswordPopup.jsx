@@ -66,7 +66,7 @@ const ForgotPasswordPopup = ({ isOpen, onClose }) => {
               {submitting ? 'Sending...' : 'Send request'}
             </button>
 
-            <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#666' }}>
+            <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: 'var(--color-ink-muted)' }}>
               Prefer to talk to someone right away? Call us at <strong>{COMPANY_CONTACT_NUMBER}</strong>.
             </p>
           </form>

@@ -242,8 +242,8 @@ function PropertyCard({
             <Heart
               size={16}
               strokeWidth={1.8}
-              fill={isSaved ? '#D90429' : 'none'}
-              color={isSaved ? '#D90429' : '#fff'}
+              fill={isSaved ? 'var(--color-like)' : 'none'}
+              color={isSaved ? 'var(--color-like)' : 'var(--color-surface)'}
             />
           </button>
 
@@ -253,7 +253,7 @@ function PropertyCard({
             onClick={shareProperty}
             aria-label="Share"
           >
-            <Share2 size={15} strokeWidth={1.8} color="#fff" />
+            <Share2 size={15} strokeWidth={1.8} color="var(--color-surface)" />
           </button>
         </div>
 

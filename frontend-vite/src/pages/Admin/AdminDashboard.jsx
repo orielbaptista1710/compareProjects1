@@ -85,7 +85,7 @@ export default function AdminDashboard() {
                 <Typography
                   variant="caption"
                   fontWeight={700}
-                  sx={{ color: "#fff", lineHeight: 1, fontSize: "0.7rem" }}
+                  sx={{ color: "var(--color-surface)", lineHeight: 1, fontSize: "0.7rem" }}
                 >
                   {currentUser.displayName?.charAt(0).toUpperCase() ?? "A"}
                 </Typography>

@@ -7,28 +7,28 @@ const HeroSection = () => {
   const cards = [
     {
       id: "comprehensive-listings",
-      icon: <Search size={24} strokeWidth={1.6} color="#D90429" aria-hidden="true" />,
+      icon: <Search size={24} strokeWidth={1.6} color="var(--color-like)" aria-hidden="true" />,
       title: "Comprehensive Listings",
       description:
         "Discover properties that suit your preferences with our extensive database of verified listings.",
     },
     {
       id: "direct-developer",
-      icon: <Handshake size={24} strokeWidth={1.6} color="#D90429" aria-hidden="true" />,
+      icon: <Handshake size={24} strokeWidth={1.6} color="var(--color-like)" aria-hidden="true" />,
       title: "Direct Developer Access",
       description:
         "Connect directly with trusted developers for transparent communication, exclusive offers, and faster deal closures — no middlemen involved.",
     },
     {
       id: "smart-comparisons",
-      icon: <LineChart size={24} strokeWidth={1.6} color="#D90429" aria-hidden="true" />,
+      icon: <LineChart size={24} strokeWidth={1.6} color="var(--color-like)" aria-hidden="true" />,
       title: "Smart Project Comparisons",
       description:
         "Compare projects side-by-side with our intelligent comparison tools, powered by real data, insights, and developer credibility metrics.",
     },
     {
       id: "safe-deals",
-      icon: <Shield size={24} strokeWidth={1.6} color="#D90429" aria-hidden="true" />,
+      icon: <Shield size={24} strokeWidth={1.6} color="var(--color-like)" aria-hidden="true" />,
       title: "Safe & Transparent Deals",
       description:
         "Experience secure and transparent property transactions with verified listings, clear documentation, and trusted partners every step of the way.",

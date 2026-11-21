@@ -288,8 +288,8 @@ function QuickLinks({ property }) {
           <Heart
             size={18}
             strokeWidth={1.5}
-            color={isSaved ? "#D90429" : "#333"}
-            fill={isSaved ? "#D90429" : "none"}
+            color={isSaved ? "var(--color-like)" : "var(--color-ink)"}
+            fill={isSaved ? "var(--color-like)" : "none"}
             aria-hidden="true"
           />
           <span>{isSaved ? "Saved" : "Save"}</span>

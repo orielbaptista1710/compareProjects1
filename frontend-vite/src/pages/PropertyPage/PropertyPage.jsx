@@ -291,7 +291,7 @@ function PropertyPage() {
                     onClick={(e) => { e.stopPropagation(); handleToggleHeart(); }}
                     aria-label={isSaved ? 'Unlike' : 'Save'}
                   >
-                    <Heart size={16} strokeWidth={1.8} fill={isSaved ? '#D90429' : 'none'} color={isSaved ? '#D90429' : '#1a1a1a'} />
+                    <Heart size={16} strokeWidth={1.8} fill={isSaved ? 'var(--color-like)' : 'none'} color={isSaved ? 'var(--color-like)' : 'var(--color-ink)'} />
                   </button>
                   <button className="pp-action-btn" onClick={handleShare} aria-label="Share">
                     <Share2 size={15} strokeWidth={2} /> Share
