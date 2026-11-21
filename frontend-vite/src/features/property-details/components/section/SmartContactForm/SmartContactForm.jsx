@@ -149,7 +149,7 @@ const StepCard = styled(Button)({
     borderColor: "var(--color-primary)",
     background: "linear-gradient(135deg, var(--color-surface-tint) 0%, var(--color-surface-tint-strong) 100%)",
     transform: "translateY(-1px)",
-    boxShadow: "0 8px 20px rgba(148, 23, 226, 0.08)",
+    boxShadow: "var(--shadow-md)",
   },
 });
 
@@ -161,7 +161,7 @@ const ContinueButton = styled(Button)({
   fontSize: "14px",
   background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",
   color: "var(--color-surface)",
-  boxShadow: "0 10px 24px rgba(148, 23, 226, 0.22)",
+  boxShadow: "var(--shadow-brand)",
   "&:hover": {
     background: "linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-dark) 100%)",
   },
@@ -388,7 +388,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                   width: 38,
                   height: 38,
                   borderRadius: "12px",
-                  background: "rgba(255,255,255,0.15)",
+                  background: "var(--color-on-dark-fill)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
