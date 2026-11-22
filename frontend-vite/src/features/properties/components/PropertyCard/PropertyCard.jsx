@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Scale,
 } from 'lucide-react';
 
 import { getPropertyImage, getOptimizedImageUrl } from "../../../../utils/propertyHelpers";
@@ -434,7 +435,12 @@ function PropertyCard({
             onClick={handleCompare}
             aria-pressed={isCompared}
           >
-            {isCompared ? 'Compared ✓' : '+ Compare'}
+            {isCompared ? 'Compared ✓' : (
+              <>
+                <Scale size={14} aria-hidden="true" />
+                Compare
+              </>
+            )}
           </button>
         )}
 

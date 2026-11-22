@@ -188,8 +188,8 @@ describe("PropertyCard — grouped project (multiple units, one tile each)", () 
 
     const { container } = renderCard({ property: groupedProject, addToCompare, compareIds }, { toggleHeart });
 
-    // Cheapest unit selected by default — not in compareIds — shows "+ Compare".
-    expect(screen.getByRole("button", { name: /\+ Compare/ })).toBeInTheDocument();
+    // Cheapest unit selected by default — not in compareIds — shows "Compare" with the scale icon.
+    expect(screen.getByRole("button", { name: "Compare" })).toBeInTheDocument();
 
     fireEvent.click(getTiles(container)[2]); // select the unit that IS in compareIds
     expect(screen.getByRole("button", { name: /Compared/ })).toBeInTheDocument();
