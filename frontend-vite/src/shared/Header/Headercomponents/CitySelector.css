@@ -51,6 +51,7 @@
 }
 
 .city-trigger-label {
+  color: var(--color-on-dark);
   overflow: hidden;
   text-overflow: ellipsis;
 }
