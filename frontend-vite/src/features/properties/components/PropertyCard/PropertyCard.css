@@ -461,14 +461,14 @@
 }
 
 .pc-btn-contact {
-  background: var(--color-primary);
-  color: var(--color-on-dark);
+  background: var(--color-highlight); /* yellow; dark text, since white on amber is unreadable */
+  color: var(--color-ink);
   border: none;
 }
 
 .pc-btn-contact:hover,
 .pc-btn-contact:focus {
-  background: var(--color-primary-dark);
+  filter: brightness(0.93);
   transform: translateY(-1px);
   outline: none;
 }
