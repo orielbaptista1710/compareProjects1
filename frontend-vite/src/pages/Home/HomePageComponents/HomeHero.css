@@ -4,10 +4,10 @@
   width: 100%;
   min-height: 70vh;
   background: 
-    linear-gradient(to bottom,
+    /* linear-gradient(to bottom,
       color-mix(in srgb, var(--color-ink) 30%, transparent) 0%,
       color-mix(in srgb, var(--color-ink) 50%, transparent) 50%,
-      color-mix(in srgb, var(--color-ink) 70%, transparent) 100%),
+      color-mix(in srgb, var(--color-ink) 70%, transparent) 100%), */
     url("../../../assests/images/bg_image.webp") no-repeat center center / cover;
   display: flex;
   align-items: center;
@@ -29,23 +29,147 @@
   width: 100%;
   text-align: center;
   max-width: 1360px;
-  color: var(--color-on-dark);
+  color: var(--color-ink); /* the hero image is light, so text is dark */
 }
 
+/* Headline: brand navy into brand blue. */
 .hero-content .h1-hero-content {
   font-size: var(--text-display);
   font-weight: var(--weight-bold);
   line-height: 1.15;
   margin-bottom: var(--space-3);
 
-  text-shadow: 0 4px 14px color-mix(in srgb, var(--color-ink) 45%, transparent);
+  color: var(--color-primary-deep);
+}
+
+/* The gradient is on this span only. If it sat on the h1 it would also paint
+   through the rotating words stacked inside it. */
+.hero-content .hero-title-rest {
+  color: var(--color-primary); /* fallback if background-clip isn't supported */
+  background: linear-gradient(90deg, var(--color-primary-deep) 0%, var(--color-primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .hero-content .p-hero-content {
   font-size: var(--text-lg);
-  font-weight: var(--weight-regular);
-  opacity: 0.95;
+  font-weight: var(--weight-medium);
   margin-bottom: var(--space-6);
+  color: var(--color-ink);
+}
 
-  text-shadow: 0 2px 10px color-mix(in srgb, var(--color-ink) 45%, transparent);
+/* The selected city sits on a yellow highlight, like a marker pen: amber text
+   would be unreadable on this light image, dark text on amber is not. */
+.hero-content .p-hero-content strong {
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-highlight);
+  color: var(--color-ink);
+  font-weight: var(--weight-semibold);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+/* ---------- Rotating first word ----------
+   The words share one grid cell (so the line never changes width) and take
+   turns sliding up into view. Without motion only the first word shows. */
+.hero-rotator {
+  display: inline-grid;
+  justify-items: end; /* short words sit against "to", not floating before it */
+  overflow: hidden;
+  vertical-align: top;
+  /* room for descenders, which overflow:hidden would otherwise clip */
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.hero-rotator-word {
+  grid-area: 1 / 1;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-rotator-word:not(:first-child) {
+  visibility: hidden; /* shown by the animation, only when motion is allowed */
+}
+
+/* ---------- Motion ----------
+   The subtitle rises in once on load. Where the browser supports scroll-driven
+   animation it also fades and drifts up as the page scrolls away from the hero.
+   Both are skipped for people who ask for reduced motion. */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-4));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-scroll-away {
+  to {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--space-5)));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-content .p-hero-content {
+    animation: hero-rise var(--dur-medium) var(--ease-out) 150ms both;
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .hero-content .p-hero-content {
+      animation:
+        hero-rise var(--dur-medium) var(--ease-out) 150ms both,
+        hero-scroll-away linear both;
+      animation-timeline: auto, scroll(root block);
+      animation-range: normal, 0 50vh;
+    }
+  }
+}
+
+/* Four words, 2.8s each. A word slides up in (0.5s), holds, then slides up out
+   and is completely gone (by 24%) before the next one starts (at 25%), so two
+   words are never on screen together. Enter eases out, exit eases in. */
+@keyframes hero-word-cycle {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+    visibility: visible;
+    animation-timing-function: var(--ease-out);
+  }
+  4.5% {
+    opacity: 1;
+    transform: none;
+  }
+  20% {
+    opacity: 1;
+    transform: none;
+    animation-timing-function: ease-in;
+  }
+  23% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100%);
+    visibility: visible;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-rotator-word {
+    animation: hero-word-cycle 11.2s linear infinite both;
+  }
+
+  .hero-rotator-word:nth-child(2) { animation-delay: 2.8s; }
+  .hero-rotator-word:nth-child(3) { animation-delay: 5.6s; }
+  .hero-rotator-word:nth-child(4) { animation-delay: 8.4s; }
 }

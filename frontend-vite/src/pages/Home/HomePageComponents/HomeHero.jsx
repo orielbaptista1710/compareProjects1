@@ -3,6 +3,11 @@ import MainSearchBar from "../../../features/search/MainSearchBar/MainSearchBar"
 import { useCity } from "../../../contexts/CityContext";
 // import MascotGuide from "../../../components/DevDashboardPageComponents/Mascot/MascotGuide";
 
+// The first word of the headline cycles through what the site does. Each one
+// reads naturally before "to Find Your Dream Home"; the first is the default
+// for screen readers and for people who prefer reduced motion.
+const ROTATING_WORDS = ["Compare", "Search", "Explore", "Choose"];
+
 const HomeHero = () => {
   const { city } = useCity();
 
@@ -12,8 +17,13 @@ const HomeHero = () => {
 
       <div className="hero-content">
         <div className="hero-content-overlay">
-        <h1 className="h1-hero-content">
-          Compare to Find Your Dream Home
+        <h1 className="h1-hero-content" aria-label={`${ROTATING_WORDS[0]} to Find Your Dream Home`}>
+          <span className="hero-rotator" aria-hidden="true">
+            {ROTATING_WORDS.map((word) => (
+              <span key={word} className="hero-rotator-word">{word}</span>
+            ))}
+          </span>{" "}
+          <span className="hero-title-rest" aria-hidden="true">to Find Your Dream Home</span>
         </h1>
 
         <p className="p-hero-content">
