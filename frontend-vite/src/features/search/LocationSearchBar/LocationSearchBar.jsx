@@ -1,5 +1,5 @@
 // src/pages/Home/HomePageComponents/LocationSearchBar.jsx
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useId } from "react";
 import { MapPin, Loader2 } from "lucide-react";
 
 import API from "../../../api/api";
@@ -154,7 +154,10 @@ const clearSelection = () => {
   };
 
   const listVisible = open && listToShow.length > 0;
-  const optionId = (index) => `lsb-option-${index}`;
+  // Unique per instance, so two bars on one page don't share ids.
+  const baseId = useId();
+  const listboxId = `${baseId}-listbox`;
+  const optionId = (index) => `${baseId}-option-${index}`;
 
   return (
   <div className="lsb-wrapper" ref={wrapperRef}>
@@ -186,13 +189,13 @@ const clearSelection = () => {
       aria-label="Search location"
       aria-expanded={listVisible}
       aria-autocomplete="list"
-      aria-controls={listVisible ? "lsb-listbox" : undefined}
+      aria-controls={listVisible ? listboxId : undefined}
       aria-activedescendant={listVisible && activeIndex >= 0 ? optionId(activeIndex) : undefined}
     />
     {isLoading && <Loader2 size={16} className="lsb-spinner" aria-hidden="true" />}
 
       {listVisible && (
-        <ul id="lsb-listbox" className="lsb-dropdown" role="listbox">
+        <ul id={listboxId}className="lsb-dropdown" role="listbox">
           {inputValue.trim().length < 2 && (
             <li className="lsb-section-label" role="presentation">Recent searches</li>
           )}

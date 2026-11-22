@@ -108,7 +108,7 @@ describe("LocationSearchBar accessibility", () => {
     await user.keyboard("{ArrowDown}{ArrowDown}");
 
     const options = screen.getAllByRole("option");
-    expect(input).toHaveAttribute("aria-controls", "lsb-listbox");
+    expect(input).toHaveAttribute("aria-controls", screen.getByRole("listbox").id);
     expect(input).toHaveAttribute("aria-activedescendant", options[1].id);
     expect(options[1]).toHaveAttribute("aria-selected", "true");
   });

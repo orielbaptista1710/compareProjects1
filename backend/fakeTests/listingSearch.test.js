@@ -104,6 +104,13 @@ describe("GET /api/properties?search=", () => {
     expect(await search("2 bhk in baner pune")).toEqual([]); // no 2 bhk there
   });
 
+  it("searches filter-like words as plain text when nothing else applies", async () => {
+    await listing({ title: "Rent Ready Homes", city: "Pune" });
+    await listing({ title: "Other", city: "Pune" });
+
+    expect(await search("rent")).toEqual(["Rent Ready Homes"]);
+  });
+
   it("keeps a typed price limit when the panel sets only the other bound", async () => {
     await listing({ title: "Cheap", city: "Pune", price: 3_000_000 });
     await listing({ title: "Mid", city: "Pune", price: 4_500_000 });
