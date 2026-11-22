@@ -1832,6 +1832,11 @@
   max-width: 280px;
 }
 
+/* Space between the text and the button under it. */
+.empty-state p + * {
+  margin-top: var(--space-4);
+}
+
 /* =====================================================
    SHIMMER LOADING
    ===================================================== */
