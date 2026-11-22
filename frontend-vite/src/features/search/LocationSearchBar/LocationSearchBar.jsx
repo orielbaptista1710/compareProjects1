@@ -37,7 +37,18 @@ const saveRecent = (item) => {
 };
 
 const MAX_SELECTED = 5;
-const CLEARED = { type: "text", label: "", city: null, locality: null };
+const MAX_LOCALITIES = 25; // a group chip can carry many, and each becomes a URL param
+
+const itemKey = (item) => `${item.type}|${item.city}|${item.label}`;
+
+// Only a locality / group that names its city and areas can be combined with
+// others; anything else (e.g. an old or odd recent search) just replaces.
+const isArea = (item) =>
+  (item.type === "locality" || item.type === "locality-group") &&
+  typeof item.city === "string" && item.city !== "" &&
+  Array.isArray(item.localities) && item.localities.length > 0;
+
+const localityCount = (items) => new Set(items.flatMap((i) => i.localities)).size;
 
 // What a chip says: the locality for a locality, "<area> (all areas)" for a
 // group, the city for a city. (It used to say the city for everything.)
@@ -49,12 +60,17 @@ const chipLabel = (item) => {
 
 // Several localities of one city can be combined; a city, or anything from
 // another city, replaces the selection (the listing page filters one city).
+// Returns { items, notice }: notice is set when the pick was refused.
 const nextSelection = (current, item) => {
-  if (item.type === "city") return [item];
-  const sameCity = current.length > 0 && current[0].type !== "city" && current[0].city === item.city;
-  if (!sameCity) return [item];
-  if (current.some((c) => c.label === item.label)) return current;
-  return current.length < MAX_SELECTED ? [...current, item] : current;
+  if (item.type === "city" || !isArea(item)) return { items: [item] };
+  const sameCity = current.length > 0 && isArea(current[0]) && current[0].city === item.city;
+  if (!sameCity) return { items: [item] };
+  if (current.some((c) => itemKey(c) === itemKey(item))) return { items: current, notice: "Already added" };
+  const items = [...current, item];
+  if (items.length > MAX_SELECTED || localityCount(items) > MAX_LOCALITIES) {
+    return { items: current, notice: "Limit reached — remove one to add more" };
+  }
+  return { items };
 };
 
 // One object for the parent: the item itself, or all localities merged.
@@ -67,6 +83,8 @@ const combine = (items) =>
         city: items[0].city,
         localities: [...new Set(items.flatMap((i) => i.localities))],
       };
+
+const textSelection = (label) => ({ type: "text", label, city: null, locality: null });
 
 /**
  * Uncontrolled-ish location typeahead. Reports the *selected* location object
@@ -81,6 +99,14 @@ export default function LocationSearchBar({ onSelect, placeholder = "Search loca
   const [activeIndex, setActiveIndex] = useState(-1);
 
   const [selectedItems, setSelectedItems] = useState([]);
+  const [notice, setNotice] = useState("");
+  // Latest selection, read synchronously so two quick picks before a re-render
+  // build on each other instead of on a stale copy.
+  const selectedRef = useRef([]);
+  const updateSelected = (items) => {
+    selectedRef.current = items;
+    setSelectedItems(items);
+  };
 
   const wrapperRef = useRef(null);
   const abortRef = useRef(null);
@@ -122,24 +148,35 @@ const commitSelection = useCallback(
   (item) => {
     setOpen(false);
     setSuggestions([]);
-    saveRecent(item);
     if (item.type === "city" || item.type === "locality" || item.type === "locality-group") {
-      const next = nextSelection(selectedItems, item);
-      setSelectedItems(next);
+      const { items, notice: refused } = nextSelection(selectedRef.current, item);
+      if (refused) {
+        setNotice(refused); // nothing changes; the placeholder says why
+        return;
+      }
+      saveRecent(item);
+      setNotice("");
+      updateSelected(items);
       setInputValue("");
-      onSelect(combine(next));
+      onSelect(combine(items));
     } else {
+      // Free text replaces any chips, so what's shown is what gets searched.
+      saveRecent(item);
+      setNotice("");
+      updateSelected([]);
       setInputValue(item.label);
       onSelect(item);
     }
   },
-  [onSelect, selectedItems]
+  [onSelect]
 );
 
 const removeItem = (item) => {
-  const next = selectedItems.filter((i) => i !== item);
-  setSelectedItems(next);
-  onSelect(next.length ? combine(next) : CLEARED);
+  const next = selectedRef.current.filter((i) => itemKey(i) !== itemKey(item));
+  setNotice("");
+  updateSelected(next);
+  // With no chips left, the parent follows whatever is typed in the box.
+  onSelect(next.length ? combine(next) : textSelection(inputValue));
 };
 
   const handleInputChange = (e) => {
@@ -149,9 +186,10 @@ const removeItem = (item) => {
   // The list changes as you type; a highlight from the old list must not
   // let Enter pick an unrelated option.
   setActiveIndex(-1);
+  setNotice("");
 
-  if (selectedItems.length === 0) {
-    onSelect({ type: "text", label: value, city: null, locality: null });
+  if (selectedRef.current.length === 0) {
+    onSelect(textSelection(value));
   }
   // else: typing while a city/locality chip is active is treated as a
   // separate suggestion lookup — it doesn't touch the parent's selection
@@ -199,7 +237,7 @@ const removeItem = (item) => {
     <MapPin size={18} className="lsb-icon" aria-hidden="true" />
 
     {selectedItems.map((item) => (
-      <span className="lsb-chip" key={`${item.type}-${item.label}`}>
+      <span className="lsb-chip" key={itemKey(item)}>
         {chipLabel(item)}
         <button
           type="button"
@@ -216,7 +254,7 @@ const removeItem = (item) => {
       type="text"
       className="lsb-input"
       value={inputValue}
-      placeholder={selectedItems.length ? "Add more..." : placeholder}
+      placeholder={notice || (selectedItems.length ? "Add more..." : placeholder)}
       onChange={handleInputChange}
       onFocus={() => setOpen(true)}
       onKeyDown={handleKeyDown}

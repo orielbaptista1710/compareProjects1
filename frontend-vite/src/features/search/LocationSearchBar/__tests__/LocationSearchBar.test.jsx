@@ -170,6 +170,83 @@ describe("LocationSearchBar chips", () => {
     expect(onSelect).toHaveBeenLastCalledWith(pune);
   });
 
+  it("tells the user when a locality is already added", async () => {
+    const user = userEvent.setup();
+    const { input, onSelect } = renderBar();
+
+    await pick(user, input, bandra);
+    onSelect.mockClear();
+    await pick(user, input, bandra);
+
+    expect(input).toHaveAttribute("placeholder", "Already added");
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("stops at 5 chips and says so", async () => {
+    const user = userEvent.setup();
+    const { input } = renderBar();
+    const area = (n) => ({ type: "locality", label: `Area${n}, Mumbai`, city: "Mumbai", localities: [`Area${n}`] });
+
+    for (let n = 1; n <= 6; n++) await pick(user, input, area(n));
+
+    expect(screen.getAllByRole("button", { name: /^Remove/ })).toHaveLength(5);
+    expect(input).toHaveAttribute("placeholder", expect.stringMatching(/Limit reached/));
+  });
+
+  it("also caps the merged localities, since a group chip carries many", async () => {
+    const user = userEvent.setup();
+    const { input } = renderBar();
+    const big = (name, from) => ({
+      type: "locality-group", label: `${name} — All areas, Mumbai`, city: "Mumbai",
+      localities: Array.from({ length: 20 }, (_, i) => `L${from + i}`), areaCount: 20,
+    });
+
+    await pick(user, input, big("North", 0));
+    await pick(user, input, big("South", 100)); // 40 localities > 25
+
+    expect(screen.getAllByRole("button", { name: /^Remove/ })).toHaveLength(1);
+    expect(input).toHaveAttribute("placeholder", expect.stringMatching(/Limit reached/));
+  });
+
+  it("does not merge an item that has no localities or city; it replaces instead", async () => {
+    const user = userEvent.setup();
+    const { input, onSelect } = renderBar();
+    const odd = { type: "locality", label: "Mystery", city: "Mumbai" }; // no localities list
+
+    await pick(user, input, bandra);
+    await pick(user, input, odd);
+
+    expect(screen.queryByRole("button", { name: "Remove Bandra West" })).not.toBeInTheDocument();
+    expect(onSelect).toHaveBeenLastCalledWith(odd);
+
+    // and a good item added next must not merge the odd one's undefined list
+    await pick(user, input, bandra);
+    expect(onSelect).toHaveBeenLastCalledWith(bandra);
+  });
+
+  it("a free-text suggestion replaces the chips so the box matches what is searched", async () => {
+    const user = userEvent.setup();
+    const { input, onSelect } = renderBar();
+    const text = { type: "text", label: "lodha park", city: null };
+
+    await pick(user, input, bandra);
+    await pick(user, input, text);
+
+    expect(screen.queryByRole("button", { name: /^Remove/ })).not.toBeInTheDocument();
+    expect(onSelect).toHaveBeenLastCalledWith(text);
+  });
+
+  it("removing the last chip while text is typed keeps that text as the search", async () => {
+    const user = userEvent.setup();
+    const { input, onSelect } = renderBar();
+
+    await pick(user, input, bandra);
+    await user.type(input, "Andh");
+    await user.click(screen.getByRole("button", { name: "Remove Bandra West" }));
+
+    expect(onSelect).toHaveBeenLastCalledWith({ type: "text", label: "Andh", city: null, locality: null });
+  });
+
   it("removing one chip keeps the rest; removing the last clears the search", async () => {
     const user = userEvent.setup();
     const { input, onSelect } = renderBar();
