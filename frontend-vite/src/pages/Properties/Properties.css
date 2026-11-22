@@ -735,7 +735,7 @@
 
 @media (max-width: 767px) {
 
-  .main-content-container { padding: 0.5rem; }
+  .main-content-container { padding: var(--space-2) var(--page-gutter); }
 
   /* Full-width drawer — no partial peek on phones */
   .filters-column {
