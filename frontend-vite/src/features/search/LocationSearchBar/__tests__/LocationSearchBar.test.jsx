@@ -86,3 +86,68 @@ describe("LocationSearchBar recent searches storage", () => {
     expect(JSON.parse(localStorage.getItem(RECENT_KEY))).toEqual([pune]);
   });
 });
+
+describe("LocationSearchBar accessibility", () => {
+  const thane = { type: "city", label: "Thane", city: "Thane", localities: [] };
+
+  it("has an accessible name and no list reference while closed", () => {
+    const { input } = renderBar();
+
+    expect(input).toHaveAccessibleName("Search location");
+    expect(input).not.toHaveAttribute("aria-controls");
+    expect(input).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("points aria-activedescendant at the highlighted option", async () => {
+    API.get.mockResolvedValue({ data: { results: [pune, thane] } });
+    const user = userEvent.setup();
+    const { input } = renderBar();
+
+    await user.type(input, "th");
+    await screen.findAllByRole("option");
+    await user.keyboard("{ArrowDown}{ArrowDown}");
+
+    const options = screen.getAllByRole("option");
+    expect(input).toHaveAttribute("aria-controls", "lsb-listbox");
+    expect(input).toHaveAttribute("aria-activedescendant", options[1].id);
+    expect(options[1]).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("does not let Enter pick an option highlighted in the previous list", async () => {
+    API.get.mockResolvedValue({ data: { results: [pune, thane] } });
+    const user = userEvent.setup();
+    const { input, onSelect } = renderBar();
+
+    await user.type(input, "th");
+    await screen.findAllByRole("option");
+    await user.keyboard("{ArrowDown}");
+    await user.type(input, "a"); // list is about to change
+    onSelect.mockClear();
+    await user.keyboard("{Enter}");
+
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("announces the empty state as a status message", async () => {
+    API.get.mockResolvedValue({ data: { results: [] } });
+    const user = userEvent.setup();
+    const { input } = renderBar();
+
+    await user.type(input, "zzz");
+
+    expect(await screen.findByRole("status")).toHaveTextContent(/No matches/);
+  });
+
+  it("opens the list with ArrowDown after it was closed with Escape", async () => {
+    localStorage.setItem(RECENT_KEY, JSON.stringify([pune]));
+    const user = userEvent.setup();
+    const { input } = renderBar();
+
+    await user.click(input);
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+
+    await user.keyboard("{ArrowDown}");
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+  });
+});

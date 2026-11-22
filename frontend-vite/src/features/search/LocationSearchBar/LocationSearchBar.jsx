@@ -111,6 +111,9 @@ const clearSelection = () => {
   const value = e.target.value;
   setInputValue(value);
   setOpen(true);
+  // The list changes as you type; a highlight from the old list must not
+  // let Enter pick an unrelated option.
+  setActiveIndex(-1);
 
   if (!selectedItem) {
     onSelect({ type: "text", label: value, city: null, locality: null });
@@ -124,7 +127,13 @@ const clearSelection = () => {
   const showEmptyState = inputValue.trim().length >= 2 && !isLoading && suggestions.length === 0;
 
   const handleKeyDown = (e) => {
-    if (!open) return;
+    if (!open) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setOpen(true);
+      }
+      return;
+    }
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setActiveIndex((i) => Math.min(i + 1, listToShow.length - 1));
@@ -142,6 +151,9 @@ const clearSelection = () => {
       setOpen(false);
     }
   };
+
+  const listVisible = open && listToShow.length > 0;
+  const optionId = (index) => `lsb-option-${index}`;
 
   return (
   <div className="lsb-wrapper" ref={wrapperRef}>
@@ -170,29 +182,32 @@ const clearSelection = () => {
       onFocus={() => setOpen(true)}
       onKeyDown={handleKeyDown}
       role="combobox"
-      aria-expanded={open}
+      aria-label="Search location"
+      aria-expanded={listVisible}
       aria-autocomplete="list"
-      aria-controls="lsb-listbox"
+      aria-controls={listVisible ? "lsb-listbox" : undefined}
+      aria-activedescendant={listVisible && activeIndex >= 0 ? optionId(activeIndex) : undefined}
     />
-    {isLoading && <Loader2 size={16} className="lsb-spinner" />}
+    {isLoading && <Loader2 size={16} className="lsb-spinner" aria-hidden="true" />}
 
-      {open && listToShow.length > 0 && (
+      {listVisible && (
         <ul id="lsb-listbox" className="lsb-dropdown" role="listbox">
           {inputValue.trim().length < 2 && (
-            <li className="lsb-section-label">Recent searches</li>
+            <li className="lsb-section-label" role="presentation">Recent searches</li>
           )}
 
           
           {listToShow.map((item, index) => (
             <li
               key={`${item.type}-${item.label}`}
+              id={optionId(index)}
               role="option"
               aria-selected={index === activeIndex}
               className={`lsb-option ${index === activeIndex ? "lsb-option-active" : ""}`}
               onMouseDown={() => commitSelection(item)}
               onMouseEnter={() => setActiveIndex(index)}
             >
-              <MapPin size={16} className="lsb-option-icon" />
+              <MapPin size={16} className="lsb-option-icon" aria-hidden="true" />
               <div className="lsb-option-text">
                 <span className="lsb-option-title">
                   {item.type === "locality-group" ? item.label.split(" — ")[0] : item.label.split(",")[0]}
@@ -213,7 +228,7 @@ const clearSelection = () => {
 
       {open && showEmptyState && (
         <div className="lsb-dropdown">
-          <p className="lsb-empty">No matches — press Enter to search "{inputValue}" anyway</p>
+          <p className="lsb-empty" role="status">No matches — press Enter to search "{inputValue}" anyway</p>
         </div>
       )}
     </div>
