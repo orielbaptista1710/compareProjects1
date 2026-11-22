@@ -179,6 +179,7 @@ describe("LocationSearchBar chips", () => {
     await pick(user, input, bandra);
 
     expect(input).toHaveAttribute("placeholder", "Already added");
+    expect(input).toHaveValue(""); // empty, so the notice is actually visible
     expect(onSelect).not.toHaveBeenCalled();
   });
 
@@ -191,6 +192,7 @@ describe("LocationSearchBar chips", () => {
 
     expect(screen.getAllByRole("button", { name: /^Remove/ })).toHaveLength(5);
     expect(input).toHaveAttribute("placeholder", expect.stringMatching(/Limit reached/));
+    expect(input).toHaveValue("");
   });
 
   it("also caps the merged localities, since a group chip carries many", async () => {

@@ -151,7 +151,10 @@ const commitSelection = useCallback(
     if (item.type === "city" || item.type === "locality" || item.type === "locality-group") {
       const { items, notice: refused } = nextSelection(selectedRef.current, item);
       if (refused) {
-        setNotice(refused); // nothing changes; the placeholder says why
+        // Nothing changes. Empty the box so the placeholder (which says why)
+        // is actually visible; a placeholder is hidden while text is typed.
+        setNotice(refused);
+        setInputValue("");
         return;
       }
       saveRecent(item);

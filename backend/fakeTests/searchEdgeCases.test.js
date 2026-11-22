@@ -205,6 +205,15 @@ describe("location suggestions: odd input", () => {
     expect(res.body.results.map((r) => r.label)).toContain("Baner, Pune");
   });
 
+  it("treats a tab or newline between words as a space", async () => {
+    await createProperty({ city: "Bengaluru", locality: "Koramangala Block", status: "approved" });
+
+    const res = await request(app).get("/api/locations/search?q=Koramangala%09Block");
+
+    expect(res.status).toBe(200);
+    expect(res.body.results.map((r) => r.label)).toContain("Koramangala Block, Bengaluru");
+  });
+
   it("answers within the time limit on a larger collection", async () => {
     await seed(600);
 

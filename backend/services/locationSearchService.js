@@ -105,9 +105,10 @@ export const searchLocations = async (query) => {
   // Trim first, then cap (same order as sanitiseQuery), so leading spaces
   // don't eat into the length budget.
   // Control characters (a null byte makes the Mongo regex throw, a 500) can't
-  // be part of a place name, so drop them first.
-  // eslint-disable-next-line no-control-regex -- stripping them is the point
-  const clean = typeof query === "string" ? query.replace(/[\u0000-\u001f\u007f]/g, "") : "";
+  // be part of a place name, so turn them into spaces (a tab or newline between
+  // two words must still separate them); trim below tidies the edges.
+  // eslint-disable-next-line no-control-regex -- replacing them is the point
+  const clean = typeof query === "string" ? query.replace(/[\u0000-\u001f\u007f]/g, " ") : "";
   const trimmed = clean.trim().slice(0, MAX_QUERY_LENGTH).trim();
   if (trimmed.length < MIN_QUERY_LENGTH) return [];
 
