@@ -7,7 +7,7 @@
 .customer-profile-page {
   --brand-purple-dark:  var(--color-primary-dark);
   --brand-purple:       var(--color-primary);
-  --brand-purple-light: rgba(124, 58, 237, 0.08);
+  --brand-purple-light: color-mix(in srgb, var(--color-primary) 8%, transparent);
   --brand-yellow:       var(--color-highlight);
   --brand-red:          var(--color-accent-red);
 
@@ -1590,7 +1590,7 @@
 
 .form-field input:focus {
   border-color: var(--brand-purple);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 .form-field input.input-disabled,

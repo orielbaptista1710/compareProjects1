@@ -11,10 +11,10 @@ Rules for writing frontend code. Structure and test setup are in the root `CLAUD
 
 ## Design tokens
 
-`src/styles/tokens.css` is the single source for colour, font, size, weight, spacing, radius, shadow and motion values, including brand purple `--color-primary`. Read it for the available token names instead of guessing.
+`src/styles/tokens.css` is the single source for colour, font, size, weight, spacing, radius, shadow and motion values, including brand blue `--color-primary`. Read it for the available token names instead of guessing.
 
 - **No raw values in CSS or JSX.** Use `var(--…)` instead of hex/rgba colours, px font sizes, px padding/margin/gap, numeric weights, font-family names or `ms`/`ease` timings. `1px` borders, `2px` focus rings and fixed element sizes (icon box, avatar) may stay in px.
-- **Three colours only:** brand purple (`--color-primary`), ink (`--color-ink`), white (`--color-surface`). Greys, lines, fills and overlays use the existing tints, not new hex. Red (`--color-error-*`) is only for errors/destructive actions; amber (`--color-highlight`) only for the Featured tag and ★ rating; green (`--color-success*`) only for success/RERA verified.
+- **Three colours only:** brand blue (`--color-primary`), ink (`--color-ink`), white (`--color-surface`). Greys, lines, fills and overlays use the existing tints, not new hex. Red (`--color-error-*`) is only for errors/destructive actions; amber (`--color-highlight`) only for the Featured tag and ★ rating; green (`--color-success*`) only for success/RERA verified.
 - **Missing a value?** Add it to `tokens.css`. Never declare one-off variables in a component's CSS or inline `style={{}}`.
 - **Fonts:** `--font-heading` (Poppins) for headings, prices, buttons; `--font-body` (Inter) for everything else. Sizes `--text-*`, weights `--weight-*`, spacing `--space-1…7`, corners `--radius-sm|md|full`, controls `--control-height`.
 - When you edit an older CSS file, convert the values you touch to tokens. Don't read from legacy `:root` blocks in component CSS (e.g. `NavigationBar.css`); they're being retired.

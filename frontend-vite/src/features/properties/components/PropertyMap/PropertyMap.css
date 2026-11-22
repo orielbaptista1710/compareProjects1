@@ -136,7 +136,7 @@
 .marker-cluster-small,
 .marker-cluster-medium,
 .marker-cluster-large {
-  background-color: rgba(168, 85, 247, 0.15) !important;
+  background-color: color-mix(in srgb, var(--color-primary) 15%, transparent) !important;
   border: 2px solid var(--color-primary-light) !important;
 }
 

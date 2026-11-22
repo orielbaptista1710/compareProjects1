@@ -44,7 +44,7 @@
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-on-dark);
-  box-shadow: 0 2px 8px rgba(124,58,237,.25);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
 .fp-floor-btn__badge {
@@ -292,7 +292,7 @@
 .fp-gallery__more {
   position: absolute;
   inset: 0;
-  background: rgba(124,58,237,.75);
+  background: color-mix(in srgb, var(--color-primary) 75%, transparent);
   color: var(--color-on-dark);
   display: flex;
   align-items: center;

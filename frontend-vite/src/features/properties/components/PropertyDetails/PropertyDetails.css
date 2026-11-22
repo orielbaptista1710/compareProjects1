@@ -48,7 +48,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(124,58,237,.22);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary) 22%, transparent);
 }
 
 .pd-stat__body {

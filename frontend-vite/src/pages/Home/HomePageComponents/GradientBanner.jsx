@@ -14,8 +14,8 @@ const GradientBanner = ({
     ? {
         backgroundImage: `
           linear-gradient(
-            rgba(88, 0, 135, 0.65),
-            rgba(45, 0, 80, 0.75)
+            color-mix(in srgb, var(--color-primary) 65%, transparent),
+            color-mix(in srgb, var(--color-primary-deep) 75%, transparent)
           ),
           url(${backgroundImage})
         `,

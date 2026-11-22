@@ -211,7 +211,7 @@ const showBreadcrumbs = !hideBreadcrumbRoutes.some((path) =>
           },
           success: {
             iconTheme: {
-              primary: '#7c3aed',  // brand purple (MUI needs a real hex; keep in sync with --color-primary)
+              primary: '#2457ff',  // brand blue (MUI needs a real hex; keep in sync with --color-primary)
               secondary: '#fff',
             },
           },

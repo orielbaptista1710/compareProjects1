@@ -423,7 +423,7 @@
 .ds-input:focus {
   border-color: var(--ds-purple-600);
   background: var(--ds-white);
-  box-shadow: 0 0 0 3px rgba(124,58,237,.10);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 .ds-input--error {

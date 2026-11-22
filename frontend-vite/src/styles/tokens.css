@@ -8,21 +8,21 @@
    in tables so the digits line up. */
 :root {
   /* Brand */
-  --color-primary: #7c3aed;
-  --color-primary-dark: #6d28d9;
-  --color-primary-light: #a855f7;
+  --color-primary: #2457ff;
+  --color-primary-dark: #1a43d6;
+  --color-primary-light: #6a8bff;
   --color-accent-red: #d90429;    /* red accents (CTAs, highlights) — change independently of the heart */
   --color-accent-red-bg: #fff1f3; /* soft tint of the accent red */
   --color-like: #d90429;          /* liked heart only */
 
-  --gradient-brand: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  --gradient-brand: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
 
   /* Surfaces */
   --color-surface: #ffffff;
   --color-surface-muted: var(--color-surface-subtle);
   --color-surface-active: var(--color-ink-fill);
-  --color-surface-tint: #f5f3ff;
-  --color-surface-tint-strong: #ede9fe;
+  --color-surface-tint: #f0fbff;
+  --color-surface-tint-strong: #dff7ff;
 
   /* Borders (aliases of --color-line*; names kept so old CSS works) */
   --color-border: var(--color-line);
@@ -45,7 +45,7 @@
   --shadow-sm: 0 1px 6px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12);
-  --shadow-brand: 0 4px 12px rgba(124, 58, 237, 0.25);
+  --shadow-brand: 0 4px 12px color-mix(in srgb, var(--color-primary) 25%, transparent);
 
   /* Type */
   --font-heading: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -90,15 +90,15 @@
   --sidebar-width: 232px;
 
   /* Standard palette: ink greys, page backgrounds, status */
-  --color-ink: #1c1a33;           /* headings and body text */
-  --color-ink-muted: #5a5872;     /* secondary text (6.9:1 on white) */
-  --color-line: #e2e1ea;          /* card and divider borders */
-  --color-line-strong: #cfcdda;   /* input borders */
-  --color-placeholder: #6e6c85;   /* 5.2:1 on white */
-  --color-bg-page: #f5f5f8;       /* app background */
-  --color-surface-subtle: #fafafc; /* card footers */
-  --color-primary-tint: #f5f3ff;
-  --color-primary-deep: #2e1065;  /* darkest brand violet — site footer */
+  --color-ink: #151b33;           /* headings and body text */
+  --color-ink-muted: #505a73;     /* secondary text (6.9:1 on white) */
+  --color-line: #dde2ee;          /* card and divider borders */
+  --color-line-strong: #c8cfe0;   /* input borders */
+  --color-placeholder: #636d86;   /* 5.2:1 on white */
+  --color-bg-page: #f3f6fb;       /* app background */
+  --color-surface-subtle: #f8faff; /* card footers */
+  --color-primary-tint: var(--color-surface-tint);
+  --color-primary-deep: #0c1f66;  /* darkest brand navy — site footer */
   --color-success: #15803d;
   --color-success-bg: #f0fdf4;
   --color-highlight: #fbbf24; /* "Featured" tag and ★ rating only */
@@ -114,9 +114,9 @@
   --color-on-dark-muted: rgba(255, 255, 255, 0.8);
   --color-on-dark-line: rgba(255, 255, 255, 0.22); /* borders on ink */
   --color-on-dark-fill: rgba(255, 255, 255, 0.08); /* hover fill on ink */
-  --color-ink-fill: rgba(28, 26, 51, 0.06);      /* --color-ink at 6%: pills on white */
-  --color-overlay: rgba(28, 26, 51, 0.5);        /* scrim behind drawers/modals */
-  --color-primary-scrim: rgba(46, 16, 101, 0.82); /* --color-primary-deep at 82%: purple wash over photos */
+  --color-ink-fill: rgba(21, 27, 51, 0.06);      /* --color-ink at 6%: pills on white */
+  --color-overlay: rgba(21, 27, 51, 0.5);        /* scrim behind drawers/modals */
+  --color-primary-scrim: color-mix(in srgb, var(--color-primary-deep) 82%, transparent); /* --color-primary-deep at 82%: wash over photos */
 
   /* Elevation: menus, dialogs and popovers only — cards are flat */
   --shadow-pop: 0 12px 32px rgba(17, 24, 39, 0.14);
