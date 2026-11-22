@@ -72,4 +72,22 @@ describe("CompareBar", () => {
 
     expect(props.onClose).toHaveBeenCalledTimes(1);
   });
+
+  describe("page space for the fixed bar", () => {
+    const readVar = () => document.documentElement.style.getPropertyValue("--compare-bar-height");
+
+    it("publishes --compare-bar-height while showing, and removes it when it goes away", () => {
+      const { unmount } = renderBar();
+      // jsdom has no layout, so offsetHeight is 0; the point is the variable is set.
+      expect(readVar()).toBe("0px");
+
+      unmount();
+      expect(readVar()).toBe("");
+    });
+
+    it("sets nothing when the bar never shows", () => {
+      renderBar({ compareList: [] });
+      expect(readVar()).toBe("");
+    });
+  });
 });
