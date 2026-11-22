@@ -36,6 +36,38 @@ const saveRecent = (item) => {
   }
 };
 
+const MAX_SELECTED = 5;
+const CLEARED = { type: "text", label: "", city: null, locality: null };
+
+// What a chip says: the locality for a locality, "<area> (all areas)" for a
+// group, the city for a city. (It used to say the city for everything.)
+const chipLabel = (item) => {
+  if (item.type === "locality-group") return `${item.label.split(" — ")[0]} (all areas)`;
+  if (item.type === "locality") return item.label.split(",")[0];
+  return item.city || item.label;
+};
+
+// Several localities of one city can be combined; a city, or anything from
+// another city, replaces the selection (the listing page filters one city).
+const nextSelection = (current, item) => {
+  if (item.type === "city") return [item];
+  const sameCity = current.length > 0 && current[0].type !== "city" && current[0].city === item.city;
+  if (!sameCity) return [item];
+  if (current.some((c) => c.label === item.label)) return current;
+  return current.length < MAX_SELECTED ? [...current, item] : current;
+};
+
+// One object for the parent: the item itself, or all localities merged.
+const combine = (items) =>
+  items.length === 1
+    ? items[0]
+    : {
+        type: "locality",
+        label: `${items.map(chipLabel).join(", ")}, ${items[0].city}`,
+        city: items[0].city,
+        localities: [...new Set(items.flatMap((i) => i.localities))],
+      };
+
 /**
  * Uncontrolled-ish location typeahead. Reports the *selected* location object
  * (or plain free text if the user never picks a suggestion) via onSelect.
@@ -48,7 +80,7 @@ export default function LocationSearchBar({ onSelect, placeholder = "Search loca
   const [isLoading, setIsLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
 
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   const wrapperRef = useRef(null);
   const abortRef = useRef(null);
@@ -88,23 +120,26 @@ export default function LocationSearchBar({ onSelect, placeholder = "Search loca
 
 const commitSelection = useCallback(
   (item) => {
-    if (item.type === "city" || item.type === "locality" || item.type === "locality-group") {
-      setSelectedItem(item);
-      setInputValue("");
-    } else {
-      setInputValue(item.label);
-    }
     setOpen(false);
     setSuggestions([]);
     saveRecent(item);
-    onSelect(item);
+    if (item.type === "city" || item.type === "locality" || item.type === "locality-group") {
+      const next = nextSelection(selectedItems, item);
+      setSelectedItems(next);
+      setInputValue("");
+      onSelect(combine(next));
+    } else {
+      setInputValue(item.label);
+      onSelect(item);
+    }
   },
-  [onSelect]
+  [onSelect, selectedItems]
 );
 
-const clearSelection = () => {
-  setSelectedItem(null);
-  onSelect({ type: "text", label: "", city: null, locality: null });
+const removeItem = (item) => {
+  const next = selectedItems.filter((i) => i !== item);
+  setSelectedItems(next);
+  onSelect(next.length ? combine(next) : CLEARED);
 };
 
   const handleInputChange = (e) => {
@@ -115,7 +150,7 @@ const clearSelection = () => {
   // let Enter pick an unrelated option.
   setActiveIndex(-1);
 
-  if (!selectedItem) {
+  if (selectedItems.length === 0) {
     onSelect({ type: "text", label: value, city: null, locality: null });
   }
   // else: typing while a city/locality chip is active is treated as a
@@ -163,25 +198,25 @@ const clearSelection = () => {
   <div className="lsb-wrapper" ref={wrapperRef}>
     <MapPin size={18} className="lsb-icon" aria-hidden="true" />
 
-    {selectedItem && (
-      <span className="lsb-chip">
-        {selectedItem.city || selectedItem.label}
+    {selectedItems.map((item) => (
+      <span className="lsb-chip" key={`${item.type}-${item.label}`}>
+        {chipLabel(item)}
         <button
           type="button"
           className="lsb-chip-remove"
-          onClick={clearSelection}
-          aria-label="Remove location"
+          onClick={() => removeItem(item)}
+          aria-label={`Remove ${chipLabel(item)}`}
         >
           ×
         </button>
       </span>
-    )}
+    ))}
 
     <input
       type="text"
       className="lsb-input"
       value={inputValue}
-      placeholder={selectedItem ? "Add more..." : placeholder}
+      placeholder={selectedItems.length ? "Add more..." : placeholder}
       onChange={handleInputChange}
       onFocus={() => setOpen(true)}
       onKeyDown={handleKeyDown}

@@ -87,6 +87,103 @@ describe("LocationSearchBar recent searches storage", () => {
   });
 });
 
+describe("LocationSearchBar chips", () => {
+  const bandra = { type: "locality", label: "Bandra West, Mumbai", city: "Mumbai", localities: ["Bandra West"] };
+  const andheri = { type: "locality", label: "Andheri East, Mumbai", city: "Mumbai", localities: ["Andheri East"] };
+  const baner = { type: "locality", label: "Baner, Pune", city: "Pune", localities: ["Baner"] };
+  const group = {
+    type: "locality-group", label: "Bandra — All areas, Mumbai", city: "Mumbai",
+    localities: ["Bandra West", "Bandra East"], areaCount: 2,
+  };
+
+  // Types in the box, then picks the suggestion. The text differs every time
+  // so the debounced search runs again.
+  let typed = 0;
+  const pick = async (user, input, item) => {
+    API.get.mockResolvedValue({ data: { results: [item] } });
+    await user.type(input, `q${typed++}`);
+    await user.click(await screen.findByRole("option"));
+  };
+
+  it("shows the locality on the chip, not the city", async () => {
+    const user = userEvent.setup();
+    const { input } = renderBar();
+
+    await pick(user, input, bandra);
+
+    expect(screen.getByRole("button", { name: "Remove Bandra West" }).parentElement).toHaveTextContent("Bandra West");
+    expect(screen.queryByText("Mumbai")).not.toBeInTheDocument();
+  });
+
+  it("labels a group chip as all areas", async () => {
+    const user = userEvent.setup();
+    const { input } = renderBar();
+
+    await pick(user, input, group);
+
+    expect(screen.getByRole("button", { name: "Remove Bandra (all areas)" })).toBeInTheDocument();
+  });
+
+  it("combines several localities of one city and reports them together", async () => {
+    const user = userEvent.setup();
+    const { input, onSelect } = renderBar();
+
+    await pick(user, input, bandra);
+    await pick(user, input, andheri);
+
+    expect(screen.getByRole("button", { name: "Remove Bandra West" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove Andheri East" })).toBeInTheDocument();
+    expect(onSelect).toHaveBeenLastCalledWith(
+      expect.objectContaining({ type: "locality", city: "Mumbai", localities: ["Bandra West", "Andheri East"] })
+    );
+  });
+
+  it("does not add the same locality twice", async () => {
+    const user = userEvent.setup();
+    const { input } = renderBar();
+
+    await pick(user, input, bandra);
+    await pick(user, input, bandra);
+
+    expect(screen.getAllByRole("button", { name: /^Remove/ })).toHaveLength(1);
+  });
+
+  it("replaces the selection when a locality from another city is picked", async () => {
+    const user = userEvent.setup();
+    const { input, onSelect } = renderBar();
+
+    await pick(user, input, bandra);
+    await pick(user, input, baner);
+
+    expect(screen.queryByRole("button", { name: "Remove Bandra West" })).not.toBeInTheDocument();
+    expect(onSelect).toHaveBeenLastCalledWith(baner);
+  });
+
+  it("replaces localities when a city is picked", async () => {
+    const user = userEvent.setup();
+    const { input, onSelect } = renderBar();
+
+    await pick(user, input, bandra);
+    await pick(user, input, pune);
+
+    expect(screen.getAllByRole("button", { name: /^Remove/ })).toHaveLength(1);
+    expect(onSelect).toHaveBeenLastCalledWith(pune);
+  });
+
+  it("removing one chip keeps the rest; removing the last clears the search", async () => {
+    const user = userEvent.setup();
+    const { input, onSelect } = renderBar();
+
+    await pick(user, input, bandra);
+    await pick(user, input, andheri);
+    await user.click(screen.getByRole("button", { name: "Remove Bandra West" }));
+    expect(onSelect).toHaveBeenLastCalledWith(andheri);
+
+    await user.click(screen.getByRole("button", { name: "Remove Andheri East" }));
+    expect(onSelect).toHaveBeenLastCalledWith({ type: "text", label: "", city: null, locality: null });
+  });
+});
+
 describe("LocationSearchBar accessibility", () => {
   const thane = { type: "city", label: "Thane", city: "Thane", localities: [] };
 
