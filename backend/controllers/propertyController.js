@@ -461,6 +461,8 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
   }
 
   // ── BHK (supports exact values and "5+" syntax) ──────────────
+  // Set only when the panel produced a bhk condition (not for bhk=abc).
+  let bhkFromPanel = false;
   if (req.query.bhk) {
     const bhkValues = toArray(req.query.bhk);
     const exact   = [];
@@ -488,6 +490,7 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
 
     // FIX: use addOrClause so a simultaneous search filter doesn't clobber this
     if (bhkClause) addOrClause(query, bhkClause);
+    bhkFromPanel = Boolean(bhkClause) || query.bhk !== undefined;
   }
 
   // ── Area range ───────────────────────────────
@@ -513,15 +516,19 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
 
   // ── Free-text search ─────────────────────────
   // Parsed like the search dropdown ("2 bhk flats in pune under 80 lakh").
-  // Filters picked in the panel win over ones read from the typed words; bhk
-  // is checked on req.query because "5+" puts it in an $or, not query.bhk.
-  // addOrClause so a simultaneous BHK $or still applies.
+  // Filters picked in the panel win over ones read from the typed words. bhk
+  // uses bhkFromPanel because "5+" puts it in an $or, not query.bhk. Price is
+  // merged per bound, so a panel minimum keeps a typed "under 50 lakh".
   const listingSearch = buildListingSearch(req.query.search);
   if (listingSearch) {
     for (const [key, value] of Object.entries(listingSearch.filters)) {
-      if (query[key] === undefined && !(key === 'bhk' && req.query.bhk)) query[key] = value;
+      if (key === 'price' && query.price) query.price = { ...value, ...query.price };
+      else if (key === 'bhk' ? !bhkFromPanel && query.bhk === undefined : query[key] === undefined) query[key] = value;
     }
-    if (listingSearch.or.length) addOrClause(query, listingSearch.or);
+    if (listingSearch.and.length) {
+      query.$and = query.$and ?? [];
+      query.$and.push(...listingSearch.and);
+    }
   }
 
   // ── Execute ──────────────────────────────────

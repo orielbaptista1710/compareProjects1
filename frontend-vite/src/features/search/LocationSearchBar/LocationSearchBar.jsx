@@ -131,6 +131,7 @@ const clearSelection = () => {
       if (e.key === "ArrowDown") {
         e.preventDefault();
         setOpen(true);
+        setActiveIndex(-1); // don't let Enter pick what was highlighted before Escape
       }
       return;
     }

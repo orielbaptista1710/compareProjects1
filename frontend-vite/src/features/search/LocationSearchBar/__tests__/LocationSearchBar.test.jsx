@@ -150,4 +150,19 @@ describe("LocationSearchBar accessibility", () => {
     await user.keyboard("{ArrowDown}");
     expect(screen.getByRole("listbox")).toBeInTheDocument();
   });
+
+  it("clears the highlight when the list is re-opened, so Enter picks nothing", async () => {
+    localStorage.setItem(RECENT_KEY, JSON.stringify([pune]));
+    const user = userEvent.setup();
+    const { input, onSelect } = renderBar();
+
+    await user.click(input);
+    await user.keyboard("{ArrowDown}"); // highlight Pune
+    await user.keyboard("{Escape}");
+    await user.keyboard("{ArrowDown}"); // re-open
+    expect(input).not.toHaveAttribute("aria-activedescendant");
+    await user.keyboard("{Enter}");
+
+    expect(onSelect).not.toHaveBeenCalled();
+  });
 });

@@ -85,9 +85,38 @@ describe("GET /api/properties?search=", () => {
 
   it("treats regex characters as plain text", async () => {
     await listing({ title: "Plain" });
+    await listing({ title: "Tower A.B" });
+    await listing({ title: "Tower AxB" });
 
-    expect(await search(".*")).toEqual(["Plain"]); // "." after cleaning: too short, no search
-    expect(await search("(pune")).toEqual([]); // "pune", and Plain is in Mumbai
+    expect(await search(".*")).toEqual(["Plain", "Tower A.B", "Tower AxB"]); // cleaned to "." — no search
+    expect(await search("(pune")).toEqual([]); // "pune", and these are in Mumbai
+    // "." survives cleaning, so only escaping stops it matching any character
+    expect(await search("a.b")).toEqual(["Tower A.B"]);
+  });
+
+  it("needs every word of a multi-word place", async () => {
+    await listing({ title: "One", city: "Pune", locality: "Baner" });
+    await listing({ title: "Two", city: "Pune", locality: "Kothrud" });
+    await listing({ title: "Three", city: "Mumbai", locality: "Baner Road" });
+
+    expect(await search("baner pune")).toEqual(["One"]);
+    expect(await search("pune baner")).toEqual(["One"]);
+    expect(await search("2 bhk in baner pune")).toEqual([]); // no 2 bhk there
+  });
+
+  it("keeps a typed price limit when the panel sets only the other bound", async () => {
+    await listing({ title: "Cheap", city: "Pune", price: 3_000_000 });
+    await listing({ title: "Mid", city: "Pune", price: 4_500_000 });
+    await listing({ title: "Dear", city: "Pune", price: 9_000_000 });
+
+    expect(await search("pune under 50 lakh", "&priceMin=4000000")).toEqual(["Mid"]);
+  });
+
+  it("still applies a typed bhk when the panel bhk is unusable", async () => {
+    await listing({ title: "Two", city: "Pune", bhk: 2 });
+    await listing({ title: "Three", city: "Pune", bhk: 3 });
+
+    expect(await search("2 bhk pune", "&bhk=abc")).toEqual(["Two"]);
   });
 
   it("never returns pending or rejected listings", async () => {
@@ -107,12 +136,13 @@ describe("buildListingSearch", () => {
     expect(buildListingSearch("!!")).toBeNull();
   });
 
-  it("splits filters from the name/place match and drops status", () => {
+  it("splits filters from the per-word name/place match and drops status", () => {
     const result = buildListingSearch("3 bhk villa in pune");
 
     expect(result.filters).toEqual({ bhk: 3, propertyType: "Villa" });
-    expect(result.or.map((clause) => Object.keys(clause)[0])).toEqual([
-      "title", "description", "locality", "city", "locality", "state",
+    expect(result.and).toHaveLength(1); // one word left: "pune"
+    expect(result.and[0].$or.map((clause) => Object.keys(clause)[0])).toEqual([
+      "title", "description", "locality", "city", "state",
     ]);
   });
 });

@@ -215,10 +215,13 @@ const hasStructuredFilters = (intent) =>
 // Same parsing as the dropdown, returned as pieces of the listing page's Mongo
 // filter instead of a ranked result list:
 // - filters: what the words imply (bhk, type, furnishing, RERA, price).
-// - or: the name words anywhere in title/description/locality (as the page
-//   always did), plus the place guess anchored on city/locality/state, so
-//   "Pune" finds listings in Pune, not only ones that mention it.
+// - and: one clause per name word, each matching title, description,
+//   locality, city or state, so "Pune" finds listings in Pune and
+//   "baner pune" needs both words.
 // Returns null when the search gives nothing usable.
+const LISTING_TEXT_FIELDS = ['title', 'description', 'locality', 'city', 'state'];
+const MAX_LISTING_WORDS = 5;
+
 export function buildListingSearch(raw) {
   if (typeof raw !== 'string') return null;
   const query = sanitiseQuery(raw);
@@ -228,20 +231,20 @@ export function buildListingSearch(raw) {
   const filters = { ...intent.filters };
   delete filters.status; // the listing query sets status itself
 
-  const or = [];
-  // Same ≥2 guard as the whole query: one letter would match everything.
-  if (intent.textQuery.length >= 2) {
-    const text = new RegExp(escapeRegex(intent.textQuery), 'i');
-    or.push({ title: text }, { description: text }, { locality: text });
-  }
-  const loc = intent.locationTerms[0];
-  if (loc) {
-    const anchored = new RegExp(`^${escapeRegex(loc)}`, 'i');
-    or.push({ city: anchored }, { locality: anchored }, { state: anchored });
-  }
+  // Every name word must appear somewhere (title, description, locality, city
+  // or state), so "baner pune" needs both and "pune baner" isn't just "pune".
+  // Words under 2 characters would match nearly everything, so they're skipped.
+  const and = intent.textQuery
+    .split(' ')
+    .filter((word) => word.length >= 2)
+    .slice(0, MAX_LISTING_WORDS)
+    .map((word) => {
+      const text = new RegExp(escapeRegex(word), 'i');
+      return { $or: LISTING_TEXT_FIELDS.map((field) => ({ [field]: text })) };
+    });
 
-  if (!or.length && !Object.keys(filters).length) return null;
-  return { filters, or };
+  if (!and.length && !Object.keys(filters).length) return null;
+  return { filters, and };
 }
 
 // ─── Strategy 1: MongoDB Text Search (primary — uses PropertyTextIndex) ───────
