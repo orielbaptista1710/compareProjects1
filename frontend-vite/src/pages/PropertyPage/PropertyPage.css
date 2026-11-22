@@ -605,7 +605,8 @@
 
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 1060px) {
-  .pp-layout  { flex-direction: column; }
+  /* Stacked: stretch (not flex-start) so a wide carousel can't widen the page. */
+  .pp-layout  { flex-direction: column; align-items: stretch; }
 
   .pp-sidebar {
     position: static;
