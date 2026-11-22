@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook } from "@testing-library/react";
-import { MemoryRouter, useLocation } from "react-router-dom";
+import { renderHook, act } from "@testing-library/react";
+import { MemoryRouter, useLocation, useNavigate } from "react-router-dom";
 
 import { useCityUrlSync } from "../useCityUrlSync";
 import { parseFiltersFromURL } from "../../../utils/filters.schema";
@@ -27,6 +27,25 @@ const runOn = (url) => {
     { wrapper: ({ children }) => <MemoryRouter initialEntries={[url]}>{children}</MemoryRouter> }
   );
   return new URLSearchParams(result.current.search);
+};
+
+// Like runOn, but keeps the page mounted so a test can move to another URL
+// or change the header city afterwards.
+const mountOn = (url) => {
+  const { result, rerender } = renderHook(
+    () => {
+      const location = useLocation();
+      const navigate = useNavigate();
+      useCityUrlSync(parseFiltersFromURL(location.search));
+      return { location, navigate };
+    },
+    { wrapper: ({ children }) => <MemoryRouter initialEntries={[url]}>{children}</MemoryRouter> }
+  );
+  return {
+    params: () => new URLSearchParams(result.current.location.search),
+    goTo: (to) => act(() => result.current.navigate(to)),
+    rerender,
+  };
 };
 
 describe("useCityUrlSync", () => {
@@ -74,5 +93,54 @@ describe("useCityUrlSync", () => {
     const params = runOn("/properties");
 
     expect(params.get("city")).toBeNull();
+  });
+
+  it("treats a spaces-only search as no search and adds the city", () => {
+    const params = runOn("/properties?search=%20%20");
+
+    expect(params.get("city")).toBe("Mumbai");
+  });
+
+  it("leaves the header city alone on a free-text search", () => {
+    runOn("/properties?search=Pune");
+
+    expect(cityState.setCity).not.toHaveBeenCalled();
+  });
+
+  it("stops adding the city once a search is typed after load", () => {
+    const page = mountOn("/properties?bhk=2");
+    expect(page.params().get("city")).toBe("Mumbai");
+
+    page.goTo("/properties?bhk=2&search=Pune");
+
+    expect(page.params().get("city")).toBeNull();
+    expect(page.params().get("search")).toBe("Pune");
+  });
+
+  it("adds the city back when the search is cleared", () => {
+    const page = mountOn("/properties?search=Pune");
+    expect(page.params().get("city")).toBeNull();
+
+    page.goTo("/properties");
+
+    expect(page.params().get("city")).toBe("Mumbai");
+  });
+
+  it("follows a URL city that changes after load", () => {
+    const page = mountOn("/properties?city=Pune");
+
+    page.goTo("/properties?city=Nashik");
+
+    expect(cityState.setCity).toHaveBeenLastCalledWith("Nashik");
+  });
+
+  it("doesn't force a header city change onto an all-city search", () => {
+    const page = mountOn("/properties?search=Pune");
+
+    cityState.city = "Nashik";
+    page.rerender();
+
+    expect(page.params().get("city")).toBeNull();
+    expect(cityState.setCity).not.toHaveBeenCalled();
   });
 });

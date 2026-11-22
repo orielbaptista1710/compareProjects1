@@ -19,14 +19,16 @@ export function useCityUrlSync(filters) {
   const navigate = useNavigate();
   const location = useLocation();
   const { city: contextCity, setCity } = useCity();
+  // Spaces-only counts as no search: the backend trims it to nothing too.
+  const hasSearch = Boolean(filters.search?.trim());
 
   useEffect(() => {
     if (filters.city) {
       if (filters.city !== contextCity) setCity(filters.city);
-    } else if (contextCity && !filters.search) {
+    } else if (contextCity && !hasSearch) {
       const params = new URLSearchParams(location.search);
       params.set("city", contextCity);
       navigate(`${location.pathname}?${params.toString()}`, { replace: true });
     }
-  }, [filters.city, filters.search, contextCity, setCity, navigate, location.pathname, location.search]);
+  }, [filters.city, hasSearch, contextCity, setCity, navigate, location.pathname, location.search]);
 }
