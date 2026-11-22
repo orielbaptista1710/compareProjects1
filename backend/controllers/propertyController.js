@@ -11,6 +11,7 @@ import { ownerFilter } from '../middleware/listingOwner.js';
 import { LISTED_BY, LISTING_STATUS, OWNER_MODEL } from '../constants/roles.js';
 import { changedFields } from '../utils/changedFields.js';
 import { verifyListingMedia } from '../services/listingMedia.js';
+import { buildListingSearch } from '../services/searchService.js';
 import logger from '../utils/logger.js';
 import { safeErrorMeta } from '../utils/safeError.js';
 import { currentVersion, versionMatch, readVersion } from '../utils/contentVersion.js';
@@ -510,18 +511,17 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
     if (Object.keys(priceQuery).length) query.price = priceQuery;
   }
 
-  // ── Full-text search ─────────────────────────
-  // FIX: uses addOrClause so simultaneous BHK + search filters both apply
-  if (req.query.search) {
-    const safe = sanitiseSearch(req.query.search);
-    if (safe) {
-      const regex = { $regex: safe, $options: 'i' };
-      addOrClause(query, [
-        { title:       regex },
-        { description: regex },
-        { locality:    regex },
-      ]);
+  // ── Free-text search ─────────────────────────
+  // Parsed like the search dropdown ("2 bhk flats in pune under 80 lakh").
+  // Filters picked in the panel win over ones read from the typed words; bhk
+  // is checked on req.query because "5+" puts it in an $or, not query.bhk.
+  // addOrClause so a simultaneous BHK $or still applies.
+  const listingSearch = buildListingSearch(req.query.search);
+  if (listingSearch) {
+    for (const [key, value] of Object.entries(listingSearch.filters)) {
+      if (query[key] === undefined && !(key === 'bhk' && req.query.bhk)) query[key] = value;
     }
+    if (listingSearch.or.length) addOrClause(query, listingSearch.or);
   }
 
   // ── Execute ──────────────────────────────────

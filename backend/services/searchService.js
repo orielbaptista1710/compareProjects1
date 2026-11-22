@@ -211,6 +211,39 @@ export function buildSearchIntent(q) {
 const hasStructuredFilters = (intent) =>
   Object.keys(intent.filters).some((key) => key !== 'status');
 
+// ─── Listing page search (GET /api/properties?search=) ───────────────────────
+// Same parsing as the dropdown, returned as pieces of the listing page's Mongo
+// filter instead of a ranked result list:
+// - filters: what the words imply (bhk, type, furnishing, RERA, price).
+// - or: the name words anywhere in title/description/locality (as the page
+//   always did), plus the place guess anchored on city/locality/state, so
+//   "Pune" finds listings in Pune, not only ones that mention it.
+// Returns null when the search gives nothing usable.
+export function buildListingSearch(raw) {
+  if (typeof raw !== 'string') return null;
+  const query = sanitiseQuery(raw);
+  if (query.length < 2) return null;
+
+  const intent = buildSearchIntent(query);
+  const filters = { ...intent.filters };
+  delete filters.status; // the listing query sets status itself
+
+  const or = [];
+  // Same ≥2 guard as the whole query: one letter would match everything.
+  if (intent.textQuery.length >= 2) {
+    const text = new RegExp(escapeRegex(intent.textQuery), 'i');
+    or.push({ title: text }, { description: text }, { locality: text });
+  }
+  const loc = intent.locationTerms[0];
+  if (loc) {
+    const anchored = new RegExp(`^${escapeRegex(loc)}`, 'i');
+    or.push({ city: anchored }, { locality: anchored }, { state: anchored });
+  }
+
+  if (!or.length && !Object.keys(filters).length) return null;
+  return { filters, or };
+}
+
 // ─── Strategy 1: MongoDB Text Search (primary — uses PropertyTextIndex) ───────
 async function mongoTextSearch(intent, limit) {
   // Nothing name-like to search for (e.g. "2 bhk under 50 lakh") — let the
