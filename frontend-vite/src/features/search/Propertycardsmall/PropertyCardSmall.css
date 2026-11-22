@@ -133,6 +133,14 @@
   background: var(--color-primary-tint);
 }
 
+/* Already in the list, or the list is full: shown but inactive. */
+.psm-compare-btn[aria-disabled="true"] {
+  border-color: var(--color-line-strong);
+  color: var(--color-ink-muted);
+  background: var(--color-surface-subtle);
+  cursor: default;
+}
+
 .psm-card:focus-visible,
 .psm-compare-btn:focus-visible {
   outline: 2px solid var(--color-primary);
