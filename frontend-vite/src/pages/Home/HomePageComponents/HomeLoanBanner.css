@@ -1,0 +1,135 @@
+/* Home loan promo banner. Prefix: home-loan-banner (global CSS leaks across routes). */
+.home-loan-banner {
+  max-width: 1100px;
+  margin: var(--space-6) auto;
+  padding: var(--space-6);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+
+  /* White on the left fading into a warm sunset glow on the right, no image. */
+  background:
+    radial-gradient(
+      ellipse at 100% 20%,
+      color-mix(in srgb, var(--color-highlight) 55%, transparent) 0%,
+      color-mix(in srgb, var(--color-highlight) 25%, transparent) 40%,
+      transparent 75%
+    ),
+    linear-gradient(90deg, var(--color-surface) 0%, var(--color-surface-subtle) 55%, var(--color-highlight-tint) 100%);
+}
+
+.home-loan-banner__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.home-loan-banner__title {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+
+.home-loan-banner__title-accent {
+  display: block;
+  color: var(--color-primary);
+}
+
+.home-loan-banner__subtitle {
+  margin: 0;
+  max-width: 420px;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+.home-loan-banner__action {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.home-loan-banner__chip {
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.home-loan-banner__chip-label {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+
+.home-loan-banner__chip-strong {
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--color-primary);
+}
+
+.home-loan-banner__cta {
+  min-height: var(--control-height);
+  padding: var(--space-2) var(--space-5);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  background: var(--color-highlight);
+  color: var(--color-ink);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+
+  font-family: var(--font-heading);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+}
+
+.home-loan-banner__cta:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.home-loan-banner__cta:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .home-loan-banner {
+    flex-direction: column;
+    align-items: stretch;
+    margin-inline: var(--page-gutter);
+    padding: var(--space-5);
+  }
+
+  .home-loan-banner__title {
+    font-size: var(--text-2xl);
+  }
+
+  .home-loan-banner__action {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+}
