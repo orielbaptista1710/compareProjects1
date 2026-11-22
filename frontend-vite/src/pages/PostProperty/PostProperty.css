@@ -23,13 +23,13 @@
   margin: 0 auto;
   /* The header is fixed and no breadcrumbs show on this page, so clear the header
      (and the navigation bar from 1200px up) ourselves. */
-  padding: calc(var(--site-header-height) + var(--space-4)) var(--pp-gutter) var(--space-4);
+  padding: calc(var(--site-header-height) + var(--space-6)) var(--pp-gutter) var(--space-6);
   box-sizing: border-box;
 }
 
 @media (min-width: 1200px) {
   .pp-container {
-    padding-top: calc(var(--site-header-height) + var(--site-navbar-height) + var(--space-4));
+    padding-top: calc(var(--site-header-height) + var(--site-navbar-height) + var(--space-6));
   }
 }
 
