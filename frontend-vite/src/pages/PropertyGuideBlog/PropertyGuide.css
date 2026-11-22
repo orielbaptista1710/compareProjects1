@@ -399,13 +399,15 @@
   .side-articles {
     flex-direction: row;
     overflow-x: auto;
-    gap: 20px;
-    padding-bottom: 10px;
+    gap: var(--space-4);
+    padding-bottom: var(--space-3);
+    height: auto; /* the desktop 100% has no fixed parent to size against */
   }
 
   .side-article-card {
     min-width: 320px;
     flex-shrink: 0;
+    height: auto; /* desktop split-in-thirds height collapses in a row */
   }
 
   .articles-grid {
@@ -420,7 +422,7 @@
   }
 
   .hero-section {
-    padding: 35px 0 50px;
+    padding: var(--space-5) 0 var(--space-6);
   }
 
   .featured-article {
