@@ -1,3 +1,8 @@
+/* While the bar is showing, leave room for it under the page content. */
+body {
+  padding-bottom: var(--compare-bar-height, 0px);
+}
+
 /* Compare Bar Wrapper */
 .compare-bar-wrapper {
   position: fixed;

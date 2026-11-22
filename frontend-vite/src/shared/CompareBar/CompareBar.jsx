@@ -1,5 +1,5 @@
 //frontend-vite/src/pages/Home/HomePageComponents/CompareBar.jsx
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { X, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./CompareBar.css";
@@ -17,10 +17,33 @@ const CompareBar = ({ compareList, removeFromCompare, setCompareList, isOpen, on
     onClose?.();
   };
 
-  if (!isOpen || compareList.length === 0) return null;
+  const visible = isOpen && compareList.length > 0;
+  const wrapperRef = useRef(null);
+
+  // The bar is fixed to the bottom of the screen, so publish its height as
+  // --compare-bar-height; CompareBar.css pads the page by that much so the bar
+  // never covers the last of the content.
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!visible || !el) return undefined;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--compare-bar-height", `${el.offsetHeight}px`);
+    publish();
+    let observer;
+    if (typeof ResizeObserver !== "undefined") {
+      observer = new ResizeObserver(publish);
+      observer.observe(el);
+    }
+    return () => {
+      observer?.disconnect();
+      root.style.removeProperty("--compare-bar-height");
+    };
+  }, [visible]);
+
+  if (!visible) return null;
 
   return (
-    <div className="compare-bar-wrapper">
+    <div className="compare-bar-wrapper" ref={wrapperRef}>
       <div className="compare-bar">
         <div className="compare-scroll">
           {compareList.map((property) => (
