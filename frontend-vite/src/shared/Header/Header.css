@@ -453,13 +453,8 @@
   .post-property-btn {
     width: 100%;
     justify-content: center;
-    background: var(--color-primary);
-    color: var(--color-surface);
-  }
-
-  .header-post-free {
-    background: var(--color-on-dark-line);
-    color: var(--color-surface);
+    background: var(--color-highlight);
+    color: var(--color-ink);
   }
 
   .header-auth-section {
