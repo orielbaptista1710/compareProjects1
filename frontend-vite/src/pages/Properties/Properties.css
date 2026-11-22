@@ -750,7 +750,7 @@
 
   /* Larger tap targets for the top bar buttons */
   .mobile-filter-btn,
-  .mobile-enquire-btn { padding: 0.65rem 1rem; }
+  .mobile-enquire-btn { padding: 0.65rem var(--space-3); }
 
   .results-info h2  { font-size: 1.05rem; }
   .results-subtitle { font-size: 0.78rem; }
