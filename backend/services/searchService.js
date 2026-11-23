@@ -211,6 +211,43 @@ export function buildSearchIntent(q) {
 const hasStructuredFilters = (intent) =>
   Object.keys(intent.filters).some((key) => key !== 'status');
 
+// ─── Listing page search (GET /api/properties?search=) ───────────────────────
+// Same parsing as the dropdown, returned as pieces of the listing page's Mongo
+// filter instead of a ranked result list:
+// - filters: what the words imply (bhk, type, furnishing, RERA, price).
+// - and: one clause per name word, each matching title, description,
+//   locality, city or state, so "Pune" finds listings in Pune and
+//   "baner pune" needs both words.
+// Returns null when the search gives nothing usable.
+const LISTING_TEXT_FIELDS = ['title', 'description', 'locality', 'city', 'state'];
+const MAX_LISTING_WORDS = 3; // each word is 5 unanchored regexes, so keep the cost bounded
+
+export function buildListingSearch(raw) {
+  if (typeof raw !== 'string') return null;
+  const query = sanitiseQuery(raw);
+  if (query.length < 2) return null;
+
+  const intent = buildSearchIntent(query);
+  const filters = { ...intent.filters };
+  delete filters.status; // the listing query sets status itself
+
+  // Every name word must appear somewhere (title, description, locality, city
+  // or state), so "baner pune" needs both and "pune baner" isn't just "pune".
+  // Words under 2 characters would match nearly everything, so they're skipped.
+  const wordsOf = (text) => text.split(/[\s,]+/).filter((word) => word.length >= 2);
+  let words = wordsOf(intent.textQuery);
+  // Only filter-like words ("rent", "building") and nothing else to apply:
+  // search them as plain text rather than ignoring the box.
+  if (!words.length && !Object.keys(filters).length) words = wordsOf(query.toLowerCase());
+  const and = words.slice(0, MAX_LISTING_WORDS).map((word) => {
+    const text = new RegExp(escapeRegex(word), 'i');
+    return { $or: LISTING_TEXT_FIELDS.map((field) => ({ [field]: text })) };
+  });
+
+  if (!and.length && !Object.keys(filters).length) return null;
+  return { filters, and };
+}
+
 // ─── Strategy 1: MongoDB Text Search (primary — uses PropertyTextIndex) ───────
 async function mongoTextSearch(intent, limit) {
   // Nothing name-like to search for (e.g. "2 bhk under 50 lakh") — let the

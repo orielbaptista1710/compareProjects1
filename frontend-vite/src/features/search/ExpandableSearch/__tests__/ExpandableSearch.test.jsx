@@ -12,8 +12,9 @@ vi.mock("../../../../api/api", () => ({
 }));
 
 const addToCompare = vi.fn();
+const compareState = vi.hoisted(() => ({ list: [] }));
 vi.mock("../../../../contexts/CompareContext", () => ({
-  useCompare: () => ({ addToCompare }),
+  useCompare: () => ({ addToCompare, compareList: compareState.list }),
 }));
 
 // The header's selected city; null = none picked.
@@ -51,6 +52,7 @@ beforeEach(() => {
   cityState.city = "Mumbai";
   API.get.mockReset();
   addToCompare.mockReset();
+  compareState.list = [];
 });
 
 describe("ExpandableSearch", () => {
@@ -172,6 +174,33 @@ describe("ExpandableSearch", () => {
 
     expect(addToCompare).toHaveBeenCalledWith(result);
     expect(screen.queryByText(/Property page/)).not.toBeInTheDocument();
+  });
+
+  it("shows Added and does nothing when the property is already being compared", async () => {
+    const result = property("p1", "Lodha Park");
+    compareState.list = [result];
+    API.get.mockResolvedValue(respond([result]));
+    const user = userEvent.setup();
+    renderSearch();
+
+    await user.type(screen.getByRole("combobox"), "lodha");
+    await user.click(await screen.findByRole("button", { name: "Added" }));
+
+    expect(addToCompare).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Property page/)).not.toBeInTheDocument();
+  });
+
+  it("shows Full and does nothing when 4 other properties are already being compared", async () => {
+    const result = property("p1", "Lodha Park");
+    compareState.list = ["a", "b", "c", "d"].map((id) => property(id, id));
+    API.get.mockResolvedValue(respond([result]));
+    const user = userEvent.setup();
+    renderSearch();
+
+    await user.type(screen.getByRole("combobox"), "lodha");
+    await user.click(await screen.findByRole("button", { name: "Full (4)" }));
+
+    expect(addToCompare).not.toHaveBeenCalled();
   });
 
   it("closes on outside click but keeps the typed text, and reopens on click", async () => {

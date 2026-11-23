@@ -67,7 +67,7 @@
   line-height: 1.6;
   margin: 16px 0 20px;
   opacity: 0.95;
-  color: #e5e5e5;
+  color: var(--color-on-dark-muted);
 }
 
 /* Side Articles Container */
@@ -113,7 +113,7 @@
 
 .side-article-content h3 {
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-ink);
   margin: 0 0 10px 0;
   line-height: 1.4;
   flex: 1;
@@ -125,7 +125,7 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   margin-bottom: 12px;
 }
 
@@ -151,7 +151,7 @@
   gap: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: var(--color-text-secondary);
   text-decoration: none;
   transition: gap 0.3s ease, color 0.3s ease;
 }
@@ -164,7 +164,7 @@
 
 .read-more:hover {
   gap: 12px;
-  color: #7c3aed;
+  color: var(--color-primary);
 }
 
 
@@ -183,7 +183,7 @@
 }
 
 .featured-overlay .read-more:hover {
-  color: #f0f0f0;
+  color: var(--color-on-dark-muted);
 }
 
 /* Latest Articles Section */
@@ -197,21 +197,21 @@
 
 .guide-section-header h2 {
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-ink);
   margin: 0 0 14px 0;
   letter-spacing: -0.5px;
 }
 
 .underline-text {
   text-decoration: underline;
-  text-decoration-color: #6e2fd5;
+  text-decoration-color: var(--color-primary-dark);
   text-decoration-thickness: 4px;
   text-underline-offset: 6px;
 }
 
 .section-description {
   font-size: 15px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   line-height: 1.7;
   max-width: 720px;
   margin: 0;
@@ -243,7 +243,7 @@
 .article-image {
   overflow: hidden;
   height: 210px;
-  background-color: #f3f4f6;
+  background-color: var(--color-surface-active);
 }
 
 .article-image img {
@@ -264,7 +264,7 @@
 
 .article-content h3 {
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-ink);
   margin: 0 0 16px 0;
   line-height: 1.4;
   min-height: 50px;
@@ -289,7 +289,7 @@
 }
 
 .view-all-btn {
-  background-color: #1a1a1a;
+  background-color: var(--color-ink);
   color: white;
   padding: 15px 50px;
   border: none;
@@ -302,7 +302,7 @@
 }
 
 .view-all-btn:hover {
-  background-color: #2d2d2d;
+  background-color: var(--color-ink);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
@@ -315,7 +315,7 @@
 /* Tools & Checklists Section */
 .tools-section {
   padding: 40px 0 100px;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .tools-grid {
@@ -326,7 +326,7 @@
 }
 
 .tool-card {
-  background: #f9fafb;
+  background: var(--color-surface-muted);
   border-radius: 10px;
   padding: 28px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
@@ -341,12 +341,12 @@
 .tool-card h3 {
   font-weight: 600;
   margin-bottom: 12px;
-  color: #1a1a1a;
+  color: var(--color-ink);
 }
 
 .tool-card p {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   line-height: 1.6;
   margin-bottom: 20px;
 }
@@ -354,8 +354,8 @@
 .download-btn {
   display: inline-block;
   padding: 12px 22px;
-  background: #6e2fd5;
-  color: #ffffff;
+  background: var(--color-primary-dark);
+  color: var(--color-on-dark);
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
@@ -364,7 +364,7 @@
 }
 
 .download-btn:hover {
-  background: #6b2ed4;
+  background: var(--color-primary);
   transform: translateY(-2px);
 }
 
@@ -399,13 +399,15 @@
   .side-articles {
     flex-direction: row;
     overflow-x: auto;
-    gap: 20px;
-    padding-bottom: 10px;
+    gap: var(--space-4);
+    padding-bottom: var(--space-3);
+    height: auto; /* the desktop 100% has no fixed parent to size against */
   }
 
   .side-article-card {
     min-width: 320px;
     flex-shrink: 0;
+    height: auto; /* desktop split-in-thirds height collapses in a row */
   }
 
   .articles-grid {
@@ -420,7 +422,7 @@
   }
 
   .hero-section {
-    padding: 35px 0 50px;
+    padding: var(--space-5) 0 var(--space-6);
   }
 
   .featured-article {

@@ -5,7 +5,7 @@
   position: relative;
   height: 340px;
   padding-top: 90px;
-  background: linear-gradient(135deg, #2d0353 0%, #3b0f70 60%, #1a0230 100%);
+  background: var(--color-primary-deep);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,7 +26,7 @@
 .legal-hero-content {
   position: relative;
   text-align: center;
-  color: #fff;
+  color: var(--color-on-dark);
   padding: 0 30px;
 }
 
@@ -66,7 +66,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.2px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   margin: 0 0 14px;
 }
 
@@ -85,7 +85,7 @@
   cursor: pointer;
   font-family: inherit;
   font-size: 13.5px;
-  color: #6b7280;
+  color: var(--color-text-muted);
   padding: 7px 12px;
   border-radius: 8px;
   transition: background 0.18s ease, color 0.18s ease;
@@ -93,13 +93,13 @@
 }
 
 .toc-item:hover {
-  background: #f3f0fc;
-  color: #3b0f70;
+  background: var(--color-surface-tint);
+  color: var(--color-primary-deep);
 }
 
 .toc-item--active {
-  background: #6e2fd5;
-  color: #ffffff;
+  background: var(--color-primary-dark);
+  color: var(--color-on-dark);
   font-weight: 600;
 }
 
@@ -117,27 +117,27 @@
 .legal-section h2 {
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0 0 20px;
   padding-bottom: 12px;
-  border-bottom: 2px solid #f0eafa;
+  border-bottom: 2px solid var(--color-surface-tint-strong);
 }
 
 .legal-section p {
   font-size: 15px;
-  color: #4b5563;
+  color: var(--color-ink-muted);
   line-height: 1.8;
   margin: 0 0 14px;
 }
 
 .legal-section a {
-  color: #6e2fd5;
+  color: var(--color-primary-dark);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .legal-section a:hover {
-  color: #4c1d95;
+  color: var(--color-primary-dark);
 }
 
 .legal-section ol,
@@ -149,7 +149,7 @@
 .legal-section ol li,
 .legal-section ul li {
   font-size: 15px;
-  color: #4b5563;
+  color: var(--color-ink-muted);
   line-height: 1.75;
   margin-bottom: 8px;
 }
@@ -160,11 +160,11 @@
 
 .legal-section li > ul li {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
 .legal-section strong {
-  color: #1f2937;
+  color: var(--color-ink);
   font-weight: 600;
 }
 
@@ -192,7 +192,7 @@
     padding-right: 0;
     padding: 16px;
     margin-bottom: 32px;
-    background: #f9f5ff;
+    background: var(--color-surface-tint);
     border-radius: 12px;
   }
 

@@ -21,20 +21,35 @@ const STEPS = (() => {
 })();
 
 const LAST = STEPS.length - 1;
+// Edges the sliders may not produce: the minimum can't be the "Max" slot (Infinity)
+// and the maximum can't be the "Min" slot (₹0). See setMin / setMax.
+const MIN_CEIL = LAST - 1;
+const MAX_FLOOR = 1;
 
 const labelFor = (i) =>
   i === 0 ? "Min" : i === LAST ? "Max" : formatCurrencyShort(STEPS[i]);
 
-// price -> ladder index (falls back when the value isn't on the ladder)
-const indexOf = (price, fallback) => {
-  if (price == null) return fallback;
-  const i = STEPS.indexOf(price);
-  return i === -1 ? fallback : i;
+// price -> ladder index. A price that isn't a ladder step (a shared link, or a
+// value read from typed search text such as "under 72 lakh") snaps to the nearest
+// step that still covers it: a minimum rounds down, a maximum rounds up. The
+// control therefore never shows "Any" while a real limit is applied.
+const minIndexOf = (price) => {
+  if (price == null) return 0;
+  let i = 0;
+  while (i + 1 < LAST && STEPS[i + 1] <= price) i += 1;
+  return i;
+};
+
+const maxIndexOf = (price) => {
+  if (price == null) return LAST;
+  const i = STEPS.findIndex((step) => step >= price);
+  // index 0 is the "Min" slot, which the max dropdown doesn't offer
+  return i === -1 ? LAST : Math.max(i, 1);
 };
 
 const BudgetFilter = ({ value, onChange, onDone }) => {
-  const minIdx = indexOf(value?.min, 0);
-  const maxIdx = indexOf(value?.max, LAST);
+  const minIdx = minIndexOf(value?.min);
+  const maxIdx = maxIndexOf(value?.max);
 
   // Emit null when nothing is constrained, so the parent can treat it as "no filter"
   const emit = (lo, hi) => {
@@ -43,8 +58,14 @@ const BudgetFilter = ({ value, onChange, onDone }) => {
     onChange(min == null && max == null ? null : { min, max });
   };
 
-  const setMin = (i) => emit(Math.min(i, maxIdx), maxIdx);
-  const setMax = (i) => emit(minIdx, Math.max(i, minIdx));
+  // The minimum can't be the last slot (that is "Max", Infinity) and the maximum
+  // can't be slot 0 (that is "Min", ₹0): neither dropdown offers them, and the
+  // sliders must not produce them either, or the URL gets priceMin=Infinity /
+  // priceMax=0 and the list goes empty. Both sliders keep the full 0..LAST range
+  // so the thumbs stay aligned with the fill; being controlled, a thumb dragged
+  // past the limit snaps back to the nearest allowed step.
+  const setMin = (i) => emit(Math.min(i, maxIdx, MIN_CEIL), maxIdx);
+  const setMax = (i) => emit(minIdx, Math.max(i, minIdx, MAX_FLOOR));
 
   const pct = (i) => (i / LAST) * 100;
 

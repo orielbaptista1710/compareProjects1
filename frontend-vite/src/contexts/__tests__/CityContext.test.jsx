@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, renderHook } from "@testing-library/react";
 
 import { CityProvider, useCity } from "../CityContext";
@@ -204,6 +204,43 @@ describe("CityContext", () => {
 
       expect(result.current.city).toBe("Delhi");
       expect(localStorage.getItem("selectedCity")).toBe("Delhi");
+    });
+  });
+
+  describe("blocked storage", () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("falls back to Mumbai when reading storage throws", () => {
+      vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+        throw new Error("SecurityError");
+      });
+
+      const { result } = renderHook(() => useCity(), { wrapper });
+
+      expect(result.current.city).toBe("Mumbai");
+    });
+
+    it("still changes the city when writing storage throws", () => {
+      vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new Error("QuotaExceededError");
+      });
+      vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {
+        throw new Error("QuotaExceededError");
+      });
+
+      const { result } = renderHook(() => useCity(), { wrapper });
+
+      act(() => {
+        result.current.setCity("Pune");
+      });
+      expect(result.current.city).toBe("Pune");
+
+      act(() => {
+        result.current.setCity(null);
+      });
+      expect(result.current.city).toBeNull();
     });
   });
 

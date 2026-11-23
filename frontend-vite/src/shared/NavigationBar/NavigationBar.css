@@ -1,21 +1,4 @@
-/* Legacy globals — still read by CompareTable.css and ExpandableSearch.css,
-   so they stay here until those files move to tokens.css. The nav itself
-   below uses tokens.css + colors.css only (purple, ink, white). */
-:root {
-  --nav-bg: #ffffff;
-  --nav-text: #1a202c;
-  --nav-hover: #992f89;
-  --dropdown-bg: #ffffff;
-  --dropdown-text: #2d3748;
-  --dropdown-hover-bg: #f7fafc;
-  --dropdown-border: rgba(0, 0, 0, 0.08);
-  --transition-speed: 0.2s;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.1);
-  --border-radius: 4px;
-}
-
-/* Height stays 60px: AnnouncementStrip, Breadcrumbs and Compare offset
+/* Uses tokens.css only (purple, ink, white). Height stays 60px: AnnouncementStrip, Breadcrumbs and Compare offset
    their content by 130px (70px header + 60px nav). */
 .navigation-bar {
   background-color: var(--color-surface);

@@ -1,22 +1,7 @@
 /* ================================
-   FilterPanel CSS Custom Properties
+   FilterPanel — every value comes from src/styles/tokens.css.
+   (The old --fp-* variables are gone; use the tokens directly.)
 ================================ */
-:root { 
-  --fp-purple:        #7c3aed;
-  --fp-purple-light:  #f5f3ff;
-  --fp-purple-mid:    #a78bfa;
-  --fp-purple-dark:   #6d28d9;
-  --fp-border:        #ebebeb;
-  --fp-border-inner:  #f0f0f0;
-  --fp-text-primary:  #1f2937;
-  --fp-text-muted:    #6b7280;
-  --fp-text-hint:     #9ca3af;
-  --fp-bg:            #ffffff;
-  --fp-hover:         #fafafa;
-  --fp-radius-sm:     6px;
-  --fp-radius-md:     8px;
-  --fp-radius-pill:   30px;
-}
 
 /* ================================
    Root Panel
@@ -25,19 +10,27 @@
   width: 300px;
   min-width: 256px;
   height: 100%;
-  background: var(--fp-bg);
-  border-right: 1px solid var(--fp-border);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-line);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  font-family: var(--font-body);
+}
+
+/* Form controls don't inherit the font by default */
+.filter-panel button,
+.filter-panel input,
+.filter-panel select {
+  font-family: inherit;
 }
 
 /* ================================
    Header
 ================================ */
 .filter-header {
-  padding: 13px 16px 12px;
-  border-bottom: 1px solid var(--fp-border);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-line);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -47,35 +40,39 @@
 .filter-header h3 {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--fp-purple);
+  gap: var(--space-2);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary);
   margin: 0;
 }
 
 .filter-header h3 svg {
-  color: var(--fp-purple);
+  color: var(--color-primary);
 }
-
-
 
 /* Clear all button */
 .filter-clear-btn {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--fp-purple);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-primary);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 3px 0;
-  transition: color 0.15s;
+  padding: var(--space-1) 0;
+  transition: color var(--dur-fast);
   line-height: 1;
 }
 
 .filter-clear-btn:hover {
-  color: var(--fp-purple-dark);
+  color: var(--color-primary-dark);
   text-decoration: underline;
+}
+
+.filter-clear-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ================================
@@ -96,54 +93,60 @@
 }
 
 .filter-panel-scroll::-webkit-scrollbar-thumb {
-  background: #e0e0e0;
-  border-radius: 3px;
+  background: var(--color-line);
+  border-radius: var(--radius-full);
 }
-
-
 
 /* ================================
    Filter Section
 ================================ */
 .filter-section {
-  border-bottom: 1px solid var(--fp-border-inner);
+  border-bottom: 1px solid var(--color-line);
 }
 
-.filter-section header {
-  padding: 11px 16px;
+/* The whole header row is one real <button> (see FilterSection.jsx) */
+.filter-section-toggle {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
   cursor: pointer;
   user-select: none;
-  transition: background 0.1s;
+  transition: background var(--dur-fast);
 }
 
-.filter-section header:hover {
-  background: var(--fp-hover);
+.filter-section-toggle:hover {
+  background: var(--color-surface-subtle);
+}
+
+.filter-section-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
 }
 
 .filter-section-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--fp-text-primary);
+  gap: var(--space-2);
+  font-size: var(--text-help);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
 }
 
 .filter-section-label svg {
-  color: var(--fp-purple);
+  color: var(--color-primary);
   flex-shrink: 0;
 }
 
-/* Selection count next to section title */
-
-
 .filter-chevron {
-  color: var(--fp-text-hint);
+  color: var(--color-text-placeholder);
   flex-shrink: 0;
-  transition: transform 0.2s ease;
+  transition: transform var(--dur-fast) var(--ease-out);
 }
 
 .filter-chevron.open {
@@ -152,7 +155,7 @@
 
 /* Body */
 .filter-body {
-  padding: 4px 16px 12px;
+  padding: var(--space-1) var(--space-4) var(--space-3);
 }
 
 /* ================================
@@ -165,9 +168,9 @@
 .search-icon {
   position: absolute;
   top: 50%;
-  left: 9px;
+  left: var(--space-2);
   transform: translateY(-50%);
-  color: var(--fp-purple-mid);
+  color: var(--color-primary-light);
   pointer-events: none;
   width: 13px;
   height: 13px;
@@ -175,23 +178,24 @@
 
 .filter-search {
   width: 100%;
-  padding: 7px 9px 7px 28px;
-  border: 1px solid #e5e7eb;
-  border-radius: var(--fp-radius-sm);
-  font-size: 12.5px;
-  color: var(--fp-text-primary);
-  background: #fff;
+  /* left padding leaves room for the search icon */
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-help);
+  color: var(--color-ink);
+  background: var(--color-surface);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
 }
 
 .filter-search::placeholder {
-  color: var(--fp-text-hint);
+  color: var(--color-text-placeholder);
 }
 
 .filter-search:focus {
-  border-color: var(--fp-purple-mid);
-  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.15);
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
 /* ================================
@@ -200,27 +204,26 @@
 .checkbox-group {
   display: flex;
   flex-direction: column;
-  gap: 1px;
 }
 
 .checkbox-group label {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 5px 4px;
-  border-radius: var(--fp-radius-sm);
-  font-size: 12.5px;
-  color: var(--fp-text-primary);
+  gap: var(--space-2);
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-help);
+  color: var(--color-ink);
   cursor: pointer;
-  transition: background 0.12s;
+  transition: background var(--dur-fast);
   position: relative;
 }
 
 .checkbox-group label:hover {
-  background: var(--fp-purple-light);
+  background: var(--color-primary-tint);
 }
 
-/* Hide native checkbox */
+/* Hide native checkbox (still focusable; see the focus ring on .cb-visual below) */
 .checkbox-group input[type="checkbox"] {
   position: absolute;
   opacity: 0;
@@ -232,24 +235,30 @@
 .cb-visual {
   width: 15px;
   height: 15px;
-  border-radius: 4px;
-  border: 1.5px solid #d1d5db;
+  border-radius: var(--space-1); /* 4px: --radius-sm (8px) would make a 15px box nearly round */
+  border: 1px solid var(--color-line-strong);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.15s, border-color 0.15s;
-  background: #fff;
+  transition: background var(--dur-fast), border-color var(--dur-fast);
+  background: var(--color-surface);
 }
 
 .checkbox-group input:checked + .cb-visual {
-  background: var(--fp-purple);
-  border-color: var(--fp-purple);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Keyboard focus: the real checkbox is invisible, so draw the ring on the box */
+.checkbox-group input:focus-visible + .cb-visual {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .cb-visual svg {
   opacity: 0;
-  transition: opacity 0.1s;
+  transition: opacity var(--dur-fast);
 }
 
 .checkbox-group input:checked + .cb-visual svg {
@@ -262,9 +271,9 @@
 }
 
 .cb-count {
-  font-size: 11px;
-  color: var(--fp-text-hint);
-  font-weight: 400;
+  font-size: var(--text-xs);
+  color: var(--color-text-placeholder);
+  font-weight: var(--weight-regular);
   margin-left: auto;
 }
 
@@ -280,8 +289,8 @@
 }
 
 .checkbox-group.scrollable::-webkit-scrollbar-thumb {
-  background: #e0e0e0;
-  border-radius: 3px;
+  background: var(--color-line);
+  border-radius: var(--radius-full);
 }
 
 /* ================================
@@ -290,53 +299,53 @@
 .box-pill-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: var(--space-1);
 }
 
 .box-pill {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: var(--fp-radius-md);
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: #444;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: var(--text-help);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color var(--dur-fast), background var(--dur-fast);
   text-align: left;
   width: 100%;
 }
 
 .box-pill:hover {
-  border-color: #c4b5fd;
-  background: var(--fp-purple-light);
+  border-color: var(--color-primary-light);
+  background: var(--color-primary-tint);
 }
 
 .box-pill.selected {
-  border-color: var(--fp-purple);
-  background: var(--fp-purple-light);
-  color: var(--fp-text-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+  color: var(--color-ink);
 }
 
 .box-pill-icon {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  border: 1.5px solid #d1d5db;
+  border: 1px solid var(--color-line-strong);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background var(--dur-fast), border-color var(--dur-fast);
 }
 
 .box-pill.selected .box-pill-icon {
-  background: var(--fp-purple);
-  border-color: var(--fp-purple);
-  color: #fff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-dark);
 }
 
 .box-pill-label {
@@ -350,32 +359,32 @@
 .bhk-pill-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: var(--space-1);
 }
 
 .bhk-pill {
-  padding: 5px 12px;
-  border-radius: var(--fp-radius-pill);
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  color: #555;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink-muted);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  transition: border-color var(--dur-fast), background var(--dur-fast), color var(--dur-fast);
   line-height: 1;
 }
 
 .bhk-pill:hover {
-  border-color: #c4b5fd;
-  background: var(--fp-purple-light);
+  border-color: var(--color-primary-light);
+  background: var(--color-primary-tint);
 }
 
 .bhk-pill.active {
-  border-color: var(--fp-purple);
-  background: var(--fp-purple-light);
-  color: var(--fp-purple-dark);
-  font-weight: 600;
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+  font-weight: var(--weight-semibold);
 }
 
 /* ================================
@@ -384,21 +393,21 @@
 .locality-search {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: var(--fp-radius-sm);
-  margin-bottom: 8px;
-  background: #fff;
-  transition: border-color 0.15s;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+  background: var(--color-surface);
+  transition: border-color var(--dur-fast);
 }
 
 .locality-search:focus-within {
-  border-color: var(--fp-purple-mid);
+  border-color: var(--color-primary-light);
 }
 
 .locality-search svg {
-  color: var(--fp-purple-mid);
+  color: var(--color-primary-light);
   flex-shrink: 0;
 }
 
@@ -406,20 +415,20 @@
   border: none;
   outline: none;
   width: 100%;
-  font-size: 12.5px;
-  color: var(--fp-text-primary);
+  font-size: var(--text-help);
+  color: var(--color-ink);
   background: transparent;
 }
 
 .locality-search input::placeholder {
-  color: var(--fp-text-hint);
+  color: var(--color-text-placeholder);
 }
 
 .filter-loading,
 .filter-hint {
-  font-size: 12.5px;
-  color: var(--fp-text-muted);
-  padding: 4px 0;
+  font-size: var(--text-help);
+  color: var(--color-text-muted);
+  padding: var(--space-1) 0;
 }
 
 /* ================================
@@ -431,6 +440,6 @@
     min-width: 100%;
     height: auto;
     border-right: none;
-    border-bottom: 1px solid var(--fp-border);
+    border-bottom: 1px solid var(--color-line);
   }
 }

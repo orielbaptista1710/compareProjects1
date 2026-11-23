@@ -1,7 +1,7 @@
 /* =========================================
    CITY SELECTOR
-   All colours, fonts, sizes and spacing come from styles/tokens.css +
-   styles/colors.css — don't add hex/rgba values here.
+   All colours, fonts, sizes and spacing come from styles/tokens.css
+   (single source) — don't add hex/rgba values here.
 ========================================= */
 
 .city-wrapper {
@@ -51,6 +51,7 @@
 }
 
 .city-trigger-label {
+  color: var(--color-on-dark);
   overflow: hidden;
   text-overflow: ellipsis;
 }

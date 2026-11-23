@@ -1,15 +1,11 @@
 import NavigationBar from '../../shared/NavigationBar/NavigationBar';
 // import AnnouncementStrip from './HomePageComponents/AnnouncementStrip';
-import HeroSection from './HomePageComponents/HeroSection';
 // import RankedProjects from './HomePageComponents/RankedProjects'
 import Gallery from './HomePageComponents/Gallery'; 
 import DiscoverFeaturedProjects from './HomePageComponents/DiscoverFeaturedProjects';
 import RecentlyAdded from './HomePageComponents/RecentlyAdded';
 import PostPropertyBanner from './HomePageComponents/PostPropertyBanner';
-import ContactUsBanner from './HomePageComponents/ContactUsBanner';
-import About from './HomePageComponents/About';
-import ContactForm from './HomePageComponents/ContactForm';
-import TestimonialSection from './HomePageComponents/TestimonialSection';
+import HomeLoanBanner from './HomePageComponents/HomeLoanBanner';
 import HomeHero from './HomePageComponents/HomeHero';
 import CompareBar from '../../shared/CompareBar/CompareBar';
 
@@ -72,25 +68,15 @@ function Home() {
 
       {/* </BaseLayout> */}
 
-      {/* <FullWidthSection> */}
+      
+
       {/* Post Property Section */}
       <section>
         <PostPropertyBanner />
       </section>
       {/* </FullWidthSection> */}
 
-
-
       {/* <FullWidthSection> */}
-
-      <section>
-        <About />
-      </section>
-      
-      <section >
-        <HeroSection />
-      </section>
-
 
       {/* Gallery Section */}
       <section>
@@ -98,29 +84,11 @@ function Home() {
       </section>
     {/* </FullWidthSection> */}
 
-      {/* <BaseLayout> */}
-
-      {/* Testimonial Section */}
+    {/* <FullWidthSection> */}
+      {/* Home loan promo */}
       <section>
-        <TestimonialSection />
+        <HomeLoanBanner />
       </section>
-
-      {/* </BaseLayout> */}
-
-      {/* <FullWidthSection> */}
-      {/* Post Property Section */}
-      <section>
-        <ContactUsBanner />
-      </section>
-      {/* </FullWidthSection> */}
-
-
-      {/* <BaseLayout> */}
-      {/* Contact Section */}
-      <section id="contact-section">
-        <ContactForm />
-      </section>
-      {/* </BaseLayout> */}
 
 
     </div>

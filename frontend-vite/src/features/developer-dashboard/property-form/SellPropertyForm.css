@@ -4,7 +4,7 @@
  * after the dashboard chunk is fetched, so bare selectors would restyle other
  * pages. Element rules use :where() to keep specificity at one class.
  *
- * All colours, fonts and sizes come from styles/tokens.css + styles/colors.css.
+ * All colours, fonts and sizes come from styles/tokens.css.
  * Layout responds to the form's own width (container queries), so it works in
  * the developer dashboard and, later, inside owner/agent dashboards.
  *
@@ -18,20 +18,20 @@
 
 /* ── Local aliases for the site tokens ───────────────────────────────────── */
 .sell-property-form {
-  --spf-accent:      var(--color-primary, #7c3aed);
-  --spf-accent-dark: var(--color-primary-dark, #6d28d9);
-  --spf-accent-tint: var(--color-surface-tint-strong, #ede9fe);
-  --spf-ink:         var(--color-ink, #1c1a33);
-  --spf-muted:       var(--color-ink-muted, #5a5872);
-  --spf-line:        var(--color-line, #e2e1ea);
-  --spf-line-strong: var(--color-line-strong, #cfcdda);
-  --spf-placeholder: var(--color-placeholder, #6e6c85);
-  --spf-bg:          var(--color-bg-page, #f5f5f8);
-  --spf-surface:     var(--color-surface, #ffffff);
-  --spf-subtle:      var(--color-surface-subtle, #fafafc);
-  --spf-error:       var(--color-error-text, #dc2626);
-  --spf-error-bg:    var(--color-error-bg, #fef2f2);
-  --spf-success:     var(--color-success, #15803d);
+  --spf-accent:      var(--color-primary);
+  --spf-accent-dark: var(--color-primary-dark);
+  --spf-accent-tint: var(--color-surface-tint-strong);
+  --spf-ink:         var(--color-ink);
+  --spf-muted:       var(--color-ink-muted);
+  --spf-line:        var(--color-line);
+  --spf-line-strong: var(--color-line-strong);
+  --spf-placeholder: var(--color-placeholder);
+  --spf-bg:          var(--color-bg-page);
+  --spf-surface:     var(--color-surface);
+  --spf-subtle:      var(--color-surface-subtle);
+  --spf-error:       var(--color-error-text);
+  --spf-error-bg:    var(--color-error-bg);
+  --spf-success:     var(--color-success);
 
   --spf-r-sm:   var(--radius-sm, 8px);
   --spf-r-md:   var(--radius-md, 12px);
@@ -146,7 +146,7 @@
 
 .sell-property-form .spf-btn--primary {
   background: var(--spf-accent);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 .sell-property-form .spf-btn--primary:hover:not(:disabled) {
   background: var(--spf-accent-dark);
@@ -292,7 +292,7 @@
 .sell-property-form .spf-card.is-open .spf-card__number {
   border-color: var(--spf-accent);
   background: var(--spf-accent);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .sell-property-form .spf-card__titles {
@@ -554,7 +554,7 @@
 .sell-property-form .radio-label--selected:hover {
   border-color: var(--spf-accent);
   background: var(--spf-accent);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .sell-property-form .checkbox-label--selected,
@@ -639,7 +639,7 @@
 }
 .sell-property-form .alert--error {
   background: var(--spf-error-bg);
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--color-accent-red);
   color: var(--spf-error);
 }
 
@@ -692,7 +692,7 @@
 .sell-property-form .spf-preview__drawing {
   width: 140px;
   height: auto;
-  color: #8e8ca6;
+  color: var(--color-placeholder);
 }
 .sell-property-form .spf-preview__drawing-accent {
   stroke: var(--spf-accent);

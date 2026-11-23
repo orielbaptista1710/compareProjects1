@@ -37,8 +37,8 @@
 /* ── Bubble ──────────────────────────────────────── */
 .mg-bubble {
   position: relative;
-  background: #ffffff;
-  border: 1.5px solid #e5d9f7;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-surface-tint-strong);
   border-radius: 16px 16px 16px 4px;
   padding: 14px 38px 14px 16px;
   max-width: 236px;
@@ -53,7 +53,7 @@
   bottom: 18px;
   border-width: 7px 9px 7px 0;
   border-style: solid;
-  border-color: transparent #e5d9f7 transparent transparent;
+  border-color: transparent var(--color-surface-tint-strong) transparent transparent;
 }
 
 .mg-bubble::after {
@@ -63,7 +63,7 @@
   bottom: 19px;
   border-width: 6px 8px 6px 0;
   border-style: solid;
-  border-color: transparent #ffffff transparent transparent;
+  border-color: transparent var(--color-surface) transparent transparent;
 }
 
 /* ── Meta row ────────────────────────────────────── */
@@ -77,14 +77,14 @@
 .mg-name {
   font-size: 11px;
   font-weight: 700;
-  color: #7B2FBE;
+  color: var(--color-primary);
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 .mg-counter {
   font-size: 10px;
-  color: #b39fd4;
+  color: var(--color-placeholder);
   font-weight: 500;
 }
 
@@ -99,18 +99,18 @@
   height: 3px;
   flex: 1;
   border-radius: 2px;
-  background: #ede5f7;
+  background: var(--color-surface-tint-strong);
   transition: background 0.35s;
 }
 
-.mg-pip.done   { background: #c9aee8; }
-.mg-pip.active { background: #7B2FBE; }
+.mg-pip.done   { background: var(--color-primary-light); }
+.mg-pip.active { background: var(--color-primary); }
 
 /* ── Text ────────────────────────────────────────── */
 .mg-text {
   font-size: 13px;
   line-height: 1.65;
-  color: #1a0a33;
+  color: var(--color-ink);
   margin: 0 0 12px;
   min-height: 42px;
 }
@@ -124,11 +124,11 @@
 
 .mg-btn-back {
   background: none;
-  border: 1.5px solid #e0d0f5;
+  border: 1.5px solid var(--color-surface-tint-strong);
   border-radius: 8px;
   padding: 5px 11px;
   font-size: 11.5px;
-  color: #7B2FBE;
+  color: var(--color-primary);
   cursor: pointer;
   font-family: inherit;
   transition: background 0.15s, border-color 0.15s;
@@ -136,14 +136,14 @@
 }
 
 .mg-btn-back:hover {
-  background: #f5eeff;
-  border-color: #7B2FBE;
+  background: var(--color-surface-tint);
+  border-color: var(--color-primary);
 }
 
 .mg-btn-next {
   flex: 1;
-  background: #7B2FBE;
-  color: #ffffff;
+  background: var(--color-primary);
+  color: var(--color-on-dark);
   border: none;
   border-radius: 8px;
   padding: 6px 14px;
@@ -155,15 +155,15 @@
   transition: background 0.15s, transform 0.1s;
 }
 
-.mg-btn-next:hover  { background: #6a25a8; }
+.mg-btn-next:hover  { background: var(--color-primary-dark); }
 .mg-btn-next:active { transform: scale(0.97); }
 
 .mg-btn-next.last {
-  background: #F5A623;
-  color: #1a0a00;
+  background: var(--color-primary);
+  color: var(--color-on-dark);
 }
 
-.mg-btn-next.last:hover { background: #d98f10; }
+.mg-btn-next.last:hover { background: var(--color-primary-dark); }
 
 /* ── Close ───────────────────────────────────────── */
 .mg-close {
@@ -176,7 +176,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #c0a8d8;
+  color: var(--color-placeholder);
   font-size: 13px;
   display: flex;
   align-items: center;
@@ -185,8 +185,8 @@
 }
 
 .mg-close:hover {
-  background: #f0e8fb;
-  color: #7B2FBE;
+  background: var(--color-surface-tint);
+  color: var(--color-primary);
 }
 
 /* ── FAB (minimised state) ───────────────────────── */
@@ -227,8 +227,8 @@
   right: 8px;
   width: 30px;
   height: 30px;
-  background: #F5A623;
-  color: #1a0a00;
+  background: var(--color-primary);
+  color: var(--color-on-dark);
   font-size: 10px;
   font-weight: 700;
   border-radius: 50%;

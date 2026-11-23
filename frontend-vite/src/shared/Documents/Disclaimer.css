@@ -6,16 +6,16 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: #faf5ff; /* very light purple-tinted cream — on-brand */
-  box-shadow: 0 -4px 20px rgba(110, 47, 213, 0.12);
+  background: var(--color-surface-tint);
+  box-shadow: 0 -4px 20px color-mix(in srgb, var(--color-primary) 12%, transparent);
   /* Slide up animation */
   animation: disclaimerSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Top accent bar — matches footer purple */
+/* Top accent bar */
 .disclaimer-accent {
   height: 3px;
-  background: linear-gradient(90deg, #6e2fd5, #9d4edd, #6e2fd5);
+  background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary-light), var(--color-primary-dark));
   background-size: 200% 100%;
   animation: disclaimerShimmer 3s linear infinite;
 }
@@ -31,44 +31,58 @@
 
 .disclaimer-text {
   flex: 1;
-  font-size: 13px;
-  color: #374151;
-  line-height: 1.7;
+  font-size: var(--text-help);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
   margin: 0;
 }
 
 .disclaimer-text a {
-  color: #6e2fd5;
+  color: var(--color-primary-dark);
   text-decoration: underline;
   text-underline-offset: 2px;
   font-weight: 500;
 }
 
 .disclaimer-text a:hover {
-  color: #4c1d95;
+  color: var(--color-primary-dark);
 }
 
 .disclaimer-btn {
   flex-shrink: 0;
   padding: 10px 28px;
-  background: #6e2fd5;
-  color: #ffffff;
+  background: var(--color-primary-dark);
+  color: var(--color-on-dark);
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.2s ease, transform 0.15s ease;
 }
 
 .disclaimer-btn:hover {
-  background: #5b21b6;
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
 }
 
 .disclaimer-btn:active {
   transform: translateY(0);
+}
+
+/* "Read more" only exists on phones (see the media query below). */
+.disclaimer-more {
+  display: none;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--color-primary-dark);
+  font-size: var(--text-help);
+  font-weight: var(--weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 /* ── Animations ──────────────────────────────────────────────────────────── */
@@ -93,9 +107,22 @@
   .disclaimer-inner {
     flex-direction: column;
     align-items: flex-start;
-    padding: 16px 20px;
-    gap: 14px;
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-2);
   }
+
+  .disclaimer-text.is-clamped {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .disclaimer-more {
+    display: inline-block;
+  }
+
 
   .disclaimer-btn {
     width: 100%;

@@ -1,28 +1,28 @@
 /* =====================================================
    CUSTOMER PROFILE PAGE â€” Production Grade
-   Brand: purple gradient sidebar + #D90429 accent
+   Brand: purple gradient sidebar + red accent
    ===================================================== */
 
 /* â”€â”€ CSS Variables â”€â”€ */
 .customer-profile-page {
-  --brand-purple-dark:  #5d3b9e;
-  --brand-purple:       #7c3aed;
-  --brand-purple-light: rgba(124, 58, 237, 0.08);
-  --brand-yellow:       #fbbf24;
-  --brand-red:          #D90429;
+  --brand-purple-dark:  var(--color-primary-dark);
+  --brand-purple:       var(--color-primary);
+  --brand-purple-light: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  --brand-yellow:       var(--color-highlight);
+  --brand-red:          var(--color-accent-red);
 
   --sidebar-width:      260px;
   --sidebar-collapsed:  72px;
 
-  --surface:            #ffffff;
-  --surface-2:          #f8f9fb;
-  --surface-3:          #f1f3f6;
-  --border:             #e8eaed;
-  --border-strong:      #d1d5db;
+  --surface:            var(--color-surface);
+  --surface-2:          var(--color-surface-subtle);
+  --surface-3:          var(--color-bg-page);
+  --border:             var(--color-line);
+  --border-strong:      var(--color-text-disabled);
 
-  --text-primary:       #111827;
-  --text-secondary:     #4b5563;
-  --text-muted:         #9ca3af;
+  --text-primary:       var(--color-text-primary);
+  --text-secondary:     var(--color-ink-muted);
+  --text-muted:         var(--color-text-placeholder);
 
   /* --radius-sm / --radius-md come from tokens.css (no local override). */
   --radius-lg:          14px;
@@ -45,8 +45,8 @@
 
 .sidebar {
   width: 260px;
-  background: linear-gradient(175deg, #5d3b9e 0%, #7c3aed 55%, #6d28d9 100%);
-  color: #ffffff;
+  background: linear-gradient(175deg, var(--color-primary-dark) 0%, var(--color-primary) 55%, var(--color-primary-dark) 100%);
+  color: var(--color-on-dark);
   display: flex;
   flex-direction: column;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -79,7 +79,7 @@
 
 .sidebar-toggle:hover {
   background: var(--brand-yellow);
-  color: #fff;
+  color: var(--color-on-dark);
   transform: scale(1.12);
 }
 
@@ -158,7 +158,7 @@
 
 .sidebar-item:hover {
   background: rgba(255,255,255,0.09);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .sidebar-item:hover::after {
@@ -167,7 +167,7 @@
 
 .sidebar-item.active {
   background: rgba(255,255,255,0.14);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .sidebar-item.active::after {
@@ -184,7 +184,7 @@
 
 .sidebar-item-logout:hover {
   background: rgba(217, 4, 41, 0.2);
-  color: #fca5a5;
+  color: var(--color-on-dark-muted);
 }
 
 /* Icon + badge */
@@ -202,7 +202,7 @@
   top: -6px;
   right: -8px;
   background: var(--brand-yellow);
-  color: #1a1a1a;
+  color: var(--color-ink);
   font-size: 10px;
   font-weight: 700;
   line-height: 1;
@@ -246,8 +246,8 @@
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--brand-red) 0%, #b00020 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--brand-red) 0%, var(--color-accent-red) 100%);
+  color: var(--color-on-dark);
   font-weight: 700;
   font-size: 0.875rem;
   display: flex;
@@ -269,7 +269,7 @@
 .user-name {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--color-on-dark);
   margin: 0 0 2px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -330,7 +330,7 @@
    ===================================================== */
 
 /* ptab- prefix: global CSS leaks across SPA routes, so keep names unique.
-   Tokens only (src/styles/tokens.css + --color-primary from colors.css). */
+   Tokens only (src/styles/tokens.css). */
 .ptab-card {
   background: var(--color-surface);
   border: 1px solid var(--color-line);
@@ -1590,7 +1590,7 @@
 
 .form-field input:focus {
   border-color: var(--brand-purple);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 .form-field input.input-disabled,
@@ -1679,7 +1679,7 @@
   position: absolute;
   width: 18px;
   height: 18px;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 50%;
   top: 3px;
   left: 3px;
@@ -1721,7 +1721,7 @@
   gap: 7px;
   padding: 10px 20px;
   background: var(--brand-red);
-  color: #fff;
+  color: var(--color-on-dark);
   border: none;
   border-radius: var(--radius-md);
   font-size: 0.9rem;
@@ -1732,7 +1732,7 @@
 }
 
 .btn-primary:hover {
-  background: #b8001f;
+  background: var(--color-accent-red);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(217,4,41,0.3);
 }
@@ -1832,6 +1832,11 @@
   max-width: 280px;
 }
 
+/* Space between the text and the button under it. */
+.empty-state p + * {
+  margin-top: var(--space-4);
+}
+
 /* =====================================================
    SHIMMER LOADING
    ===================================================== */
@@ -1846,7 +1851,7 @@
 .shimmer-card {
   height: 120px;
   border-radius: var(--radius-lg);
-  background: linear-gradient(90deg, var(--surface-3) 25%, #e8eaed 50%, var(--surface-3) 75%);
+  background: linear-gradient(90deg, var(--surface-3) 25%, var(--color-line) 50%, var(--surface-3) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }

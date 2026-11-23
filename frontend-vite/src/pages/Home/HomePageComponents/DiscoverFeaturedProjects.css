@@ -1,10 +1,9 @@
 /* ================================================
    DISCOVER FEATURED PROJECTS — Production Grade
    Aesthetic: Luxury Real Estate / Editorial Dark
-   Font stack: Cormorant Garamond (headings) + DM Sans (body)
+   Fonts from styles/tokens.css: --font-heading (headings, buttons)
+   + --font-body (text)
 ================================================ */
-
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 /* ── CSS Custom Properties ── */
 .dfp-section {
@@ -26,7 +25,7 @@
   padding: 64px 64px;
   max-width: 1500px;
   margin: 0 auto;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-body);
 }
 
 /* ════════════════════════════
@@ -95,7 +94,7 @@
 
 /* Heading */
 .dfp-heading {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-heading);
   font-size: clamp(26px, 2vw, 38px);
   font-weight: 600;
   line-height: 1.18;
@@ -139,9 +138,9 @@
 }
 
 .dfp-stat-num {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-heading);
   font-size: 22px;
-  font-weight: 700;
+  font-weight: var(--weight-semibold);
   color: var(--dfp-gold-light);
   line-height: 1;
   letter-spacing: -0.01em;
@@ -172,7 +171,7 @@
   border: 1px solid rgba(201, 168, 76, 0.45);
   padding: 13px 22px;
   border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-heading);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -266,7 +265,7 @@
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(201, 168, 76, 0.4);
   color: var(--dfp-gold-light);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-body);
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.12em;
@@ -316,10 +315,10 @@
 }
 
 .dfp-card-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-heading);
   font-size: clamp(18px, 1.6vw, 24px);
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-on-dark);
   margin: 0 0 6px;
   line-height: 1.25;
   letter-spacing: -0.01em;
@@ -375,7 +374,7 @@
 
 .dfp-glance-title {
   display: block;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-heading);
   font-size: 17px;
   font-weight: 600;
   color: var(--dfp-text);
@@ -448,7 +447,7 @@
   border: none;
   padding: 10px 16px;
   border-radius: 7px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-heading);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;

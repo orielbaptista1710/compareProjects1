@@ -43,9 +43,9 @@ const PropertyTypePills = ({ valueMap, onChange }) => {
   return (
     <div className="ptp-wrapper" ref={wrapperRef}>
       <button type="button" className="ptp-trigger" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="true">
-        <Home size={18} className="ptp-trigger-icon" />
+        <Home size={18} className="ptp-trigger-icon" aria-hidden="true" />
         <span className="ptp-trigger-label">{summaryLabel}</span>
-        {open ? <ChevronUp size={16} className="ptp-trigger-chevron" /> : <ChevronDown size={16} className="ptp-trigger-chevron" />}
+        {open ? <ChevronUp size={16} className="ptp-trigger-chevron" aria-hidden="true" /> : <ChevronDown size={16} className="ptp-trigger-chevron" aria-hidden="true" />}
       </button>
 
       {open && (
@@ -63,7 +63,7 @@ const PropertyTypePills = ({ valueMap, onChange }) => {
                   aria-expanded={expanded} 
                 >
                   {section.group}
-                  {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  {expanded ? <ChevronUp size={16} aria-hidden="true" /> : <ChevronDown size={16} aria-hidden="true" />}
                 </button>
 
                 {expanded && (
@@ -77,10 +77,9 @@ const PropertyTypePills = ({ valueMap, onChange }) => {
                           type="button"
                           className={`ptp-pill ${active ? "ptp-pill-active" : ""}`}
                           aria-pressed={active}
-                          aria-label={`${item.label}${active ? " (selected)" : ""}`}
                           onClick={() => handleToggle(section.target, item.value, currentValue)}
                         >
-                          {Icon && <Icon className="ptp-icon" size={14} strokeWidth={2} />}
+                          {Icon && <Icon className="ptp-icon" size={14} strokeWidth={2} aria-hidden="true" />}
                           <span>{item.label}</span>
                         </button>
                       );

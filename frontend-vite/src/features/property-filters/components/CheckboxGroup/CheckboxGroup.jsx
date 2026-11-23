@@ -33,7 +33,7 @@ const CheckboxGroup = ({
               aria-label={label}
             />
             <div className="cb-visual" aria-hidden="true">
-              <Check size={9} strokeWidth={3} color="#fff" />
+              <Check size={9} strokeWidth={3} color="var(--color-surface)" />
             </div>
             <span className="cb-label-text">{label}</span>
             {count !== undefined && (

@@ -151,7 +151,7 @@
 }
 
 .mup-file-row--error {
-  border-color: #FCA5A5;
+  border-color: var(--color-accent-red);
   background: var(--spf-error-bg);
 }
 
@@ -217,11 +217,11 @@
   border-radius: 20px;
 }
 
-.mup-badge--done        { background: #D1FAE5; color: #065F46; }
+.mup-badge--done        { background: var(--color-success-bg); color: var(--color-success); }
 .mup-badge--error       { background: var(--spf-error-bg); color: var(--spf-error); }
 .mup-badge--uploading   { background: var(--spf-purple-light); color: var(--spf-purple); }
-.mup-badge--compressing { background: #FEF3C7; color: #92400E; }
-.mup-badge--pending     { background: #F3F4F6; color: var(--spf-text-muted); }
+.mup-badge--compressing { background: var(--color-highlight-tint); color: var(--color-highlight-ink); }
+.mup-badge--pending     { background: var(--color-surface-active); color: var(--spf-text-muted); }
 
 /* ── Progress bar ─────────────────────────────────────────────────────────── */
 .mup-progress {
@@ -303,7 +303,7 @@
   top: 0.5rem;
   right: 0.5rem;
   background: rgba(0,0,0,0.55);
-  color: #fff;
+  color: var(--color-on-dark);
   border: none;
   font-size: 0.72rem;
   font-weight: 600;
@@ -334,7 +334,7 @@
 }
 
 .mup-gallery-item--error {
-  border-color: #FCA5A5;
+  border-color: var(--color-accent-red);
 }
 
 .mup-gallery-item__img {
@@ -351,7 +351,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--color-on-dark);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -373,7 +373,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #fff;
+  color: var(--color-on-dark);
   opacity: 0;
   transition: opacity var(--spf-transition);
 }
@@ -386,8 +386,8 @@
   position: absolute;
   bottom: 3px;
   right: 3px;
-  background: #059669;
-  color: #fff;
+  background: var(--color-success);
+  color: var(--color-on-dark);
   font-size: 0.55rem;
   font-weight: 700;
   width: 14px;
@@ -417,7 +417,7 @@
   padding: 0.15rem 0.55rem;
   border-radius: 20px;
   border: 1.5px solid var(--spf-border);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--spf-text-muted);
   cursor: pointer;
   transition: border-color var(--spf-transition), background var(--spf-transition), color var(--spf-transition);
@@ -431,7 +431,7 @@
 .mup-tag--active {
   border-color: var(--spf-purple);
   background: var(--spf-purple);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 /* ── Virtual tour OR rule ─────────────────────────────────────────────────── */

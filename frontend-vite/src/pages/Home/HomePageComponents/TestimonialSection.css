@@ -5,15 +5,15 @@
 
 /* ── Custom properties ────────────────────────────────────── */
 .ts-section {
-  --ts-accent: #9417E2;
-  --ts-accent-light: #f3e8ff;
-  --ts-accent-mid: #c084fc;
-  --ts-text: #111827;
-  --ts-text-muted: #6b7280;
-  --ts-text-faint: #9ca3af;
-  --ts-surface: #ffffff;
-  --ts-surface-2: #f9fafb;
-  --ts-border: #e5e7eb;
+  --ts-accent: var(--color-primary);
+  --ts-accent-light: var(--color-surface-tint-strong);
+  --ts-accent-mid: var(--color-primary-light);
+  --ts-text: var(--color-text-primary);
+  --ts-text-muted: var(--color-text-muted);
+  --ts-text-faint: var(--color-text-placeholder);
+  --ts-surface: var(--color-surface);
+  --ts-surface-2: var(--color-surface-subtle);
+  --ts-border: var(--color-border);
   --ts-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
   --ts-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
   --ts-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.06);
@@ -142,13 +142,13 @@
 }
 
 .ts-star--filled {
-  fill: #f59e0b;
-  stroke: #f59e0b;
+  fill: var(--color-highlight);
+  stroke: var(--color-highlight);
 }
 
 .ts-star--empty {
   fill: none;
-  stroke: #d1d5db;
+  stroke: var(--color-text-disabled);
 }
 
 /* ── Nav controls ─────────────────────────────────────────── */
@@ -182,7 +182,7 @@
 .ts-nav__btn:hover {
   background: var(--ts-accent);
   border-color: var(--ts-accent);
-  color: #fff;
+  color: var(--color-on-dark);
   box-shadow: 0 4px 12px rgba(148, 23, 226, 0.3);
 }
 
@@ -275,7 +275,7 @@
 .ts-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--ts-shadow-lg);
-  border-color: #e9d5ff;
+  border-color: var(--color-surface-tint-strong);
 }
 
 /* Quote */
@@ -287,7 +287,7 @@
 .ts-card__quote p {
   font-size: 14.5px;
   line-height: 1.65;
-  color: #374151;
+  color: var(--color-text-secondary);
   font-style: italic;
   margin: 0;
   display: -webkit-box;

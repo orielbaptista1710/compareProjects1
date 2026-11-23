@@ -21,7 +21,7 @@
 
 /* Focus State */
 .announcement-strip:focus {
-  outline: 2px solid #ffd166;
+  outline: 2px solid var(--color-highlight);
   outline-offset: -2px;
 }
 
@@ -48,7 +48,7 @@
   white-space: nowrap;
   font-size: 14px;
   font-weight: 500;
-  color: #ffffff;
+  color: var(--color-on-dark);
   padding-right: 48px;
   line-height: 1.4;
   letter-spacing: 0.3px;
@@ -56,7 +56,7 @@
 }
 
 .announcement-track strong {
-  color: #ffd166;
+  color: var(--color-highlight);
   font-weight: 700;
   text-transform: capitalize;
 }
@@ -199,17 +199,17 @@
 @media (prefers-contrast: high) {
   .announcement-strip {
     background: rgba(0, 0, 0, 0.9);
-    border-top: 2px solid #ffffff;
-    border-bottom: 2px solid #ffffff;
+    border-top: 2px solid var(--color-surface);
+    border-bottom: 2px solid var(--color-surface);
   }
 
   .announcement-track span {
-    color: #ffffff;
+    color: var(--color-on-dark);
     font-weight: 600;
   }
 
   .announcement-track strong {
-    color: #ffed4e;
+    color: var(--color-highlight);
     text-decoration: underline;
   }
 }

@@ -8,7 +8,7 @@
   display: flex;
   max-width: 1100px;
   width: 100%;
-  background-color: #fff;
+  background-color: var(--color-surface);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
@@ -18,7 +18,7 @@
 .contact-fm-home-info {
   flex: 1;
   background: linear-gradient(135deg, #7e57c2 0%, #5e35b1 100%);
-  color: #fff;
+  color: var(--color-on-dark);
   padding: 50px 30px;
   display: flex;
   flex-direction: column;
@@ -61,7 +61,7 @@
 .contact-fm-home-icon {
   width: 36px;
   height: 36px;
-  color: #fff;
+  color: var(--color-on-dark);
   flex-shrink: 0;
 }
 
@@ -98,7 +98,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: var(--color-on-dark);
   font-weight: 600;
   z-index: 1;
 }
@@ -203,7 +203,7 @@
 
 .contact-fm-home-radio-description {
   font-size: 12px;
-  color: #555;
+  color: var(--color-ink-muted);
 }
 
 .contact-fm-home-form-actions {
@@ -225,7 +225,7 @@
 
 .contact-fm-home-btn-primary {
   background-color: #7e57c2;
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .contact-fm-home-btn-primary:hover {
@@ -234,7 +234,7 @@
 
 .contact-fm-home-btn-secondary {
   background-color: #ccc;
-  color: #333;
+  color: var(--color-ink);
 }
 
 .contact-fm-home-btn-secondary:hover {

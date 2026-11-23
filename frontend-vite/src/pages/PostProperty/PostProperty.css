@@ -1,6 +1,6 @@
 /* src/pages/PostProperty/PostProperty.css
    Every class is pp- prefixed so it can't collide with other routes' global
-   CSS. Colours, fonts and sizes come from styles/tokens.css + styles/colors.css
+   CSS. Colours, fonts and sizes come from styles/tokens.css
    — don't add new hex values here. Cards are flat (no shadows). */
 
 /* Poppins + Inter, only the weights in use. Moves to index.html with the
@@ -8,7 +8,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap");
 
 .pp-page {
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-body);
   font-size: var(--text-body);
@@ -21,8 +21,16 @@
   --pp-gutter: 24px;
   max-width: 1400px;
   margin: 0 auto;
-  padding: var(--space-7) var(--pp-gutter) calc(var(--space-7) + var(--space-6));
+  /* The header is fixed and no breadcrumbs show on this page, so clear the header
+     (and the navigation bar from 1200px up) ourselves. */
+  padding: calc(var(--site-header-height) + var(--space-6)) var(--pp-gutter) var(--space-6);
   box-sizing: border-box;
+}
+
+@media (min-width: 1200px) {
+  .pp-container {
+    padding-top: calc(var(--site-header-height) + var(--site-navbar-height) + var(--space-6));
+  }
 }
 
 @media (min-width: 640px) {
@@ -50,14 +58,14 @@
 
 .pp-intro {
   max-width: 720px;
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-5);
 }
 
 .pp-title {
   margin: 0 0 var(--space-3);
   font-family: var(--font-heading);
   font-weight: var(--weight-bold);
-  font-size: clamp(1.75rem, 4.5vw, 2.75rem);
+  font-size: clamp(1.75rem, 3.5vw, var(--text-3xl));
   line-height: 1.15;
   letter-spacing: -0.01em;
   color: var(--color-ink);
@@ -78,12 +86,13 @@
 }
 
 .pp-option {
+  -webkit-tap-highlight-color: transparent; /* no blue flash when tapped on phones */
   display: flex;
   flex-direction: column;
-  padding: var(--space-5);
+  padding: var(--space-4) var(--space-5);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
-  background: #fff;
+  background: var(--color-surface);
   cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease-out),
     background-color var(--dur-fast) var(--ease-out);
@@ -95,9 +104,9 @@
 
 .pp-option--active,
 .pp-option--active:hover {
-  border-color: var(--color-primary);
-  box-shadow: inset 0 0 0 1px var(--color-primary); /* 2px border without layout shift */
-  background: var(--color-primary-tint);
+  border-color: var(--color-ink-muted);
+  box-shadow: inset 0 0 0 1px var(--color-ink-muted); /* 2px border without layout shift */
+  background: var(--color-surface-subtle);
 }
 
 .pp-option-top {
@@ -123,7 +132,7 @@
   padding: 0;
   border: 2px solid var(--color-line-strong);
   border-radius: var(--radius-full);
-  background: #fff;
+  background: var(--color-surface);
   cursor: pointer;
   transition: border-color var(--dur-fast) var(--ease-out);
 }
@@ -138,7 +147,7 @@
 .pp-radio[aria-checked="true"] {
   border-color: var(--color-primary);
   background: var(--color-primary);
-  box-shadow: inset 0 0 0 4px #fff;
+  box-shadow: inset 0 0 0 4px var(--color-surface);
 }
 
 .pp-radio:focus-visible,
@@ -209,8 +218,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-5);
-  margin-top: var(--space-6);
-  padding: var(--space-4) var(--space-5);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-5);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-md);
   background: var(--color-surface-subtle);
@@ -231,7 +240,7 @@
   font-family: var(--font-body);
   font-size: var(--text-md);
   font-weight: var(--weight-semibold);
-  color: #fff;
+  color: var(--color-on-dark);
   cursor: pointer;
   transition: background-color var(--dur-fast) var(--ease-out);
 }
@@ -269,7 +278,7 @@
 
 @media (max-width: 720px) {
   .pp-container {
-    padding-top: var(--space-5);
+    padding-top: calc(var(--site-header-height) + var(--space-4));
   }
 
   .pp-subtitle {
@@ -292,7 +301,7 @@
     padding: var(--space-3) var(--pp-gutter) calc(var(--space-3) + env(safe-area-inset-bottom));
     border-width: 1px 0 0;
     border-radius: 0;
-    background: #fff;
+    background: var(--color-surface);
   }
 
   .pp-hint {

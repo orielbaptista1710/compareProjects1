@@ -21,8 +21,8 @@ const PropertyLightbox = ({ media, initialIndex, onClose }) => {
           dots
           arrows
           adaptiveHeight
-          nextArrow={<button className="slick-next" aria-label="Next image" type="button"><ChevronRight size={28} color="#fff" /></button>}
-          prevArrow={<button className="slick-prev" aria-label="Previous image" type="button"><ChevronLeft size={28} color="#fff" /></button>}
+          nextArrow={<button className="slick-next" aria-label="Next image" type="button"><ChevronRight size={28} color="var(--color-surface)" /></button>}
+          prevArrow={<button className="slick-prev" aria-label="Previous image" type="button"><ChevronLeft size={28} color="var(--color-surface)" /></button>}
         >
           {media.map((item, idx) => (
             <div key={idx} className="lightbox-slide">

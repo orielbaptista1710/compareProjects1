@@ -1,5 +1,4 @@
 // src/utils/filters.schema
-import { FILTER_LABELS } from "../assests/constants/propertyTypeConfig";
 // Reuse the shared ₹ formatter (already used elsewhere for price display) instead of
 // duplicating lakh/crore formatting logic here
 import { formatCurrencyShort } from "./formatters";
@@ -36,7 +35,8 @@ export const parseFiltersFromURL = (search) => {
     areaMin != null || areaMax != null
       ? {
           min:  areaMin  != null ? Number(areaMin)  : 0,
-          max:  areaMax  != null ? Number(areaMax)  : 10_000,
+          // No areaMax in the URL means "no upper limit" (AreaFilter treats null as its ceiling)
+          max:  areaMax  != null ? Number(areaMax)  : null,
           unit: areaUnit,
         }
       : null;
@@ -96,8 +96,8 @@ export const formatFilterValue = (key, value) => {
         ? `${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`
         : String(n);
 
-    // "Any" when max hits the ceiling (10 000 for sqft etc.)
-    const isMaxed = max >= 10_000 && unit === "sqft";
+    // "Any" when there is no upper limit (null) or an old link carries the 10 000 sqft ceiling
+    const isMaxed = max == null || (max >= 10_000 && unit === "sqft");
     if (isMaxed) return `${fmtNum(min)}+ ${u}`;
     return `${fmtNum(min)}–${fmtNum(max)} ${u}`;
   }
@@ -117,9 +117,6 @@ export const formatFilterValue = (key, value) => {
   switch (key) {
     case "bhk":
       return `${stringValue} BHK`;
-
-    case "propertyType":
-      return FILTER_LABELS.propertyType?.[stringValue] ?? stringValue;
 
     case "facing":
       return (

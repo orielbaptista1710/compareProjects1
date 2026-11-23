@@ -5,12 +5,14 @@ import Property from '../models/Property.js';
 import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from '../models/propertyType.js';
 import { COMMON_AMENITIES, COMMON_SECURITY } from '../constants/amenities.js';
 import { invalidatePropertyCaches } from '../utils/propertyCache.js';
+import { withCache, createCache } from '../utils/withCache.js';
 import { PUBLIC_LIST_FIELDS, PUBLIC_DETAIL_FIELDS } from '../constants/propertyProjections.js';
 import { parsePropertyInput, listingRuleErrors, fieldsNotForType } from '../validators/propertyInputValidator.js';
 import { ownerFilter } from '../middleware/listingOwner.js';
 import { LISTED_BY, LISTING_STATUS, OWNER_MODEL } from '../constants/roles.js';
 import { changedFields } from '../utils/changedFields.js';
 import { verifyListingMedia } from '../services/listingMedia.js';
+import { buildListingSearch } from '../services/searchService.js';
 import logger from '../utils/logger.js';
 import { safeErrorMeta } from '../utils/safeError.js';
 import { currentVersion, versionMatch, readVersion } from '../utils/contentVersion.js';
@@ -50,6 +52,19 @@ const GROUP_SORT_MAP = {
   newest:           { createdAt: -1, lastId: -1 },
   oldest:           { createdAt: 1,  lastId: 1 },
 };
+
+// Filter-panel reference data changes only when listings are approved/edited,
+// and every such write calls invalidatePropertyCaches(), so a 5 min TTL is a
+// safety net rather than the freshness guarantee.
+const FILTER_OPTIONS_CACHE_KEY = 'property-filter-options';
+const FILTER_CACHE_TTL_SECONDS = 300;
+
+// Localities are keyed by the city in the URL (user input), so they get their
+// own capped cache: a flood of made-up city names can fill only this one and
+// never evicts the shared fixed keys. When full, results are served uncached.
+const LOCALITIES_CACHE_MAX_KEYS = 300;
+const MAX_CITY_LENGTH = 100;
+const withLocalitiesCache = createCache({ name: 'localities', maxKeys: LOCALITIES_CACHE_MAX_KEYS });
 
 const DEFAULT_PAGE_LIMIT = 12;
 const MAX_PAGE_LIMIT      = 100;
@@ -170,7 +185,7 @@ const addOrClause = (query, orClause) => {
  * GET /api/properties/filters
  * Returns all distinct filter option values for the UI dropdowns.
  */
-const getFilterOptions = asyncHandler(async (_req, res) => {
+const buildFilterOptions = async () => {
   const base = { status: 'approved' };
 
   const [
@@ -195,7 +210,7 @@ const getFilterOptions = asyncHandler(async (_req, res) => {
     ...new Set([...COMMON_AMENITIES, ...COMMON_SECURITY].map((a) => a.trim())),
   ].sort();
 
-  res.status(200).json({
+  return {
     cities:                  cities.filter(Boolean).sort(),
     propertyTypeOptions:     propertyTypeOptions.filter(Boolean).sort(),
     furnishingOptions:       furnishingOptions.filter(Boolean).sort(),
@@ -205,7 +220,14 @@ const getFilterOptions = asyncHandler(async (_req, res) => {
     floorLabelOptions:       floorLabelOptions.filter(Boolean).sort(),
     amenitiesOptions,
     areaBounds: AREA_BOUNDS,
+  };
+};
+
+const getFilterOptions = asyncHandler(async (_req, res) => {
+  const options = await withCache(FILTER_OPTIONS_CACHE_KEY, buildFilterOptions, {
+    ttl: FILTER_CACHE_TTL_SECONDS,
   });
+  res.status(200).json(options);
 });
 
 // ─────────────────────────────────────────────
@@ -244,19 +266,26 @@ const getPropertiesByType = asyncHandler(async (_req, res) => {
 const getLocalitiesByCity = asyncHandler(async (req, res) => {
   const { city } = req.params;
 
-  if (!city || typeof city !== 'string' || city.trim().length < 2) {
+  const trimmedCity = typeof city === 'string' ? city.trim() : '';
+  if (trimmedCity.length < 2 || trimmedCity.length > MAX_CITY_LENGTH) {
     res.status(400);
     throw new Error('A valid city name is required.');
   }
 
-  const safeCity = escapeRegex(city.trim());
+  // The match below is case-insensitive, so "Pune" and "pune" share one entry.
+  const localities = await withLocalitiesCache(
+    `localities:${trimmedCity.toLowerCase()}`,
+    async () => {
+      const found = await Property.distinct('locality', {
+        city:   { $regex: new RegExp(`^${escapeRegex(trimmedCity)}$`, 'i') },
+        status: 'approved',
+      });
+      return found.filter(Boolean).sort();
+    },
+    { ttl: FILTER_CACHE_TTL_SECONDS }
+  );
 
-  const localities = await Property.distinct('locality', {
-    city:   { $regex: new RegExp(`^${safeCity}$`, 'i') },
-    status: 'approved',
-  });
-
-  res.json({ localities: localities.filter(Boolean).sort() });
+  res.json({ localities });
 });
 
 // ─────────────────────────────────────────────
@@ -415,7 +444,11 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
   const limit = clampInt(req.query.limit, DEFAULT_PAGE_LIMIT, 1, MAX_PAGE_LIMIT);
   const skip  = (page - 1) * limit;
 
-  const groupSort = GROUP_SORT_MAP[req.query.sortBy] ?? GROUP_SORT_MAP.relevance;
+  // Own-key check: a bare lookup would also find inherited names like
+  // "constructor", hand a function to $sort and return a 500.
+  const groupSort = Object.hasOwn(GROUP_SORT_MAP, req.query.sortBy)
+    ? GROUP_SORT_MAP[req.query.sortBy]
+    : GROUP_SORT_MAP.relevance;
 
   // ── Base query ──────────────────────────────
   const query = { status: 'approved' };
@@ -460,6 +493,8 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
   }
 
   // ── BHK (supports exact values and "5+" syntax) ──────────────
+  // Set only when the panel produced a bhk condition (not for bhk=abc).
+  let bhkFromPanel = false;
   if (req.query.bhk) {
     const bhkValues = toArray(req.query.bhk);
     const exact   = [];
@@ -487,6 +522,7 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
 
     // FIX: use addOrClause so a simultaneous search filter doesn't clobber this
     if (bhkClause) addOrClause(query, bhkClause);
+    bhkFromPanel = Boolean(bhkClause) || query.bhk !== undefined;
   }
 
   // ── Area range ───────────────────────────────
@@ -497,7 +533,11 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
     if (!Number.isNaN(min) && min >= 0) areaQuery.$gte = min;
     if (!Number.isNaN(max) && max >= 0) areaQuery.$lte = max;
     if (Object.keys(areaQuery).length) query['area.value'] = areaQuery;
-    if (req.query.areaUnit) query['area.unit'] = req.query.areaUnit;
+    // Only the known units; anything else (or a repeated param) is ignored.
+    const { areaUnit } = req.query;
+    if (typeof areaUnit === 'string' && Object.hasOwn(AREA_BOUNDS, areaUnit)) {
+      query['area.unit'] = areaUnit;
+    }
   }
 
   // ── Price range ──────────────────────────────
@@ -510,17 +550,20 @@ const getAllApprovedProperties = asyncHandler(async (req, res) => {
     if (Object.keys(priceQuery).length) query.price = priceQuery;
   }
 
-  // ── Full-text search ─────────────────────────
-  // FIX: uses addOrClause so simultaneous BHK + search filters both apply
-  if (req.query.search) {
-    const safe = sanitiseSearch(req.query.search);
-    if (safe) {
-      const regex = { $regex: safe, $options: 'i' };
-      addOrClause(query, [
-        { title:       regex },
-        { description: regex },
-        { locality:    regex },
-      ]);
+  // ── Free-text search ─────────────────────────
+  // Parsed like the search dropdown ("2 bhk flats in pune under 80 lakh").
+  // Filters picked in the panel win over ones read from the typed words. bhk
+  // uses bhkFromPanel because "5+" puts it in an $or, not query.bhk. Price is
+  // merged per bound, so a panel minimum keeps a typed "under 50 lakh".
+  const listingSearch = buildListingSearch(req.query.search);
+  if (listingSearch) {
+    for (const [key, value] of Object.entries(listingSearch.filters)) {
+      if (key === 'price' && query.price) query.price = { ...value, ...query.price };
+      else if (key === 'bhk' ? !bhkFromPanel && query.bhk === undefined : query[key] === undefined) query[key] = value;
+    }
+    if (listingSearch.and.length) {
+      query.$and = query.$and ?? [];
+      query.$and.push(...listingSearch.and);
     }
   }
 

@@ -1,3 +1,8 @@
+/* While the bar is showing, leave room for it under the page content. */
+body {
+  padding-bottom: var(--compare-bar-height, 0px);
+}
+
 /* Compare Bar Wrapper */
 .compare-bar-wrapper {
   position: fixed;
@@ -6,7 +11,7 @@
   right: 0;
   z-index: 1000;
   background: white;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--color-border);
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
   animation: slideUp 0.3s ease;
 }
@@ -49,12 +54,12 @@
 }
 
 .compare-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-line-strong);
   border-radius: 3px;
 }
 
 .compare-scroll::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-placeholder);
 }
 
 /* Individual Compare Item */
@@ -63,8 +68,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 8px 12px;
   position: relative;
@@ -72,8 +77,8 @@
 }
 
 .compare-item:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
+  background: var(--color-surface-active);
+  border-color: var(--color-text-disabled);
 }
 
 .compare-item-image {
@@ -81,7 +86,7 @@
   height: 50px;
   object-fit: cover;
   border-radius: 6px;
-  background: #e5e7eb;
+  background: var(--color-border);
 }
 
 .compare-item-info {
@@ -95,7 +100,7 @@
 .compare-item-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #111827;
+  color: var(--color-text-primary);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -105,7 +110,7 @@
 .compare-item-price {
   font-size: 0.8125rem;
   font-weight: 700;
-  color: #6366f1;
+  color: var(--color-primary);
   margin: 0;
 }
 
@@ -118,7 +123,7 @@
   height: 20px;
   border: none;
   background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
+  color: var(--color-error-text);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -129,7 +134,7 @@
 }
 
 .compare-remove-btn:hover {
-  background: #dc2626;
+  background: var(--color-error-text);
   color: white;
   transform: scale(1.1);
 }
@@ -144,7 +149,7 @@
 .compare-count {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
@@ -153,8 +158,8 @@
   align-items: center;
   gap: 6px;
   background: transparent;
-  border: 1px solid #e5e7eb;
-  color: #6b7280;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -165,13 +170,13 @@
 }
 
 .compare-clear-btn:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  color: #374151;
+  background: var(--color-surface-muted);
+  border-color: var(--color-text-disabled);
+  color: var(--color-text-secondary);
 }
 
 .compare-now-btn {
-  background: #6366f1;
+  background: var(--color-primary);
   color: white;
   border: none;
   padding: 10px 24px;
@@ -184,7 +189,7 @@
 }
 
 .compare-now-btn:hover {
-  background: #4f46e5;
+  background: var(--color-primary-dark);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
@@ -200,9 +205,9 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--color-border);
   background: transparent;
-  color: #6b7280;
+  color: var(--color-text-muted);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -210,13 +215,13 @@
 }
 
 .compare-close-btn:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-  color: #374151;
+  background: var(--color-surface-active);
+  border-color: var(--color-text-disabled);
+  color: var(--color-text-secondary);
 }
 
 .compare-close-btn:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -331,7 +336,7 @@
 .compare-remove-btn:focus-visible,
 .compare-clear-btn:focus-visible,
 .compare-now-btn:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 

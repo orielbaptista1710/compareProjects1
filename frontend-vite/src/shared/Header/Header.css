@@ -1,7 +1,7 @@
 /* =========================================
    HEADER
-   All colours, fonts, sizes and spacing come from styles/tokens.css +
-   styles/colors.css — don't add hex/rgba values here. Three colours only:
+   All colours, fonts, sizes and spacing come from styles/tokens.css
+   (single source) — don't add hex/rgba values here. Three colours only:
    brand purple, ink, white (and the --color-on-dark-* tints of white).
 ========================================= */
 
@@ -216,7 +216,7 @@
   gap: var(--space-2);
   height: var(--control-height);
   padding: 0 var(--space-3) 0 var(--space-4);
-  background: var(--color-surface);
+  background: var(--color-highlight);
   color: var(--color-ink);
   border: none;
   border-radius: var(--radius-sm);
@@ -225,11 +225,6 @@
   font-weight: var(--weight-semibold);
   white-space: nowrap;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out);
-}
-
-.post-property-btn:hover {
-  background: var(--color-primary-tint);
 }
 
 .post-property-btn:focus-visible {
@@ -458,17 +453,8 @@
   .post-property-btn {
     width: 100%;
     justify-content: center;
-    background: var(--color-primary);
-    color: var(--color-surface);
-  }
-
-  .post-property-btn:hover {
-    background: var(--color-primary-dark);
-  }
-
-  .header-post-free {
-    background: var(--color-on-dark-line);
-    color: var(--color-surface);
+    background: var(--color-highlight);
+    color: var(--color-ink);
   }
 
   .header-auth-section {

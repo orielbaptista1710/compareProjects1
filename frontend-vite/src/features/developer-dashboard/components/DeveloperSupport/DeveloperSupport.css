@@ -5,24 +5,24 @@
 
 /* ── Tokens ─────────────────────────────────────────────────── */
 .ds-root {
-  --ds-purple-900: #3B0764;
-  --ds-purple-800: #4C1D95;
-  --ds-purple-700: #5B21B6;
-  --ds-purple-600: #7C3AED;
-  --ds-purple-400: #A78BFA;
-  --ds-purple-100: #EDE9FE;
-  --ds-purple-50:  #F5F3FF;
-  --ds-red:        #d90429;
-  --ds-red-soft:   #FFF0F2;
-  --ds-yellow:     #f5a623;
-  --ds-yellow-soft:#FFFBEE;
-  --ds-ink:        #111827;
-  --ds-body:       #374151;
-  --ds-muted:      #6B7280;
-  --ds-hint:       #9CA3AF;
-  --ds-border:     #E5E7EB;
-  --ds-surface:    #F9FAFB;
-  --ds-white:      #ffffff;
+  --ds-purple-900: var(--color-primary-deep);
+  --ds-purple-800: var(--color-primary-dark);
+  --ds-purple-700: var(--color-primary-dark);
+  --ds-purple-600: var(--color-primary);
+  --ds-purple-400: var(--color-primary-light);
+  --ds-purple-100: var(--color-surface-tint-strong);
+  --ds-purple-50:  var(--color-surface-tint);
+  --ds-red:        var(--color-accent-red);
+  --ds-red-soft:   var(--color-accent-red-bg);
+  --ds-yellow:     var(--color-highlight);
+  --ds-yellow-soft:var(--color-highlight-tint);
+  --ds-ink:        var(--color-text-primary);
+  --ds-body:       var(--color-text-secondary);
+  --ds-muted:      var(--color-text-muted);
+  --ds-hint:       var(--color-text-placeholder);
+  --ds-border:     var(--color-border);
+  --ds-surface:    var(--color-surface-muted);
+  --ds-white:      var(--color-surface);
   --ds-shadow-sm:  0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
   --ds-shadow-md:  0 4px 16px rgba(0,0,0,.08);
   --ds-shadow-lg:  0 8px 32px rgba(91,33,182,.12);
@@ -30,7 +30,7 @@
   --ds-radius-lg:  14px;
   --ds-t:          160ms ease;
 
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   background: var(--ds-white);
   color: var(--ds-ink);
   min-height: 100vh;
@@ -291,7 +291,7 @@
 .ds-faq-item--open .ds-faq-btn__icon {
   background: var(--ds-purple-700);
   border-color: var(--ds-purple-700);
-  color: #fff;
+  color: var(--color-on-dark);
 }
 
 .ds-faq-answer {
@@ -423,7 +423,7 @@
 .ds-input:focus {
   border-color: var(--ds-purple-600);
   background: var(--ds-white);
-  box-shadow: 0 0 0 3px rgba(124,58,237,.10);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
 .ds-input--error {
@@ -475,7 +475,7 @@ textarea.ds-input {
 
 .ds-btn--primary {
   background: var(--ds-purple-700);
-  color: #fff;
+  color: var(--color-on-dark);
   font-size: 14px;
   padding: 12px 28px;
 }
@@ -566,9 +566,9 @@ textarea.ds-input {
   gap: 10px;
   padding: 14px 16px;
   border-radius: var(--ds-radius);
-  background: #F0FDF4;
-  border: 1.5px solid #BBF7D0;
-  color: #15803D;
+  background: var(--color-success-bg);
+  border: 1.5px solid var(--color-success);
+  color: var(--color-success);
   font-size: 13px;
   font-weight: 500;
 }

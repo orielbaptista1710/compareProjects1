@@ -13,15 +13,15 @@
 .spinner-text {
   font-size: 0.92rem;
   font-weight: 600;
-  color: #9417E2;
+  color: var(--color-primary);
   letter-spacing: 0.04em;
   margin: 0;
   opacity: 0.8;
 }
 
 .loader-spinner {
-  --color-1: #653fa2;
-  --color-2: #7c3aed;
+  --color-1: var(--color-primary-light);
+  --color-2: var(--color-primary);
   --size: 4px;
 
   width: calc(48 * var(--size));

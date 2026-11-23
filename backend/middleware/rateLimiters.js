@@ -49,6 +49,25 @@ export const searchLimiter = rateLimit({
 });
 
 // ---------------------------------------------------------------------------
+// Location suggestions (home search box)  —  120 req / 60 s
+// ---------------------------------------------------------------------------
+// Separate counter from searchLimiter: this fires on every debounced keystroke
+// and repeat queries are cached. Many Indian mobile users share a carrier IP;
+// a shared budget here would 429 real visitors.
+// Applied to: GET /api/locations/search
+// Exported so a test can build the limiter without the test-mode skip.
+export const LOCATION_SUGGEST_LIMIT = {
+  windowMs: 60_000,
+  max: 120,
+  message: { error: 'Too many search requests — please slow down.' },
+};
+
+export const locationSuggestLimiter = rateLimit({
+  ...sharedOptions,
+  ...LOCATION_SUGGEST_LIMIT,
+});
+
+// ---------------------------------------------------------------------------
 // Property submission  —  10 req / 60 min
 // ---------------------------------------------------------------------------
 // Prevents spam/duplicate submissions from the same IP.

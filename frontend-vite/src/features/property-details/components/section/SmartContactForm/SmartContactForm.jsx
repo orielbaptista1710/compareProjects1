@@ -134,9 +134,9 @@ function readValidDraft() {
 
 const StepCard = styled(Button)({
   borderRadius: 16,
-  border: "1px solid #ececec",
-  background: "#ffffff",
-  color: "#1f2937",
+  border: "1px solid var(--color-line)",
+  background: "var(--color-surface)",
+  color: "var(--color-ink)",
   textTransform: "none",
   padding: "14px 16px",
   justifyContent: "flex-start",
@@ -146,10 +146,10 @@ const StepCard = styled(Button)({
   transition: "all 0.2s ease",
   boxShadow: "none",
   "&:hover": {
-    borderColor: "#9417E2",
-    background: "linear-gradient(135deg, #fcf7ff 0%, #f7efff 100%)",
+    borderColor: "var(--color-primary)",
+    background: "linear-gradient(135deg, var(--color-surface-tint) 0%, var(--color-surface-tint-strong) 100%)",
     transform: "translateY(-1px)",
-    boxShadow: "0 8px 20px rgba(148, 23, 226, 0.08)",
+    boxShadow: "var(--shadow-md)",
   },
 });
 
@@ -159,15 +159,15 @@ const ContinueButton = styled(Button)({
   fontWeight: 700,
   textTransform: "none",
   fontSize: "14px",
-  background: "linear-gradient(135deg, #9417E2 0%, #7b2cbf 100%)",
-  color: "#fff",
-  boxShadow: "0 10px 24px rgba(148, 23, 226, 0.22)",
+  background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",
+  color: "var(--color-surface)",
+  boxShadow: "var(--shadow-brand)",
   "&:hover": {
-    background: "linear-gradient(135deg, #7b2cbf 0%, #6a1bb1 100%)",
+    background: "linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-dark) 100%)",
   },
   "&:disabled": {
-    background: "#e5e7eb",
-    color: "#9ca3af",
+    background: "var(--color-line)",
+    color: "var(--color-placeholder)",
     boxShadow: "none",
   },
 });
@@ -178,23 +178,23 @@ const SecondaryButton = styled(Button)({
   fontWeight: 600,
   textTransform: "none",
   fontSize: "13px",
-  border: "1px solid #e5e7eb",
-  color: "#6b7280",
-  background: "#fff",
+  border: "1px solid var(--color-line)",
+  color: "var(--color-ink-muted)",
+  background: "var(--color-surface)",
   "&:hover": {
-    borderColor: "#9417E2",
-    background: "#faf5ff",
-    color: "#9417E2",
+    borderColor: "var(--color-primary)",
+    background: "var(--color-surface-tint)",
+    color: "var(--color-primary)",
   },
 });
 
 const StyledTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
     borderRadius: 16,
-    background: "#ffffff",
-    "& fieldset": { borderColor: "#e5e7eb" },
-    "&:hover fieldset": { borderColor: "#c084fc" },
-    "&.Mui-focused fieldset": { borderColor: "#9417E2", borderWidth: "2px" },
+    background: "var(--color-surface)",
+    "& fieldset": { borderColor: "var(--color-line)" },
+    "&:hover fieldset": { borderColor: "var(--color-primary-light)" },
+    "&.Mui-focused fieldset": { borderColor: "var(--color-primary)", borderWidth: "2px" },
   },
   "& .MuiOutlinedInput-input": {
     padding: "14px",
@@ -366,9 +366,9 @@ const SmartContactForm = ({ isInSheet = false }) => {
           sx={{
             borderRadius: isOpen ? "22px 22px 0 0" : "22px",
             overflow: "hidden",
-            border: "1px solid #ececec",
-            background: "linear-gradient(135deg, #9417E2 0%, #7b2cbf 100%)",
-            color: "#fff",
+            border: "1px solid var(--color-line)",
+            background: "linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)",
+            color: "var(--color-surface)",
           }}
         >
           <Box
@@ -388,7 +388,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                   width: 38,
                   height: 38,
                   borderRadius: "12px",
-                  background: "rgba(255,255,255,0.15)",
+                  background: "var(--color-on-dark-fill)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -407,7 +407,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
               </Box>
             </Box>
 
-            <IconButton sx={{ color: "#fff" }}>
+            <IconButton sx={{ color: "var(--color-surface)" }}>
               {isOpen ? <X size={18} /> : <MessageCircle size={18} />}
             </IconButton>
           </Box>
@@ -420,9 +420,9 @@ const SmartContactForm = ({ isInSheet = false }) => {
             elevation={0}
             sx={{
               borderRadius: isInSheet ? "0px" : "0 0 22px 22px",
-              border: isInSheet ? "none" : "1px solid #ececec",
+              border: isInSheet ? "none" : "1px solid var(--color-line)",
               borderTop: "none",
-              background: "#ffffff",
+              background: "var(--color-surface)",
               overflow: "hidden",
             }}
           >
@@ -433,7 +433,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                     width: 74,
                     height: 74,
                     borderRadius: "50%",
-                    background: "linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)",
+                    background: "linear-gradient(135deg, var(--color-success-bg) 0%, var(--color-success-bg) 100%)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -441,14 +441,14 @@ const SmartContactForm = ({ isInSheet = false }) => {
                     mb: 2,
                   }}
                 >
-                  <CheckCircle2 size={36} color="#16a34a" />
+                  <CheckCircle2 size={36} color="var(--color-success)" />
                 </Box>
 
                 <Typography fontWeight={800} fontSize="20px" mb={1}>
                   Thank You!
                 </Typography>
 
-                <Typography fontSize="14px" color="#6b7280" mb={3}>
+                <Typography fontSize="14px" color="var(--color-ink-muted)" mb={3}>
                   Our property expert will contact you shortly.
                 </Typography>
 
@@ -464,7 +464,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
               </Box>
             ) : (
               <>
-                <Box sx={{ px: 2, pt: 2, pb: 1.5, borderBottom: "1px solid #f3f4f6" }}>
+                <Box sx={{ px: 2, pt: 2, pb: 1.5, borderBottom: "1px solid var(--color-line)" }}>
                   <Box
                     sx={{
                       display: "flex",
@@ -473,11 +473,11 @@ const SmartContactForm = ({ isInSheet = false }) => {
                       mb: 1,
                     }}
                   >
-                    <Typography fontSize="12px" fontWeight={700} color="#6b7280">
+                    <Typography fontSize="12px" fontWeight={700} color="var(--color-ink-muted)">
                       STEP {step + 1} / {steps.length}
                     </Typography>
 
-                    <Typography fontSize="12px" fontWeight={700} color="#9417E2">
+                    <Typography fontSize="12px" fontWeight={700} color="var(--color-primary)">
                       {Math.round(((step + 1) / steps.length) * 100)}%
                     </Typography>
                   </Box>
@@ -488,10 +488,10 @@ const SmartContactForm = ({ isInSheet = false }) => {
                     sx={{
                       height: 7,
                       borderRadius: 999,
-                      background: "#f3e8ff",
+                      background: "var(--color-surface-tint-strong)",
                       "& .MuiLinearProgress-bar": {
                         borderRadius: 999,
-                        background: "linear-gradient(90deg,#9417E2,#c026d3)",
+                        background: "linear-gradient(90deg,var(--color-primary),var(--color-primary-light))",
                       },
                     }}
                   />
@@ -502,7 +502,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                     {currentStep.title}
                   </Typography>
 
-                  <Typography fontSize="13px" color="#6b7280" mb={2.2}>
+                  <Typography fontSize="13px" color="var(--color-ink-muted)" mb={2.2}>
                     {currentStep.subtitle}
                   </Typography>
 
@@ -560,11 +560,11 @@ const SmartContactForm = ({ isInSheet = false }) => {
                                   setConsentError(false);
                                 }}
                                 disabled={isSubmitting}
-                                sx={{ p: 0.5, mr: 1, "&.Mui-checked": { color: "#9417E2" } }}
+                                sx={{ p: 0.5, mr: 1, "&.Mui-checked": { color: "var(--color-primary)" } }}
                               />
                             }
                             label={
-                              <Typography fontSize="12px" color="#6b7280">
+                              <Typography fontSize="12px" color="var(--color-ink-muted)">
                                 I agree to be contacted via phone, WhatsApp, SMS or email.
                               </Typography>
                             }
@@ -587,7 +587,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                         <ContinueButton type="submit" fullWidth disabled={isSubmitting}>
                           {isSubmitting ? (
                             <>
-                              <CircularProgress size={18} sx={{ color: "#fff", mr: 1 }} />
+                              <CircularProgress size={18} sx={{ color: "var(--color-surface)", mr: 1 }} />
                               Submitting...
                             </>
                           ) : step === steps.length - 1 ? (
@@ -609,11 +609,11 @@ const SmartContactForm = ({ isInSheet = false }) => {
                       px: 1.5,
                       py: 1.2,
                       borderRadius: 14,
-                      background: "#faf5ff",
+                      background: "var(--color-surface-tint)",
                     }}
                   >
-                    <ShieldCheck size={16} color="#9417E2" />
-                    <Typography fontSize="11px" color="#6b7280">
+                    <ShieldCheck size={16} color="var(--color-primary)" />
+                    <Typography fontSize="11px" color="var(--color-ink-muted)">
                       Your information is secure and never shared.
                     </Typography>
                   </Box>

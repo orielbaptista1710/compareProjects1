@@ -2,9 +2,10 @@
 // One result row in the home search dropdown (ExpandableSearch).
 import { memo } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapPin, Plus } from "lucide-react";
+import { MapPin, Plus, Check } from "lucide-react";
 import "./PropertyCardSmall.css";
 import { useCompare } from "../../../contexts/CompareContext";
+import { MAX_COMPARE } from "../../../hooks/useCompareList";
 import { posterOf, POSTER, POSTER_LABELS } from "../../../constants/roles";
 import { formatCurrencyShort } from "../../../utils/formatters";
 import { getOptimizedPropertyImage, fallbackImg } from "../../../utils/propertyHelpers";
@@ -13,7 +14,7 @@ import { getOptimizedPropertyImage, fallbackImg } from "../../../utils/propertyH
 // routing.  This prevents the card's own navigate() from firing alongside the
 // parent's handler and causing a double-navigation race.
 const PropertyCardSmall = ({ property, disableNavigation = false }) => {
-  const { addToCompare } = useCompare();
+  const { addToCompare, compareList } = useCompare();
   const navigate = useNavigate();
 
   // Sized for the 112×84 thumbnail at 2x.
@@ -26,6 +27,12 @@ const PropertyCardSmall = ({ property, disableNavigation = false }) => {
     posterOf(property) === POSTER.BUILDER && property?.developerName
       ? `by ${property.developerName}`
       : `Posted by ${POSTER_LABELS[posterOf(property)]}`;
+
+  // addToCompare silently refuses duplicates and a full list, so show that state
+  // on the button instead of leaving a click that visibly does nothing.
+  const inCompare = Boolean(compareList?.some((p) => p._id === property?._id));
+  const compareFull = !inCompare && (compareList?.length ?? 0) >= MAX_COMPARE;
+  const compareLabel = inCompare ? "Added" : compareFull ? `Full (${MAX_COMPARE})` : "Compare";
 
   const handleCardClick = () => {
     if (!disableNavigation) {
@@ -86,13 +93,16 @@ const PropertyCardSmall = ({ property, disableNavigation = false }) => {
         <button
           className="psm-compare-btn"
           type="button"
+          aria-disabled={inCompare || compareFull}
+          title={compareFull ? `You can compare up to ${MAX_COMPARE} properties. Remove one first.` : undefined}
           onClick={(e) => {
             e.stopPropagation(); // prevent card click / parent click
+            if (inCompare || compareFull) return;
             addToCompare(property);
           }}
         >
-          <Plus size={14} aria-hidden="true" />
-          Compare
+          {inCompare ? <Check size={14} aria-hidden="true" /> : <Plus size={14} aria-hidden="true" />}
+          {compareLabel}
         </button>
       </div>
     </div>

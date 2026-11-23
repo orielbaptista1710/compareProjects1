@@ -7,9 +7,9 @@
 
 .pc-card {
   display: flex;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 12px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--color-line);
   overflow: hidden;
   margin: 0 0 14px 0;
   cursor: pointer;
@@ -25,7 +25,7 @@
   min-width: 280px;
   position: relative;
   overflow: hidden;
-  background: #ebebeb;
+  background: var(--color-ink-fill);
   flex-shrink: 0;
 }
 
@@ -47,8 +47,8 @@
   position: absolute;
   top: 10px;
   left: 10px;
-  background: #10b981;
-  color: #fff;
+  background: var(--color-success);
+  color: var(--color-on-dark);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.4px;
@@ -119,8 +119,8 @@
   height: 40px;
   min-width: 40px;
   border-radius: 8px;
-  border: 1px solid #ececec;
-  background: #fff;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,7 +142,7 @@
 .pc-eyebrow {
   font-size: 11px;
   font-weight: 600;
-  color: #888;
+  color: var(--color-placeholder);
   text-transform: uppercase;
   letter-spacing: 0.4px;
   margin-bottom: 4px;
@@ -152,7 +152,7 @@
 .pc-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-ink);
   margin: 0 0 4px 0;
   line-height: 1.3;
   letter-spacing: -0.01em;
@@ -173,12 +173,12 @@
   align-items: center;
   gap: 3px;
   font-size: 13px;
-  color: #666;
+  color: var(--color-ink-muted);
   font-weight: 400;
 }
 
 .pc-location svg {
-  color: #d92228;
+  color: var(--color-accent-red);
   flex-shrink: 0;
 }
 
@@ -188,7 +188,7 @@
   gap: 4px;
   font-size: 13px;
   font-weight: 500;
-  color: #1a73e8;
+  color: var(--color-primary);
   text-decoration: none;
   padding: 0;
   white-space: nowrap;
@@ -206,13 +206,13 @@
   gap: 4px 10px;
   margin-bottom: 10px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .pc-price {
   font-size: 26px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-ink);
   letter-spacing: -0.03em;
   line-height: 1;
 }
@@ -221,14 +221,14 @@
   flex-basis: 100%;
   font-size: 11px;
   font-weight: 600;
-  color: #999;
+  color: var(--color-placeholder);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
 .pc-emi {
   font-size: 12px;
-  color: #e07b2a;
+  color: var(--color-primary);
   font-weight: 500;
 }
 
@@ -236,10 +236,10 @@
    furnishing — instead of separate stat blocks, to keep the card compact */
 .pc-meta-row {
   font-size: 12px;
-  color: #666;
+  color: var(--color-ink-muted);
   margin-bottom: 8px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-line);
 }
 
 /* Configurations — a row of tiles (BHK · price, area below) that scrolls
@@ -251,7 +251,7 @@
 .pc-config-label {
   font-size: 12px;
   font-weight: 700;
-  color: #555;
+  color: var(--color-ink-muted);
   margin-bottom: 6px;
 }
 
@@ -280,8 +280,8 @@
   gap: 4px;
   min-width: 128px;
   padding: 9px 13px;
-  background: #fff;
-  border: 1.5px solid #e2e2e2;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-line);
   border-radius: 10px;
   cursor: pointer;
   scroll-snap-align: start;
@@ -291,24 +291,24 @@
 
 .pc-config-tile:hover,
 .pc-config-tile:focus-visible {
-  border-color: #6c63d4;
+  border-color: var(--color-primary);
   outline: none;
 }
 
 .pc-config-tile--active {
-  background: #f4f2fd;
-  border-color: #6c63d4;
+  background: var(--color-surface-tint);
+  border-color: var(--color-primary);
 }
 
 .pc-config-tile__top {
   font-size: 12px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: var(--color-ink);
   white-space: nowrap;
 }
 
 .pc-config-tile--active .pc-config-tile__top {
-  color: #6c63d4;
+  color: var(--color-primary);
 }
 
 .pc-config-tile__sub {
@@ -316,7 +316,7 @@
   align-items: center;
   gap: 2px;
   font-size: 11px;
-  color: #888;
+  color: var(--color-placeholder);
   white-space: nowrap;
 }
 
@@ -329,7 +329,7 @@
   border-radius: 50%;
   border: none;
   background: rgba(30, 30, 30, 0.75);
-  color: #fff;
+  color: var(--color-on-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -354,7 +354,7 @@
 /* Description */
 .pc-desc {
   font-size: 13px;
-  color: #666;
+  color: var(--color-ink-muted);
   line-height: 1.6;
   margin-bottom: 8px;
 }
@@ -362,7 +362,7 @@
 .pc-read-more {
   background: none;
   border: none;
-  color: #1a73e8;
+  color: var(--color-primary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -371,7 +371,7 @@
   transition: color 0.15s;
 }
 
-.pc-read-more:hover { color: #1558b0; }
+.pc-read-more:hover { color: var(--color-primary-dark); }
 
 /* Tags — uppercase pill style matching reference */
 .pc-tags {
@@ -384,9 +384,9 @@
 .pc-tag {
   font-size: 11px;
   font-weight: 600;
-  color: #555;
-  background: #fff;
-  border: 1px solid #ddd;
+  color: var(--color-ink-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
   border-radius: 5px;
   padding: 5px 11px;
   letter-spacing: 0.3px;
@@ -396,8 +396,8 @@
 }
 
 .pc-tag:hover {
-  background: #f8f8f8;
-  border-color: #bbb;
+  background: var(--color-surface-subtle);
+  border-color: var(--color-line-strong);
 }
 
 /* Secondary meta strip */
@@ -410,12 +410,12 @@
 
 .pc-meta-item {
   font-size: 12px;
-  color: #888;
+  color: var(--color-placeholder);
 }
 
 .pc-meta-label {
   font-weight: 600;
-  color: #555;
+  color: var(--color-ink-muted);
 }
 
 /* Footer */
@@ -443,32 +443,32 @@
 
 .pc-btn-compare {
   background: transparent;
-  color: #6c63d4;
-  border: 1.5px solid #dddaf8;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-surface-tint-strong);
 }
 
 .pc-btn-compare:hover,
 .pc-btn-compare:focus {
-  background: #f4f2fd;
-  border-color: #6c63d4;
+  background: var(--color-surface-tint);
+  border-color: var(--color-primary);
   outline: none;
 }
 
 .pc-btn-compare.active {
-  background: #6c63d4;
-  color: #fff;
-  border-color: #6c63d4;
+  background: var(--color-primary);
+  color: var(--color-on-dark);
+  border-color: var(--color-primary);
 }
 
 .pc-btn-contact {
-  background: #f97316;
-  color: #fff;
+  background: var(--color-highlight); /* yellow; dark text, since white on amber is unreadable */
+  color: var(--color-ink);
   border: none;
 }
 
 .pc-btn-contact:hover,
 .pc-btn-contact:focus {
-  background: #ea6c0a;
+  filter: brightness(0.93);
   transform: translateY(-1px);
   outline: none;
 }
@@ -529,7 +529,7 @@
 }
 
 .pc-card:focus-visible {
-  outline: 2px solid #6c63d4;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -539,6 +539,6 @@
 .pc-config-tile:focus-visible,
 .pc-config-nav:focus-visible,
 .pc-read-more:focus-visible {
-  outline: 2px solid #6c63d4;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }

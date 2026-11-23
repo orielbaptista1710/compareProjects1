@@ -1,9 +1,14 @@
 // backend/services/locationSearchService.js
 import Property from "../models/Property.js";
-import { withCache } from "../utils/withCache.js";
+import { createCache } from "../utils/withCache.js";
 
 const MAX_RESULTS = 8;
 const MIN_QUERY_LENGTH = 2;
+export const MAX_QUERY_LENGTH = 100; // same cap as sanitiseQuery in searchService.js
+export const LOCATION_CACHE_MAX_KEYS = 2000;
+
+// Own cache: keys are user-typed text, so they mustn't fill the shared cache.
+const withLocationCache = createCache({ name: "location-search", maxKeys: LOCATION_CACHE_MAX_KEYS });
 
 // Matches a trailing directional word so "Andheri East" -> "Andheri".
 // Extend this list if your data uses compound directions (e.g. "North West").
@@ -26,7 +31,7 @@ const rankResults = (results, query) => {
       return { ...r, _score: score };
     })
     .sort((a, b) => b._score - a._score)
-        // eslint-disable-next-line no-unused-vars -- destructuring to strip _score off before returning CHECK THIS 
+    // eslint-disable-next-line no-unused-vars -- destructuring strips _score off before returning
     .map(({ _score, ...r }) => r);
 };
 
@@ -97,9 +102,16 @@ const searchLocationsRaw = async (query) => {
 };
 
 export const searchLocations = async (query) => {
-  const trimmed = (query || "").trim();
+  // Trim first, then cap (same order as sanitiseQuery), so leading spaces
+  // don't eat into the length budget.
+  // Control characters (a null byte makes the Mongo regex throw, a 500) can't
+  // be part of a place name, so turn them into spaces (a tab or newline between
+  // two words must still separate them); trim below tidies the edges.
+  // eslint-disable-next-line no-control-regex -- replacing them is the point
+  const clean = typeof query === "string" ? query.replace(/[\u0000-\u001f\u007f]/g, " ") : "";
+  const trimmed = clean.trim().slice(0, MAX_QUERY_LENGTH).trim();
   if (trimmed.length < MIN_QUERY_LENGTH) return [];
 
   const cacheKey = `location-search:${trimmed.toLowerCase()}`;
-  return withCache(cacheKey, () => searchLocationsRaw(trimmed), { ttl: 300 });
+  return withLocationCache(cacheKey, () => searchLocationsRaw(trimmed), { ttl: 300 });
 };

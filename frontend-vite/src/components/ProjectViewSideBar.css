@@ -1,5 +1,5 @@
 .latest-deals-container {
-  background: #ffffff;
+  background: var(--color-surface);
   padding: 0px;
   border-radius: 14px;
   max-width: 400px;
@@ -12,19 +12,19 @@
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 14px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-line);
 }
 
 .latest-deals-header h2 {
   font-weight: 700;
   margin: 0;
-  color: #222;
+  color: var(--color-ink);
   letter-spacing: -0.02em;
 }
 
 .see-more {
   font-size: 15px;
-  color: #9417E2;
+  color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
   transition: all 0.2s ease;
@@ -33,7 +33,7 @@
 }
 
 .see-more:hover {
-  color: #7d13c4;
+  color: var(--color-primary);
   background: rgba(148, 23, 226, 0.06);
 }
 
@@ -46,10 +46,10 @@
 .deal-card {
   display: flex;
   align-items: stretch;
-  background: #fafafa;
+  background: var(--color-surface-subtle);
   border-radius: 10px;
   overflow: hidden;
-  border: 1px solid #e8e8e8;
+  border: 1px solid var(--color-line);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
@@ -57,7 +57,7 @@
 .deal-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  border-color: #d0d0d0;
+  border-color: var(--color-line-strong);
 }
 
 .deal-image {
@@ -85,7 +85,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 650;
-  color: #222;
+  color: var(--color-ink);
   line-height: 1.4;
   letter-spacing: -0.01em;
   display: -webkit-box;
@@ -96,7 +96,7 @@
 
 .deal-info p {
   font-size: 15px;
-  color: #666;
+  color: var(--color-ink-muted);
   margin: 0;
   line-height: 1.5;
   display: -webkit-box;
@@ -108,7 +108,7 @@
 .deal-price {
   font-size: 16px;
   font-weight: 700;
-  color: #9417E2;
+  color: var(--color-primary);
   margin-top: auto;
   letter-spacing: -0.01em;
 }

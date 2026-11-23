@@ -1,18 +1,18 @@
 .admin-row-approved {
-  background-color: #E8F5E9;
+  background-color: var(--color-success-bg);
 }
 
 .admin-row-rejected {
-  background-color: #FFEBEE;
+  background-color: var(--color-error-bg);
 }
 
 .admin-row-pending {
-  background-color: #FFFDE7;
+  background-color: var(--color-highlight-tint);
 }
 
 .admin-row-suspended {
-  background-color: #F5F5F5;
-  color: #757575;
+  background-color: var(--color-bg-page);
+  color: var(--color-ink-muted);
 }
 
 /* Title with the "Edited" chip next to it */

@@ -2,7 +2,6 @@
   "defaultSeverity": "warning",
   "ignoreFiles": [
     "src/styles/tokens.css",
-    "src/styles/colors.css",
     "dist/**",
     "coverage/**"
   ],
@@ -17,7 +16,9 @@
     {
       "files": [
         "src/shared/Header/**/*.css",
+        "src/shared/NavigationBar/NavigationBar.css",
         "src/shared/Popups/DeveloperPopup.css",
+        "src/features/property-filters/**/*.css",
         "src/pages/Auth/CustomerAuth/authStyles/*.css"
       ],
       "rules": {

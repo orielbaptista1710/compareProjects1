@@ -5,8 +5,9 @@ import { safeErrorMeta } from "../utils/safeError.js";
 
 export const getLocationSuggestions = async (req, res) => {
   try {
-    const { q = "" } = req.query;
-    const results = await searchLocations(q);
+    // Express can hand us an array (?q=a&q=b); searchLocations treats anything
+    // but a string as empty, and trims + caps the length itself.
+    const results = await searchLocations(req.query.q);
     res.json({ results });
   } catch (err) {
     logger.error("Location search error", safeErrorMeta(err));

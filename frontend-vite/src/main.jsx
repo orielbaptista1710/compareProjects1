@@ -4,7 +4,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./global.css";
 import "./index.css";
-import "./styles/colors.css";
 import "./styles/tokens.css";
 import App from "./App.jsx";
 
