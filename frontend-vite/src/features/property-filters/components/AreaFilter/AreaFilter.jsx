@@ -131,8 +131,19 @@ const AreaFilter = ({ value, onChange, areaBounds }) => {
   // The unit lives in the URL value only while a range is applied. With no
   // filter active (value null) the unit buttons still need to remember the pick.
   const [pickedUnit, setPickedUnit] = useState("sqft");
+  // True when this control itself emptied the filter (its Clear button, a unit
+  // switch, or dragging back to the full range): the unit is then kept. When the
+  // filter is emptied from outside (page "Clear all", browser back) the unit
+  // goes back to sqft, matching what a reload would show.
+  const [keepUnit, setKeepUnit] = useState(false);
+  const [hadValue, setHadValue] = useState(value != null);
+  if ((value != null) !== hadValue) {
+    setHadValue(value != null);
+    if (value == null && !keepUnit) setPickedUnit("sqft");
+    setKeepUnit(false);
+  }
 
-  const unit    = resolveUnit(value?.unit ?? pickedUnit);
+  const unit   = resolveUnit(value?.unit ?? pickedUnit);
   const bounds  = buildBounds(unit, areaBounds);
   const safe    = sanitizeValue(value, bounds);
   const presets = PRESETS[unit] ?? PRESETS.sqft;
@@ -152,6 +163,8 @@ const AreaFilter = ({ value, onChange, areaBounds }) => {
   const emit = (min, max, u) => {
     const b = buildBounds(u, areaBounds);
     if (min <= b.min && max >= b.max) {
+      setPickedUnit(u);
+      setKeepUnit(true);
       onChange(null);
       return;
     }
@@ -185,6 +198,7 @@ const AreaFilter = ({ value, onChange, areaBounds }) => {
 
   // A new unit starts at its full range, which is "no filter".
   setPickedUnit(newUnit);
+  setKeepUnit(true);
   onChange(null);
 };
 
@@ -194,6 +208,7 @@ const AreaFilter = ({ value, onChange, areaBounds }) => {
 
  const handleClear = () => {
   setPickedUnit(unit); // keep showing the unit the user was on
+  setKeepUnit(true);
   onChange(null);
 };
   
