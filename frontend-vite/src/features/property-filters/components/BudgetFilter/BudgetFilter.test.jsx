@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -37,35 +38,59 @@ describe("BudgetFilter", () => {
   });
 
   describe("slider extremes", () => {
-    const LAST_STEP = 37; // the "Max" slot, Infinity
     const drag = (label, to) => fireEvent.change(screen.getByLabelText(label), { target: { value: String(to) } });
+    // The last slider step is the "Max" slot (Infinity); read it from the control so the
+    // tests follow the ladder if it changes.
+    const lastStep = () => Number(screen.getByLabelText("Minimum budget slider").max);
 
-    it("stops the minimum slider at the top real step instead of sending Infinity", () => {
-      const onChange = vi.fn();
-      render(<BudgetFilter value={null} onChange={onChange} />);
+    // Feeds every emitted value back in, like the page does, so combined states are reached.
+    const Harness = ({ onEmit }) => {
+      const [value, setValue] = useState(null);
+      return (
+        <BudgetFilter
+          value={value}
+          onChange={(v) => {
+            onEmit(v);
+            setValue(v);
+          }}
+        />
+      );
+    };
 
-      drag("Minimum budget slider", LAST_STEP);
+    it("stops the minimum slider at the top real step (5 Cr) instead of sending Infinity", () => {
+      const onEmit = vi.fn();
+      render(<Harness onEmit={onEmit} />);
 
-      expect(onChange).toHaveBeenCalledWith({ min: 50_000_000, max: null });
+      drag("Minimum budget slider", lastStep());
+
+      expect(onEmit).toHaveBeenLastCalledWith({ min: 50_000_000, max: null });
     });
 
-    it("stops the maximum slider at the first real step instead of sending 0", () => {
-      const onChange = vi.fn();
-      render(<BudgetFilter value={null} onChange={onChange} />);
+    it("stops the maximum slider at the first real step (5L) instead of sending 0", () => {
+      const onEmit = vi.fn();
+      render(<Harness onEmit={onEmit} />);
 
       drag("Maximum budget slider", 0);
 
-      expect(onChange).toHaveBeenCalledWith({ min: null, max: 500_000 });
+      expect(onEmit).toHaveBeenLastCalledWith({ min: null, max: 500_000 });
     });
 
-    it("never reports Infinity, zero or a negative price from any slider position", () => {
+    it("never reports Infinity, zero or a negative price from any slider position, in any combination", () => {
       const sent = [];
-      const onChange = (v) => v && sent.push(v.min, v.max);
-      render(<BudgetFilter value={null} onChange={onChange} />);
+      render(<Harness onEmit={(v) => v && sent.push(v.min, v.max)} />);
+      const last = lastStep();
+      expect(last).toBeGreaterThan(1);
 
-      for (let i = 0; i <= LAST_STEP; i++) {
-        drag("Minimum budget slider", i);
-        drag("Maximum budget slider", i);
+      // Both ends of the ladder (where the Min / Max slots live) and the middle,
+      // each thumb against each, in both orders. A full 38 x 38 sweep takes ~70s.
+      const positions = [0, 1, 2, Math.floor(last / 2), last - 2, last - 1, last];
+      for (const i of positions) {
+        for (const j of positions) {
+          drag("Minimum budget slider", i);
+          drag("Maximum budget slider", j);
+          drag("Maximum budget slider", i);
+          drag("Minimum budget slider", j);
+        }
       }
 
       const prices = sent.filter((p) => p != null);

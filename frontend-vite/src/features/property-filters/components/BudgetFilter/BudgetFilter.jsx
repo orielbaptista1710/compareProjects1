@@ -21,6 +21,10 @@ const STEPS = (() => {
 })();
 
 const LAST = STEPS.length - 1;
+// Edges the sliders may not produce: the minimum can't be the "Max" slot (Infinity)
+// and the maximum can't be the "Min" slot (₹0). See setMin / setMax.
+const MIN_CEIL = LAST - 1;
+const MAX_FLOOR = 1;
 
 const labelFor = (i) =>
   i === 0 ? "Min" : i === LAST ? "Max" : formatCurrencyShort(STEPS[i]);
@@ -60,8 +64,6 @@ const BudgetFilter = ({ value, onChange, onDone }) => {
   // priceMax=0 and the list goes empty. Both sliders keep the full 0..LAST range
   // so the thumbs stay aligned with the fill; being controlled, a thumb dragged
   // past the limit snaps back to the nearest allowed step.
-  const MIN_CEIL = LAST - 1;
-  const MAX_FLOOR = 1;
   const setMin = (i) => emit(Math.min(i, maxIdx, MIN_CEIL), maxIdx);
   const setMax = (i) => emit(minIdx, Math.max(i, minIdx, MAX_FLOOR));
 
