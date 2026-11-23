@@ -254,9 +254,12 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
     [debouncedSearch]
   );
 
-  // Cancel a pending search first, or the old text would be re-applied after clearing.
+  // Cancel a pending search first, or the old text would be re-applied after
+  // clearing. Empty the box too: text typed but not yet applied never reached the
+  // URL, so nothing else would reset it.
   const clearFilters = useCallback(() => {
     debouncedSearch.cancel();
+    setSearchInput('');
     navigate('/properties');
   }, [navigate, debouncedSearch]);
 
