@@ -1,4 +1,4 @@
-//frontend-vite/src/pages/Properties/PropertiesPageComponets/FilterComponents/FilterPanel.jsx
+// frontend-vite/src/features/property-filters/components/FilterPanel/FilterPanel.jsx
 import React from "react";
 import {
   Filter,
@@ -13,6 +13,7 @@ import {
   Clock,
   Maximize2,
   IndianRupee,
+  Sparkles,
 } from "lucide-react";
 
 import BudgetFilter from "../BudgetFilter/BudgetFilter";
@@ -46,16 +47,15 @@ const FilterPanel = ({
         <h3>
           <Filter size={15} />
           Filters
-          
         </h3>
-          <button
-            type="button"
-            className="filter-clear-btn"
-            onClick={onClearAll}
-            aria-label="Clear all filters"
-          >
-            Clear all
-          </button>
+        <button
+          type="button"
+          className="filter-clear-btn"
+          onClick={onClearAll}
+          aria-label="Clear all filters"
+        >
+          Clear all
+        </button>
       </div>
 
       {/* ── Scrollable sections ── */}
@@ -85,7 +85,7 @@ const FilterPanel = ({
           />
         </FilterSection>
 
-        {/* Area — passes real bounds from API so the slider max matches actual data */}
+        {/* Area — areaBounds from the API overrides AreaFilter's built-in fallback ranges per unit */}
         <FilterSection
           title="Area"
           icon={Maximize2}
@@ -135,8 +135,6 @@ const FilterPanel = ({
             onChange={(value) => onFilterChange("bhk", value)}
           />
         </FilterSection>
-
-        
 
         {/* Furnishing */}
         <FilterSection
@@ -193,7 +191,7 @@ const FilterPanel = ({
         {/* Floor Label */}
         <FilterSection
           title="Floor preference"
-          icon={Layers} 
+          icon={Layers}
           initiallyOpen={false}
         >
           <CheckboxGroup
@@ -206,7 +204,7 @@ const FilterPanel = ({
         {/* Amenities & Security */}
         <FilterSection
           title="Amenities & security"
-          icon={Layers}
+          icon={Sparkles}
           initiallyOpen={false}
         >
           <BoxcheckGroup
@@ -217,8 +215,6 @@ const FilterPanel = ({
         </FilterSection>
 
       </div>
-    
-
     </aside>
   );
 };
