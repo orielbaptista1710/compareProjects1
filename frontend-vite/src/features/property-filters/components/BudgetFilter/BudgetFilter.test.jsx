@@ -75,9 +75,9 @@ describe("BudgetFilter", () => {
       expect(onEmit).toHaveBeenLastCalledWith({ min: null, max: 500_000 });
     });
 
-    it("never reports Infinity, zero or a negative price from any slider position, in any combination", () => {
-      const sent = [];
-      render(<Harness onEmit={(v) => v && sent.push(v.min, v.max)} />);
+    it("never reports Infinity, zero, a negative price or an inverted range from any slider position, in any combination", () => {
+      const sent = []; // whole { min, max } objects, so each pair can be checked
+      render(<Harness onEmit={(v) => v && sent.push(v)} />);
       const last = lastStep();
       expect(last).toBeGreaterThan(1);
 
@@ -93,11 +93,15 @@ describe("BudgetFilter", () => {
         }
       }
 
-      const prices = sent.filter((p) => p != null);
-      expect(prices.length).toBeGreaterThan(0);
-      for (const p of prices) {
-        expect(Number.isFinite(p)).toBe(true);
-        expect(p).toBeGreaterThan(0);
+      expect(sent.length).toBeGreaterThan(0);
+      for (const { min, max } of sent) {
+        for (const p of [min, max]) {
+          if (p == null) continue; // null means "no limit on this side"
+          expect(Number.isFinite(p)).toBe(true);
+          expect(p).toBeGreaterThan(0);
+        }
+        // A minimum above the maximum would match nothing.
+        if (min != null && max != null) expect(min).toBeLessThanOrEqual(max);
       }
     });
   });
