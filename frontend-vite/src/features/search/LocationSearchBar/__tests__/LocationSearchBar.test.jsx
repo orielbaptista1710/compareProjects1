@@ -193,7 +193,7 @@ describe("LocationSearchBar chips", () => {
     expect(screen.getAllByRole("button", { name: /^Remove/ })).toHaveLength(5);
     expect(input).toHaveAttribute("placeholder", expect.stringMatching(/Limit reached/));
     expect(input).toHaveValue("");
-  });
+  }, 20_000); // six typed picks take about 3s, which the 5s default can't survive under load
 
   it("also caps the merged localities, since a group chip carries many", async () => {
     const user = userEvent.setup();
