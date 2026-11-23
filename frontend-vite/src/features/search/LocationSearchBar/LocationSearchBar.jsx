@@ -271,7 +271,7 @@ const removeItem = (item) => {
     {isLoading && <Loader2 size={16} className="lsb-spinner" aria-hidden="true" />}
 
       {listVisible && (
-        <ul id={listboxId}className="lsb-dropdown" role="listbox">
+        <ul id={listboxId} className="lsb-dropdown" role="listbox">
           {inputValue.trim().length < 2 && (
             <li className="lsb-section-label" role="presentation">Recent searches</li>
           )}
