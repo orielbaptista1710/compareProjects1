@@ -1,6 +1,6 @@
 // components/filters/AreaFilter.jsx (or wherever it lives)
 
-import React, { useId } from "react";
+import React, { useId, useState } from "react";
 import {
   AREA_UNIT_KEYS,
   AREA_UNIT_LABELS,
@@ -128,8 +128,11 @@ const sanitizeValue = (raw, bounds) => {
 
 const AreaFilter = ({ value, onChange, areaBounds }) => {
   const uid = useId();
+  // The unit lives in the URL value only while a range is applied. With no
+  // filter active (value null) the unit buttons still need to remember the pick.
+  const [pickedUnit, setPickedUnit] = useState("sqft");
 
-  const unit    = resolveUnit(value?.unit);
+  const unit    = resolveUnit(value?.unit ?? pickedUnit);
   const bounds  = buildBounds(unit, areaBounds);
   const safe    = sanitizeValue(value, bounds);
   const presets = PRESETS[unit] ?? PRESETS.sqft;
@@ -143,6 +146,18 @@ const AreaFilter = ({ value, onChange, areaBounds }) => {
 
   /* ── Handlers ── */
 
+  // Only report a filter when the range is really narrowed. A full range means
+  // "no filter" (null), and a max at the ceiling means "no upper limit" (null),
+  // so the URL/backend never get areaMax=10000 or a unit-only restriction.
+  const emit = (min, max, u) => {
+    const b = buildBounds(u, areaBounds);
+    if (min <= b.min && max >= b.max) {
+      onChange(null);
+      return;
+    }
+    onChange({ min, max: max >= b.max ? null : max, unit: u });
+  };
+
   const handleMinChange = (e) => {
   const newMin = Number(e.target.value);
 
@@ -150,11 +165,7 @@ const AreaFilter = ({ value, onChange, areaBounds }) => {
     return;
   }
 
-  onChange({
-    min: newMin,
-    max: maxVal,
-    unit,
-  });
+  emit(newMin, maxVal, unit);
 };
 
   const handleMaxChange = (e) => {
@@ -164,11 +175,7 @@ const AreaFilter = ({ value, onChange, areaBounds }) => {
     return;
   }
 
-  onChange({
-    min: minVal,
-    max: newMax,
-    unit,
-  });
+  emit(minVal, newMax, unit);
 };
 
   const handleUnitChange = (newUnit) => {
@@ -176,24 +183,17 @@ const AreaFilter = ({ value, onChange, areaBounds }) => {
     return;
   }
 
-  const newBounds = buildBounds(newUnit, areaBounds);
-
-  onChange({
-    min: newBounds.min,
-    max: newBounds.max,
-    unit: newUnit,
-  });
+  // A new unit starts at its full range, which is "no filter".
+  setPickedUnit(newUnit);
+  onChange(null);
 };
 
   const handlePreset = (preset) => {
-  onChange({
-    min: preset.min,
-    max: preset.max,
-    unit,
-  });
+  emit(preset.min, preset.max, unit);
 };
 
  const handleClear = () => {
+  setPickedUnit(unit); // keep showing the unit the user was on
   onChange(null);
 };
   
