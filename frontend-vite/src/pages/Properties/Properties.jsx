@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import debounce from 'lodash.debounce';
 import Skeleton from 'react-loading-skeleton';
 
 import { X, SlidersHorizontal, ChevronLeft, MessageCircle } from 'lucide-react';
@@ -19,10 +18,12 @@ import Seo                from '../../database/Seo';
 
 import API from '../../api/api';
 import { DEFAULT_FILTERS, formatFilterValue, parseFiltersFromURL } from '../../utils/filters.schema';
+import { SORT_OPTIONS } from '../../utils/sortOptions';
 import { FILTER_LABELS } from '../../assests/constants/propertyTypeConfig';
 import { useCityUrlSync } from './useCityUrlSync';
 
 import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { useDebouncedCallback } from "../../hooks/useDebouncedCallback";
 
 import './Properties.css';
  
@@ -237,12 +238,13 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
     [location.search, navigate]
   );
 
-  const debouncedSearch = useMemo(
-    () => debounce((v) => handleFilterChange('search', v), 500),
-    [handleFilterChange]
+  // Stable timer that always runs the latest handleFilterChange. Before, the
+  // timer was rebuilt whenever the URL changed, so toggling a filter within
+  // 500ms of typing cancelled the pending search and lost it.
+  const debouncedSearch = useDebouncedCallback(
+    (v) => handleFilterChange('search', v),
+    500
   );
-
-  useEffect(() => () => debouncedSearch.cancel(), [debouncedSearch]);
 
   const handleSearchInputChange = useCallback(
     (value) => {
@@ -252,7 +254,11 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
     [debouncedSearch]
   );
 
-  const clearFilters = useCallback(() => navigate('/properties'), [navigate]);
+  // Cancel a pending search first, or the old text would be re-applied after clearing.
+  const clearFilters = useCallback(() => {
+    debouncedSearch.cancel();
+    navigate('/properties');
+  }, [navigate, debouncedSearch]);
 
   // ── Compare helpers ────────────────────────
 
@@ -441,10 +447,9 @@ if (prevFiltersAndSort.filters !== filters || prevFiltersAndSort.sortBy !== sort
               onChange={(e) => setSortBy(e.target.value)}
               aria-label="Sort properties"
             >
-              <option value="relevance">Relevance</option>
-              <option value="price_asc">Price: Low → High</option>
-              <option value="price_desc">Price: High → Low</option>
-              <option value="newest">Newest first</option>
+              {SORT_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
             </select>
 
             <button

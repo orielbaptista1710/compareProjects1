@@ -2,6 +2,7 @@
 // ResultsHeader 
 import { ChevronDown, Loader2 } from "lucide-react";
 import Skeleton from "react-loading-skeleton";
+import { SORT_OPTIONS } from "../../../../utils/sortOptions";
 
 const ResultsHeader = ({
   totalMatched, 
@@ -85,11 +86,9 @@ const ResultsHeader = ({
               onChange={(e) => setSortBy(e.target.value)}
               disabled={isLoading}
             >
-              <option value="relevance">Relevance</option>
-              <option value="price-low-high">Price: Low to High</option>
-              <option value="price-high-low">Price: High to Low</option>
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
+              {SORT_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
             </select>
             <ChevronDown className="dropdown-arrow" size={16} />
           </div>
