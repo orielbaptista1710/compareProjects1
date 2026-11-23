@@ -1,5 +1,5 @@
 // frontend-vite/vite.config.js
-import { defineConfig } from "vite";
+import { defineConfig, defaultClientConditions } from "vite";
 import react from "@vitejs/plugin-react";
 import { visualizer } from "rollup-plugin-visualizer";
 
@@ -26,7 +26,10 @@ export default defineConfig({
   },
 
   resolve: {
-    conditions: ["browser"],
+    // Keeps the "browser" condition so the Firebase SDK loads its browser
+    // build. Vite 6 no longer adds its defaults to a custom list, so spread
+    // them in (module, browser, development|production) instead of ["browser"].
+    conditions: [...defaultClientConditions],
   },
 
   test: {
