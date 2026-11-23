@@ -54,8 +54,16 @@ const BudgetFilter = ({ value, onChange, onDone }) => {
     onChange(min == null && max == null ? null : { min, max });
   };
 
-  const setMin = (i) => emit(Math.min(i, maxIdx), maxIdx);
-  const setMax = (i) => emit(minIdx, Math.max(i, minIdx));
+  // The minimum can't be the last slot (that is "Max", Infinity) and the maximum
+  // can't be slot 0 (that is "Min", ₹0): neither dropdown offers them, and the
+  // sliders must not produce them either, or the URL gets priceMin=Infinity /
+  // priceMax=0 and the list goes empty. Both sliders keep the full 0..LAST range
+  // so the thumbs stay aligned with the fill; being controlled, a thumb dragged
+  // past the limit snaps back to the nearest allowed step.
+  const MIN_CEIL = LAST - 1;
+  const MAX_FLOOR = 1;
+  const setMin = (i) => emit(Math.min(i, maxIdx, MIN_CEIL), maxIdx);
+  const setMax = (i) => emit(minIdx, Math.max(i, minIdx, MAX_FLOOR));
 
   const pct = (i) => (i / LAST) * 100;
 

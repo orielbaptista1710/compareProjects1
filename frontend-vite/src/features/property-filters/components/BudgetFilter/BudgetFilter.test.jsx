@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import BudgetFilter from "./BudgetFilter";
@@ -34,6 +34,47 @@ describe("BudgetFilter", () => {
     render(<BudgetFilter value={{ min: null, max: 99_000_000 }} onChange={vi.fn()} />);
 
     expect(screen.getByLabelText("Maximum budget")).toHaveDisplayValue("Max");
+  });
+
+  describe("slider extremes", () => {
+    const LAST_STEP = 37; // the "Max" slot, Infinity
+    const drag = (label, to) => fireEvent.change(screen.getByLabelText(label), { target: { value: String(to) } });
+
+    it("stops the minimum slider at the top real step instead of sending Infinity", () => {
+      const onChange = vi.fn();
+      render(<BudgetFilter value={null} onChange={onChange} />);
+
+      drag("Minimum budget slider", LAST_STEP);
+
+      expect(onChange).toHaveBeenCalledWith({ min: 50_000_000, max: null });
+    });
+
+    it("stops the maximum slider at the first real step instead of sending 0", () => {
+      const onChange = vi.fn();
+      render(<BudgetFilter value={null} onChange={onChange} />);
+
+      drag("Maximum budget slider", 0);
+
+      expect(onChange).toHaveBeenCalledWith({ min: null, max: 500_000 });
+    });
+
+    it("never reports Infinity, zero or a negative price from any slider position", () => {
+      const sent = [];
+      const onChange = (v) => v && sent.push(v.min, v.max);
+      render(<BudgetFilter value={null} onChange={onChange} />);
+
+      for (let i = 0; i <= LAST_STEP; i++) {
+        drag("Minimum budget slider", i);
+        drag("Maximum budget slider", i);
+      }
+
+      const prices = sent.filter((p) => p != null);
+      expect(prices.length).toBeGreaterThan(0);
+      for (const p of prices) {
+        expect(Number.isFinite(p)).toBe(true);
+        expect(p).toBeGreaterThan(0);
+      }
+    });
   });
 
   it("emits ladder values and null when the range is cleared", async () => {
