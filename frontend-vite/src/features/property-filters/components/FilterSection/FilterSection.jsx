@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 const FilterSection = ({
@@ -8,15 +8,17 @@ const FilterSection = ({
   initiallyOpen = true,
 }) => {
   const [open, setOpen] = useState(initiallyOpen);
+  const bodyId = useId();
 
   return (
-    <div className="filter-section"> 
-      <header
+    <div className="filter-section">
+      {/* A real <button>: Enter/Space work natively (and Space doesn't scroll the page). */}
+      <button
+        type="button"
+        className="filter-section-toggle"
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setOpen((p) => !p)}
+        aria-controls={open ? bodyId : undefined} /* the body isn't rendered while collapsed */
       >
         <span className="filter-section-label">
           {Icon && <Icon size={14} aria-hidden="true" />}
@@ -27,9 +29,13 @@ const FilterSection = ({
           className={`filter-chevron ${open ? "open" : ""}`}
           aria-hidden="true"
         />
-      </header>
+      </button>
 
-      {open && <div className="filter-body">{children}</div>}
+      {open && (
+        <div id={bodyId} className="filter-body">
+          {children}
+        </div>
+      )}
     </div>
   );
 };

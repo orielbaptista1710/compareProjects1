@@ -130,6 +130,36 @@ describe("FilterSection", () => {
     expect(screen.queryByText("Area content")).not.toBeInTheDocument();
   });
 
+  it("uses a real <button> whose aria-controls points at the open body", () => {
+    render(
+      <FilterSection title="Area">
+        <div>Area content</div>
+      </FilterSection>
+    );
+
+    const header = screen.getByRole("button");
+
+    expect(header.tagName).toBe("BUTTON");
+    expect(header).toHaveAttribute("type", "button");
+    const bodyId = header.getAttribute("aria-controls");
+    expect(bodyId).toBeTruthy();
+    expect(document.getElementById(bodyId)).toHaveTextContent("Area content");
+  });
+
+  it("only points aria-controls at the body while it is rendered", async () => {
+    render(
+      <FilterSection title="Area" initiallyOpen={false}>
+        <div>Area content</div>
+      </FilterSection>
+    );
+
+    const header = screen.getByRole("button");
+    expect(header).not.toHaveAttribute("aria-controls");
+
+    await userEvent.click(header);
+    expect(document.getElementById(header.getAttribute("aria-controls"))).toHaveTextContent("Area content");
+  });
+
   it("renders without an icon", () => {
     render(
       <FilterSection title="Area">
