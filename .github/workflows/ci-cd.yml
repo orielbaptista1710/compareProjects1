@@ -4,21 +4,64 @@ on:
   push:
     branches:
       - master
-      - feature/testing-setup
-      # - feature/** -- when u add future feature branches, uncomment this line to run CI/CD on them too
 
   pull_request:
     branches:
       - master
 
+# The workflow token can only read the repo. No job here needs to write.
+permissions:
+  contents: read
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # PR runs share one group per PR, so a newer push cancels the older run.
+  # Every push to master gets its own group (the commit SHA), so no master run is
+  # cancelled or dropped while queued: each merged commit gets a final CI result,
+  # which matters once deploys wait on CI.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  secret-scan:
+    name: Secret scan
+    # Pull requests only. Scans just the commits in the PR, so the known
+    # historical false positives never block anyone. Direct pushes to master are not
+    # scanned here: they are meant to be impossible, via branch protection ("require a
+    # pull request", applied to admins too). Keep that rule on, or this gap is real.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository (full history for the PR range)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Free gitleaks CLI, pinned to one version, checksum-verified before use.
+      # (gitleaks-action needs a paid licence on organization repos; the CLI does not.)
+      - name: Install gitleaks
+        run: |
+          VERSION=8.30.1
+          FILE="gitleaks_${VERSION}_linux_x64.tar.gz"
+          BASE="https://github.com/gitleaks/gitleaks/releases/download/v${VERSION}"
+          cd "$RUNNER_TEMP"
+          curl -sSfL -O "$BASE/$FILE"
+          curl -sSfL -O "$BASE/gitleaks_${VERSION}_checksums.txt"
+          grep " ${FILE}\$" "gitleaks_${VERSION}_checksums.txt" | sha256sum -c -
+          tar -xzf "$FILE" gitleaks
+
+      - name: Scan commits in this pull request
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          "$RUNNER_TEMP/gitleaks" git --redact --no-banner --log-opts="${BASE_SHA}..${HEAD_SHA}" .
+
   frontend-vite:
     name: Frontend checks
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     defaults:
       run:
@@ -37,6 +80,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # Report-only for now: prints high-severity advisories but does not fail CI.
+      # Delete the continue-on-error line once the known alerts are fixed.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true
 
       - name: Run ESLint
         run: npm run lint
@@ -58,6 +107,7 @@ jobs:
   backend:
     name: Backend checks
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     defaults:
       run:
@@ -82,6 +132,23 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # Backend tests start an in-memory MongoDB. Cache its binary so CI doesn't
+      # re-download it every run (a slow download is a common cause of timeouts).
+      - name: Cache MongoDB test binary
+        uses: actions/cache@v4
+        with:
+          path: backend/node_modules/.cache/mongodb-memory-server
+          key: mongod-${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
+          # A lockfile change should not force a re-download: fall back to the newest older binary.
+          restore-keys: |
+            mongod-${{ runner.os }}-
+
+      # Report-only for now: prints high-severity advisories but does not fail CI.
+      # Delete the continue-on-error line once the known alerts are fixed.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true
 
       - name: Generate Prisma Client
         run: npx prisma generate
