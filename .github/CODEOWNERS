@@ -1,0 +1,97 @@
+# These paths ask the code owner for review: a mistake here is a security bug or can
+# break production. Everything else (listings UI, search, discover, news, locations,
+# most routes and models) only needs one approval from any teammate, so routine PRs
+# don't wait on the owner. Keep this list short; add a path only for a clear reason.
+#
+# IMPORTANT: do NOT turn on "Require review from Code Owners" in branch protection while
+# there is only one code owner. GitHub never lets a PR author approve their own PR, so
+# the owner's own PRs on these paths could not merge. Turn it on once a second owner
+# (or a team handle) is listed here. Until then the rule is review-requested, not enforced.
+
+# Auth, sessions and roles (developer/admin JWT, Firebase customers, CRM staff)
+/backend/middleware/                       @orielbaptista1710
+/backend/controllers/authController.js     @orielbaptista1710
+/backend/routes/authRoutes.js              @orielbaptista1710
+/backend/controllers/crm/authController.js @orielbaptista1710
+/backend/routes/crm/authRoutes.js          @orielbaptista1710
+/backend/controllers/passwordResetRequestController.js @orielbaptista1710
+/backend/routes/passwordResetRequestRoutes.js @orielbaptista1710
+/backend/constants/roles.js                @orielbaptista1710
+/backend/models/User.js                    @orielbaptista1710
+/backend/models/Customer.js                @orielbaptista1710
+
+# Token signing and first-login account creation (JWT lifetime/algorithm, role on signup)
+/backend/utils/generateToken.js            @orielbaptista1710
+/backend/utils/syncFirebaseUser.js         @orielbaptista1710
+
+# Admin privileges (approving listings, agents and developer accounts)
+/backend/services/propertyAdminService.js  @orielbaptista1710
+/backend/controllers/adminController.js    @orielbaptista1710
+/backend/controllers/agentAdminController.js @orielbaptista1710
+/backend/services/agentAdminService.js     @orielbaptista1710
+/backend/services/developerAccountService.js @orielbaptista1710
+/backend/routes/adminRoutes.js             @orielbaptista1710
+
+# Where routes are mounted and get their auth
+/backend/server.js                         @orielbaptista1710
+/backend/routes/crmRoutes.js               @orielbaptista1710
+
+# Listings: create/update/delete and ownership (dropping one middleware here makes a
+# write endpoint public), plus the Property schema that every listing depends on
+/backend/routes/propertyRoutes.js          @orielbaptista1710
+/backend/routes/customerListingRoutes.js   @orielbaptista1710
+/backend/controllers/propertyController.js @orielbaptista1710
+/backend/models/Property.js                @orielbaptista1710
+
+# Customer signup/login and agent applications (the "no agent without agent-signup"
+# rule lives inline in this route file)
+/backend/routes/customerRoutes.js          @orielbaptista1710
+
+# Enquiry and lead intake: the revenue path, public endpoints that write to Postgres
+/backend/routes/leadRoutes.js              @orielbaptista1710
+/backend/controllers/leadController.js     @orielbaptista1710
+/backend/services/leadIngestService.js     @orielbaptista1710
+
+# Input validation and media upload signing
+/backend/validators/                       @orielbaptista1710
+/backend/services/mediaStorage.js          @orielbaptista1710
+/backend/services/listingMedia.js          @orielbaptista1710
+/backend/controllers/mediaController.js    @orielbaptista1710
+
+# CRM: routes and controllers (where lead scoping is applied, so a forgotten leadScope
+# call leaks leads), the scoping service, and the contract the CRM frontend relies on
+/backend/routes/crm/                       @orielbaptista1710
+/backend/controllers/crm/                  @orielbaptista1710
+/backend/services/crm/                     @orielbaptista1710
+/backend/openapi/                          @orielbaptista1710
+
+# Databases: Postgres schema/migrations and scripts that write to data
+/backend/prisma/                           @orielbaptista1710
+/backend/prisma.config.js                  @orielbaptista1710
+/backend/scripts/                          @orielbaptista1710
+
+# Config, env validation and security helpers
+/backend/config/                           @orielbaptista1710
+/backend/utils/validateEnv.js              @orielbaptista1710
+/backend/utils/safeError.js                @orielbaptista1710
+/backend/utils/sanitizeInput.js            @orielbaptista1710
+
+# Frontend: auth and API client
+/frontend-vite/src/api/                    @orielbaptista1710
+/frontend-vite/src/contexts/AuthContext.jsx @orielbaptista1710
+/frontend-vite/src/config/firebase.js      @orielbaptista1710
+/frontend-vite/src/components/ProtectedRoute.jsx @orielbaptista1710
+/frontend-vite/src/components/ProtectedCustomerRoute.jsx @orielbaptista1710
+/frontend-vite/src/constants/roles.js      @orielbaptista1710
+
+# Dependencies (supply chain): new or changed packages get a human look
+/backend/package.json                      @orielbaptista1710
+/backend/package-lock.json                 @orielbaptista1710
+/frontend-vite/package.json                @orielbaptista1710
+/frontend-vite/package-lock.json           @orielbaptista1710
+
+# CI/CD, deploy config, repo rules and the runbook
+/.github/                                  @orielbaptista1710
+/.gitignore                                @orielbaptista1710
+/docs/RUNBOOK.md                           @orielbaptista1710
+# When a render.yaml blueprint is committed, add "/render.yaml @orielbaptista1710" here.

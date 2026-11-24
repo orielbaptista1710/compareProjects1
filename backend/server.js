@@ -24,6 +24,7 @@ import discoverRoutes from './routes/discoverRoutes.js';
 
 import leadRoutes from './routes/leadRoutes.js';
 import crmRoutes from './routes/crmRoutes.js';
+import healthRoutes from './routes/healthRoutes.js';
 
 import newsRoutes from "./routes/newsRoutes.js";
 import locationRoutes from "./routes/locationRoutes.js";
@@ -54,11 +55,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(requestLogger);
 
-// Health check for Render / uptime monitors — 503 if MongoDB is not connected
-app.get('/api/health', (req, res) => {
-  const mongoUp = mongoose.connection.readyState === 1;
-  res.status(mongoUp ? 200 : 503).json({ status: mongoUp ? 'ok' : 'degraded', mongo: mongoUp });
-});
+// /api/health = Render's health check (Mongo only); /api/health/deep = uptime monitor (Mongo + Postgres)
+app.use('/api/health', healthRoutes);
 
 // Routes
 // Owner/agent posting, behind a flag until the role migration has run and
