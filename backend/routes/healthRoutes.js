@@ -51,6 +51,7 @@ function pingPostgres() {
 // Test helper only: forget a query that never settled so tests stay independent.
 export function resetPostgresPingForTests() {
   pingInFlight = null;
+  pingStartedAt = 0;
 }
 
 export async function checkPostgres() {

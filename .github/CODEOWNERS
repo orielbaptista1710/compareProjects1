@@ -20,7 +20,12 @@
 /backend/models/User.js                    @orielbaptista1710
 /backend/models/Customer.js                @orielbaptista1710
 
+# Token signing and first-login account creation (JWT lifetime/algorithm, role on signup)
+/backend/utils/generateToken.js            @orielbaptista1710
+/backend/utils/syncFirebaseUser.js         @orielbaptista1710
+
 # Admin privileges (approving listings, agents and developer accounts)
+/backend/services/propertyAdminService.js  @orielbaptista1710
 /backend/controllers/adminController.js    @orielbaptista1710
 /backend/controllers/agentAdminController.js @orielbaptista1710
 /backend/services/agentAdminService.js     @orielbaptista1710
@@ -50,6 +55,8 @@
 # Input validation and media upload signing
 /backend/validators/                       @orielbaptista1710
 /backend/services/mediaStorage.js          @orielbaptista1710
+/backend/services/listingMedia.js          @orielbaptista1710
+/backend/controllers/mediaController.js    @orielbaptista1710
 
 # CRM: routes and controllers (where lead scoping is applied, so a forgotten leadScope
 # call leaks leads), the scoping service, and the contract the CRM frontend relies on
@@ -86,5 +93,5 @@
 # CI/CD, deploy config, repo rules and the runbook
 /.github/                                  @orielbaptista1710
 /.gitignore                                @orielbaptista1710
-/render.yaml                               @orielbaptista1710
 /docs/RUNBOOK.md                           @orielbaptista1710
+# When a render.yaml blueprint is committed, add "/render.yaml @orielbaptista1710" here.

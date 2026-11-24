@@ -22,6 +22,11 @@ Check them once and then remove the marker.
 
 Point Render's health check at `/api/health`. Point the uptime monitor at `/api/health/deep`.
 
+Cost note: every `/deep` call runs a small query. A Neon database that would otherwise sleep
+when idle stays awake if the monitor calls it more often than Neon's idle timeout, which
+raises compute-hour usage. Use an interval of 10 minutes or more unless you want it always
+awake, and check Neon's billing after setting the monitor up.
+
 ## 2. Roll back a bad deploy
 
 Steps 1 and 2 are **owner only** (they need Render access). Developers: tell the owner
@@ -80,7 +85,9 @@ Rotating makes the leaked value useless. Rewriting git history does not, so do n
    - Postgres: Neon, reset the role password.
    - Firebase service account: create a new key, then delete the old one.
    - `JWT_SECRET`: change it (this signs every developer and admin out).
-   - Cloudflare R2, Cloudinary, GNews, Turnstile: roll the key in that service.
+   - Cloudflare R2 (photo and brochure uploads), GNews, Turnstile: roll the key in that service.
+     Cloudinary only if that account is still live (it is listed in `backend/.env.example`
+     for old scraper listings; the code does not read it).
 3. Update the value in Render's environment settings and redeploy.
 4. Check the service's logs and the provider's access logs for use of the old credential.
 5. Add a note here if the cause was a gap worth closing.
@@ -91,6 +98,9 @@ Rotating makes the leaked value useless. Rewriting git history does not, so do n
 |---|---|
 | Approve and merge PRs to `master` | Owner. PRs touching paths in `.github/CODEOWNERS` always request the owner's review |
 | Waiting on a review | See section 8: start the next card, don't wait |
+| Render, Atlas, Neon, Firebase consoles, production env vars | Owner only |
+| Staging environment and its credentials | Developers and testers, with their own credentials |
+| Production data | Nobody works on it directly |
 
 ## 8. Working as a team (pull requests and reviews)
 
@@ -111,6 +121,3 @@ Rotating makes the leaked value useless. Rewriting git history does not, so do n
 2. Then read its findings plus the risky lines yourself: auth, roles, ownership, CRM lead
    scoping, database changes, new packages. Tools help, but the human approval is the gate.
 3. PRs that only touch paths outside `.github/CODEOWNERS` can be approved by any teammate.
-| Render, Atlas, Neon, Firebase consoles, production env vars | Owner only |
-| Staging environment and its credentials | Developers and testers, with their own credentials |
-| Production data | Nobody works on it directly |
