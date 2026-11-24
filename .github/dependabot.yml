@@ -1,0 +1,43 @@
+# Weekly dependency update PRs. Minor and patch updates come as ONE grouped PR per
+# area so the reviewer sees a single change. For the npm apps, major upgrades are
+# skipped (they need a deliberate, tested PR). For GitHub Actions, majors are NOT
+# skipped on purpose: they often carry Node runtime deprecations, so they arrive as
+# their own PRs. Security updates are NOT affected by `ignore`, so vulnerability
+# fixes still arrive straight away.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      backend-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: npm
+    directory: /frontend-vite
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      frontend-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 3
+    groups:
+      actions:
+        update-types: [minor, patch]

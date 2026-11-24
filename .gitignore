@@ -34,13 +34,13 @@ backend/uploads/
 docs/SYSTEM_DESIGN.md
 docs/review/
 PRODUCTION_READINESS_AUDIT.md
-docs/
+# docs/ stays private except the files re-included below (RUNBOOK.md is for the whole team).
+docs/*
+!docs/RUNBOOK.md
 
-# Local-only for now (solo work): API reference + GitHub review rules/PR template.
-# Remove these lines to share them once a second developer joins.
+# Local-only for now: API reference. Remove this line to share it with the team.
+# (CODEOWNERS and the PR template are shared: they must exist in every clone.)
 backend/API_CONTRACT.md
-.github/CODEOWNERS
-.github/pull_request_template.md
 #ignore validation files
 property-validator/data
 
