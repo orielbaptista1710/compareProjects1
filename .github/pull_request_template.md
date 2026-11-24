@@ -22,11 +22,12 @@
 - [ ] `userId`, `ownerModel`, `listedBy`, `status` are never read from the request body
 - [ ] Customer endpoints live under `/api/customers/` (see `api.js`)
 - [ ] Role/status strings come from `constants/roles.js`
-- [ ] `backend/API_CONTRACT.md` updated if an endpoint's request/response changed
+- [ ] If an endpoint's request, response or error codes changed, the change is spelled out under **What** above
 
 **If this touches the CRM (`/api/crm/*`, Postgres/Prisma):**
 - [ ] No `protect`, `isDeveloper` or `protectCustomer` under `/api/crm/*` (CRM has its own auth)
 - [ ] Every lead query is ANDed with `leadScope(user)`
+- [ ] `backend/openapi/crm.yaml` updated (and its version bumped) if a CRM endpoint changed
 - [ ] A schema change ships with a migration in `backend/prisma/migrations/`, and the old code still works with it (so a rollback is safe)
 
 **If this adds or upgrades a dependency:**

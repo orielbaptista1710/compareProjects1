@@ -1,31 +1,50 @@
-# Changes to these paths need the code owner's review before merge (enable
-# "Require review from Code Owners" in the master branch protection rule).
-# Auth, roles, ownership, data-model, CRM, database and supply-chain files:
-# mistakes here are security bugs or can break production.
-# After the move to the company org, consider replacing the user with a team handle.
+# These paths ask the code owner for review: a mistake here is a security bug or can
+# break production. Everything else (listings UI, search, discover, news, locations,
+# most routes and models) only needs one approval from any teammate, so routine PRs
+# don't wait on the owner. Keep this list short; add a path only for a clear reason.
+#
+# IMPORTANT: do NOT turn on "Require review from Code Owners" in branch protection while
+# there is only one code owner. GitHub never lets a PR author approve their own PR, so
+# the owner's own PRs on these paths could not merge. Turn it on once a second owner
+# (or a team handle) is listed here. Until then the rule is review-requested, not enforced.
 
-# Backend: auth, roles, ownership and data model
+# Auth, sessions and roles (developer/admin JWT, Firebase customers, CRM staff)
 /backend/middleware/                       @orielbaptista1710
-/backend/models/                           @orielbaptista1710
-/backend/routes/                           @orielbaptista1710
 /backend/controllers/authController.js     @orielbaptista1710
-/backend/controllers/propertyController.js @orielbaptista1710
+/backend/routes/authRoutes.js              @orielbaptista1710
+/backend/controllers/crm/authController.js @orielbaptista1710
+/backend/routes/crm/authRoutes.js          @orielbaptista1710
+/backend/controllers/passwordResetRequestController.js @orielbaptista1710
+/backend/routes/passwordResetRequestRoutes.js @orielbaptista1710
+/backend/constants/roles.js                @orielbaptista1710
+/backend/models/User.js                    @orielbaptista1710
+/backend/models/Customer.js                @orielbaptista1710
+
+# Admin privileges (approving listings, agents and developer accounts)
 /backend/controllers/adminController.js    @orielbaptista1710
 /backend/controllers/agentAdminController.js @orielbaptista1710
-/backend/constants/roles.js                @orielbaptista1710
-/backend/validators/                       @orielbaptista1710
-/backend/scripts/                          @orielbaptista1710
-/backend/server.js                         @orielbaptista1710
-/backend/API_CONTRACT.md                   @orielbaptista1710
+/backend/services/agentAdminService.js     @orielbaptista1710
+/backend/services/developerAccountService.js @orielbaptista1710
+/backend/routes/adminRoutes.js             @orielbaptista1710
 
-# Backend: CRM (lead scoping and its own auth) and Postgres schema/migrations
-/backend/controllers/crm/                  @orielbaptista1710
+# Where routes are mounted and get their auth
+/backend/server.js                         @orielbaptista1710
+/backend/routes/crmRoutes.js               @orielbaptista1710
+
+# Input validation and media upload signing
+/backend/validators/                       @orielbaptista1710
+/backend/services/mediaStorage.js          @orielbaptista1710
+
+# CRM lead scoping (who can see which lead) and the contract the CRM frontend relies on
 /backend/services/crm/                     @orielbaptista1710
 /backend/openapi/                          @orielbaptista1710
+
+# Databases: Postgres schema/migrations and scripts that write to data
 /backend/prisma/                           @orielbaptista1710
 /backend/prisma.config.js                  @orielbaptista1710
+/backend/scripts/                          @orielbaptista1710
 
-# Backend: config, env validation and security helpers
+# Config, env validation and security helpers
 /backend/config/                           @orielbaptista1710
 /backend/utils/validateEnv.js              @orielbaptista1710
 /backend/utils/safeError.js                @orielbaptista1710

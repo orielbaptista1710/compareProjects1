@@ -14,15 +14,20 @@ vi.mock("../utils/logger.js", () => ({
   default: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 
-const { default: healthRoutes, checkPostgres, POSTGRES_TIMEOUT_MS } = await import(
-  "../routes/healthRoutes.js"
-);
+const {
+  default: healthRoutes,
+  checkPostgres,
+  POSTGRES_TIMEOUT_MS,
+  PING_STALE_MS,
+  resetPostgresPingForTests,
+} = await import("../routes/healthRoutes.js");
 
 const app = express();
 app.use("/api/health", healthRoutes);
 
 let readyState;
 beforeEach(() => {
+  resetPostgresPingForTests();
   prismaMock.$queryRaw.mockReset();
   readyState = vi.spyOn(mongoose.connection, "readyState", "get");
 });
@@ -89,6 +94,58 @@ describe("checkPostgres timeout", () => {
       const pending = checkPostgres();
       await vi.advanceTimersByTimeAsync(POSTGRES_TIMEOUT_MS);
       await expect(pending).resolves.toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe("checkPostgres never piles up queries", () => {
+  it("shares one in-flight query between concurrent callers", async () => {
+    let finish;
+    prismaMock.$queryRaw.mockReturnValue(new Promise((resolve) => { finish = resolve; }));
+    const calls = [checkPostgres(), checkPostgres(), checkPostgres()];
+    finish([{ "?column?": 1 }]);
+    await expect(Promise.all(calls)).resolves.toEqual([true, true, true]);
+    expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(1);
+  });
+
+  it("starts a fresh query once the previous one has finished", async () => {
+    prismaMock.$queryRaw.mockResolvedValue([{ "?column?": 1 }]);
+    await checkPostgres();
+    await checkPostgres();
+    expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not start a second query while a hung one is still running", async () => {
+    vi.useFakeTimers();
+    try {
+      prismaMock.$queryRaw.mockReturnValue(new Promise(() => {})); // hangs forever
+      const first = checkPostgres();
+      await vi.advanceTimersByTimeAsync(POSTGRES_TIMEOUT_MS);
+      await expect(first).resolves.toBe(false);
+
+      const second = checkPostgres(); // a later caller must reuse the hung query
+      await vi.advanceTimersByTimeAsync(POSTGRES_TIMEOUT_MS);
+      await expect(second).resolves.toBe(false);
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("starts a fresh probe once a hung one is older than PING_STALE_MS, so recovery is not blocked", async () => {
+    vi.useFakeTimers();
+    try {
+      prismaMock.$queryRaw.mockReturnValueOnce(new Promise(() => {})); // first probe hangs
+      const first = checkPostgres();
+      await vi.advanceTimersByTimeAsync(POSTGRES_TIMEOUT_MS);
+      await expect(first).resolves.toBe(false);
+
+      await vi.advanceTimersByTimeAsync(PING_STALE_MS); // the hung probe is now stale
+      prismaMock.$queryRaw.mockResolvedValueOnce([{ "?column?": 1 }]); // Postgres is back
+      await expect(checkPostgres()).resolves.toBe(true);
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
     } finally {
       vi.useRealTimers();
     }

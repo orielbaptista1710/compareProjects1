@@ -14,16 +14,20 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  # Only cancel superseded PR runs. A run on master must finish, so every merged
-  # commit gets a final CI result (needed once deploys wait on CI).
+  # PR runs share one group per PR, so a newer push cancels the older run.
+  # Every push to master gets its own group (the commit SHA), so no master run is
+  # cancelled or dropped while queued: each merged commit gets a final CI result,
+  # which matters once deploys wait on CI.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   secret-scan:
     name: Secret scan
     # Pull requests only. Scans just the commits in the PR, so the known
-    # historical false positives never block anyone.
+    # historical false positives never block anyone. Direct pushes to master are not
+    # scanned here: they are meant to be impossible, via branch protection ("require a
+    # pull request", applied to admins too). Keep that rule on, or this gap is real.
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -136,6 +140,9 @@ jobs:
         with:
           path: backend/node_modules/.cache/mongodb-memory-server
           key: mongod-${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
+          # A lockfile change should not force a re-download: fall back to the newest older binary.
+          restore-keys: |
+            mongod-${{ runner.os }}-
 
       # Report-only for now: prints high-severity advisories but does not fail CI.
       # Delete the continue-on-error line once the known alerts are fixed.

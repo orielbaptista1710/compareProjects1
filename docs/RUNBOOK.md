@@ -3,6 +3,10 @@
 What to do when something goes wrong in production. Keep it short and keep it true:
 if a step here turns out to be wrong, fix this file in the same PR.
 
+> **Status: being rolled out.** This describes the target setup. Until each item below
+> is in place, do not assume it: automatic migrations on deploy (section 3), deploys that wait
+> for CI, and a separate staging environment. Check with the owner which are live.
+
 Only the project owner has access to Render, MongoDB Atlas, Neon and Firebase
 consoles. Developers work through pull requests and a staging environment only.
 
@@ -19,6 +23,9 @@ Check them once and then remove the marker.
 Point Render's health check at `/api/health`. Point the uptime monitor at `/api/health/deep`.
 
 ## 2. Roll back a bad deploy
+
+Steps 1 and 2 are **owner only** (they need Render access). Developers: tell the owner
+what broke, then prepare the revert PR (step 3).
 
 1. Render dashboard, open the service (backend or frontend), then **Events / Deploys**.
 2. Find the last deploy that was good and use **Rollback** on it. **(verify)** Render may switch
@@ -82,7 +89,28 @@ Rotating makes the leaked value useless. Rewriting git history does not, so do n
 
 | Task | Who |
 |---|---|
-| Merge to `master`, approve PRs | Owner (code owner review is required on sensitive paths, see `.github/CODEOWNERS`) |
+| Approve and merge PRs to `master` | Owner. PRs touching paths in `.github/CODEOWNERS` always request the owner's review |
+| Waiting on a review | See section 8: start the next card, don't wait |
+
+## 8. Working as a team (pull requests and reviews)
+
+**Developers, before asking for review:**
+1. CI is green on your PR (Frontend checks, Backend checks, Secret scan).
+2. Run `/code-review` in Claude Code on your branch and fix the real findings. Say in the PR
+   which findings you chose not to fix and why.
+3. Keep the PR under about 400 lines of diff. Split it otherwise.
+
+**Developers, while waiting for review: don't wait, start the next card.**
+- Create a new branch from the latest `master` for the next card.
+- Only if the next card truly depends on the unmerged one, branch from that one instead and
+  say so at the top of the new PR ("depends on #12"). Rebase it on `master` once #12 merges.
+- If a review is blocking something urgent, say so in the PR.
+
+**Reviewer (owner), for each PR:**
+1. Run `/code-review` on the PR first as a quick first pass.
+2. Then read its findings plus the risky lines yourself: auth, roles, ownership, CRM lead
+   scoping, database changes, new packages. Tools help, but the human approval is the gate.
+3. PRs that only touch paths outside `.github/CODEOWNERS` can be approved by any teammate.
 | Render, Atlas, Neon, Firebase consoles, production env vars | Owner only |
 | Staging environment and its credentials | Developers and testers, with their own credentials |
 | Production data | Nobody works on it directly |
