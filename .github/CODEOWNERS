@@ -1,0 +1,52 @@
+# Changes to these paths need the code owner's review before merge (enable
+# "Require review from Code Owners" in the master branch protection rule).
+# Auth, roles, ownership, data-model, CRM, database and supply-chain files:
+# mistakes here are security bugs or can break production.
+# After the move to the company org, consider replacing the user with a team handle.
+
+# Backend: auth, roles, ownership and data model
+/backend/middleware/                       @orielbaptista1710
+/backend/models/                           @orielbaptista1710
+/backend/routes/                           @orielbaptista1710
+/backend/controllers/authController.js     @orielbaptista1710
+/backend/controllers/propertyController.js @orielbaptista1710
+/backend/controllers/adminController.js    @orielbaptista1710
+/backend/controllers/agentAdminController.js @orielbaptista1710
+/backend/constants/roles.js                @orielbaptista1710
+/backend/validators/                       @orielbaptista1710
+/backend/scripts/                          @orielbaptista1710
+/backend/server.js                         @orielbaptista1710
+/backend/API_CONTRACT.md                   @orielbaptista1710
+
+# Backend: CRM (lead scoping and its own auth) and Postgres schema/migrations
+/backend/controllers/crm/                  @orielbaptista1710
+/backend/services/crm/                     @orielbaptista1710
+/backend/openapi/                          @orielbaptista1710
+/backend/prisma/                           @orielbaptista1710
+/backend/prisma.config.js                  @orielbaptista1710
+
+# Backend: config, env validation and security helpers
+/backend/config/                           @orielbaptista1710
+/backend/utils/validateEnv.js              @orielbaptista1710
+/backend/utils/safeError.js                @orielbaptista1710
+/backend/utils/sanitizeInput.js            @orielbaptista1710
+
+# Frontend: auth and API client
+/frontend-vite/src/api/                    @orielbaptista1710
+/frontend-vite/src/contexts/AuthContext.jsx @orielbaptista1710
+/frontend-vite/src/config/firebase.js      @orielbaptista1710
+/frontend-vite/src/components/ProtectedRoute.jsx @orielbaptista1710
+/frontend-vite/src/components/ProtectedCustomerRoute.jsx @orielbaptista1710
+/frontend-vite/src/constants/roles.js      @orielbaptista1710
+
+# Dependencies (supply chain): new or changed packages get a human look
+/backend/package.json                      @orielbaptista1710
+/backend/package-lock.json                 @orielbaptista1710
+/frontend-vite/package.json                @orielbaptista1710
+/frontend-vite/package-lock.json           @orielbaptista1710
+
+# CI/CD, deploy config, repo rules and the runbook
+/.github/                                  @orielbaptista1710
+/.gitignore                                @orielbaptista1710
+/render.yaml                               @orielbaptista1710
+/docs/RUNBOOK.md                           @orielbaptista1710
