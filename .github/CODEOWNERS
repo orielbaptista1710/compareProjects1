@@ -31,11 +31,30 @@
 /backend/server.js                         @orielbaptista1710
 /backend/routes/crmRoutes.js               @orielbaptista1710
 
+# Listings: create/update/delete and ownership (dropping one middleware here makes a
+# write endpoint public), plus the Property schema that every listing depends on
+/backend/routes/propertyRoutes.js          @orielbaptista1710
+/backend/routes/customerListingRoutes.js   @orielbaptista1710
+/backend/controllers/propertyController.js @orielbaptista1710
+/backend/models/Property.js                @orielbaptista1710
+
+# Customer signup/login and agent applications (the "no agent without agent-signup"
+# rule lives inline in this route file)
+/backend/routes/customerRoutes.js          @orielbaptista1710
+
+# Enquiry and lead intake: the revenue path, public endpoints that write to Postgres
+/backend/routes/leadRoutes.js              @orielbaptista1710
+/backend/controllers/leadController.js     @orielbaptista1710
+/backend/services/leadIngestService.js     @orielbaptista1710
+
 # Input validation and media upload signing
 /backend/validators/                       @orielbaptista1710
 /backend/services/mediaStorage.js          @orielbaptista1710
 
-# CRM lead scoping (who can see which lead) and the contract the CRM frontend relies on
+# CRM: routes and controllers (where lead scoping is applied, so a forgotten leadScope
+# call leaks leads), the scoping service, and the contract the CRM frontend relies on
+/backend/routes/crm/                       @orielbaptista1710
+/backend/controllers/crm/                  @orielbaptista1710
 /backend/services/crm/                     @orielbaptista1710
 /backend/openapi/                          @orielbaptista1710
 
