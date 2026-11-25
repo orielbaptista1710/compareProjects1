@@ -113,11 +113,27 @@ jobs:
       run:
         working-directory: backend
 
-    # prisma generate (triggered by npm ci's postinstall, and again explicitly
-    # below) only needs DIRECT_URL to resolve to a string — it never connects.
-    # This dummy value just satisfies prisma.config.js's env() check in CI.
+    # A throwaway, empty Postgres that exists only for this run (never Neon).
+    # It lets us replay every migration from scratch, the same way production does.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci_migrations
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d ci_migrations"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # DIRECT_URL is what prisma.config.js reads. prisma generate only needs it to be
+    # a string; the migrate step below actually connects to the container above.
     env:
-      DIRECT_URL: "postgresql://ci:ci@localhost:5432/ci_dummy?sslmode=disable"
+      DIRECT_URL: "postgresql://ci:ci@localhost:5432/ci_migrations?sslmode=disable"
 
     steps:
       - name: Checkout repository
@@ -156,6 +172,16 @@ jobs:
       # Catches a broken schema.prisma before a migration reaches Render
       - name: Validate Prisma schema
         run: npx prisma validate
+
+      # Replays every migration on the empty container, same command as production.
+      # Fails on a SQL error in a migration. Catches a bad migration before Render/Neon.
+      - name: Apply migrations to a throwaway Postgres
+        run: npx prisma migrate deploy
+
+      # Fails if schema.prisma has changes that no migration file contains
+      # (someone edited the schema but forgot `prisma migrate dev`).
+      - name: Check schema matches migrations
+        run: npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
 
       - name: Run ESLint
         run: npm run lint
