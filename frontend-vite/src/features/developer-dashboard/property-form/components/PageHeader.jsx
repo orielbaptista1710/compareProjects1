@@ -3,6 +3,7 @@
 // form's submit button; it stays disabled until propertySchema accepts every
 // field, and the helper text says why.
 import { useSectionStatusContext } from "../hooks/sectionStatusContext";
+import { publishHintFor, submitLabelFor } from "./publishText";
 
 const PageHeader = ({
   isEditing,
@@ -12,11 +13,10 @@ const PageHeader = ({
   onCancel,
   onShowListings,
 }) => {
-  const { canPublish, byId } = useSectionStatusContext();
-  const needsFixes = Object.values(byId).some((s) => s.state === "error");
-  const submitLabel = isEditing
-    ? isUpdating ? "Updating…" : "Update listing"
-    : isAdding ? "Publishing…" : "Publish listing";
+  const status = useSectionStatusContext();
+  const { canPublish } = status;
+  const hint = publishHintFor(status);
+  const submitLabel = submitLabelFor({ isEditing, isAdding, isUpdating });
 
   return (
     <header className="spf-page-header">
@@ -41,11 +41,9 @@ const PageHeader = ({
       </div>
 
       <div className="spf-page-header__actions">
-        {!canPublish && (
+        {hint && (
           <p className="spf-page-header__hint" id="spf-publish-hint">
-            {needsFixes
-              ? "Fix the fields marked in the checklist to publish"
-              : "Complete every section to publish"}
+            {hint}
           </p>
         )}
         {isEditing && (

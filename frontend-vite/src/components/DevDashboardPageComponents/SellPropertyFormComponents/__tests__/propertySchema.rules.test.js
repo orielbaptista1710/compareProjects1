@@ -30,6 +30,9 @@ const ROLES = [LISTED_BY.OWNER, LISTED_BY.AGENT, LISTED_BY.DEVELOPER];
 const onlyRequired = (role) => ({
   ...Object.fromEntries(REQUIRED_FIELDS[role].map((f) => [f, FILLED[f]])),
   furnishing: FILLED.furnishing,
+  // the two ticks at the end of the form
+  termsAccepted: true,
+  detailsConfirmed: true,
 });
 
 describe.each(ROLES)("the %s form", (role) => {
@@ -37,6 +40,13 @@ describe.each(ROLES)("the %s form", (role) => {
 
   it("accepts a listing with only the required fields", () => {
     expect(schema.safeParse(onlyRequired(role)).success).toBe(true);
+  });
+
+  it.each(["termsAccepted", "detailsConfirmed"])("refuses it unless %s is ticked", (field) => {
+    expect(schema.safeParse({ ...onlyRequired(role), [field]: false }).success).toBe(false);
+    const missing = onlyRequired(role);
+    delete missing[field];
+    expect(schema.safeParse(missing).success).toBe(false);
   });
 
   it.each(REQUIRED_FIELDS[role])("refuses it without %s", (field) => {
@@ -65,6 +75,16 @@ describe.each(ROLES)("the %s form", (role) => {
     expect(schema.safeParse({ ...values, floor: "11" }).success).toBe(false);
     expect(schema.safeParse({ ...values, floor: "10th" }).success).toBe(true);
     expect(schema.safeParse({ ...values, floor: "B2" }).success).toBe(true);
+  });
+
+  it("says what is wrong with an empty or bad units box, never 'received NaN'", () => {
+    if (role !== LISTED_BY.DEVELOPER) return;
+    for (const unitsAvailable of ["", undefined, "0", "2.5"]) {
+      const result = schema.safeParse({ ...onlyRequired(role), unitsAvailable });
+      expect(result.success).toBe(false);
+      const message = result.error.issues.find((i) => i.path[0] === "unitsAvailable").message;
+      expect(message).not.toMatch(/NaN/);
+    }
   });
 
   it("takes a lettered tower, and an older listing's numeric one", () => {

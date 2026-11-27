@@ -21,6 +21,7 @@ import {
 } from "../../../../constants/media";
 import { PhotoError, resizePhoto } from "../../../listings/media/resizePhoto";
 import { uploadFiles } from "../../../listings/media/uploadMedia";
+import PhotoExamples from "./PhotoExamples";
 import "./ListingMediaSection.css";
 
 const DIRTY = { shouldDirty: true, shouldTouch: true };
@@ -410,6 +411,7 @@ const ListingMediaSection = ({ role }) => {
             <X aria-hidden="true" size={16} /> No watermarks
           </li>
         </ul>
+        <PhotoExamples />
       </div>
 
       <div className="form-row">

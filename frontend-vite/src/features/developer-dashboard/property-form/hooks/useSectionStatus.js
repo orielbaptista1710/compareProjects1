@@ -14,6 +14,9 @@ import { useFormState, useWatch } from "react-hook-form";
 import { propertySchema } from "../../../../components/DevDashboardPageComponents/SellPropertyFormComponents/propertySchema";
 import { SECTIONS, sectionOfField } from "../sectionConfig";
 
+// The two ticks at the end of the form; they belong to no section
+const CONSENT_FIELDS = ["termsAccepted", "detailsConfirmed"];
+
 const hasValue = (v) =>
   Array.isArray(v) ? v.length > 0 : v !== undefined && v !== null && v !== "" && v !== false;
 
@@ -42,7 +45,10 @@ export const useSectionStatus = (
   // cache keyed on it can go stale. One parse of ~40 fields is cheap.
   const result = schema.safeParse(values);
   const issueSections = new Set();
+  // Only the two end-of-form ticks are missing (they belong to no section)
+  let onlyConsentMissing = false;
   if (!result.success) {
+    onlyConsentMissing = result.error.issues.every((i) => CONSENT_FIELDS.includes(i.path[0]));
     for (const issue of result.error.issues) {
       const id = sectionOfField(issue.path[0]);
       if (id) issueSections.add(id);
@@ -74,5 +80,6 @@ export const useSectionStatus = (
     done,
     total: counted.length,
     canPublish: result.success && !issueSections.has("rera"),
+    onlyConsentMissing,
   };
 };

@@ -363,3 +363,60 @@
     padding: var(--space-3);
   }
 }
+
+/* ── Good and bad photo examples (PhotoExamples) ───────────────────────── */
+.sell-property-form .lms-examples {
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+
+.sell-property-form .lms-examples__summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.sell-property-form .lms-eg-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  padding: 0 var(--space-4) var(--space-4);
+}
+@media (min-width: 640px) {
+  .sell-property-form .lms-eg-row { grid-template-columns: repeat(5, 1fr); }
+}
+
+.sell-property-form .lms-eg {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+}
+.sell-property-form .lms-eg.is-good { border-color: var(--color-success); }
+
+.sell-property-form .lms-eg__img { display: block; width: 100%; height: auto; }
+.sell-property-form .lms-eg__img.is-dark   { filter: brightness(0.3); }
+.sell-property-form .lms-eg__img.is-blurry { filter: blur(3px); }
+.sell-property-form .lms-eg__img.is-tilted { transform: rotate(-12deg) scale(1.2); }
+
+.sell-property-form .lms-eg__sky    { fill: var(--color-surface-tint-strong); }
+.sell-property-form .lms-eg__ground { fill: var(--color-ink-fill); }
+.sell-property-form .lms-eg__wall   { fill: var(--color-surface); stroke: var(--color-ink-muted); stroke-width: 1; }
+.sell-property-form .lms-eg__roof   { fill: var(--color-primary); }
+.sell-property-form .lms-eg__door   { fill: var(--color-primary-dark); }
+.sell-property-form .lms-eg__window { fill: var(--color-surface-tint-strong); stroke: var(--color-ink-muted); stroke-width: 1; }
+.sell-property-form .lms-eg__mark   { fill: var(--color-ink); font-size: 9px; font-weight: var(--weight-bold); }
+
+.sell-property-form .lms-eg__caption {
+  padding: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-ink);
+  background: var(--color-surface-subtle);
+}
+.sell-property-form .lms-eg.is-good .lms-eg__caption span { color: var(--color-success); }
+.sell-property-form .lms-eg.is-bad  .lms-eg__caption span { color: var(--color-error-text); }

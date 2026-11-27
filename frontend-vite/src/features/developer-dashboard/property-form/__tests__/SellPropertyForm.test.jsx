@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { clickPublish, publishButton } from "./consentHelpers";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 
 vi.mock("react-hot-toast", () => ({
@@ -125,8 +126,8 @@ describe("SellPropertyForm", () => {
   it("keeps Publish disabled until every required field is valid", () => {
     renderForm();
 
-    expect(screen.getByRole("button", { name: "Publish listing" })).toBeDisabled();
-    expect(screen.getByText("Complete every section to publish")).toBeInTheDocument();
+    expect(publishButton("Publish listing")).toBeDisabled();
+    expect(screen.getAllByText("Complete every section to publish")).toHaveLength(2); // top and end of form
   });
 
   it("lists every property type, grouped as Residential and Commercial", () => {
@@ -231,7 +232,7 @@ describe("SellPropertyForm", () => {
     const onSubmit = vi.fn();
     renderForm({ formData: VALID_LISTING, editingId: null, onSubmit });
 
-    fireEvent.click(screen.getByRole("button", { name: "Publish listing" }));
+    clickPublish("Publish listing");
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
 
     // Save still in flight / failed: the parent never calls onSuccess
@@ -245,7 +246,7 @@ describe("SellPropertyForm", () => {
     const onSubmit = vi.fn();
     renderForm({ formData: VALID_LISTING, editingId: null, onSubmit });
 
-    fireEvent.click(screen.getByRole("button", { name: "Publish listing" }));
+    clickPublish("Publish listing");
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
 
     // The save comes back 400 with a reason per field
@@ -262,15 +263,29 @@ describe("SellPropertyForm", () => {
     renderForm({ formData: { ...VALID_LISTING, description: "Too short" }, editingId: "p1" });
 
     expect(await screen.findByText(/Short description must be at least 20 characters/)).toBeInTheDocument();
-    expect(screen.getByText("Fix the fields marked in the checklist to publish")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Update listing" })).toBeDisabled();
+    expect(screen.getAllByText("Fix the fields marked in the checklist to publish")).toHaveLength(2);
+    expect(publishButton("Update listing")).toBeDisabled();
+  });
+
+  it("asks for the two ticks again on every edit and sends them with the listing", async () => {
+    const onSubmit = vi.fn();
+    renderForm({ formData: VALID_LISTING, editingId: "p1", onSubmit });
+
+    // A valid saved listing still can't be saved until the ticks are given
+    await waitFor(() => expect(screen.getAllByText("Tick both boxes at the end of the form to publish")).toHaveLength(2));
+    expect(publishButton("Update listing")).toBeDisabled();
+
+    clickPublish("Update listing");
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit.mock.calls[0][0]).toMatchObject({ termsAccepted: true, detailsConfirmed: true });
   });
 
   const submitEdit = async (formData, beforeSubmit) => {
     const onSubmit = vi.fn();
     renderForm({ formData, editingId: "p1", onSubmit });
     beforeSubmit?.();
-    fireEvent.click(screen.getByRole("button", { name: "Update listing" }));
+    clickPublish("Update listing");
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     return onSubmit.mock.calls[0][0];
   };
@@ -316,7 +331,7 @@ describe("SellPropertyForm", () => {
     fireEvent.blur(amount);
 
     expect(await screen.findByText("Price must be at least ₹1 Lakh")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Update listing" })).toBeDisabled();
+    expect(publishButton("Update listing")).toBeDisabled();
   });
 
   it("keeps a saved area type and sends it back", async () => {
@@ -357,7 +372,7 @@ describe("SellPropertyForm", () => {
       outcomes.shift() === "error" ? onError({ response: { status: 504 } }) : onSuccess()
     );
     renderForm({ formData: VALID_LISTING, onSubmit });
-    const publish = () => fireEvent.click(screen.getByRole("button", { name: "Publish listing" }));
+    const publish = () => clickPublish("Publish listing");
 
     publish(); // times out
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
@@ -439,7 +454,7 @@ describe("SellPropertyForm", () => {
     renderForm({ formData: { ...VALID_LISTING, title: "" }, onSubmit });
     expect(screen.queryByLabelText(/Listing title/)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Publish listing" }));
+    clickPublish("Publish listing");
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
 
     expect(onSubmit.mock.calls[0][0].title).toBe("3 BHK Flat in Dombivli, Thane");
@@ -449,7 +464,7 @@ describe("SellPropertyForm", () => {
     const onSubmit = vi.fn();
     renderForm({ formData: VALID_LISTING, editingId: "p1", onSubmit });
 
-    fireEvent.click(screen.getByRole("button", { name: "Update listing" }));
+    clickPublish("Update listing");
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
 
     expect(onSubmit.mock.calls[0][0].title).toBe("Lodha Palava Phase 3");
@@ -471,7 +486,7 @@ describe("SellPropertyForm", () => {
     );
 
     expect(screen.getByLabelText(/Short description/)).toHaveValue("");
-    expect(screen.getByRole("button", { name: "Publish listing" })).toBeInTheDocument();
+    expect(publishButton("Publish listing")).toBeInTheDocument();
   });
 
   it("keeps photos and documents as coming soon", () => {

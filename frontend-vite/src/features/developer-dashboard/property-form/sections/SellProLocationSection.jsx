@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { GoogleMap, Marker, Autocomplete, useJsApiLoader } from "@react-google-maps/api";
 import locationData from "../../../../database/locationData";
+import { placePicksLeft, spendPlacePick, takeMapLoad } from "./mapsBudget";
 
 // Must be module-level — a new array each render makes the SDK re-initialise
 const MAPS_LIBRARIES = ["places"];
@@ -21,8 +22,17 @@ const MAP_OPTIONS = {
   streetViewControl: false,
   mapTypeControl: false,
   fullscreenControl: false,
+  // Clicking a landmark icon opens Google's place card, which is a billed
+  // Place Details lookup. Clicks should only move our pin.
+  clickableIcons: false,
 };
-const AUTOCOMPLETE_OPTIONS = { componentRestrictions: { country: "in" } };
+// `fields` is the cost control: without it Google bills every data category
+// (contact, reviews, photos…) for each place picked. We only read these three.
+const AUTOCOMPLETE_OPTIONS = {
+  componentRestrictions: { country: "in" },
+  fields: ["address_components", "geometry", "formatted_address"],
+};
+const SEARCH_MAX_LENGTH = 120;
 const INDIA_CENTER = { lat: 20.5937, lng: 78.9629 };
 
 // Start loading the Maps SDK when the section is this close to the viewport,
@@ -44,6 +54,15 @@ const MapPicker = ({ autocompleteRef, coordinates, onPlaceChanged, onMapClick, o
 
   const center = useMemo(() => coordinates || INDIA_CENTER, [coordinates]);
 
+  // Address searches are billed per pick; after the tab's allowance the box
+  // is replaced by a plain note and the address fields below still work.
+  const [searchOpen, setSearchOpen] = useState(() => placePicksLeft() > 0);
+  const handlePlaceChanged = () => {
+    onPlaceChanged();
+    // Only a pick that produced a place counts (a bare Enter does not)
+    if (autocompleteRef.current?.getPlace?.()?.geometry && spendPlacePick() <= 0) setSearchOpen(false);
+  };
+
   if (loadError) {
     return (
       <div className="alert alert--error" role="alert">
@@ -64,19 +83,31 @@ const MapPicker = ({ autocompleteRef, coordinates, onPlaceChanged, onMapClick, o
             Search on the map{" "}
             <span className="optional">(fills in the fields below)</span>
           </label>
-          <Autocomplete
-            onLoad={(ref) => (autocompleteRef.current = ref)}
-            onPlaceChanged={onPlaceChanged}
-            options={AUTOCOMPLETE_OPTIONS}
-          >
-            <input
-              id="maps-search"
-              type="search"
-              placeholder="Type the address, project or locality…"
-              className="maps-search-input"
-              autoComplete="off"
-            />
-          </Autocomplete>
+          {searchOpen ? (
+            <Autocomplete
+              onLoad={(ref) => (autocompleteRef.current = ref)}
+              onPlaceChanged={handlePlaceChanged}
+              options={AUTOCOMPLETE_OPTIONS}
+            >
+              <input
+                id="maps-search"
+                type="search"
+                placeholder="Type the address, project or locality…"
+                className="maps-search-input"
+                autoComplete="off"
+                maxLength={SEARCH_MAX_LENGTH}
+                // Enter must not submit the whole listing form from this box
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.preventDefault();
+                }}
+              />
+            </Autocomplete>
+          ) : (
+            <p className="map-hint" id="maps-search">
+              Address search is paused for now. Fill in the fields below, or click the map to pin
+              the location.
+            </p>
+          )}
         </div>
       </div>
 
@@ -116,6 +147,8 @@ const SellProLocationSection = ({
   onPlaceChanged,
   onMapClick,
   onRemovePin,
+  lockedFields = [], // approved listing: the filled-in state/city/locality/pincode/address/pin can't change (the API refuses it too)
+  mapOnClick = false, // editing: the map (billed) loads only when the lister asks for it
 }) => {
   const {
     register,
@@ -125,21 +158,33 @@ const SellProLocationSection = ({
   } = useFormContext();
 
   // ── Defer the Maps SDK until the section is near the viewport ──────────────
+  // "waiting" → "show" (the map is on screen and counted) or "limited" (this
+  // tab used up its map allowance, see mapsBudget.js). A locked listing never
+  // needs the map, so it is never loaded or billed.
+  // A map search rewrites state, city, locality and pincode together, so the
+  // map is off as soon as any of the fields is locked.
+  const locked = lockedFields.length > 0;
+  const isLocked = (name) => lockedFields.includes(name);
   const sectionRef = useRef(null);
-  const [showMap, setShowMap] = useState(
-    () => typeof IntersectionObserver === "undefined"
+  const [mapState, setMapState] = useState(() =>
+    typeof IntersectionObserver === "undefined" && !mapOnClick
+      ? (takeMapLoad() ? "show" : "limited")
+      : "waiting"
   );
+  // The map is counted when it is shown, never just for opening the card
+  const showMap = () => setMapState(takeMapLoad() ? "show" : "limited");
   useEffect(() => {
-    if (showMap || !sectionRef.current) return undefined;
+    if (locked || mapOnClick || mapState !== "waiting" || !sectionRef.current) return undefined;
+    if (typeof IntersectionObserver === "undefined") return undefined;
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setShowMap(true);
+        if (entry.isIntersecting) setMapState(takeMapLoad() ? "show" : "limited");
       },
       { rootMargin: PRELOAD_MARGIN }
     );
     obs.observe(sectionRef.current);
     return () => obs.disconnect();
-  }, [showMap]);
+  }, [locked, mapOnClick, mapState]);
 
   // Watch state, city & locality for cascading dropdowns
   const selectedState    = useWatch({ control, name: "state" });
@@ -179,6 +224,11 @@ const SellProLocationSection = ({
     "aria-describedby": errors[name] ? `${name}-error` : undefined,
   });
 
+  // readOnly (not disabled): a disabled input can drop out of the submitted values
+  const lockedInput = (name) => (
+    <input id={name} {...register(name)} type="text" readOnly aria-readonly="true" {...invalid(name)} />
+  );
+
   return (
     <section
       ref={sectionRef}
@@ -189,7 +239,13 @@ const SellProLocationSection = ({
         Location
       </h3>
 
-      {showMap ? (
+      {locked ? (
+        <p className="map-hint">
+          The location and address are fixed once a listing is approved, so the map is not shown.
+          Fields that were left empty can still be filled in. For a different property, post a
+          new listing.
+        </p>
+      ) : mapState === "show" ? (
         <MapPicker
           autocompleteRef={autocompleteRef}
           coordinates={coordinates}
@@ -197,6 +253,16 @@ const SellProLocationSection = ({
           onMapClick={onMapClick}
           onRemovePin={onRemovePin}
         />
+      ) : mapState === "limited" ? (
+        <p className="map-hint">
+          The map has been opened several times in this session. Reload the page to use it again,
+          or fill in the address fields below.
+        </p>
+      ) : mapOnClick ? (
+        <div className="map-hint">
+          <p>Your saved pin is kept. Open the map only if you need to move it.</p>
+          <button type="button" className="spf-btn" onClick={showMap}>Show map</button>
+        </div>
       ) : (
         <p className="map-hint">Map loads as you scroll here…</p>
       )}
@@ -217,18 +283,22 @@ const SellProLocationSection = ({
           <label htmlFor="state">
             State <span className="required">*</span>
           </label>
-          <select
-            id="state"
-            {...register("state")}
-            value={selectedState || ""}
-            onChange={handleStateChange}
-            {...invalid("state")}
-          >
-            <option value="">Select state</option>
-            {states.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
+          {isLocked("state") ? (
+            lockedInput("state")
+          ) : (
+            <select
+              id="state"
+              {...register("state")}
+              value={selectedState || ""}
+              onChange={handleStateChange}
+              {...invalid("state")}
+            >
+              <option value="">Select state</option>
+              {states.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          )}
           {errors.state && (
             <span id="state-error" className="field-error" role="alert">{errors.state.message}</span>
           )}
@@ -238,7 +308,9 @@ const SellProLocationSection = ({
           <label htmlFor="city">
             City <span className="required">*</span>
           </label>
-          {typeCity ? (
+          {isLocked("city") ? (
+            lockedInput("city")
+          ) : typeCity ? (
             <input
               id="city"
               {...register("city")}
@@ -272,7 +344,9 @@ const SellProLocationSection = ({
           <label htmlFor="locality">
             Locality <span className="required">*</span>
           </label>
-          {typeLocality ? (
+          {isLocked("locality") ? (
+            lockedInput("locality")
+          ) : typeLocality ? (
             <input
               id="locality"
               {...register("locality")}
@@ -315,6 +389,7 @@ const SellProLocationSection = ({
             inputMode="numeric"
             maxLength={6}
             autoComplete="postal-code"
+            readOnly={isLocked("pincode")}
             {...invalid("pincode")}
           />
           {errors.pincode && (
@@ -335,6 +410,7 @@ const SellProLocationSection = ({
             rows={3}
             maxLength={300}
             autoComplete="street-address"
+            readOnly={isLocked("address")}
             {...invalid("address")}
           />
           {errors.address && (

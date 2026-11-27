@@ -92,6 +92,7 @@ export const LOCKED_AFTER_APPROVAL = Object.freeze([
   "city",
   "locality",
   "pincode",
+  "address",
   "coordinates",
 ]);
 

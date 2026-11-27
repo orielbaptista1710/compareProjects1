@@ -2,6 +2,7 @@
 // photo section replaces "coming soon", and a save carries the photos, the
 // brochure and the video link in the shape the API stores.
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { publishButton, tickConsent } from "./consentHelpers";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -85,7 +86,8 @@ describe("SellPropertyForm with uploads on", () => {
     const onSubmit = vi.fn();
     renderForm({ onSubmit });
 
-    const update = screen.getByRole("button", { name: "Update listing" });
+    tickConsent();
+    const update = publishButton("Update listing");
     await waitFor(() => expect(update).toBeEnabled());
     update.click();
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));

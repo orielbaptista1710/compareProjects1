@@ -1,5 +1,6 @@
 // Autosave and the "continue where you left off" question.
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { clickPublish } from "./consentHelpers";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 
 vi.mock("react-hot-toast", () => ({ default: { error: vi.fn(), success: vi.fn() } }));
@@ -271,7 +272,7 @@ describe("listing form drafts", () => {
       wait(1000);
       expect(stored()).not.toBeNull(); // autosaved
 
-      fireEvent.click(screen.getByRole("button", { name: "Publish listing" }));
+      clickPublish("Publish listing");
       await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
       act(() => onSubmit.mock.calls[0][1].onSuccess()); // the server saved it
       expect(stored()).toBeNull();

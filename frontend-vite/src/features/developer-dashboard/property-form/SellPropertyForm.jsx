@@ -16,11 +16,14 @@ import ReraSection from "./sections/ReraSection";
 import PropertyAmenitiesSection from "./sections/PropertyAmenitiesSection";
 // Shown only when uploads are switched on (sectionConfig.js); "coming soon" until then.
 import ListingMediaSection from "./sections/ListingMediaSection";
+import { resetMapsBudget } from "./sections/mapsBudget";
+import { lockedFieldsOf } from "./lockedFields";
 
 import PageHeader from "./components/PageHeader";
 import SectionCard from "./components/SectionCard";
 import BuyerPreview from "./components/BuyerPreview";
 import PublishChecklist from "./components/PublishChecklist";
+import ListingConsentBlock from "./components/ListingConsentBlock";
 import SectionStatusProvider from "./components/SectionStatusProvider";
 import DraftBar from "./components/DraftBar";
 import { draftKeyFor, removeDraft } from "../../listings/draftStorage";
@@ -52,12 +55,21 @@ const SellPropertyForm = ({
   draftOwner,
   role = LISTED_BY.DEVELOPER, // LISTED_BY value: which sections and rules apply (roleConfig.js)
 }) => {
+  // The map allowance is per form opened, not per tab: a lister posting several
+  // listings in one visit must not lose the map (runs once, before the sections render).
+  useState(resetMapsBudget);
   const { sections, showDeveloperFields, requiredFields } = formRoleConfig(role);
   const unitsRequired = requiredFields.includes("unitsAvailable");
   const schema = propertySchemas[role] ?? propertySchemas[LISTED_BY.DEVELOPER];
   const firstId = sections[0].id;
   const isEditing = Boolean(editingId);
   const isSubmitting = isAdding || isUpdating;
+  // Only a field that already has a value is locked after approval (the API's
+  // rule), so a legacy listing can still fill in one it never had.
+  const lockedFields = useMemo(
+    () => (isEditing && editingLocked ? lockedFieldsOf(formData) : []),
+    [isEditing, editingLocked, formData]
+  );
   const draftKey = draftKeyFor(draftOwner, editingId);
 
   // The draft is only cleared once the server has saved the listing. A failed
@@ -249,6 +261,8 @@ const SellPropertyForm = ({
           onPlaceChanged={handlePlaceChanged}
           onMapClick={handleMapClick}
           onRemovePin={removePin}
+          lockedFields={lockedFields}
+          mapOnClick={isEditing}
         />
       );
       case "pricing":   return <PricingSection />;
@@ -295,8 +309,8 @@ const SellPropertyForm = ({
 
           {isEditing && editingLocked && (
             <p className="spf-notice" role="note">
-              Property type, BHK and location (state, city, locality, pincode and map pin)
-              can&apos;t be changed on an approved listing. For a different property, post a
+              Property type, BHK and location (state, city, locality, pincode, address and
+              map pin) can&apos;t be changed on an approved listing once they are filled in. For a different property, post a
               new listing.
             </p>
           )}
@@ -346,6 +360,13 @@ const SellPropertyForm = ({
                   </SectionCard>
                 );
               })}
+
+              <ListingConsentBlock
+                isEditing={isEditing}
+                isSubmitting={isSubmitting}
+                isAdding={isAdding}
+                isUpdating={isUpdating}
+              />
             </div>
 
             <aside className="spf-rail" aria-label="Preview and progress">
