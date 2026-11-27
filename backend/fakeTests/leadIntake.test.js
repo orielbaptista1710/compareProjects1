@@ -128,6 +128,42 @@ describe("customer lead input rules", () => {
   });
 });
 
+describe("customer lead property type", () => {
+  it("stores a canonical listing type as the type of interest", async () => {
+    const res = await request(app)
+      .post("/api/leads/customer")
+      .send({ ...CUSTOMER, propertyType: "Flats/Apartments" });
+
+    expect(res.status).toBe(201);
+    expect(createdEnquiry().propertyTypeInterest).toBe("Flats/Apartments");
+  });
+
+  it.each([
+    ["Apartment", "Flats/Apartments"],
+    ["industrial", "Industrial Warehouse/Godown"],
+    ["Shop", "Shop/Showroom"],
+  ])("maps the old form's label %s to %s so a stale page's lead isn't lost", async (sent, stored) => {
+    const res = await request(app)
+      .post("/api/leads/customer")
+      .send({ ...CUSTOMER, propertyType: sent });
+
+    expect(res.status).toBe(201);
+    expect(createdEnquiry().propertyTypeInterest).toBe(stored);
+  });
+
+  it.each(["Castle", "", 42, { $gt: "" }])(
+    "drops an unknown type (%j) and still stores the lead",
+    async (sent) => {
+      const res = await request(app)
+        .post("/api/leads/customer")
+        .send({ ...CUSTOMER, propertyType: sent });
+
+      expect(res.status).toBe(201);
+      expect(createdEnquiry().propertyTypeInterest).toBeNull();
+    }
+  );
+});
+
 describe("lead and enquiry storage", () => {
   it("takes lister and location from Mongo, not from the client", async () => {
     await request(app)
@@ -169,6 +205,19 @@ describe("lead and enquiry storage", () => {
     await request(app).post("/api/leads/customer").send(CUSTOMER);
 
     expect(createdLead().zoneId).toBe("zone-1");
+  });
+
+  it("accepts a legacy numeric pincode from Mongo and hands Postgres a string", async () => {
+    mongoReturns({ ...PROPERTY, pincode: 410206 }); // older listings stored a Number
+
+    const res = await request(app).post("/api/leads/customer").send(CUSTOMER);
+
+    expect(res.status).toBe(201);
+    expect(prismaMock.zoneArea.findUnique).toHaveBeenCalledWith({
+      where: { pincode: "410206" },
+      select: { zoneId: true },
+    });
+    expect(createdEnquiry().pincode).toBe("410206");
   });
 
   it("adds an enquiry to the existing lead for the same phone, keeping its name", async () => {

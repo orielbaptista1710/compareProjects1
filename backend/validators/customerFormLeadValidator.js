@@ -1,6 +1,27 @@
 
 //validators/customerFormLeadValidator.js
 import { z } from "zod";
+import { RESIDENTIAL_TYPES, COMMERCIAL_TYPES } from "../models/propertyType.js";
+
+const PROPERTY_TYPES = [...RESIDENTIAL_TYPES, ...COMMERCIAL_TYPES];
+
+// The old form sent short labels ("Apartment"). A page loaded before a deploy can
+// still send them, and rejecting would lose the lead, so map them. Anything else
+// is dropped: the type is only a preference, never worth refusing a lead for.
+const LEGACY_PROPERTY_TYPES = {
+  apartment: "Flats/Apartments",
+  villa: "Villa",
+  plot: "Plot",
+  office: "Office Space",
+  shop: "Shop/Showroom",
+  industrial: "Industrial Warehouse/Godown",
+};
+
+const propertyTypeField = z.preprocess((value) => {
+  if (typeof value !== "string") return undefined;
+  const v = value.trim();
+  return PROPERTY_TYPES.includes(v) ? v : LEGACY_PROPERTY_TYPES[v.toLowerCase()];
+}, z.enum(PROPERTY_TYPES).optional());
 
 export const customerLeadValidator = z.object({
   /* -------------------------
@@ -46,7 +67,8 @@ export const customerLeadValidator = z.object({
   userType: z.enum(["buyer", "investor"]).optional(),
 
   budget: z.string().max(100).optional(),
-  propertyType: z.string().max(100).optional(),
+  // Stored values always come from the list listings use.
+  propertyType: propertyTypeField,
   locality: z.string().max(100).optional(),
   city: z.string().max(100).optional(),
 

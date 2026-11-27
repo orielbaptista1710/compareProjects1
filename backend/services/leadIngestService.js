@@ -72,7 +72,10 @@ export async function ingestEnquiry({
   if (duplicate) return { status: "duplicate" };
 
   const snap = await snapshotProperty(propertyId);
-  const pincode = snap.pincode ?? null;
+  // .lean() returns the raw Mongo value, and older listings stored pincode as a
+  // Number (410206). Postgres columns are String, and Prisma throws on a number,
+  // which 500'd every lead on those listings. Always hand it a trimmed string.
+  const pincode = snap.pincode == null ? null : String(snap.pincode).trim() || null;
   const now = new Date();
 
   try {

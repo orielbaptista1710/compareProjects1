@@ -31,6 +31,15 @@ import {
 } from "lucide-react";
 
 import API from "../../../../../api/api";
+import { isValidEmail, suggestEmail } from "../../../../../utils/emailValidation";
+import { PROPERTY_TYPE_CONFIG } from "../../../../../assests/constants/propertyTypeConfig";
+
+// The same Residential / Commercial lists the search bar uses (BHK group
+// excluded). `value` is the canonical listing type the backend accepts.
+const PROPERTY_TYPE_GROUPS = PROPERTY_TYPE_CONFIG.filter((g) => g.target === "propertyType");
+const PROPERTY_TYPE_VALUES = new Set(
+  PROPERTY_TYPE_GROUPS.flatMap((g) => g.items.map((i) => i.value))
+);
 
 /* ─────────────────────────────────────────────
    FORM STEPS
@@ -48,7 +57,7 @@ const steps = [
     key: "propertyType",
     title: "Property Type",
     subtitle: "What are you looking for?",
-    options: ["Apartment", "Villa", "Plot", "Office", "Shop", "Industrial"],
+    groups: PROPERTY_TYPE_GROUPS,
   },
   {
     key: "locality",
@@ -90,7 +99,7 @@ const steps = [
 
 const validators = {
   text: (v) => v.trim().length >= 2,
-  email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+  email: isValidEmail,
   tel: (v) => /^[6-9]\d{9}$/.test(v.replace(/\D/g, "")),
 };
 
@@ -99,6 +108,23 @@ const errorMessages = {
   email: "Please enter a valid email address",
   tel: "Please enter a valid phone number",
 };
+
+// Lets the browser autofill and shows the right mobile keyboard.
+const INPUT_HINTS = {
+  customerName: { autoComplete: "name" },
+  customerEmail: { autoComplete: "email", inputMode: "email" },
+  customerPhone: { autoComplete: "tel-national", inputMode: "tel" },
+};
+
+// Marks the card that matches the answer already given (visible after Back).
+const selectedSx = (selected) =>
+  selected
+    ? {
+        borderColor: "var(--color-primary)",
+        background: "var(--color-surface-tint)",
+        color: "var(--color-primary)",
+      }
+    : undefined;
 
 /* ─────────────────────────────────────────────
    DRAFT PERSISTENCE HELPERS
@@ -214,14 +240,30 @@ const SmartContactForm = ({ isInSheet = false }) => {
   // pattern. The draft is read once, synchronously, before first paint —
   // no flash of empty state, no setState-in-effect lint violation, and no
   // extra render pass.
-  const [formData, setFormData] = useState(() => readValidDraft()?.formData ?? {});
-  const [step, setStep] = useState(() => readValidDraft()?.step ?? 0);
+  const [formData, setFormData] = useState(() => {
+    const saved = { ...(readValidDraft()?.formData ?? {}) };
+    // A draft from before the type list changed may hold "Apartment" etc.; the
+    // backend would reject it, so drop it and let the step ask again.
+    if (!PROPERTY_TYPE_VALUES.has(saved.propertyType)) delete saved.propertyType;
+    return saved;
+  });
+  const [step, setStep] = useState(() => {
+    const draft = readValidDraft();
+    const saved = draft?.step ?? 0;
+    // If the saved type was dropped above, resume at the type step instead of
+    // a later one, so the user is asked for it again.
+    const typeStep = steps.findIndex((s) => s.key === "propertyType");
+    const typeLost = !PROPERTY_TYPE_VALUES.has(draft?.formData?.propertyType);
+    return typeLost && saved > typeStep ? typeStep : saved;
+  });
 
   // Consent is never restored from the draft: it has to be a fresh, explicit
   // tick each time (docs/review SEC-07, DPDP).
   const [consent, setConsent] = useState(false);
   const [consentError, setConsentError] = useState(false);
   const [error, setError] = useState("");
+  // Last email we showed a "did you mean" prompt for; sending it again keeps it.
+  const [warnedEmail, setWarnedEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const inputRef = useRef(null);
@@ -295,6 +337,17 @@ const SmartContactForm = ({ isInSheet = false }) => {
           setError(errorMessages[type]);
           return;
         }
+
+        // Typo domains (gmail.con) are valid syntax, so ask once instead of
+        // blocking: a second Next on the same value keeps it.
+        if (type === "email" && warnedEmail !== trimmed) {
+          const hint = suggestEmail(trimmed);
+          if (hint) {
+            setWarnedEmail(trimmed);
+            setError(`Did you mean ${hint}? Click Continue again to keep ${trimmed}.`);
+            return;
+          }
+        }
       }
 
       const sanitized =
@@ -324,19 +377,29 @@ const SmartContactForm = ({ isInSheet = false }) => {
         await submitToAPI(updated);
         setIsSubmitted(true);
         localStorage.removeItem(DRAFT_KEY);
-      } catch {
-        setError("Submission failed. Please try again.");
+      } catch (err) {
+        // The server's field message (e.g. "Invalid email format") beats a
+        // generic failure; jump back to the step that owns the bad field.
+        const fieldErrors = err?.response?.data?.errors?.fieldErrors;
+        const badStep = steps.findIndex((s) => fieldErrors?.[s.key]);
+        if (badStep >= 0) {
+          setStep(badStep);
+          setError(fieldErrors[steps[badStep].key][0]);
+        } else {
+          setError("Submission failed. Please try again.");
+        }
       } finally {
         setIsSubmitting(false);
       }
     },
-    [step, formData, currentStep, consent, submitToAPI]
+    [step, formData, currentStep, consent, submitToAPI, warnedEmail]
   );
 
   const handleBack = () => {
     if (step > 0) {
       setStep((p) => p - 1);
       setError("");
+      setWarnedEmail("");
     }
   };
 
@@ -344,6 +407,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
     setStep(0);
     setFormData({});
     setError("");
+    setWarnedEmail("");
     setConsent(false);
     setConsentError(false);
     setIsSubmitted(false);
@@ -522,6 +586,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                           fullWidth
                           onClick={() => handleNext(option)}
                           disabled={isSubmitting}
+                          sx={selectedSx(formData[currentStep.key] === option)}
                         >
                           {option}
                         </StepCard>
@@ -529,15 +594,63 @@ const SmartContactForm = ({ isInSheet = false }) => {
                     </Box>
                   )}
 
+                  {currentStep.groups &&
+                    currentStep.groups.map((group) => (
+                      <Box key={group.key} sx={{ mb: 2, "&:last-of-type": { mb: 0 } }}>
+                        <Typography
+                          component="h3"
+                          fontSize="11px"
+                          fontWeight={700}
+                          letterSpacing="0.06em"
+                          textTransform="uppercase"
+                          color="var(--color-ink-muted)"
+                          mb={1}
+                        >
+                          {group.group}
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: "grid",
+                            gridTemplateColumns: isInSheet
+                              ? "repeat(2, minmax(0,1fr))"
+                              : "1fr",
+                            gap: 1.2,
+                          }}
+                        >
+                          {group.items.map((item) => (
+                            <StepCard
+                              key={item.value}
+                              fullWidth
+                              onClick={() => handleNext(item.value)}
+                              disabled={isSubmitting}
+                              sx={selectedSx(formData[currentStep.key] === item.value)}
+                            >
+                              {item.label}
+                            </StepCard>
+                          ))}
+                        </Box>
+                      </Box>
+                    ))}
+
+                  {/* Card steps have no text field to carry the error. */}
+                  {error && !currentStep.input && (
+                    <Typography fontSize="12px" color="error" role="alert" mt={1.5}>
+                      {error}
+                    </Typography>
+                  )}
+
                   {currentStep.input && (
                     <Box
                       component="form"
+                      noValidate
                       onSubmit={(e) => {
                         e.preventDefault();
                         handleNext(inputRef.current?.value || "");
                       }}
                     >
                       <StyledTextField
+                        key={step}
+                        defaultValue={formData[currentStep.key] ?? ""}
                         fullWidth
                         inputRef={inputRef}
                         type={currentStep.type}
@@ -545,6 +658,12 @@ const SmartContactForm = ({ isInSheet = false }) => {
                         error={!!error}
                         helperText={error}
                         disabled={isSubmitting}
+                        slotProps={{
+                          htmlInput: {
+                            "aria-label": currentStep.title,
+                            ...INPUT_HINTS[currentStep.key],
+                          },
+                        }}
                       />
 
                       {step === steps.length - 1 && (
