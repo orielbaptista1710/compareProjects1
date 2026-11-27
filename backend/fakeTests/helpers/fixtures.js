@@ -64,3 +64,6 @@ export function withVersions(body, version = 0) {
   const ids = Array.isArray(body.ids) ? body.ids : [];
   return { ...body, versions: Object.fromEntries(ids.map((id) => [String(id), version])) };
 }
+
+// The two ticks the API now requires on every listing create and edit
+export const CONSENT = { termsAccepted: true, detailsConfirmed: true };

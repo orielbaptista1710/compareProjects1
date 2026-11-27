@@ -7,7 +7,7 @@ import { describe, it, expect, beforeAll, afterAll, afterEach } from "vitest";
 import request from "supertest";
 import app from "./helpers/testApp.js";
 import { startTestDb, stopTestDb, clearTestDb } from "./helpers/db.js";
-import { createUser, createProperty, signToken } from "./helpers/fixtures.js";
+import { CONSENT, createUser, createProperty, signToken } from "./helpers/fixtures.js";
 import Property from "../models/Property.js";
 
 beforeAll(async () => {
@@ -23,6 +23,7 @@ afterEach(async () => {
 });
 
 const VALID_NEW_LISTING = {
+  ...CONSENT,
   developerName: "Dev Co",
   title: "New listing",
   description: "A test property description.",
@@ -54,10 +55,10 @@ const FORGED = {
 };
 
 const addAs = (user, body) =>
-  request(app).post("/api/properties/add").set("Authorization", `Bearer ${signToken(user)}`).send(body);
+  request(app).post("/api/properties/add").set("Authorization", `Bearer ${signToken(user)}`).send({ ...CONSENT, ...body });
 
 const updateAs = (user, id, body) =>
-  request(app).put(`/api/properties/update/${id}`).set("Authorization", `Bearer ${signToken(user)}`).send(body);
+  request(app).put(`/api/properties/update/${id}`).set("Authorization", `Bearer ${signToken(user)}`).send({ ...CONSENT, ...body });
 
 function expectNotForged(saved) {
   expect(saved.metadata?.moderation?.verifiedByAdmin ?? false).toBe(false);

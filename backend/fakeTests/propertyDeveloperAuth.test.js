@@ -4,7 +4,7 @@ import request from "supertest";
 import mongoose from "mongoose";
 import app from "./helpers/testApp.js";
 import { startTestDb, stopTestDb, clearTestDb } from "./helpers/db.js";
-import { createUser, createAdminUser, createProperty, signToken } from "./helpers/fixtures.js";
+import { CONSENT, createUser, createAdminUser, createProperty, signToken } from "./helpers/fixtures.js";
 import Property from "../models/Property.js";
 
 beforeAll(async () => {
@@ -75,7 +75,7 @@ describe("server-managed fields are ignored", () => {
     const res = await request(app)
       .put(`/api/properties/update/${property._id}`)
       .set("Authorization", `Bearer ${signToken(owner)}`)
-      .send({ title: "Edited title", userId: other._id.toString(), ...TAMPERED });
+      .send({ ...CONSENT, title: "Edited title", userId: other._id.toString(), ...TAMPERED });
 
     expect(res.status).toBe(200);
     const saved = await Property.findById(property._id).lean();
@@ -95,6 +95,7 @@ describe("server-managed fields are ignored", () => {
       .post("/api/properties/add")
       .set("Authorization", `Bearer ${signToken(dev)}`)
       .send({
+        ...CONSENT,
         developerName: "Dev Co",
         title: "New listing",
         description: "A test property description.",

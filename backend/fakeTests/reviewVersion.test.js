@@ -13,7 +13,7 @@ vi.mock("../config/firebaseAdmin.js", () => ({
 
 const { default: app } = await import("./helpers/roleSystemApp.js");
 const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js");
-const { createAdminUser, createCustomer, createProperty, signToken } = await import("./helpers/fixtures.js");
+const { CONSENT, createAdminUser, createCustomer, createProperty, signToken } = await import("./helpers/fixtures.js");
 const { default: Property } = await import("../models/Property.js");
 
 verifyIdToken.mockImplementation(async (token) => {
@@ -37,7 +37,7 @@ const ownerListing = (customer, overrides = {}) =>
   createProperty({ userId: customer._id, ownerModel: "Customer", listedBy: "owner", developerName: undefined, ...overrides });
 
 const edit = (customer, listing, body) =>
-  request(app).put(`/api/customers/listings/${listing._id}`).set("Authorization", bearer(customer)).send(body);
+  request(app).put(`/api/customers/listings/${listing._id}`).set("Authorization", bearer(customer)).send({ ...CONSENT, ...body });
 const approve = (auth, listing, body) =>
   request(app).put(`/api/admin/approve/${listing._id}`).set("Authorization", auth).send(body);
 const reject = (auth, listing, body) =>
