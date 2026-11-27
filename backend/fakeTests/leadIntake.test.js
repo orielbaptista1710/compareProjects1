@@ -171,6 +171,19 @@ describe("lead and enquiry storage", () => {
     expect(createdLead().zoneId).toBe("zone-1");
   });
 
+  it("accepts a legacy numeric pincode from Mongo and hands Postgres a string", async () => {
+    mongoReturns({ ...PROPERTY, pincode: 410206 }); // older listings stored a Number
+
+    const res = await request(app).post("/api/leads/customer").send(CUSTOMER);
+
+    expect(res.status).toBe(201);
+    expect(prismaMock.zoneArea.findUnique).toHaveBeenCalledWith({
+      where: { pincode: "410206" },
+      select: { zoneId: true },
+    });
+    expect(createdEnquiry().pincode).toBe("410206");
+  });
+
   it("adds an enquiry to the existing lead for the same phone, keeping its name", async () => {
     prismaMock.lead.findUnique.mockResolvedValue({ ...LEAD_ROW, name: "First Name" });
 
