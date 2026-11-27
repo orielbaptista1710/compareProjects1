@@ -128,6 +128,42 @@ describe("customer lead input rules", () => {
   });
 });
 
+describe("customer lead property type", () => {
+  it("stores a canonical listing type as the type of interest", async () => {
+    const res = await request(app)
+      .post("/api/leads/customer")
+      .send({ ...CUSTOMER, propertyType: "Flats/Apartments" });
+
+    expect(res.status).toBe(201);
+    expect(createdEnquiry().propertyTypeInterest).toBe("Flats/Apartments");
+  });
+
+  it.each([
+    ["Apartment", "Flats/Apartments"],
+    ["industrial", "Industrial Warehouse/Godown"],
+    ["Shop", "Shop/Showroom"],
+  ])("maps the old form's label %s to %s so a stale page's lead isn't lost", async (sent, stored) => {
+    const res = await request(app)
+      .post("/api/leads/customer")
+      .send({ ...CUSTOMER, propertyType: sent });
+
+    expect(res.status).toBe(201);
+    expect(createdEnquiry().propertyTypeInterest).toBe(stored);
+  });
+
+  it.each(["Castle", "", 42, { $gt: "" }])(
+    "drops an unknown type (%j) and still stores the lead",
+    async (sent) => {
+      const res = await request(app)
+        .post("/api/leads/customer")
+        .send({ ...CUSTOMER, propertyType: sent });
+
+      expect(res.status).toBe(201);
+      expect(createdEnquiry().propertyTypeInterest).toBeNull();
+    }
+  );
+});
+
 describe("lead and enquiry storage", () => {
   it("takes lister and location from Mongo, not from the client", async () => {
     await request(app)
