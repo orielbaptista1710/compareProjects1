@@ -891,3 +891,44 @@
     transition: none !important;
   }
 }
+
+/* ── End of form: consent, second publish button ───────── */
+.sell-property-form .spf-end {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.sell-property-form .spf-end__block {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--spf-surface);
+  border: 1px solid var(--spf-line);
+  border-radius: var(--spf-r-md);
+}
+
+.sell-property-form .spf-end__title {
+  margin: 0;
+  font-family: var(--spf-head);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--spf-ink);
+}
+
+.sell-property-form .spf-end__check { align-items: flex-start; font-weight: var(--weight-regular); }
+.sell-property-form .spf-end__check input[type="checkbox"] { margin-top: var(--space-1); }
+.sell-property-form .spf-end__check a { color: var(--spf-accent); }
+
+.sell-property-form .spf-end__nudge {
+  margin: 0;
+  font-size: var(--text-help);
+  color: var(--spf-muted);
+}
+
+.sell-property-form .spf-end__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}

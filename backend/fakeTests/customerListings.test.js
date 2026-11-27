@@ -14,7 +14,7 @@ vi.mock("../config/firebaseAdmin.js", () => ({
 
 const { default: app } = await import("./helpers/roleSystemApp.js");
 const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js");
-const { createCustomer, createUser, createProperty, signToken } = await import("./helpers/fixtures.js");
+const { CONSENT, createCustomer, createUser, createProperty, signToken } = await import("./helpers/fixtures.js");
 const { default: Property } = await import("../models/Property.js");
 
 // Firebase accepts "token-for-<uid>" for any customer created in the test.
@@ -39,6 +39,7 @@ const bearer = (customer) => `Bearer token-for-${customer.firebaseUid}`;
 const verifiedCustomer = (overrides = {}) => createCustomer({ emailVerified: true, ...overrides });
 
 const LISTING = {
+  ...CONSENT,
   title: "2BHK in Andheri",
   description: "Sunny flat, close to the station.",
   state: "Maharashtra",
@@ -200,7 +201,7 @@ describe("PUT/DELETE /api/customers/listings/:id", () => {
     const res = await request(app)
       .put(`/api/customers/listings/${listing._id}`)
       .set("Authorization", bearer(customer))
-      .send({ price: 9000000 });
+      .send({ ...CONSENT, price: 9000000 });
 
     expect(res.status).toBe(200);
     expect(res.body.status).toBe("pending");
@@ -215,7 +216,7 @@ describe("PUT/DELETE /api/customers/listings/:id", () => {
     const put = await request(app)
       .put(`/api/customers/listings/${listing._id}`)
       .set("Authorization", bearer(intruder))
-      .send({ price: 1 });
+      .send({ ...CONSENT, price: 1 });
     const del = await request(app)
       .delete(`/api/customers/listings/${listing._id}`)
       .set("Authorization", bearer(intruder));
@@ -305,7 +306,7 @@ describe("developer listings through /api/properties", () => {
     const res = await request(app)
       .put(`/api/properties/update/${listing._id}`)
       .set("Authorization", `Bearer ${signToken(developer)}`)
-      .send({ price: 1 });
+      .send({ ...CONSENT, price: 1 });
 
     expect(res.status).toBe(404);
   });

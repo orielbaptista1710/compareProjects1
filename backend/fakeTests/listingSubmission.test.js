@@ -12,7 +12,7 @@ vi.mock("../config/firebaseAdmin.js", () => ({
 
 const { default: app } = await import("./helpers/roleSystemApp.js");
 const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js");
-const { createCustomer, createUser, createProperty, signToken } = await import("./helpers/fixtures.js");
+const { CONSENT, createCustomer, createUser, createProperty, signToken } = await import("./helpers/fixtures.js");
 const { default: Property } = await import("../models/Property.js");
 
 verifyIdToken.mockImplementation(async (token) => {
@@ -30,6 +30,7 @@ afterAll(stopTestDb);
 afterEach(clearTestDb);
 
 const LISTING = {
+  ...CONSENT,
   title: "2 BHK Flat in Andheri West, Mumbai",
   propertyType: "Flats/Apartments",
   description: "Sunny two bedroom flat near the station.",
@@ -45,7 +46,7 @@ const DEVELOPER_LISTING = { ...LISTING, possessionStatus: "Ready to Move", devel
 
 const owner = () => createCustomer({ emailVerified: true });
 const post = (customer, body) =>
-  request(app).post("/api/customers/listings").set("Authorization", `Bearer token-for-${customer.firebaseUid}`).send(body);
+  request(app).post("/api/customers/listings").set("Authorization", `Bearer token-for-${customer.firebaseUid}`).send({ ...CONSENT, ...body });
 
 describe("sending a new listing twice", () => {
   it("creates it once and returns the same listing the second time", async () => {
@@ -163,7 +164,7 @@ describe("what a submissionId can't do", () => {
     await request(app)
       .put(`/api/customers/listings/${listing._id}`)
       .set("Authorization", `Bearer token-for-${customer.firebaseUid}`)
-      .send({ price: 8000000, submissionId: randomUUID() });
+      .send({ ...CONSENT, price: 8000000, submissionId: randomUUID() });
 
     const stored = await Property.findById(listing._id).select("+submissionId").lean();
     expect(stored.submissionId).toBeUndefined();

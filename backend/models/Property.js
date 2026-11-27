@@ -364,6 +364,14 @@ geo: {
   // their status or reviewHistory says the same.
   firstApprovedAt: Date,
 
+  // What the poster ticked when they last submitted. Times come from the
+  // server, never the client; termsVersion says which wording they agreed to.
+  consent: {
+    termsAcceptedAt: Date,
+    detailsConfirmedAt: Date,
+    termsVersion: String,
+  },
+
   // Audit trail of admin decisions, newest last, capped at 20 entries by the
   // $slice in services/propertyAdminService.js. reviewedBy/reviewedAt above
   // only hold the latest decision. Approvals made directly in MongoDB bypass

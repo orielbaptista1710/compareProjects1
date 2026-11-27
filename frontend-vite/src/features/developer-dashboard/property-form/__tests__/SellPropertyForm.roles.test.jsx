@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { publishButton, tickConsent } from "./consentHelpers";
 import { render, screen, waitFor } from "@testing-library/react";
 
 vi.mock("react-hot-toast", () => ({
@@ -152,7 +153,8 @@ describe("form roles", () => {
       const onSubmit = vi.fn();
       renderForm({ role: LISTED_BY.OWNER, formData: OWNER_LISTING, editingId: "p1", onSubmit });
 
-      const update = screen.getByRole("button", { name: "Update listing" });
+      tickConsent();
+      const update = publishButton("Update listing");
       await waitFor(() => expect(update).toBeEnabled());
       update.click();
 
@@ -174,7 +176,7 @@ describe("form roles", () => {
       renderForm({ role: LISTED_BY.AGENT, formData: OWNER_LISTING, editingId: "p1" });
 
       // The same listing is publishable for an owner but not for an agent
-      expect(screen.getByRole("button", { name: "Update listing" })).toBeDisabled();
+      expect(publishButton("Update listing")).toBeDisabled();
     });
   });
 });

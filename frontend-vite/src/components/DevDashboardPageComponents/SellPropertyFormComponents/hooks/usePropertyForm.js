@@ -37,6 +37,8 @@ export const toFormValues = (formData = {}) => {
   // Text inputs: a saved floor -1 shows as "B1", an older numeric tower 3 as "3"
   values.floor = String(floorText(values.floor));
   values.tower = values.tower == null ? "" : String(values.tower);
+  // An older listing can have the pincode saved as a number; the field is text
+  values.pincode = values.pincode == null ? "" : String(values.pincode);
   if (formData.coordinates) {
     values.lat = formData.coordinates.lat;
     values.lng = formData.coordinates.lng;

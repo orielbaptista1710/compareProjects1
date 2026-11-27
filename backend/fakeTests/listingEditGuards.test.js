@@ -15,7 +15,7 @@ vi.mock("../config/firebaseAdmin.js", () => ({
 
 const { default: app } = await import("./helpers/roleSystemApp.js");
 const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js");
-const { createAdminUser, createCustomer, createProperty, createUser, signToken } = await import(
+const { CONSENT, createAdminUser, createCustomer, createProperty, createUser, signToken } = await import(
   "./helpers/fixtures.js"
 );
 const { default: Property } = await import("../models/Property.js");
@@ -40,7 +40,7 @@ const customerListing = (customer, overrides = {}) =>
     ...overrides,
   });
 const editAsCustomer = (customer, listing, body) =>
-  request(app).put(`/api/customers/listings/${listing._id}`).set("Authorization", bearer(customer)).send(body);
+  request(app).put(`/api/customers/listings/${listing._id}`).set("Authorization", bearer(customer)).send({ ...CONSENT, ...body });
 const saved = (listing) => Property.findById(listing._id).lean();
 
 describe("fields locked after approval", () => {
@@ -50,6 +50,7 @@ describe("fields locked after approval", () => {
     ["city", { city: "Pune" }],
     ["locality", { locality: "Bandra" }],
     ["pincode", { pincode: "400050" }],
+    ["address", { address: "Flat 9, a different building on another road" }],
     ["coordinates", { coordinates: { lat: 19.1, lng: 72.9 } }],
   ])("refuses a change to %s on an approved listing", async (field, body) => {
     const customer = await owner();
@@ -124,7 +125,7 @@ describe("fields locked after approval", () => {
     const res = await request(app)
       .put(`/api/properties/update/${listing._id}`)
       .set("Authorization", `Bearer ${signToken(developer)}`)
-      .send({ locality: "Juhu" });
+      .send({ ...CONSENT, locality: "Juhu" });
 
     expect(res.status).toBe(400);
   });

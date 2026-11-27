@@ -123,7 +123,12 @@ const baseShape = {
       (v) => (typeof v === "number" ? String(v) : v),
       z.string().trim().max(MAX.tower, `Use ${MAX.tower} characters or fewer`).optional()
     ),
-    unitsAvailable: optionalNum(z.coerce.number().int().min(1, "Enter at least 1 unit")),
+    // Required for developers: an empty box becomes undefined, which coerce turns into NaN
+    unitsAvailable: optionalNum(
+      z.coerce.number({ error: "Enter the number of units available" })
+        .int("Enter a whole number of units")
+        .min(1, "Enter at least 1 unit")
+    ),
  
     // ── RERA ──────────────────────────────────────────────────────
     reraApproved: z.boolean().optional().default(false),
@@ -141,6 +146,12 @@ const baseShape = {
     // zod drops the fields, so nothing about media is sent and a save can't
     // touch the photos a listing already has.
     ...(MEDIA_UPLOAD_ENABLED ? mediaShape() : {}),
+
+    // ── Consent (ListingConsentBlock) ─────────────────────────────
+    // Ticked on every post and every edit. The API checks them again and saves
+    // when they were given, so they are never part of a draft or a saved form.
+    termsAccepted:    z.literal(true, { message: "Accept the Terms and Privacy Policy to continue" }),
+    detailsConfirmed: z.literal(true, { message: "Confirm the details are accurate to continue" }),
 };
 
 // Links only: the files are checked when they're picked (resizePhoto.js) and
@@ -274,6 +285,8 @@ export const defaultPropertyValues = {
   amenities:        [],
   facilities:       [],
   security:         [],
+  termsAccepted:    false,
+  detailsConfirmed: false,
   ...(MEDIA_UPLOAD_ENABLED ? MEDIA_DEFAULTS : {}),
 };
  

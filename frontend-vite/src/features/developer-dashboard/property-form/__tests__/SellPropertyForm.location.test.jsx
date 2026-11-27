@@ -1,6 +1,7 @@
 // The Location section: the map pin (place, keep inside India, remove), what a
 // map search fills in, and typing a city or locality we have no list for.
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { clickPublish } from "./consentHelpers";
 import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 
 // The stubbed map hands its handlers to the test, which then plays the part
@@ -30,6 +31,7 @@ vi.mock("../../../../config/features", () => ({
 import toast from "react-hot-toast";
 import SellPropertyForm from "../SellPropertyForm";
 import { initialFormData } from "../../utils/developerDashPropertyHelpers";
+import { MAX_MAP_LOADS, MAX_PLACE_PICKS, resetMapsBudget } from "../sections/mapsBudget";
 
 const SAVED = {
   ...initialFormData,
@@ -66,6 +68,9 @@ const renderForm = (props = {}) =>
 const openLocation = () =>
   fireEvent.click(screen.getByRole("button", { name: /Location/, expanded: false }));
 
+// Editing a saved listing: the (billed) map only loads when asked for
+const showMap = () => fireEvent.click(screen.getByRole("button", { name: "Show map" }));
+
 const at = (lat, lng) => ({ latLng: { lat: () => lat, lng: () => lng } });
 const part = (long_name, ...types) => ({ long_name, types });
 const choosePlace = (place) => {
@@ -81,6 +86,9 @@ describe("SellPropertyForm location", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.localStorage.clear();
+    resetMapsBudget();
+    maps.map = null;
+    maps.autocomplete = null;
     Element.prototype.scrollIntoView = vi.fn();
   });
   afterEach(() => {
@@ -121,12 +129,12 @@ describe("SellPropertyForm location", () => {
     openLocation();
 
     act(() => maps.map.onClick(at(19.2, 73.1)));
-    fireEvent.click(screen.getByRole("button", { name: "Publish listing" }));
+    clickPublish("Publish listing");
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     expect(onSubmit.mock.calls[0][0].coordinates).toEqual({ lat: 19.2, lng: 73.1 });
 
     fireEvent.click(screen.getByRole("button", { name: "Remove pin" }));
-    fireEvent.click(screen.getByRole("button", { name: "Publish listing" }));
+    clickPublish("Publish listing");
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(2));
     expect(onSubmit.mock.calls[1][0].coordinates).toBeUndefined();
   });
@@ -135,11 +143,12 @@ describe("SellPropertyForm location", () => {
     const onSubmit = vi.fn();
     renderForm({ formData: { ...SAVED, coordinates: { lat: 19.2, lng: 73.1 } }, editingId: "p1", onSubmit });
     openLocation();
+    showMap();
     expect(screen.getByText(HAS_PIN)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Remove pin" }));
     expect(screen.getByText(NO_PIN)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Update listing" }));
+    clickPublish("Update listing");
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     expect(onSubmit.mock.calls[0][0].coordinates).toBeNull();
@@ -150,7 +159,7 @@ describe("SellPropertyForm location", () => {
     const pin = { lat: 19.2, lng: 73.1 };
     renderForm({ formData: { ...SAVED, coordinates: pin }, editingId: "p1", onSubmit });
 
-    fireEvent.click(screen.getByRole("button", { name: "Update listing" }));
+    clickPublish("Update listing");
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     expect(onSubmit.mock.calls[0][0].coordinates).toEqual(pin);
@@ -161,9 +170,10 @@ describe("SellPropertyForm location", () => {
     const onSubmit = vi.fn();
     renderForm({ formData: { ...SAVED, coordinates: { source: "address" } }, editingId: "p1", onSubmit });
     openLocation();
+    showMap();
 
     expect(screen.getByText(NO_PIN)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Update listing" }));
+    clickPublish("Update listing");
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     expect(onSubmit.mock.calls[0][0].coordinates).toBeUndefined();
   });
@@ -189,9 +199,10 @@ describe("SellPropertyForm location", () => {
     );
     renderForm({ formData: { ...SAVED, coordinates: { lat: 19.2, lng: 73.1 } }, editingId: "p1", onSubmit });
 
-    fireEvent.click(screen.getByRole("button", { name: "Update listing" }));
+    clickPublish("Update listing");
 
     expect(await screen.findByText("Place the pin inside India")).toBeInTheDocument();
+    showMap();
     act(() => maps.map.onClick(at(19.07, 72.87)));
     expect(screen.queryByText("Place the pin inside India")).not.toBeInTheDocument();
   });
@@ -231,6 +242,114 @@ describe("SellPropertyForm location", () => {
 
     fireEvent.change(locality, { target: { value: "Connaught Place" } });
     expect(locality).toHaveValue("Connaught Place");
+  });
+
+  describe("Google Maps cost limits", () => {
+    const DELHI = {
+      geometry: { location: { lat: () => 28.63, lng: () => 77.22 } },
+      formatted_address: "Connaught Place, New Delhi, Delhi 110001, India",
+      address_components: [part("New Delhi", "locality"), part("Delhi", "administrative_area_level_1")],
+    };
+
+    it("asks Google only for the fields the form uses, and not to open place cards", () => {
+      renderForm();
+      openLocation();
+      expect(maps.autocomplete.options.fields).toEqual(["address_components", "geometry", "formatted_address"]);
+      expect(maps.autocomplete.options.componentRestrictions).toEqual({ country: "in" });
+      expect(maps.map.options.clickableIcons).toBe(false);
+    });
+
+    it("stops the address search after the tab's allowance and keeps the fields usable", () => {
+      renderForm({ formData: SAVED });
+      openLocation();
+      for (let i = 0; i < MAX_PLACE_PICKS; i += 1) choosePlace(DELHI);
+
+      expect(screen.getByText(/Address search is paused/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/^Full address/)).toBeEnabled();
+      // a map click still moves the pin
+      act(() => maps.map.onClick(at(19.07, 72.87)));
+      expect(maps.marker.position).toEqual({ lat: 19.07, lng: 72.87 });
+    });
+
+    it("on an edit, loads no map until Show map is clicked, and counts it once", () => {
+      renderForm({ formData: { ...SAVED, coordinates: { lat: 19.2, lng: 73.1 } }, editingId: "p1" });
+      openLocation();
+
+      expect(maps.map).toBeNull();
+      expect(screen.getByLabelText(/^Pincode/)).toBeEnabled();
+
+      showMap();
+      expect(maps.map).not.toBeNull();
+      expect(screen.queryByRole("button", { name: "Show map" })).not.toBeInTheDocument();
+    });
+
+    it("shows a saved pincode that came back as a number", () => {
+      renderForm({ formData: { ...SAVED, pincode: 421204 }, editingId: "p1" });
+      openLocation();
+
+      expect(screen.getByLabelText(/^Pincode/)).toHaveValue("421204");
+    });
+
+    it("gives every new form a fresh map allowance", () => {
+      for (let i = 0; i < MAX_MAP_LOADS + 2; i += 1) {
+        const { unmount } = renderForm();
+        openLocation();
+        expect(screen.getByText(NO_PIN)).toBeInTheDocument();
+        unmount();
+      }
+    });
+
+    it("shows a note instead of the map once one form has reopened it too many times", () => {
+      renderForm();
+      for (let i = 0; i < MAX_MAP_LOADS; i += 1) {
+        openLocation();
+        expect(screen.getByText(NO_PIN)).toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: /Location/, expanded: true }));
+      }
+      openLocation();
+      expect(screen.getByText(/opened several times in this session/)).toBeInTheDocument();
+      expect(screen.queryByText(NO_PIN)).not.toBeInTheDocument();
+      expect(screen.getByLabelText(/^Pincode/)).toBeEnabled(); // the address fields still work
+    });
+
+    it("does not load the map for a locked listing and makes its location read-only", async () => {
+      const onSubmit = vi.fn();
+      renderForm({
+        formData: { ...SAVED, city: "Mumbai", locality: "Andheri West", coordinates: { lat: 19.2, lng: 73.1 } },
+        editingId: "p1",
+        editingLocked: true,
+        onSubmit,
+      });
+      openLocation();
+
+      expect(maps.map).toBeNull();
+      expect(screen.getByText(/location and address are fixed once a listing is approved/)).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Show map" })).not.toBeInTheDocument();
+      for (const label of [/^State/, /^City/, /^Locality/, /^Pincode/, /^Full address/]) {
+        expect(screen.getByLabelText(label)).toHaveAttribute("readonly");
+      }
+      expect(screen.getByLabelText(/^City/)).toHaveValue("Mumbai");
+
+      // the saved location still goes out unchanged
+      clickPublish("Update listing");
+      await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+      const sent = onSubmit.mock.calls[0][0];
+      expect(sent).toMatchObject({ state: "Maharashtra", city: "Mumbai", locality: "Andheri West", pincode: "421204" });
+      expect(sent.coordinates).toEqual({ lat: 19.2, lng: 73.1 });
+    });
+  });
+
+  it("lets an approved listing fill in a locality it never had, and locks the rest", () => {
+    renderForm({
+      formData: { ...SAVED, city: "Mumbai", locality: "", address: "Flat 4, Link Road" },
+      editingId: "p1",
+      editingLocked: true,
+    });
+    openLocation();
+
+    expect(screen.getByLabelText(/^Locality/)).not.toHaveAttribute("readonly");
+    expect(screen.getByLabelText(/^City/)).toHaveAttribute("readonly");
+    expect(screen.getByLabelText(/^Full address/)).toHaveAttribute("readonly");
   });
 
   it("keeps the dropdowns for a city we do list", () => {

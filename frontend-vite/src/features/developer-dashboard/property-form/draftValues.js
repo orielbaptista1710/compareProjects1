@@ -2,7 +2,10 @@
 // What goes into a draft, and how two sets of form values are compared.
 import { defaultPropertyValues } from "../../../components/DevDashboardPageComponents/SellPropertyFormComponents/propertySchema";
 
-const FIELDS = Object.keys(defaultPropertyValues);
+// The consent ticks are given fresh on every post and edit, so they are never
+// saved in a draft and don't count as a change.
+const NOT_SAVED = ["termsAccepted", "detailsConfirmed"];
+const FIELDS = Object.keys(defaultPropertyValues).filter((key) => !NOT_SAVED.includes(key));
 
 /**
  * Only the fields the form collects. The form's values can also carry whatever a

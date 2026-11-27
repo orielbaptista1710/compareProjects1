@@ -147,6 +147,14 @@ export const propertyInputSchema = z.object({
   projectName: limited("projectName"),
   listingType: optional(z.enum(["sale", "resale"])),
 
+  // ── Consent ─────────────────────────────────
+  // Ticks from the end of the form. They are never saved as fields: the
+  // controller turns them into the server-timed `consent` record.
+  // Optional here: an edit that changes nothing needs no ticks. The controller
+  // (takeConsent) requires both for a create or a real change; false is refused.
+  termsAccepted: z.literal(true, { message: "Accept the Terms and Privacy Policy to continue" }).optional(),
+  detailsConfirmed: z.literal(true, { message: "Confirm the details are accurate to continue" }).optional(),
+
   // ── Location ────────────────────────────────
   state: limited("state"),
   city: limited("city"),

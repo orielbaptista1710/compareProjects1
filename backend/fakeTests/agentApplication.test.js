@@ -15,7 +15,7 @@ vi.mock("../config/firebaseAdmin.js", () => ({
 
 const { default: app } = await import("./helpers/roleSystemApp.js");
 const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js");
-const { createCustomer, createUser, createAdminUser, createProperty, signToken, withVersions } = await import("./helpers/fixtures.js");
+const { CONSENT, createCustomer, createUser, createAdminUser, createProperty, signToken, withVersions } = await import("./helpers/fixtures.js");
 const { default: Customer } = await import("../models/Customer.js");
 const { default: Property } = await import("../models/Property.js");
 
@@ -161,6 +161,7 @@ describe("/api/admin/agents", () => {
       .post("/api/customers/listings")
       .set("Authorization", bearer(customer))
       .send({
+        ...CONSENT,
         title: "Office in BKC",
         description: "Grade A office space.",
         state: "Maharashtra",

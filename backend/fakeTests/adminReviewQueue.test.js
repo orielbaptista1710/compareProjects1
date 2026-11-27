@@ -14,7 +14,7 @@ vi.mock("../config/firebaseAdmin.js", () => ({
 
 const { default: app } = await import("./helpers/roleSystemApp.js");
 const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js");
-const { createAdminUser, createCustomer, createProperty, createUser, signToken, withVersions } = await import(
+const { CONSENT, createAdminUser, createCustomer, createProperty, createUser, signToken, withVersions } = await import(
   "./helpers/fixtures.js"
 );
 const { default: Property } = await import("../models/Property.js");
@@ -46,7 +46,7 @@ const customerListing = (customer, overrides = {}) =>
   });
 
 const editAsCustomer = (customer, listing, body) =>
-  request(app).put(`/api/customers/listings/${listing._id}`).set("Authorization", bearer(customer)).send(body);
+  request(app).put(`/api/customers/listings/${listing._id}`).set("Authorization", bearer(customer)).send({ ...CONSENT, ...body });
 
 const saved = (listing) => Property.findById(listing._id).lean();
 
@@ -175,7 +175,7 @@ describe("editing a listing that was already reviewed (a resubmission)", () => {
     const res = await request(app)
       .put(`/api/properties/update/${listing._id}`)
       .set("Authorization", `Bearer ${signToken(developer)}`)
-      .send({ price: 1234567 });
+      .send({ ...CONSENT, price: 1234567 });
 
     expect(res.status).toBe(200);
     const after = await saved(listing);

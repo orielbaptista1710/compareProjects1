@@ -19,7 +19,7 @@ vi.mock("../services/mediaStorage.js", async (importOriginal) => ({
 
 const { default: app } = await import("./helpers/roleSystemApp.js");
 const { startTestDb, stopTestDb, clearTestDb } = await import("./helpers/db.js");
-const { createCustomer, createUser, createProperty, signToken } = await import("./helpers/fixtures.js");
+const { CONSENT, createCustomer, createUser, createProperty, signToken } = await import("./helpers/fixtures.js");
 const { default: Property } = await import("../models/Property.js");
 const { presignUrl } = await vi.importActual("../services/mediaStorage.js");
 const { youtubeVideoId } = await import("../validators/propertyInputValidator.js");
@@ -63,6 +63,7 @@ const DEVELOPER_SIGN = "/api/properties/media/sign";
 const PHOTO = { kind: "image", contentType: "image/webp", size: 300_000 };
 
 const LISTING = {
+  ...CONSENT,
   title: "2BHK in Andheri",
   description: "Sunny flat, close to the station.",
   state: "Maharashtra",
@@ -261,7 +262,7 @@ describe("saving a listing with media", () => {
     const res = await request(app)
       .put(`/api/customers/listings/${listing._id}`)
       .set("Authorization", bearer(customer))
-      .send({ title: "A new title for the flat", galleryImages: [{ url: old }, { url: ownFile(customer) }] });
+      .send({ ...CONSENT, title: "A new title for the flat", galleryImages: [{ url: old }, { url: ownFile(customer) }] });
 
     expect(res.status).toBe(200);
     expect(headObject).toHaveBeenCalledTimes(1); // only the new photo is checked
@@ -281,7 +282,7 @@ describe("saving a listing with media", () => {
     const res = await request(app)
       .put(`/api/customers/listings/${listing._id}`)
       .set("Authorization", bearer(customer))
-      .send({ coverImage: { url: "" }, brochure: { url: "" } });
+      .send({ ...CONSENT, coverImage: { url: "" }, brochure: { url: "" } });
 
     expect(res.status).toBe(200);
     expect(res.body.unchanged).toBeUndefined();

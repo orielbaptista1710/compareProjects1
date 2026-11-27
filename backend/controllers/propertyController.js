@@ -772,6 +772,33 @@ const parseListingInput = (req, res) => {
   return data;
 };
 
+// Bump when the Terms/Privacy wording the form links to changes.
+const TERMS_VERSION = '2026-11';
+const CONSENT_FLAGS = ['termsAccepted', 'detailsConfirmed'];
+
+// Takes the two consent ticks out of the parsed body (they are not listing
+// fields) and returns the record to save, with server times, or null when
+// either tick is missing.
+const takeConsent = (safeBody) => {
+  const given = CONSENT_FLAGS.every((flag) => safeBody[flag] === true);
+  for (const flag of CONSENT_FLAGS) delete safeBody[flag];
+  if (!given) return null;
+  const now = new Date();
+  return { termsAcceptedAt: now, detailsConfirmedAt: now, termsVersion: TERMS_VERSION };
+};
+
+// Responds 400 for a save without both ticks.
+const consentRequired = (res) => {
+  res.status(400).json({
+    success: false,
+    message: 'Invalid fields: termsAccepted, detailsConfirmed',
+    errors: {
+      termsAccepted: 'Accept the Terms and Privacy Policy to continue',
+      detailsConfirmed: 'Confirm the details are accurate to continue',
+    },
+  });
+};
+
 // The shared rules the whole listing must meet: this poster's required fields
 // and minimum lengths (constants/listingRules.js, the same ones the form uses).
 // Responds 400 and returns false when it doesn't.
@@ -906,6 +933,8 @@ const addProperty = asyncHandler(async (req, res) => {
 
   const safeBody = parseListingInput(req, res);
   if (!safeBody) return;
+  const consent = takeConsent(safeBody);
+  if (!consent) return consentRequired(res);
   dropFieldsNotForType(safeBody, safeBody.propertyType);
   dropBlankAreaType(safeBody);
   if (!meetsListingRules(res, safeBody, owner.listedBy)) return;
@@ -924,6 +953,7 @@ const addProperty = asyncHandler(async (req, res) => {
     property = await Property.create({
       ...safeBody,
       ...(listingType && { listingType }),
+      consent,
       userId: owner.id,
       ownerModel: owner.model,
       listedBy: owner.listedBy,
@@ -1006,6 +1036,8 @@ const updateProperty = asyncHandler(async (req, res) => {
 
   const safeBody = parseListingInput(req, res);
   if (!safeBody) return;
+  // Not a listing field, so it must not count as a change below
+  const consent = takeConsent(safeBody);
 
   const saved = property.toObject({ virtuals: false, getters: false, transform: false });
 
@@ -1031,6 +1063,9 @@ const updateProperty = asyncHandler(async (req, res) => {
     res.json({ ...property.toJSON(), unchanged: true });
     return;
   }
+
+  // A change goes back to review, so it needs the ticks again
+  if (!consent) return consentRequired(res);
 
   const locked = lockedChanges(saved, changed);
   if (locked.length) {
@@ -1062,6 +1097,7 @@ const updateProperty = asyncHandler(async (req, res) => {
     (property.reviewHistory?.length ?? 0) > 0;
 
   Object.assign(property, safeBody);
+  property.consent = consent;
   for (const field of CLEARABLE_MEDIA) {
     if (isCleared(safeBody[field])) property[field] = undefined;
   }
