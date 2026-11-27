@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 
 import API from "../../../../../api/api";
+import { isValidEmail, suggestEmail } from "../../../../../utils/emailValidation";
 
 /* ─────────────────────────────────────────────
    FORM STEPS
@@ -90,7 +91,7 @@ const steps = [
 
 const validators = {
   text: (v) => v.trim().length >= 2,
-  email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+  email: isValidEmail,
   tel: (v) => /^[6-9]\d{9}$/.test(v.replace(/\D/g, "")),
 };
 
@@ -222,6 +223,8 @@ const SmartContactForm = ({ isInSheet = false }) => {
   const [consent, setConsent] = useState(false);
   const [consentError, setConsentError] = useState(false);
   const [error, setError] = useState("");
+  // Last email we showed a "did you mean" prompt for; sending it again keeps it.
+  const [warnedEmail, setWarnedEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const inputRef = useRef(null);
@@ -295,6 +298,17 @@ const SmartContactForm = ({ isInSheet = false }) => {
           setError(errorMessages[type]);
           return;
         }
+
+        // Typo domains (gmail.con) are valid syntax, so ask once instead of
+        // blocking: a second Next on the same value keeps it.
+        if (type === "email" && warnedEmail !== trimmed) {
+          const hint = suggestEmail(trimmed);
+          if (hint) {
+            setWarnedEmail(trimmed);
+            setError(`Did you mean ${hint}? Click Continue again to keep ${trimmed}.`);
+            return;
+          }
+        }
       }
 
       const sanitized =
@@ -324,19 +338,29 @@ const SmartContactForm = ({ isInSheet = false }) => {
         await submitToAPI(updated);
         setIsSubmitted(true);
         localStorage.removeItem(DRAFT_KEY);
-      } catch {
-        setError("Submission failed. Please try again.");
+      } catch (err) {
+        // The server's field message (e.g. "Invalid email format") beats a
+        // generic failure; jump back to the step that owns the bad field.
+        const fieldErrors = err?.response?.data?.errors?.fieldErrors;
+        const badStep = steps.findIndex((s) => fieldErrors?.[s.key]);
+        if (badStep >= 0) {
+          setStep(badStep);
+          setError(fieldErrors[steps[badStep].key][0]);
+        } else {
+          setError("Submission failed. Please try again.");
+        }
       } finally {
         setIsSubmitting(false);
       }
     },
-    [step, formData, currentStep, consent, submitToAPI]
+    [step, formData, currentStep, consent, submitToAPI, warnedEmail]
   );
 
   const handleBack = () => {
     if (step > 0) {
       setStep((p) => p - 1);
       setError("");
+      setWarnedEmail("");
     }
   };
 
@@ -344,6 +368,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
     setStep(0);
     setFormData({});
     setError("");
+    setWarnedEmail("");
     setConsent(false);
     setConsentError(false);
     setIsSubmitted(false);
@@ -538,6 +563,8 @@ const SmartContactForm = ({ isInSheet = false }) => {
                       }}
                     >
                       <StyledTextField
+                        key={step}
+                        defaultValue={formData[currentStep.key] ?? ""}
                         fullWidth
                         inputRef={inputRef}
                         type={currentStep.type}
