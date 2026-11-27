@@ -152,7 +152,7 @@ jobs:
       # Backend tests start an in-memory MongoDB. Cache its binary so CI doesn't
       # re-download it every run (a slow download is a common cause of timeouts).
       - name: Cache MongoDB test binary
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: backend/node_modules/.cache/mongodb-memory-server
           key: mongod-${{ runner.os }}-${{ hashFiles('backend/package-lock.json') }}
