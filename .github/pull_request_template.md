@@ -28,7 +28,7 @@
 - [ ] No `protect`, `isDeveloper` or `protectCustomer` under `/api/crm/*` (CRM has its own auth)
 - [ ] Every lead query is ANDed with `leadScope(user)`
 - [ ] `backend/openapi/crm.yaml` updated (and its version bumped) if a CRM endpoint changed
-- [ ] A schema change ships with a migration in `backend/prisma/migrations/`, and the old code still works with it (so a rollback is safe)
+- [ ] The CRM lives in `compare-crm`: no new CRM features here, and no schema change made here (migrations are created in `compare-crm`; this repo only syncs its schema copy)
 
 **If this adds or upgrades a dependency:**
 - [ ] The reviewer was told why it is needed (new packages need a yes before merging)

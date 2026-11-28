@@ -11,19 +11,21 @@
 // Deletes, in this order (re-running after a partial failure is safe):
 //   1. the Firebase login (so they can't log back in mid-way and recreate it)
 //   2. every listing they posted (Mongo properties, ownerModel 'Customer')
-//   3. enquiries THEY sent as a buyer (Postgres customer leads matching their
-//      verified email or Firebase-verified phone) and those leads' site
-//      visits / activities
-//   4. their Customer record (saved + compare lists live on it)
-// Kept: enquiries OTHER buyers sent about their listings (that's the other
-// buyers' data) — the count is printed. Uploaded photos stay on Cloudinary;
-// the count is printed so they can be cleaned up separately.
+//   3. their Customer record (saved + compare lists live on it)
+// Uploaded photos stay on Cloudinary; the count is printed so they can be
+// cleaned up separately.
+//
+// NOT DELETED: Postgres leads / enquiries (the CRM data). This script no longer
+// touches Postgres: the lead schema moved to the CRM repo and the old cleanup
+// here used fields that no longer exist. A real erasure request must also have
+// the person's leads and enquiries removed through the CRM until lead erasure
+// is built there.
 //
 // --apply ends by looking everything up again and printing ✅/❌ per item.
 // Re-running the dry run later is also a check: "Nothing found…" = all gone.
 //
-// The backend .env decides which Firebase project / Mongo / Postgres this
-// touches — today that is PRODUCTION. Run the dry run first.
+// The backend .env decides which Firebase project / Mongo this touches. Run
+// the dry run first.
 
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
@@ -40,7 +42,6 @@ import { OWNER_MODEL } from '../constants/roles.js';
 
 // Read their config from process.env when imported, so load them after dotenv.
 const { default: customerAdminFire } = await import('../config/firebaseAdmin.js');
-const { default: prisma } = await import('../config/prisma.js');
 
 const fail = (msg) => {
   console.error(`❌ ${msg}`);
@@ -70,9 +71,6 @@ const maskEmail = (value) => {
   return domain ? `${name[0]}***@${domain}` : `${value[0]}***`;
 };
 const maskName = (name) => (name ? `${name[0]}***` : '—');
-
-// Leads store a 10-digit number; the customer record stores "+91XXXXXXXXXX".
-const lastTenDigits = (phone) => phone?.replace(/\D/g, '').slice(-10) || null;
 
 // Uploaded files on a listing, for the "left on Cloudinary" count.
 const countFiles = (p) =>
@@ -108,46 +106,19 @@ const run = async () => {
     return;
   }
 
-  // Their enquiries are matched only on contact details they've proven they
-  // own, so a sign-up using someone else's email or phone can't get that
-  // person's enquiries erased: the email only once verified, the phone only
-  // when Firebase verified it (the signup phone is typed, never checked).
-  const emailVerified = firebaseUser?.emailVerified === true || customer?.emailVerified === true;
-  const customerEmail = emailVerified
-    ? (customer?.customerEmail || firebaseUser?.email || email)?.toLowerCase()
-    : null;
-  const phone10 = lastTenDigits(firebaseUser?.phoneNumber);
-
   const listings = customer
     ? await Property.find({ userId: customer._id, ownerModel: OWNER_MODEL.CUSTOMER })
         .select('_id coverImage brochure galleryImages mediaFiles floorPlans')
         .lean()
     : [];
-  const listingIds = listings.map((p) => String(p._id));
   const files = listings.reduce((sum, p) => sum + countFiles(p), 0);
- 
-  const contactMatches = [
-    ...(customerEmail ? [{ email: customerEmail }] : []),
-    ...(phone10 ? [{ phone: phone10 }] : []),
-  ];
-  // Buyer enquiries only — developer partner enquiries are a different person's.
-  const ownLeadFilter = { leadType: 'customer', OR: contactMatches };
-  const ownLeads = contactMatches.length
-    ? await prisma.lead.findMany({ where: ownLeadFilter, select: { id: true } })
-    : [];
-  const ownLeadIds = ownLeads.map((l) => l.id);
-  const othersLeadsAboutListings = listingIds.length
-    ? await prisma.lead.count({ where: { propertyId: { in: listingIds }, id: { notIn: ownLeadIds } } })
-    : 0;
 
   console.log(`\n${args.apply ? 'DELETING' : 'DRY RUN — nothing will be deleted'}\n`);
   console.log(`Firebase login:      ${firebaseUser ? maskEmail(firebaseUser.email ?? firebaseUser.uid) : 'not found (already deleted?)'}`);
   console.log(`Customer record:     ${customer ? `${maskName(customer.customerName)} · ${maskPhone(customer.customerPhone)} · agent: ${customer.agent?.status ?? 'none'}` : 'not found'}`);
   console.log(`Listings:            ${listings.length}`);
-  console.log(`Their enquiries:     ${ownLeadIds.length} (+ their site visits / activities)` +
-    (emailVerified ? '' : ' — email not verified, so enquiries are not matched by email'));
-  console.log(`Kept — other buyers' enquiries about their listings: ${othersLeadsAboutListings}`);
-  console.log(`Left on Cloudinary — uploaded files on those listings: ${files}\n`);
+  console.log(`Left on Cloudinary — uploaded files on those listings: ${files}`);
+  console.log('⚠️  NOT deleted: Postgres leads / enquiries. Erase those through the CRM.\n');
 
   if (!args.apply) {
     console.log('Run again with --apply to delete. Take a Mongo backup first.');
@@ -161,14 +132,6 @@ const run = async () => {
   if (listings.length) {
     const { deletedCount } = await Property.deleteMany({ _id: { $in: listings.map((p) => p._id) } });
     console.log(`✅ ${deletedCount} listing(s) deleted`);
-  }
-  if (ownLeadIds.length) {
-    // Site visits have no cascade on the lead relation; activities do.
-    await prisma.$transaction([
-      prisma.siteVisit.deleteMany({ where: { leadId: { in: ownLeadIds } } }),
-      prisma.lead.deleteMany({ where: { id: { in: ownLeadIds } } }),
-    ]);
-    console.log(`✅ ${ownLeadIds.length} enquiry(ies) deleted`);
   }
   if (customer) {
     await Customer.deleteOne({ _id: customer._id });
@@ -189,15 +152,12 @@ const run = async () => {
       !customer ||
         (await Property.countDocuments({ userId: customer._id, ownerModel: OWNER_MODEL.CUSTOMER })) === 0,
     ],
-    [
-      'Their enquiries gone',
-      !ownLeadIds.length || (await prisma.lead.count({ where: { id: { in: ownLeadIds } } })) === 0,
-    ],
   ];
   for (const [label, ok] of checks) console.log(`${ok ? '✅' : '❌ NOT'} ${label}`);
 
   if (checks.every(([, ok]) => ok)) {
     console.log('\nDone. The live site may show deleted listings for up to 2 minutes (cache).');
+    console.log('Reminder: their Postgres leads / enquiries are still in the CRM and need erasing there.');
   } else {
     console.log('\nSomething is still there — run the same command again.');
     process.exitCode = 1;
@@ -212,6 +172,5 @@ try {
   process.exitCode = 1;
 } finally {
   await mongoose.disconnect();
-  await prisma.$disconnect();
   await customerAdminFire.app().delete();
 }
