@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import API from "../../../../../api/api";
+import { normalizeIndianMobile } from "../../../../../utils/phoneInput";
 import { posterOf, POSTER, POSTER_LABELS } from "../../../../../constants/roles";
 import "./ContactFormm.css";
 
@@ -146,7 +147,11 @@ const ContactFormm = ({ property }) => {
 
       reset();
     } catch (err) {
-      console.error("Contact developer form submission failed:", err);
+      // Status only: the Axios error holds the request body (name, phone, email).
+      console.error(
+        "Contact developer form submission failed:",
+        err?.response?.status ?? err?.message
+      );
 
       setSubmitStatus({
         type: "error",
@@ -243,15 +248,11 @@ const ContactFormm = ({ property }) => {
                   placeholder="10-digit mobile number"
                   inputMode="numeric"
                   pattern="[6-9][0-9]{9}"
-                  maxLength={10}
+                  maxLength={16}
                   disabled={isSubmitting}
                   autoComplete="tel-national"
                   onChange={(event) => {
-                    const value = event.target.value
-                      .replace(/\D/g, "")
-                      .slice(0, 10);
-
-                    field.onChange(value);
+                    field.onChange(normalizeIndianMobile(event.target.value));
                   }}
                 />
               )}

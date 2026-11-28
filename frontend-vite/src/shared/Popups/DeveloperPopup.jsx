@@ -6,6 +6,8 @@ import { X, Check, CircleCheck } from "lucide-react";
 import API from "../../api/api";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
 import { useEscapeKey } from "../../hooks/useEscapeKey";
+import { isValidEmail } from "../../utils/emailValidation";
+import { normalizeIndianMobile } from "../../utils/phoneInput";
 import "./DeveloperPopup.css";
 
 // TODO(confirm before release): placeholder copy, pending sign-off from
@@ -83,8 +85,7 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
     const { name, value, type, checked } = e.target;
 
     if (name === "developerPhone") {
-      const digitsOnly = value.replace(/\D/g, "").slice(0, 10);
-      setFormData((prev) => ({ ...prev, developerPhone: digitsOnly }));
+      setFormData((prev) => ({ ...prev, developerPhone: normalizeIndianMobile(value) }));
       return;
     }
 
@@ -110,7 +111,7 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
       setErrorMsg("Please enter your full name.");
       return;
     }
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
+    if (!isValidEmail(email)) {
       setErrorMsg("Enter a valid email address.");
       return;
     }
@@ -262,7 +263,7 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
                         onChange={handleChange}
                         autoComplete="tel-national"
                         inputMode="numeric"
-                        maxLength={10}
+                        maxLength={16}
                         required
                       />
                     </div>

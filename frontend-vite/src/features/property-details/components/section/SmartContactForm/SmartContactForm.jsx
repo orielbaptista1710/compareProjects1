@@ -32,14 +32,20 @@ import {
 
 import API from "../../../../../api/api";
 import { isValidEmail, suggestEmail } from "../../../../../utils/emailValidation";
+import { normalizeIndianMobile, isValidIndianMobile } from "../../../../../utils/phoneInput";
 import { PROPERTY_TYPE_CONFIG } from "../../../../../assests/constants/propertyTypeConfig";
 
 // The same Residential / Commercial lists the search bar uses (BHK group
 // excluded). `value` is the canonical listing type the backend accepts.
 const PROPERTY_TYPE_GROUPS = PROPERTY_TYPE_CONFIG.filter((g) => g.target === "propertyType");
-const PROPERTY_TYPE_VALUES = new Set(
-  PROPERTY_TYPE_GROUPS.flatMap((g) => g.items.map((i) => i.value))
-);
+
+// Older versions saved name, email and phone here. Delete any copy still in
+// a visitor's browser (logout also clears it in AuthContext).
+try {
+  localStorage.removeItem("contactFormDraft");
+} catch {
+  /* storage blocked: nothing to clear */
+}
 
 /* ─────────────────────────────────────────────
    FORM STEPS
@@ -100,7 +106,7 @@ const steps = [
 const validators = {
   text: (v) => v.trim().length >= 2,
   email: isValidEmail,
-  tel: (v) => /^[6-9]\d{9}$/.test(v.replace(/\D/g, "")),
+  tel: isValidIndianMobile,
 };
 
 const errorMessages = {
@@ -125,34 +131,6 @@ const selectedSx = (selected) =>
         color: "var(--color-primary)",
       }
     : undefined;
-
-/* ─────────────────────────────────────────────
-   DRAFT PERSISTENCE HELPERS
-───────────────────────────────────────────── */
-
-const DRAFT_KEY = "contactFormDraft";
-const DRAFT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
-
-// Reads and validates the saved draft once, at module load time / initial
-// render — used only for the lazy useState initializers below. Returns null
-// if there's nothing usable, so callers don't need their own try/catch.
-function readValidDraft() {
-  const raw = localStorage.getItem(DRAFT_KEY);
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw);
-    if (Date.now() - parsed.timestamp < DRAFT_MAX_AGE_MS) {
-      return parsed;
-    }
-    return null;
-  } catch (err) {
-    // Corrupted/incompatible draft data (e.g. from an older app version) —
-    // don't crash the form over it, just drop it and log for diagnostics.
-    console.error("Failed to parse saved contact form draft:", err);
-    return null;
-  }
-}
 
 /* ─────────────────────────────────────────────
    STYLED COMPONENTS
@@ -236,29 +214,12 @@ const SmartContactForm = ({ isInSheet = false }) => {
   const [isOpen, setIsOpen] = useState(isInSheet);
   const [prevIsInSheet, setPrevIsInSheet] = useState(isInSheet);
 
-  // Lazy initializers replace the old "load draft in a useEffect on mount"
-  // pattern. The draft is read once, synchronously, before first paint —
-  // no flash of empty state, no setState-in-effect lint violation, and no
-  // extra render pass.
-  const [formData, setFormData] = useState(() => {
-    const saved = { ...(readValidDraft()?.formData ?? {}) };
-    // A draft from before the type list changed may hold "Apartment" etc.; the
-    // backend would reject it, so drop it and let the step ask again.
-    if (!PROPERTY_TYPE_VALUES.has(saved.propertyType)) delete saved.propertyType;
-    return saved;
-  });
-  const [step, setStep] = useState(() => {
-    const draft = readValidDraft();
-    const saved = draft?.step ?? 0;
-    // If the saved type was dropped above, resume at the type step instead of
-    // a later one, so the user is asked for it again.
-    const typeStep = steps.findIndex((s) => s.key === "propertyType");
-    const typeLost = !PROPERTY_TYPE_VALUES.has(draft?.formData?.propertyType);
-    return typeLost && saved > typeStep ? typeStep : saved;
-  });
+  // Answers live in memory only. Name, email and phone are never written to
+  // localStorage; a reload starts the form again.
+  const [formData, setFormData] = useState({});
+  const [step, setStep] = useState(0);
 
-  // Consent is never restored from the draft: it has to be a fresh, explicit
-  // tick each time (docs/review SEC-07, DPDP).
+  // Consent has to be a fresh, explicit tick each time (docs/review SEC-07, DPDP).
   const [consent, setConsent] = useState(false);
   const [consentError, setConsentError] = useState(false);
   const [error, setError] = useState("");
@@ -283,23 +244,6 @@ const SmartContactForm = ({ isInSheet = false }) => {
       setIsOpen(true);
     }
   }
-
-  /* ─────────────────────────────────────────
-     DRAFT SAVE (this one is a legitimate effect — it's syncing React
-     state OUT to an external system, localStorage, which is exactly
-     what useEffect is for)
-  ───────────────────────────────────────── */
-
-  useEffect(() => {
-    if (Object.keys(formData).length > 0 && !isSubmitted) {
-      localStorage.setItem(
-        DRAFT_KEY,
-        JSON.stringify({ formData, step, timestamp: Date.now() })
-      );
-    }
-  }, [formData, step, isSubmitted]);
-
-  /* ───────────────────────────────────────── */
 
   useEffect(() => {
     if (inputRef.current && isOpen) {
@@ -352,7 +296,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
 
       const sanitized =
         currentStep.key === "customerPhone"
-          ? value.replace(/\D/g, "")
+          ? normalizeIndianMobile(value)
           : typeof value === "string"
           ? value.trim()
           : value;
@@ -376,7 +320,6 @@ const SmartContactForm = ({ isInSheet = false }) => {
       try {
         await submitToAPI(updated);
         setIsSubmitted(true);
-        localStorage.removeItem(DRAFT_KEY);
       } catch (err) {
         // The server's field message (e.g. "Invalid email format") beats a
         // generic failure; jump back to the step that owns the bad field.
@@ -411,7 +354,6 @@ const SmartContactForm = ({ isInSheet = false }) => {
     setConsent(false);
     setConsentError(false);
     setIsSubmitted(false);
-    localStorage.removeItem(DRAFT_KEY);
 
     if (!isInSheet) {
       setIsOpen(false);
@@ -733,7 +675,7 @@ const SmartContactForm = ({ isInSheet = false }) => {
                   >
                     <ShieldCheck size={16} color="var(--color-primary)" />
                     <Typography fontSize="11px" color="var(--color-ink-muted)">
-                      Your information is secure and never shared.
+                      We use your details only to respond to your enquiry.
                     </Typography>
                   </Box>
                 </Box>

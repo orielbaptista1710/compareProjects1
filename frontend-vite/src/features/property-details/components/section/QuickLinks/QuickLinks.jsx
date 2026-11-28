@@ -14,6 +14,8 @@ import {
 import API from "../../../../../api/api";
 import useHeartProperty from "../../../../../hooks/useHeartProperty";
 import { useEscapeKey } from "../../../../../hooks/useEscapeKey";
+import { isValidEmail } from "../../../../../utils/emailValidation";
+import { normalizeIndianMobile } from "../../../../../utils/phoneInput";
 
 import "./QuickLinks.css";
 
@@ -167,14 +169,9 @@ function QuickLinks({ property }) {
       return "Enter a valid 10-digit mobile number";
     }
 
-    if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
-    ) {
+    // Same rule and 254 cap as the backend, so what passes here is accepted there.
+    if (!isValidEmail(email)) {
       return "Enter a valid email address";
-    }
-
-    if (email.length > 254) {
-      return "Email address is too long";
     }
 
     if (!formData.customerContactConsent) {
@@ -226,9 +223,11 @@ function QuickLinks({ property }) {
         setStatus(null);
       }, 1500);
     } catch (error) {
+      // Log the status only: the Axios error object carries the request body
+      // (name, phone, email) and would put it in the console.
       console.error(
         "Quick Links enquiry submission failed:",
-        error
+        error?.response?.status ?? error?.message
       );
 
       setStatus({
@@ -355,9 +354,7 @@ function QuickLinks({ property }) {
                 placeholder="Your Phone"
                 value={formData.customerPhone}
                 onChange={(event) => {
-                  const value = event.target.value
-                    .replace(/\D/g, "")
-                    .slice(0, 10);
+                  const value = normalizeIndianMobile(event.target.value);
 
                   setFormData((previous) => ({
                     ...previous,
@@ -370,7 +367,7 @@ function QuickLinks({ property }) {
                 }}
                 inputMode="numeric"
                 pattern="[6-9][0-9]{9}"
-                maxLength={10}
+                maxLength={16}
                 autoComplete="tel-national"
                 disabled={loading}
                 required
