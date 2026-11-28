@@ -263,7 +263,6 @@ const DeveloperPopup = ({ isOpen, onClose }) => {
                         onChange={handleChange}
                         autoComplete="tel-national"
                         inputMode="numeric"
-                        maxLength={16}
                         required
                       />
                     </div>

@@ -367,7 +367,6 @@ function QuickLinks({ property }) {
                 }}
                 inputMode="numeric"
                 pattern="[6-9][0-9]{9}"
-                maxLength={16}
                 autoComplete="tel-national"
                 disabled={loading}
                 required

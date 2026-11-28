@@ -248,7 +248,6 @@ const ContactFormm = ({ property }) => {
                   placeholder="10-digit mobile number"
                   inputMode="numeric"
                   pattern="[6-9][0-9]{9}"
-                  maxLength={16}
                   disabled={isSubmitting}
                   autoComplete="tel-national"
                   onChange={(event) => {
