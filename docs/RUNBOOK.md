@@ -43,8 +43,11 @@ A rollback restores code only. It does **not** undo a database migration (sectio
 
 ## 3. Postgres migrations (Prisma, the CRM database)
 
+> **The CRM is now a separate repo (`compare-crm`) that owns the schema and migrations.** Create and apply migrations from there. In this repo never run `migrate dev`, `migrate reset` or `db push` (this repo knows fewer migrations than the shared DB, so Prisma would offer to wipe it). The notes below are the legacy single-repo procedure.
+
 - Migrations live in `backend/prisma/migrations/`. They are applied with `npx prisma migrate deploy`,
   which uses `DIRECT_URL` (the direct, non-pooled connection).
+- CI replays every migration on a throwaway Postgres and fails if `schema.prisma` differs from them, so a schema edit without a migration cannot merge.
 - **Never edit or delete a migration that is already merged.** Fix forward with a new migration.
 - Make schema changes in two steps so a code rollback stays safe: first add (new nullable column or
   table), deploy; later, once nothing uses the old shape, remove it.
